@@ -23,8 +23,8 @@ import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.area.WindowAreaComponent
 
 /**
- * Adapter object to assist in translating values received from [WindowAreaComponent]
- * to developer friendly values in [WindowAreaController]
+ * Adapter object to assist in translating values received from [WindowAreaComponent] to developer
+ * friendly values in [WindowAreaController]
  */
 @ExperimentalWindowApi
 internal object WindowAreaAdapter {

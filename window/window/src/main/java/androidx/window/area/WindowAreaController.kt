@@ -32,9 +32,8 @@ import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 
 /**
- * An interface to provide the information and behavior around moving windows between
- * displays or display areas on a device.
- *
+ * An interface to provide the information and behavior around moving windows between displays or
+ * display areas on a device.
  */
 @ExperimentalWindowApi
 interface WindowAreaController {
@@ -43,8 +42,8 @@ interface WindowAreaController {
      * [Flow] of the list of current [WindowAreaInfo]s that are currently available to be interacted
      * with.
      *
-     * If [WindowSdkExtensions.extensionVersion] is less than 2,  the flow will return
-     * empty [WindowAreaInfo] list flow.
+     * If [WindowSdkExtensions.extensionVersion] is less than 2, the flow will return empty
+     * [WindowAreaInfo] list flow.
      */
     val windowAreaInfos: Flow<List<WindowAreaInfo>>
 
@@ -57,10 +56,10 @@ interface WindowAreaController {
      *
      * Only the top visible application can request to start a transfer session.
      *
-     * The calling [Activity] will likely go through a configuration change since the window area
-     * it will be transferred to is usually different from the current area the [Activity] is in.
-     * The callback is retained during the lifetime of the session. If an [Activity] is captured in
-     * the callback and it does not handle the configuration change then it will be leaked. Consider
+     * The calling [Activity] will likely go through a configuration change since the window area it
+     * will be transferred to is usually different from the current area the [Activity] is in. The
+     * callback is retained during the lifetime of the session. If an [Activity] is captured in the
+     * callback and it does not handle the configuration change then it will be leaked. Consider
      * using an [androidx.lifecycle.ViewModel] since that is meant to outlive the [Activity]
      * lifecycle. If the [Activity] does override configuration changes, it is safe to have the
      * [Activity] handle the WindowAreaSessionCallback. This guarantees that the calling [Activity]
@@ -81,8 +80,7 @@ interface WindowAreaController {
      * @param activity Base Activity making the call to [transferActivityToWindowArea].
      * @param executor Executor used to provide updates to [windowAreaSessionCallback].
      * @param windowAreaSessionCallback to be notified when the rear display session is started and
-     * ended.
-     *
+     *   ended.
      * @see windowAreaInfos
      */
     fun transferActivityToWindowArea(
@@ -105,8 +103,8 @@ interface WindowAreaController {
      *
      * The presentation session will stay active until the presentation provided through
      * [WindowAreaPresentationSessionCallback.onSessionStarted] is closed. The [WindowAreaInfo.Type]
-     * may provide different triggers to close the session such as if the calling application
-     * is no longer in the foreground, or there is a device state change that makes the window area
+     * may provide different triggers to close the session such as if the calling application is no
+     * longer in the foreground, or there is a device state change that makes the window area
      * unavailable to be presented on. One example scenario is if a [TYPE_REAR_FACING] window area
      * is being presented to on a foldable device that is open and has 2 screens. If the device is
      * closed and the internal display is turned off, the session would be ended and
@@ -118,7 +116,7 @@ interface WindowAreaController {
      * @param activity An [Activity] that will present content on the Rear Display.
      * @param executor Executor used to provide updates to [windowAreaPresentationSessionCallback].
      * @param windowAreaPresentationSessionCallback to be notified of updates to the lifecycle of
-     * the currently enabled rear display presentation.
+     *   the currently enabled rear display presentation.
      * @see windowAreaInfos
      */
     fun presentContentOnWindowArea(
@@ -134,28 +132,26 @@ interface WindowAreaController {
 
         private var decorator: WindowAreaControllerDecorator = EmptyDecorator
 
-        /**
-         * Provides an instance of [WindowAreaController].
-         */
+        /** Provides an instance of [WindowAreaController]. */
         @JvmName("getOrCreate")
         @JvmStatic
         fun getOrCreate(): WindowAreaController {
-            val windowAreaComponentExtensions = try {
-                this::class.java.classLoader?.let {
-                    SafeWindowAreaComponentProvider(it).windowAreaComponent
+            val windowAreaComponentExtensions =
+                try {
+                    this::class.java.classLoader?.let {
+                        SafeWindowAreaComponentProvider(it).windowAreaComponent
+                    }
+                } catch (t: Throwable) {
+                    if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                        Log.d(TAG, "Failed to load WindowExtensions")
+                    }
+                    null
                 }
-            } catch (t: Throwable) {
-                if (BuildConfig.verificationMode == VerificationMode.LOG) {
-                    Log.d(TAG, "Failed to load WindowExtensions")
-                }
-                null
-            }
-            val deviceSupported = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q &&
-                windowAreaComponentExtensions != null &&
-                (ExtensionsUtil.safeVendorApiLevel >= 3 || DeviceUtils.hasDeviceMetrics(
-                    Build.MANUFACTURER,
-                    Build.MODEL
-                ))
+            val deviceSupported =
+                Build.VERSION.SDK_INT > Build.VERSION_CODES.Q &&
+                    windowAreaComponentExtensions != null &&
+                    (ExtensionsUtil.safeVendorApiLevel >= 3 ||
+                        DeviceUtils.hasDeviceMetrics(Build.MANUFACTURER, Build.MODEL))
 
             val controller =
                 if (deviceSupported) {
@@ -183,16 +179,11 @@ interface WindowAreaController {
     }
 }
 
-/**
- * Decorator that allows us to provide different functionality
- * in our window-testing artifact.
- */
+/** Decorator that allows us to provide different functionality in our window-testing artifact. */
 @ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WindowAreaControllerDecorator {
-    /**
-     * Returns an instance of [WindowAreaController] associated to the [Activity]
-     */
+    /** Returns an instance of [WindowAreaController] associated to the [Activity] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun decorate(controller: WindowAreaController): WindowAreaController
 }

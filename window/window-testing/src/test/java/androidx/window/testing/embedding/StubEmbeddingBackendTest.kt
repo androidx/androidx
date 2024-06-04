@@ -24,9 +24,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.mockito.kotlin.mock
 
-/**
- * A class to verify logic within [StubEmbeddingBackend].
- */
+/** A class to verify logic within [StubEmbeddingBackend]. */
 internal class StubEmbeddingBackendTest {
 
     private val backend = StubEmbeddingBackend()

@@ -83,24 +83,25 @@ class InvalidSetHasFixedSizeDetector : Detector(), XmlScanner, SourceCodeScanner
                 if (sourceElement != null) {
                     val elementTree = sourceElement.parentsWithSelf
                     var reported = false
-                    val visitor = object : AbstractUastVisitor() {
-                        override fun visitCallExpression(node: UCallExpression): Boolean {
-                            if (node.methodName == "findViewById") {
-                                val id = node.valueArguments.first()
-                                val resource =
-                                    ResourceEvaluator.getResource(context.evaluator, id)
-                                if (resource?.name in recyclerViewIds) {
-                                    reported = true
-                                    context.report(
-                                        issue = ISSUE,
-                                        location = location,
-                                        message = DESCRIPTION
-                                    )
+                    val visitor =
+                        object : AbstractUastVisitor() {
+                            override fun visitCallExpression(node: UCallExpression): Boolean {
+                                if (node.methodName == "findViewById") {
+                                    val id = node.valueArguments.first()
+                                    val resource =
+                                        ResourceEvaluator.getResource(context.evaluator, id)
+                                    if (resource?.name in recyclerViewIds) {
+                                        reported = true
+                                        context.report(
+                                            issue = ISSUE,
+                                            location = location,
+                                            message = DESCRIPTION
+                                        )
+                                    }
                                 }
+                                return true
                             }
-                            return true
                         }
-                    }
                     for (element in elementTree) {
                         // Walk up the tree on the receivers source psi. That should have the
                         // definition of findViewById(...) we are looking for.
@@ -117,25 +118,30 @@ class InvalidSetHasFixedSizeDetector : Detector(), XmlScanner, SourceCodeScanner
         private const val VIEW = "android.view.View"
         private const val RECYCLER_VIEW = "androidx.recyclerview.widget.RecyclerView"
 
-        val DESCRIPTION = """
+        val DESCRIPTION =
+            """
             When using `setHasFixedSize() in an `RecyclerView`, `wrap_content` cannot be used as \
             a value for `size` in the scrolling direction.
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val ISSUE = Issue.create(
-            id = "InvalidSetHasFixedSize",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "InvalidSetHasFixedSize",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 When a RecyclerView uses `setHasFixedSize(...)` you cannot use `wrap_content` for \
                  size in the scrolling direction.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                InvalidSetHasFixedSizeDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.ALL_RESOURCE_FILES)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        InvalidSetHasFixedSizeDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.ALL_RESOURCE_FILES)
+                    )
             )
-        )
     }
 }

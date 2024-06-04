@@ -28,40 +28,40 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * [GetCredentialRequest] will be composed of a list of [CredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
  *
- * The [typePriorityHint] value helps decide where the credential will be displayed on the
- * selector. It is used with more importance than signals like 'last recently used' but with less
- * importance than other signals, such as the ordering of displayed accounts.
- * It is expected to be one of the defined [PriorityHints] constants. By default,
- * [GetCustomCredentialOption] will have [PRIORITY_DEFAULT], [GetPasswordOption] will
- * have [PRIORITY_PASSWORD_OR_SIMILAR] and [GetPublicKeyCredentialOption] will have
- * [PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that [GetCustomCredentialOption]
- * types will remain unchanged unless strong reasons arise and cannot ever have
- * [PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security threats that
- * other credentials do not, we enforce that nothing is shown higher than
- * passkey types in order to provide end users with the safest credentials first. See the spec
+ * The [typePriorityHint] value helps decide where the credential will be displayed on the selector.
+ * It is used with more importance than signals like 'last recently used' but with less importance
+ * than other signals, such as the ordering of displayed accounts. It is expected to be one of the
+ * defined [PriorityHints] constants. By default, [GetCustomCredentialOption] will have
+ * [PRIORITY_DEFAULT], [GetPasswordOption] will have [PRIORITY_PASSWORD_OR_SIMILAR] and
+ * [GetPublicKeyCredentialOption] will have [PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that
+ * [GetCustomCredentialOption] types will remain unchanged unless strong reasons arise and cannot
+ * ever have [PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security threats that other
+ * credentials do not, we enforce that nothing is shown higher than passkey types in order to
+ * provide end users with the safest credentials first. See the spec
  * [here](https://w3c.github.io/webauthn/) for more information on passkeys.
  *
- * @property type the credential type determined by the credential-type-specific subclass (e.g.
- * the type for [GetPasswordOption] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
- * [GetPublicKeyCredentialOption] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
+ * @property type the credential type determined by the credential-type-specific subclass (e.g. the
+ *   type for [GetPasswordOption] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
+ *   [GetPublicKeyCredentialOption] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
  * @property requestData the request data in the [Bundle] format
  * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
- * the provider during the initial candidate query stage, which will not contain sensitive user
- * information
+ *   the provider during the initial candidate query stage, which will not contain sensitive user
+ *   information
  * @property isSystemProviderRequired true if must only be fulfilled by a system provider and false
- * otherwise
+ *   otherwise
  * @property isAutoSelectAllowed whether a credential entry will be automatically chosen if it is
- * the only one available option
+ *   the only one available option
  * @property allowedProviders a set of provider service [ComponentName] allowed to receive this
- * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
- * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
- * this property will not take effect and you should control the allowed provider via
- * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
- * @property typePriorityHint sets the priority of this entry, which defines how it appears in
- * the credential selector, with less precedence than account ordering but more precedence than last
- * used time; see [PriorityHints] for more information
+ *   option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
+ *   not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34, this
+ *   property will not take effect and you should control the allowed provider via
+ *   [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
+ * @property typePriorityHint sets the priority of this entry, which defines how it appears in the
+ *   credential selector, with less precedence than account ordering but more precedence than last
+ *   used time; see [PriorityHints] for more information
  */
-abstract class CredentialOption internal constructor(
+abstract class CredentialOption
+internal constructor(
     val type: String,
     val requestData: Bundle,
     val candidateQueryData: Bundle,
@@ -74,8 +74,7 @@ abstract class CredentialOption internal constructor(
     init {
         requestData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
         candidateQueryData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
-        requestData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-            typePriorityHint);
+        requestData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, typePriorityHint)
         candidateQueryData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, typePriorityHint)
     }
 
@@ -83,12 +82,15 @@ abstract class CredentialOption internal constructor(
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef(value = [
-        PRIORITY_PASSKEY_OR_SIMILAR,
-        PRIORITY_OIDC_OR_SIMILAR,
-        PRIORITY_PASSWORD_OR_SIMILAR,
-        PRIORITY_DEFAULT
-    ])
+    @IntDef(
+        value =
+            [
+                PRIORITY_PASSKEY_OR_SIMILAR,
+                PRIORITY_OIDC_OR_SIMILAR,
+                PRIORITY_PASSWORD_OR_SIMILAR,
+                PRIORITY_DEFAULT
+            ]
+    )
     annotation class PriorityHints
 
     companion object {
@@ -124,13 +126,19 @@ abstract class CredentialOption internal constructor(
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
                         GetPasswordOption.createFrom(
-                            requestData, allowedProviders, candidateQueryData)
+                            requestData,
+                            allowedProviders,
+                            candidateQueryData
+                        )
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (requestData.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
                             GetPublicKeyCredentialOption
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
                                 GetPublicKeyCredentialOption.createFrom(
-                                    requestData, allowedProviders, candidateQueryData)
+                                    requestData,
+                                    allowedProviders,
+                                    candidateQueryData
+                                )
                             else -> throw FrameworkClassParsingException()
                         }
                     else -> throw FrameworkClassParsingException()
@@ -143,13 +151,11 @@ abstract class CredentialOption internal constructor(
                     type,
                     candidateQueryData = candidateQueryData,
                     isSystemProviderRequired = requireSystemProvider,
-                    isAutoSelectAllowed = requestData.getBoolean(
-                        BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
+                    isAutoSelectAllowed =
+                        requestData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                     allowedProviders = allowedProviders,
-                    typePriorityHint = requestData.getInt(
-                        BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                        PRIORITY_DEFAULT
-                    ),
+                    typePriorityHint =
+                        requestData.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, PRIORITY_DEFAULT),
                 )
             }
         }

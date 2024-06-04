@@ -64,9 +64,8 @@ class ExtensionWindowBackendTest {
     public val activityScenario: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
-    private val consumerAdapter = ConsumerAdapter(
-        ExtensionWindowBackendTest::class.java.classLoader!!
-    )
+    private val consumerAdapter =
+        ConsumerAdapter(ExtensionWindowBackendTest::class.java.classLoader!!)
 
     @Before
     fun setUp() {
@@ -111,8 +110,8 @@ class ExtensionWindowBackendTest {
 
     /**
      * After {@link WindowExtensions#VENDOR_API_LEVEL_2} registerLayoutChangeCallback calls
-     * addWindowLayoutInfoListener(context) instead.
-     * {@link testExtensionWindowBackend_registerAtMostOnceWithContext} verifies the same behavior.
+     * addWindowLayoutInfoListener(context) instead. {@link
+     * testExtensionWindowBackend_registerAtMostOnceWithContext} verifies the same behavior.
      */
     @Suppress("Deprecation")
     @Test
@@ -150,19 +149,18 @@ class ExtensionWindowBackendTest {
 
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, windowContextConsumer)
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, mock())
-        verify(component).addWindowLayoutInfoListener(
-            eq(windowContext),
-            consumerCaptor.capture(),
-        )
+        verify(component)
+            .addWindowLayoutInfoListener(
+                eq(windowContext),
+                consumerCaptor.capture(),
+            )
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
             backend.registerLayoutChangeCallback(activity, Runnable::run, mock())
-            verify(component).addWindowLayoutInfoListener(
-                eq(activity as Context),
-                consumerCaptor.capture()
-            )
+            verify(component)
+                .addWindowLayoutInfoListener(eq(activity as Context), consumerCaptor.capture())
         }
     }
 
@@ -173,13 +171,16 @@ class ExtensionWindowBackendTest {
         assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
         val component = mock<WindowLayoutComponent>()
-        whenever(component.addWindowLayoutInfoListener(
-            any(),
-            any<JavaConsumer<OEMWindowLayoutInfo>>())
-        ).thenAnswer { invocation ->
-            val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
-            consumer.accept(OEMWindowLayoutInfo(emptyList()))
-        }
+        whenever(
+                component.addWindowLayoutInfoListener(
+                    any(),
+                    any<JavaConsumer<OEMWindowLayoutInfo>>()
+                )
+            )
+            .thenAnswer { invocation ->
+                val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
+                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+            }
         val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
@@ -205,12 +206,7 @@ class ExtensionWindowBackendTest {
         val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, windowContextConsumer)
         component.emit(windowLayoutInfoFromContext)
-        windowContextConsumer.assertValue(
-                translate(
-                    windowContext,
-                    windowLayoutInfoFromContext
-                )
-        )
+        windowContextConsumer.assertValue(translate(windowContext, windowLayoutInfoFromContext))
 
         val consumer = TestConsumer<WindowLayoutInfo>()
         activityScenario.scenario.onActivity { activity ->
@@ -228,13 +224,16 @@ class ExtensionWindowBackendTest {
         assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
         val component = mock<WindowLayoutComponent>()
-        whenever(component.addWindowLayoutInfoListener(
-            any(),
-            any<JavaConsumer<OEMWindowLayoutInfo>>())
-        ).thenAnswer { invocation ->
-            val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
-            consumer.accept(OEMWindowLayoutInfo(emptyList()))
-        }
+        whenever(
+                component.addWindowLayoutInfoListener(
+                    any(),
+                    any<JavaConsumer<OEMWindowLayoutInfo>>()
+                )
+            )
+            .thenAnswer { invocation ->
+                val consumer = invocation.getArgument(1) as JavaConsumer<OEMWindowLayoutInfo>
+                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+            }
         val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
@@ -254,20 +253,26 @@ class ExtensionWindowBackendTest {
         assumeAtLeastVendorApiLevel(2)
 
         val component = mock<WindowLayoutComponent>()
-        whenever(component.addWindowLayoutInfoListener(
-            any(),
-            any<OEMConsumer<OEMWindowLayoutInfo>>())
-        ).thenAnswer { invocation ->
-            val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
-            consumer.accept(OEMWindowLayoutInfo(emptyList()))
-        }
-        whenever(component.addWindowLayoutInfoListener(
-            any(),
-            any<OEMConsumer<OEMWindowLayoutInfo>>())
-        ).thenAnswer { invocation ->
-            val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
-            consumer.accept(OEMWindowLayoutInfo(emptyList()))
-        }
+        whenever(
+                component.addWindowLayoutInfoListener(
+                    any(),
+                    any<OEMConsumer<OEMWindowLayoutInfo>>()
+                )
+            )
+            .thenAnswer { invocation ->
+                val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
+                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+            }
+        whenever(
+                component.addWindowLayoutInfoListener(
+                    any(),
+                    any<OEMConsumer<OEMWindowLayoutInfo>>()
+                )
+            )
+            .thenAnswer { invocation ->
+                val consumer = invocation.getArgument(1) as OEMConsumer<OEMWindowLayoutInfo>
+                consumer.accept(OEMWindowLayoutInfo(emptyList()))
+            }
         val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
 
         activityScenario.scenario.onActivity { activity ->
@@ -330,10 +335,9 @@ class ExtensionWindowBackendTest {
 
     /**
      * Verifies context and consumer registration can be registered with using either
-     * addWindowLayoutInfoListener(context) or addWindowLayoutInfoListener(activity),
-     * but all registration are cleaned up by  removeWindowLayoutInfoListener().
-     * Note: addWindowLayoutInfoListener(context) is added in
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}.
+     * addWindowLayoutInfoListener(context) or addWindowLayoutInfoListener(activity), but all
+     * registration are cleaned up by removeWindowLayoutInfoListener(). Note:
+     * addWindowLayoutInfoListener(context) is added in {@link WindowExtensions#VENDOR_API_LEVEL_2}.
      */
     @Test
     fun testExtensionWindowBackend_removeMatchingCallbackWithContext() {
@@ -361,21 +365,13 @@ class ExtensionWindowBackendTest {
             backend.unregisterLayoutChangeCallback(windowContextConsumer)
 
             val consumerCaptor = argumentCaptor<OEMConsumer<OEMWindowLayoutInfo>>()
-            verify(component).addWindowLayoutInfoListener(
-                eq(activity as Context),
-                consumerCaptor.capture()
-            )
-            verify(component).removeWindowLayoutInfoListener(
-                consumerCaptor.firstValue
-            )
+            verify(component)
+                .addWindowLayoutInfoListener(eq(activity as Context), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
 
-            verify(component).addWindowLayoutInfoListener(
-                eq(windowContext),
-                consumerCaptor.capture()
-            )
-            verify(component).removeWindowLayoutInfoListener(
-                consumerCaptor.lastValue
-            )
+            verify(component)
+                .addWindowLayoutInfoListener(eq(windowContext), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.lastValue)
         }
     }
 
@@ -415,21 +411,13 @@ class ExtensionWindowBackendTest {
             backend.unregisterLayoutChangeCallback(windowContextConsumer2)
 
             val consumerCaptor = argumentCaptor<OEMConsumer<OEMWindowLayoutInfo>>()
-            verify(component).addWindowLayoutInfoListener(
-                eq(activity as Context),
-                consumerCaptor.capture()
-            )
-            verify(component).removeWindowLayoutInfoListener(
-                consumerCaptor.firstValue
-            )
+            verify(component)
+                .addWindowLayoutInfoListener(eq(activity as Context), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
 
-            verify(component).addWindowLayoutInfoListener(
-                eq(windowContext),
-                consumerCaptor.capture()
-            )
-            verify(component).removeWindowLayoutInfoListener(
-                consumerCaptor.lastValue
-            )
+            verify(component)
+                .addWindowLayoutInfoListener(eq(windowContext), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.lastValue)
             assertFalse(backend.hasRegisteredListeners())
         }
     }
@@ -449,18 +437,15 @@ class ExtensionWindowBackendTest {
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
 
             val consumerCaptor = argumentCaptor<JavaConsumer<OEMWindowLayoutInfo>>()
-            verify(component, times(2)).addWindowLayoutInfoListener(
-                eq(activity),
-                consumerCaptor.capture()
-            )
+            verify(component, times(2))
+                .addWindowLayoutInfoListener(eq(activity), consumerCaptor.capture())
             verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
         }
     }
 
     /**
-     * Verifies that a [WindowLayoutInfo] is published to the consumer upon each registration.
-     * Note: addWindowLayoutInfoListener(context) is added in
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * Verifies that a [WindowLayoutInfo] is published to the consumer upon each registration. Note:
+     * addWindowLayoutInfoListener(context) is added in {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @Test
     fun testExtensionWindowBackend_reRegisterCallbackWithContext() {
@@ -481,13 +466,9 @@ class ExtensionWindowBackendTest {
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, windowContextConsumer)
 
         val consumerCaptor = argumentCaptor<OEMConsumer<OEMWindowLayoutInfo>>()
-        verify(component, times(2)).addWindowLayoutInfoListener(
-            eq(windowContext),
-            consumerCaptor.capture()
-        )
-        verify(component).removeWindowLayoutInfoListener(
-            consumerCaptor.firstValue
-        )
+        verify(component, times(2))
+            .addWindowLayoutInfoListener(eq(windowContext), consumerCaptor.capture())
+        verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
 
         activityScenario.scenario.onActivity { activity ->
             val consumer = TestConsumer<WindowLayoutInfo>()
@@ -496,13 +477,8 @@ class ExtensionWindowBackendTest {
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
 
             verify(component, times(2))
-                .addWindowLayoutInfoListener(
-                    eq(activity as Context),
-                    consumerCaptor.capture()
-                )
-            verify(component).removeWindowLayoutInfoListener(
-                consumerCaptor.firstValue
-            )
+                .addWindowLayoutInfoListener(eq(activity as Context), consumerCaptor.capture())
+            verify(component).removeWindowLayoutInfoListener(consumerCaptor.firstValue)
         }
     }
 
@@ -538,9 +514,8 @@ class ExtensionWindowBackendTest {
 
     /**
      * Verifies that both [Activity] and [UiContext] can be independently registered as listeners to
-     * [WindowLayoutInfo].
-     * Note: addWindowLayoutInfoListener(context) is added in
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}
+     * [WindowLayoutInfo]. Note: addWindowLayoutInfoListener(context) is added in {@link
+     * WindowExtensions#VENDOR_API_LEVEL_2}
      */
     @Test
     public fun testRegisterLayoutChangeCallback_clearListenersWithContext() {
@@ -608,9 +583,7 @@ class ExtensionWindowBackendTest {
         // Check that callbacks from the extension are propagated for WindowContext.
         val consumer = mock<Consumer<WindowLayoutInfo>>()
         val windowContext = WindowTestUtils.createOverlayWindowContext()
-        backend.registerLayoutChangeCallback(
-            windowContext, Runnable::run, consumer
-        )
+        backend.registerLayoutChangeCallback(windowContext, Runnable::run, consumer)
         val windowLayoutInfo = newTestOEMWindowLayoutInfo(windowContext)
 
         component.emit(windowLayoutInfo)
@@ -626,10 +599,11 @@ class ExtensionWindowBackendTest {
             val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
             val consumer = TestConsumer<WindowLayoutInfo>()
             val oemWindowLayoutInfo = newTestOEMWindowLayoutInfo(activity)
-            val expected = listOf(
-                translate(activity, oemWindowLayoutInfo),
-                translate(activity, oemWindowLayoutInfo)
-            )
+            val expected =
+                listOf(
+                    translate(activity, oemWindowLayoutInfo),
+                    translate(activity, oemWindowLayoutInfo)
+                )
 
             backend.registerLayoutChangeCallback(activity, Runnable::run, consumer)
             component.emit(newTestOEMWindowLayoutInfo(activity))
@@ -655,10 +629,11 @@ class ExtensionWindowBackendTest {
 
         val oemWindowLayoutInfo = newTestOEMWindowLayoutInfo(windowContext)
 
-        val expected = listOf(
-            translate(windowContext, oemWindowLayoutInfo),
-            translate(windowContext, oemWindowLayoutInfo)
-        )
+        val expected =
+            listOf(
+                translate(windowContext, oemWindowLayoutInfo),
+                translate(windowContext, oemWindowLayoutInfo)
+            )
 
         backend.registerLayoutChangeCallback(windowContext, Runnable::run, consumer)
         component.emit(newTestOEMWindowLayoutInfo(windowContext))
@@ -712,8 +687,7 @@ class ExtensionWindowBackendTest {
             records.add(AddCall(context))
         }
 
-        override fun removeWindowLayoutInfoListener(consumer: JavaConsumer<OEMWindowLayoutInfo>) {
-        }
+        override fun removeWindowLayoutInfoListener(consumer: JavaConsumer<OEMWindowLayoutInfo>) {}
 
         class AddCall(val context: Context)
 
@@ -745,9 +719,7 @@ class ExtensionWindowBackendTest {
             consumers.remove(consumer)
         }
 
-        override fun removeWindowLayoutInfoListener(
-            consumer: OEMConsumer<OEMWindowLayoutInfo>
-        ) {
+        override fun removeWindowLayoutInfoListener(consumer: OEMConsumer<OEMWindowLayoutInfo>) {
             oemConsumers.remove(consumer)
         }
 

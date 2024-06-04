@@ -23,9 +23,7 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import java.util.concurrent.Executor
 
-class FakeProvider(
-    private val success: Boolean
-) : CredentialProvider {
+class FakeProvider(private val success: Boolean) : CredentialProvider {
     override fun onGetCredential(
         context: Context,
         request: GetCredentialRequest,

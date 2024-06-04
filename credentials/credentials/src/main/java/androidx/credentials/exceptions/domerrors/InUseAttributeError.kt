@@ -18,13 +18,12 @@ package androidx.credentials.exceptions.domerrors
 
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
- * exception contains an inuse_attribute_err from the fido spec, indicating that an attribute
- * is in used by another element. The fido spec can be found
+ * exception contains an inuse_attribute_err from the fido spec, indicating that an attribute is in
+ * used by another element. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class InUseAttributeError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR) {
+class InUseAttributeError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_IN_USE_ATTRIBUTE_ERROR: String =
             "androidx.credentials.TYPE_IN_USE_ATTRIBUTE_ERROR"

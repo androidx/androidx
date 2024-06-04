@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("deprecation")
+
 package androidx.credentials.playservices.controllers.BeginSignIn
 
 import android.content.Context
@@ -29,9 +30,7 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdToken
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
-/**
- * A utility class to handle logic for the begin sign in controller.
- */
+/** A utility class to handle logic for the begin sign in controller. */
 internal class BeginSignInControllerUtility {
 
     companion object {
@@ -40,8 +39,10 @@ internal class BeginSignInControllerUtility {
         private const val AUTH_MIN_VERSION_JSON_PARSING: Long = 231815000
         private const val AUTH_MIN_VERSION_PREFER_IMME_CRED: Long = 241217000
 
-        internal fun constructBeginSignInRequest(request: GetCredentialRequest, context: Context):
-            BeginSignInRequest {
+        internal fun constructBeginSignInRequest(
+            request: GetCredentialRequest,
+            context: Context
+        ): BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
             var autoSelect = false
@@ -74,17 +75,16 @@ internal class BeginSignInControllerUtility {
             }
             if (curAuthVersion > AUTH_MIN_VERSION_PREFER_IMME_CRED) {
                 requestBuilder.setPreferImmediatelyAvailableCredentials(
-                    request.preferImmediatelyAvailableCredentials)
+                    request.preferImmediatelyAvailableCredentials
+                )
             }
-            return requestBuilder
-                .setAutoSelectEnabled(autoSelect)
-                .build()
+            return requestBuilder.setAutoSelectEnabled(autoSelect).build()
         }
 
         /**
          * Recovers the current GMS version code *running on the device*. This is needed because
-         * even if a dependency knows the methods and functions of a newer code, the device may
-         * only contain the older module, which can cause exceptions due to the discrepancy.
+         * even if a dependency knows the methods and functions of a newer code, the device may only
+         * contain the older module, which can cause exceptions due to the discrepancy.
          */
         private fun determineDeviceGMSVersionCode(context: Context): Long {
             val packageManager: PackageManager = context.packageManager
@@ -93,9 +93,9 @@ internal class BeginSignInControllerUtility {
         }
 
         /**
-         * Determines if curAuthVersion needs the backwards compatible GIS json parsing flow or
-         * not. If curAuthVersion >= minVersion for the new flow, this returns false.
-         * Otherwise, it's < than the minVersion for the new flow, so this is true.
+         * Determines if curAuthVersion needs the backwards compatible GIS json parsing flow or not.
+         * If curAuthVersion >= minVersion for the new flow, this returns false. Otherwise, it's <
+         * than the minVersion for the new flow, so this is true.
          */
         private fun needsBackwardsCompatibleRequest(curAuthVersion: Long): Boolean {
             if (curAuthVersion >= AUTH_MIN_VERSION_JSON_PARSING) {
@@ -104,8 +104,9 @@ internal class BeginSignInControllerUtility {
             return true
         }
 
-        private fun convertToGoogleIdTokenOption(option: GetGoogleIdOption):
-            GoogleIdTokenRequestOptions {
+        private fun convertToGoogleIdTokenOption(
+            option: GetGoogleIdOption
+        ): GoogleIdTokenRequestOptions {
             var idTokenOption =
                 GoogleIdTokenRequestOptions.builder()
                     .setFilterByAuthorizedAccounts(option.filterByAuthorizedAccounts)

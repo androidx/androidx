@@ -37,41 +37,31 @@ internal class BeginCreateCredentialUtil {
         @JvmStatic
         internal fun convertToJetpackRequest(
             request: android.service.credentials.BeginCreateCredentialRequest
-        ):
-            BeginCreateCredentialRequest {
+        ): BeginCreateCredentialRequest {
             return try {
                 when (request.type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
                         BeginCreatePasswordCredentialRequest.createFrom(
-                            request.data, request.callingAppInfo?.let {
-                                CallingAppInfo(
-                                    it.packageName,
-                                    it.signingInfo, it.origin
-                                )
+                            request.data,
+                            request.callingAppInfo?.let {
+                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
-
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(
-                                    it.packageName,
-                                    it.signingInfo, it.origin
-                                )
+                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
-
                     else -> {
                         BeginCreateCustomCredentialRequest(
-                            request.type, request.data,
+                            request.type,
+                            request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(
-                                    it.packageName,
-                                    it.signingInfo, it.origin
-                                )
+                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
@@ -81,10 +71,7 @@ internal class BeginCreateCredentialUtil {
                     request.type,
                     request.data,
                     request.callingAppInfo?.let {
-                        CallingAppInfo(
-                            it.packageName,
-                            it.signingInfo, it.origin
-                        )
+                        CallingAppInfo(it.packageName, it.signingInfo, it.origin)
                     }
                 )
             }
@@ -93,8 +80,8 @@ internal class BeginCreateCredentialUtil {
         fun convertToFrameworkResponse(
             response: BeginCreateCredentialResponse
         ): android.service.credentials.BeginCreateCredentialResponse {
-            val frameworkBuilder = android.service.credentials.BeginCreateCredentialResponse
-                .Builder()
+            val frameworkBuilder =
+                android.service.credentials.BeginCreateCredentialResponse.Builder()
             populateCreateEntries(frameworkBuilder, response.createEntries)
             populateRemoteEntry(frameworkBuilder, response.remoteEntry)
             return frameworkBuilder.build()
@@ -110,9 +97,7 @@ internal class BeginCreateCredentialUtil {
                 return
             }
             frameworkBuilder.setRemoteCreateEntry(
-                android.service.credentials.RemoteEntry(
-                    RemoteEntry.toSlice(remoteEntry)
-                )
+                android.service.credentials.RemoteEntry(RemoteEntry.toSlice(remoteEntry))
             )
         }
 
@@ -124,26 +109,28 @@ internal class BeginCreateCredentialUtil {
                 val entrySlice = CreateEntry.toSlice(it)
                 if (entrySlice != null) {
                     frameworkBuilder.addCreateEntry(
-                        android.service.credentials.CreateEntry(
-                            entrySlice
-                        )
+                        android.service.credentials.CreateEntry(entrySlice)
                     )
                 }
             }
         }
 
-        fun convertToFrameworkRequest(request: BeginCreateCredentialRequest):
-            android.service.credentials.BeginCreateCredentialRequest {
+        fun convertToFrameworkRequest(
+            request: BeginCreateCredentialRequest
+        ): android.service.credentials.BeginCreateCredentialRequest {
             var callingAppInfo: android.service.credentials.CallingAppInfo? = null
             if (request.callingAppInfo != null) {
-                callingAppInfo = android.service.credentials.CallingAppInfo(
-                    request.callingAppInfo.packageName,
-                    request.callingAppInfo.signingInfo,
-                    request.callingAppInfo.origin
-                )
+                callingAppInfo =
+                    android.service.credentials.CallingAppInfo(
+                        request.callingAppInfo.packageName,
+                        request.callingAppInfo.signingInfo,
+                        request.callingAppInfo.origin
+                    )
             }
             return android.service.credentials.BeginCreateCredentialRequest(
-                request.type, request.candidateQueryData, callingAppInfo
+                request.type,
+                request.candidateQueryData,
+                callingAppInfo
             )
         }
 
@@ -151,13 +138,15 @@ internal class BeginCreateCredentialUtil {
             frameworkResponse: android.service.credentials.BeginCreateCredentialResponse
         ): BeginCreateCredentialResponse {
             return BeginCreateCredentialResponse(
-                createEntries = frameworkResponse.createEntries.stream()
-                    .map { entry -> CreateEntry.fromSlice(entry.slice) }
-                    .filter { entry -> entry != null }
-                    .map { entry -> entry!! }
-                    .collect(Collectors.toList()),
+                createEntries =
+                    frameworkResponse.createEntries
+                        .stream()
+                        .map { entry -> CreateEntry.fromSlice(entry.slice) }
+                        .filter { entry -> entry != null }
+                        .map { entry -> entry!! }
+                        .collect(Collectors.toList()),
                 remoteEntry =
-                frameworkResponse.remoteCreateEntry?.let { RemoteEntry.fromSlice(it.slice) }
+                    frameworkResponse.remoteCreateEntry?.let { RemoteEntry.fromSlice(it.slice) }
             )
         }
     }

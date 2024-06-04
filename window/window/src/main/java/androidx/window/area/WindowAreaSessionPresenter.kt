@@ -25,13 +25,12 @@ import androidx.window.core.ExperimentalWindowApi
  * provided from [WindowAreaPresentationSessionCallback] when a requested session becomes active.
  * The presentation can be automatically dismissed by the system when the user leaves the primary
  * application window, or can be closed by calling [WindowAreaSessionPresenter.close].
+ *
  * @see WindowAreaController.presentContentOnWindowArea
  */
 @ExperimentalWindowApi
 interface WindowAreaSessionPresenter : WindowAreaSession {
-    /**
-     * Returns the [Context] associated with the window area.
-     */
+    /** Returns the [Context] associated with the window area. */
     val context: Context
 
     /**

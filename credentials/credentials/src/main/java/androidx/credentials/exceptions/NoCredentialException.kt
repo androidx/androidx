@@ -20,14 +20,13 @@ package androidx.credentials.exceptions
  * During the get credential flow, this is returned when no viable credential is available for the
  * the user. This can be caused by various scenarios such as that the user doesn't have any
  * credential or the user doesn't grant consent to using any available credential. Upon this
- * exception, your app should navigate to use the regular app sign-up or sign-in screen.
- * When that succeeds, you should invoke [androidx.credentials.CredentialManager.createCredential]
- * (kotlin) or [androidx.credentials.CredentialManager.createCredentialAsync] (java) to store the
- * login info, so that your user can sign in more easily through Credential Manager the next time.
+ * exception, your app should navigate to use the regular app sign-up or sign-in screen. When that
+ * succeeds, you should invoke [androidx.credentials.CredentialManager.createCredential] (kotlin) or
+ * [androidx.credentials.CredentialManager.createCredentialAsync] (java) to store the login info, so
+ * that your user can sign in more easily through Credential Manager the next time.
  */
-class NoCredentialException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_FRAMEWORK_TYPE_NO_CREDENTIAL, errorMessage) {
+class NoCredentialException @JvmOverloads constructor(errorMessage: CharSequence? = null) :
+    GetCredentialException(TYPE_FRAMEWORK_TYPE_NO_CREDENTIAL, errorMessage) {
 
     internal companion object {
         /** Maintain a copy of the framework type so that we aren't restricted by the API level. */

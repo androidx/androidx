@@ -43,9 +43,9 @@ internal abstract class SpecificationComputer<T : Any> {
      * result. If the condition is met then the [SpecificationComputer] that is returned will
      * continue to process additional checks. If the condition fails then the
      * [SpecificationComputer] will have different behavior depending on the verification mode. If
-     * the verification mode is [STRICT] an [Exception] will be thrown when [compute] is
-     * called. If the verification mode is [LOG] a debug log will be written. If the verification
-     * mode is [QUIET] then an empty [SpecificationComputer] is returned.
+     * the verification mode is [STRICT] an [Exception] will be thrown when [compute] is called. If
+     * the verification mode is [LOG] a debug log will be written. If the verification mode is
+     * [QUIET] then an empty [SpecificationComputer] is returned.
      *
      * Use [require] when an assumption must be true. One key example is when translating from an
      * OEM provided library into a local object you want to verify the attributes. If an attribute
@@ -60,7 +60,7 @@ internal abstract class SpecificationComputer<T : Any> {
      * @param message a description of what the condition is testing. This should be user readable
      * @param condition a test that the current value is expected to pass.
      * @return A [SpecificationComputer] that will continue computing if the condition was met or
-     * skip subsequent checks if the condition was not met.
+     *   skip subsequent checks if the condition was not met.
      */
     abstract fun require(message: String, condition: T.() -> Boolean): SpecificationComputer<T>
 
@@ -69,8 +69,9 @@ internal abstract class SpecificationComputer<T : Any> {
      * [VerificationMode]. For [STRICT] mode an [Exception] may be thrown if the condition was
      * required. For [LOG] mode a debug log is written to the [Logger]. For [QUIET] mode there are
      * no side effects.
+     *
      * @return The value if all the checks passed or none of the checks were required, null
-     * otherwise.
+     *   otherwise.
      * @throws WindowStrictModeException if [STRICT] mode is set and a required check fails.
      */
     abstract fun compute(): T?
@@ -86,10 +87,9 @@ internal abstract class SpecificationComputer<T : Any> {
          * @param T a non-null value that the specification will run against.
          * @param tag an identifier that will be used when writing debug logs.
          * @param verificationMode determines if the checks should throw, log, or fail silently.
-         * @param logger a [Logger] that can be substituted for testing purposes. The default
-         * value writes a log to LogCat
-         * @return A [SpecificationComputer] that is initially valid and can check other
-         * conditions.
+         * @param logger a [Logger] that can be substituted for testing purposes. The default value
+         *   writes a log to LogCat
+         * @return A [SpecificationComputer] that is initially valid and can check other conditions.
          */
         fun <T : Any> T.startSpecification(
             tag: String,
@@ -101,9 +101,7 @@ internal abstract class SpecificationComputer<T : Any> {
     }
 }
 
-/**
- * A [SpecificationComputer] where the value has passed all previous checks.
- */
+/** A [SpecificationComputer] where the value has passed all previous checks. */
 private class ValidSpecification<T : Any>(
     val value: T,
     val tag: String,
@@ -130,9 +128,7 @@ private class ValidSpecification<T : Any>(
     }
 }
 
-/**
- * A [SpecificationComputer] that has failed a required check
- */
+/** A [SpecificationComputer] that has failed a required check */
 private class FailedSpecification<T : Any>(
     val value: T,
     val tag: String,

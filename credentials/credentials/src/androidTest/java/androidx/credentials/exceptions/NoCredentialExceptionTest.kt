@@ -37,8 +37,7 @@ class NoCredentialExceptionTest {
 
     @Test
     fun getter_success() {
-        val expectedClass =
-            NoCredentialException::class.java
+        val expectedClass = NoCredentialException::class.java
         val expectedMessage = "message"
         val exception = NoCredentialException(expectedMessage)
         assertThat(exception.javaClass).isEqualTo(expectedClass)

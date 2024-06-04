@@ -18,7 +18,5 @@ package androidx.window.testing
 
 import android.app.Activity
 
-/**
- * A test [Activity] for testing purposes.
- */
+/** A test [Activity] for testing purposes. */
 public class TestActivity : Activity()

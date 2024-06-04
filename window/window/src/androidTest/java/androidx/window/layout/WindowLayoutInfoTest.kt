@@ -26,7 +26,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests for [WindowLayoutInfo] class.  */
+/** Tests for [WindowLayoutInfo] class. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 public class WindowLayoutInfoTest {

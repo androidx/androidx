@@ -92,16 +92,16 @@ class PagerSnapHelperIntegrationTest(
         // Views have not changed
         val viewAfterFling = findCenterView()
         Assert.assertNotSame("The view should have scrolled", view, viewAfterFling)
-        val offset = if (mConfig.mReverseLayout) {
-            if (mReverseScroll) 1 else -1
-        } else {
-            if (mReverseScroll) -1 else 1
-        }
+        val offset =
+            if (mConfig.mReverseLayout) {
+                if (mReverseScroll) 1 else -1
+            } else {
+                if (mReverseScroll) -1 else 1
+            }
         val expectedPosition = mConfig.mItemCount / 2 + offset
         Assert.assertEquals(
-            expectedPosition.toLong(), mLayoutManager.getPosition(
-                viewAfterFling!!
-            ).toLong()
+            expectedPosition.toLong(),
+            mLayoutManager.getPosition(viewAfterFling!!).toLong()
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -119,12 +119,11 @@ class PagerSnapHelperIntegrationTest(
         val velocityDir = if (mReverseScroll) -velocity else velocity
         mLayoutManager.expectIdleState(2)
         // Scroll at one pixel in the correct direction to allow fling snapping to the next view.
-        mActivityRule.runOnUiThread(Runnable {
-            mRecyclerView.scrollBy(
-                if (mReverseScroll) -1 else 1,
-                if (mReverseScroll) -1 else 1
-            )
-        })
+        mActivityRule.runOnUiThread(
+            Runnable {
+                mRecyclerView.scrollBy(if (mReverseScroll) -1 else 1, if (mReverseScroll) -1 else 1)
+            }
+        )
         waitForIdleScroll(mRecyclerView)
         Assert.assertTrue(fling(velocityDir, velocityDir))
         // Wait for two settling scrolls: the initial one and the corrective one.
@@ -156,19 +155,21 @@ class PagerSnapHelperIntegrationTest(
 
     private val parentLayoutParams: RecyclerView.LayoutParams
         get() = RecyclerView.LayoutParams(RECYCLERVIEW_SIZE, RECYCLERVIEW_SIZE)
+
     private val childLayoutParams: RecyclerView.LayoutParams
-        get() = RecyclerView.LayoutParams(
-            if (mConfig.mOrientation == RecyclerView.HORIZONTAL) {
-                mChildSize.mSizeParam
-            } else {
-                ViewGroup.LayoutParams.MATCH_PARENT
-            },
-            if (mConfig.mOrientation == RecyclerView.VERTICAL) {
-                mChildSize.mSizeParam
-            } else {
-                ViewGroup.LayoutParams.MATCH_PARENT
-            }
-        )
+        get() =
+            RecyclerView.LayoutParams(
+                if (mConfig.mOrientation == RecyclerView.HORIZONTAL) {
+                    mChildSize.mSizeParam
+                } else {
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                },
+                if (mConfig.mOrientation == RecyclerView.VERTICAL) {
+                    mChildSize.mSizeParam
+                } else {
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                }
+            )
 
     private fun runSnapOnMaxFlingNextView(velocity: Int) {
         // Record the current center view.
@@ -178,27 +179,26 @@ class PagerSnapHelperIntegrationTest(
         mLayoutManager.expectIdleState(1)
 
         // Scroll at one pixel in the correct direction to allow fling snapping to the next view.
-        mActivityRule.runOnUiThread(Runnable {
-            mRecyclerView.scrollBy(
-                if (mReverseScroll) -1 else 1,
-                if (mReverseScroll) -1 else 1
-            )
-        })
+        mActivityRule.runOnUiThread(
+            Runnable {
+                mRecyclerView.scrollBy(if (mReverseScroll) -1 else 1, if (mReverseScroll) -1 else 1)
+            }
+        )
         waitForIdleScroll(mRecyclerView)
         Assert.assertTrue(fling(velocityDir, velocityDir))
         mLayoutManager.waitForSnap(100)
         val viewAfterFling = findCenterView()
         Assert.assertNotSame("The view should have scrolled", view, viewAfterFling)
-        val offset = if (mConfig.mReverseLayout) {
-            if (mReverseScroll) 1 else -1
-        } else {
-            if (mReverseScroll) -1 else 1
-        }
+        val offset =
+            if (mConfig.mReverseLayout) {
+                if (mReverseScroll) 1 else -1
+            } else {
+                if (mReverseScroll) -1 else 1
+            }
         val expectedPosition = mConfig.mItemCount / 2 + offset
         Assert.assertEquals(
-            expectedPosition.toLong(), mLayoutManager.getPosition(
-                viewAfterFling!!
-            ).toLong()
+            expectedPosition.toLong(),
+            mLayoutManager.getPosition(viewAfterFling!!).toLong()
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -209,31 +209,31 @@ class PagerSnapHelperIntegrationTest(
         assertCenterAligned(view)
 
         // Determine the target item to scroll to
-        val offset = if (mConfig.mReverseLayout) {
-            if (mReverseScroll) 1 else -1
-        } else {
-            if (mReverseScroll) -1 else 1
-        }
+        val offset =
+            if (mConfig.mReverseLayout) {
+                if (mReverseScroll) 1 else -1
+            } else {
+                if (mReverseScroll) -1 else 1
+            }
         val expectedPosition = mConfig.mItemCount / 2 + offset
 
         // Smooth scroll in the correct direction to allow fling snapping to the next view.
-        mActivityRule.runOnUiThread(Runnable {
-            mRecyclerView.smoothScrollToPosition(expectedPosition)
-        })
+        mActivityRule.runOnUiThread(
+            Runnable { mRecyclerView.smoothScrollToPosition(expectedPosition) }
+        )
         waitForDistanceToTarget(expectedPosition, .5f)
 
         // Interrupt scroll and fling to target view, ending exactly when the view is snapped
         mLayoutManager.expectIdleState(1)
         Espresso.onView(
-            CoreMatchers.allOf(
-                ViewMatchers.isDescendantOfA(
-                    ViewMatchers.isAssignableFrom(
-                        RecyclerView::class.java
-                    )
-                ),
-                ViewMatchers.withText(mTestAdapter.getItemAt(expectedPosition).displayText)
+                CoreMatchers.allOf(
+                    ViewMatchers.isDescendantOfA(
+                        ViewMatchers.isAssignableFrom(RecyclerView::class.java)
+                    ),
+                    ViewMatchers.withText(mTestAdapter.getItemAt(expectedPosition).displayText)
+                )
             )
-        ).perform(SwipeToLocation.flingToCenter())
+            .perform(SwipeToLocation.flingToCenter())
         waitForIdleScroll(mRecyclerView)
 
         // Wait until the RecyclerView comes to a rest
@@ -243,9 +243,8 @@ class PagerSnapHelperIntegrationTest(
         val viewAfterFling = findCenterView()
         Assert.assertNotSame("The view should have scrolled", view, viewAfterFling)
         Assert.assertEquals(
-            expectedPosition.toLong(), mLayoutManager.getPosition(
-                viewAfterFling!!
-            ).toLong()
+            expectedPosition.toLong(),
+            mLayoutManager.getPosition(viewAfterFling!!).toLong()
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -269,20 +268,23 @@ class PagerSnapHelperIntegrationTest(
     private val scrollOffset: Int
         get() {
             val params = mTestAdapter.mLayoutParams ?: return 0
-            if (mConfig.mOrientation == RecyclerView.HORIZONTAL &&
-                params.width == ViewGroup.LayoutParams.MATCH_PARENT ||
-                mConfig.mOrientation == RecyclerView.VERTICAL &&
-                params.height == ViewGroup.LayoutParams.MATCH_PARENT
+            if (
+                mConfig.mOrientation == RecyclerView.HORIZONTAL &&
+                    params.width == ViewGroup.LayoutParams.MATCH_PARENT ||
+                    mConfig.mOrientation == RecyclerView.VERTICAL &&
+                        params.height == ViewGroup.LayoutParams.MATCH_PARENT
             ) {
                 return 0
             }
             // In reverse layouts, the rounding error of x/2 ends up on the other side of the center
-            // Instead of fixing all asserts, just move the rounding error to the same side as without
+            // Instead of fixing all asserts, just move the rounding error to the same side as
+            // without
             // reverse layout.
-            val reverseAdjustment = ((if (mConfig.mReverseLayout) 1 else 0) *
-                // For larger children, the offset becomes negative, so
-                // we need to subtract the adjustment rather than add it
-                if (mChildSize == ChildSize.LARGER) -1 else 1)
+            val reverseAdjustment =
+                ((if (mConfig.mReverseLayout) 1 else 0) *
+                    // For larger children, the offset becomes negative, so
+                    // we need to subtract the adjustment rather than add it
+                    if (mChildSize == ChildSize.LARGER) -1 else 1)
             return if (mConfig.mOrientation == RecyclerView.HORIZONTAL) {
                 (getWidthMinusPadding(mRecyclerView) - params.width + reverseAdjustment) / 2
             } else {
@@ -295,11 +297,12 @@ class PagerSnapHelperIntegrationTest(
     }
 
     private fun getViewDimension(view: View?): Int {
-        val helper: OrientationHelper = if (mLayoutManager.canScrollHorizontally()) {
-            OrientationHelper.createHorizontalHelper(mLayoutManager)
-        } else {
-            OrientationHelper.createVerticalHelper(mLayoutManager)
-        }
+        val helper: OrientationHelper =
+            if (mLayoutManager.canScrollHorizontally()) {
+                OrientationHelper.createHorizontalHelper(mLayoutManager)
+            } else {
+                OrientationHelper.createVerticalHelper(mLayoutManager)
+            }
         return helper.getDecoratedMeasurement(view)
     }
 
@@ -313,6 +316,7 @@ class PagerSnapHelperIntegrationTest(
 
     private val rvCenterX: Int
         get() = getWidthMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingLeft()
+
     private val rvCenterY: Int
         get() = getHeightMinusPadding(mRecyclerView) / 2 + mRecyclerView.paddingTop
 
@@ -342,10 +346,12 @@ class PagerSnapHelperIntegrationTest(
 
     private fun fling(velocityX: Int, velocityY: Int): Boolean {
         val didStart = AtomicBoolean(false)
-        mActivityRule.runOnUiThread(Runnable {
-            val result = mRecyclerView.fling(velocityX, velocityY)
-            didStart.set(result)
-        })
+        mActivityRule.runOnUiThread(
+            Runnable {
+                val result = mRecyclerView.fling(velocityX, velocityY)
+                didStart.set(result)
+            }
+        )
         if (!didStart.get()) {
             return false
         }
@@ -359,7 +365,7 @@ class PagerSnapHelperIntegrationTest(
      *
      * @param targetPosition The adapter position of the view we want to scroll to
      * @param distancePercent The distance from the view when we stop waiting, relative to the
-     * target view
+     *   target view
      */
     @Throws(InterruptedException::class)
     private fun waitForDistanceToTarget(
@@ -367,20 +373,23 @@ class PagerSnapHelperIntegrationTest(
         @Suppress("SameParameterValue") distancePercent: Float
     ) {
         val latch = CountDownLatch(1)
-        mRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val target = mLayoutManager.findViewByPosition(targetPosition) ?: return
-                val distancePx = distFromCenter(target)
-                val size = if (mConfig.mOrientation == RecyclerView.HORIZONTAL) {
-                    target.width
-                } else {
-                    target.height
-                }
-                if (distancePx.toFloat() / size <= distancePercent) {
-                    latch.countDown()
+        mRecyclerView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val target = mLayoutManager.findViewByPosition(targetPosition) ?: return
+                    val distancePx = distFromCenter(target)
+                    val size =
+                        if (mConfig.mOrientation == RecyclerView.HORIZONTAL) {
+                            target.width
+                        } else {
+                            target.height
+                        }
+                    if (distancePx.toFloat() / size <= distancePercent) {
+                        latch.countDown()
+                    }
                 }
             }
-        })
+        )
         Assert.assertTrue(
             "should be close enough to the target view within 10 seconds",
             latch.await(10, TimeUnit.SECONDS)
@@ -402,14 +411,7 @@ class PagerSnapHelperIntegrationTest(
                     for (childSize in ChildSize.values()) {
                         for (applyPadding in booleanArrayOf(false, true)) {
                             if (!config.mWrap) {
-                                result.add(
-                                    arrayOf(
-                                        config,
-                                        reverseScroll,
-                                        childSize,
-                                        applyPadding
-                                    )
-                                )
+                                result.add(arrayOf(config, reverseScroll, childSize, applyPadding))
                             }
                         }
                     }

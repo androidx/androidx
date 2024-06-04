@@ -51,8 +51,10 @@ internal class ExtensionWindowBackendApi1(
      * Registers a listener to consume new values of [WindowLayoutInfo]. If there was a listener
      * registered for a given [Context] then the new listener will receive a replay of the last
      * known value.
+     *
      * @param context the host of a [android.view.Window] or an area on the screen. Has to be an
-     * [Activity] or a [UiContext] created with [Context#createWindowContext] or InputMethodService.
+     *   [Activity] or a [UiContext] created with [Context#createWindowContext] or
+     *   InputMethodService.
      * @param executor an executor from the parent interface
      * @param callback the listener that will receive new values
      */
@@ -65,32 +67,34 @@ internal class ExtensionWindowBackendApi1(
             contextToListeners[context]?.let { listener ->
                 listener.addListener(callback)
                 listenerToContext[callback] = context
-            } ?: run {
-                val consumer = MulticastConsumer(context)
-                contextToListeners[context] = consumer
-                listenerToContext[callback] = context
-                consumer.addListener(callback)
-
-                // The registrations above maintain 1-many mapping of Context-Listeners across
-                // different subscription implementations.
-                val disposableToken = if (context is Activity) {
-                    consumerAdapter.createSubscription(
-                        component,
-                        OEMWindowLayoutInfo::class,
-                        "addWindowLayoutInfoListener",
-                        "removeWindowLayoutInfoListener",
-                        context,
-                        consumer::accept
-                    )
-                } else {
-                    // WM Extensions v1 addWindowLayoutInfoListener only
-                    // supports Activities. Return empty WindowLayoutInfo if the
-                    // provided Context is not an Activity.
-                    consumer.accept(OEMWindowLayoutInfo(emptyList()))
-                    return@registerLayoutChangeCallback
-                }
-                consumerToToken[consumer] = disposableToken
             }
+                ?: run {
+                    val consumer = MulticastConsumer(context)
+                    contextToListeners[context] = consumer
+                    listenerToContext[callback] = context
+                    consumer.addListener(callback)
+
+                    // The registrations above maintain 1-many mapping of Context-Listeners across
+                    // different subscription implementations.
+                    val disposableToken =
+                        if (context is Activity) {
+                            consumerAdapter.createSubscription(
+                                component,
+                                OEMWindowLayoutInfo::class,
+                                "addWindowLayoutInfoListener",
+                                "removeWindowLayoutInfoListener",
+                                context,
+                                consumer::accept
+                            )
+                        } else {
+                            // WM Extensions v1 addWindowLayoutInfoListener only
+                            // supports Activities. Return empty WindowLayoutInfo if the
+                            // provided Context is not an Activity.
+                            consumer.accept(OEMWindowLayoutInfo(emptyList()))
+                            return@registerLayoutChangeCallback
+                        }
+                    consumerToToken[consumer] = disposableToken
+                }
         }
     }
 
@@ -98,6 +102,7 @@ internal class ExtensionWindowBackendApi1(
      * Unregisters a listener, if this is the last listener for a [UiContext] then the listener is
      * removed from the [WindowLayoutComponent]. Calling with the same listener multiple times in a
      * row does not have an effect.
+     *
      * @param callback a listener that may have been registered
      */
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
@@ -113,12 +118,11 @@ internal class ExtensionWindowBackendApi1(
         }
     }
 
-    /**
-     * Returns {@code true} if all the collections are empty, {@code false} otherwise
-     */
+    /** Returns {@code true} if all the collections are empty, {@code false} otherwise */
     @VisibleForTesting
     override fun hasRegisteredListeners(): Boolean {
-        return !(contextToListeners.isEmpty() && listenerToContext.isEmpty() &&
+        return !(contextToListeners.isEmpty() &&
+            listenerToContext.isEmpty() &&
             consumerToToken.isEmpty())
     }
 }

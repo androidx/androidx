@@ -33,9 +33,7 @@ class InvalidStateDomErrorTest {
     @Test
     fun getter_success() {
         val error = InvalidStateError()
-        val expectedType =
-            InvalidStateError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_STATE_ERROR
+        val expectedType = InvalidStateError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_STATE_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

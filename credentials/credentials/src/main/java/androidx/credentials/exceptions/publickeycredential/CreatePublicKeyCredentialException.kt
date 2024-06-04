@@ -30,9 +30,10 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
  */
-open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override val type: String,
+open class CreatePublicKeyCredentialException
+@JvmOverloads
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val type: String,
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(type, errorMessage) {
     init {
@@ -46,10 +47,13 @@ open class CreatePublicKeyCredentialException @JvmOverloads internal constructor
             return try {
                 with(type) {
                     when {
-                        contains(CreatePublicKeyCredentialDomException
-                            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION) ->
-                            CreatePublicKeyCredentialDomException.createFrom(type, msg)
-                        else -> { throw FrameworkClassParsingException() }
+                        contains(
+                            CreatePublicKeyCredentialDomException
+                                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+                        ) -> CreatePublicKeyCredentialDomException.createFrom(type, msg)
+                        else -> {
+                            throw FrameworkClassParsingException()
+                        }
                     }
                 }
             } catch (t: FrameworkClassParsingException) {

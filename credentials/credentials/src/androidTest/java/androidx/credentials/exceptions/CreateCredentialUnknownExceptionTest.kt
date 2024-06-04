@@ -37,8 +37,7 @@ class CreateCredentialUnknownExceptionTest {
 
     @Test
     fun getter_success() {
-        val expectedType = CreateCredentialUnknownException
-            .TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
+        val expectedType = CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
         val expectedMessage = "message"
         val exception = CreateCredentialUnknownException(expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)

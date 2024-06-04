@@ -33,9 +33,7 @@ class NotAllowedDomErrorTest {
     @Test
     fun getter_success() {
         val error = NotAllowedError()
-        val expectedType =
-            NotAllowedError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR
+        val expectedType = NotAllowedError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

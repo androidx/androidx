@@ -25,43 +25,44 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Encapsulates a request to get a user credential.
  *
  * An application can construct such a request by adding one or more types of [CredentialOption],
- * and then call [CredentialManager.getCredential] to launch framework UI flows to allow the user
- * to consent to using a previously saved credential for the given application.
+ * and then call [CredentialManager.getCredential] to launch framework UI flows to allow the user to
+ * consent to using a previously saved credential for the given application.
  *
- * @property credentialOptions the list of [CredentialOption] from which the user can choose
- * one to authenticate to the app
- * @property origin the origin of a different application if the request is being made on behalf of
- * that application. For API level >=34, setting a non-null value for this parameter, will throw
- * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
- * @property preferIdentityDocUi the value which signals if the UI should be tailored to display an
- * identity document like driver license etc.
- * @property preferUiBrandingComponentName a service [ComponentName] from which the Credential
- * Selector UI will pull its label and icon to render top level branding. Your app must have the
- * permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or
- * it would not take effect. Notice that this bit may not take effect for Android API level
- * 33 and below, depending on the pre-34 provider(s) you have chosen.
- * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credentials instead of falling back to discovering remote
- * options, and false (default) otherwise
- * @param credentialOptions the list of [CredentialOption] from which the user can choose
- * one to authenticate to the app
+ * @param credentialOptions the list of [CredentialOption] from which the user can choose one to
+ *   authenticate to the app
  * @param origin the origin of a different application if the request is being made on behalf of
- * that application (Note: for API level >=34, setting a non-null value for this parameter, will
- * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ *   that application (Note: for API level >=34, setting a non-null value for this parameter, will
+ *   throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
  * @param preferIdentityDocUi the value which signals if the UI should be tailored to display an
- * identity document like driver license etc
- * @param preferUiBrandingComponentName a service [ComponentName] from which the Credential
- * Selector UI will pull its label and icon to render top level branding (Note: your app must have
- * the permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or
- * it would not take effect; also this bit may not take effect for Android API level 33 and below,
- * depending on the pre-34 provider(s) you have chosen
+ *   identity document like driver license etc
+ * @param preferUiBrandingComponentName a service [ComponentName] from which the Credential Selector
+ *   UI will pull its label and icon to render top level branding (Note: your app must have the
+ *   permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
+ *   would not take effect; also this bit may not take effect for Android API level 33 and below,
+ *   depending on the pre-34 provider(s) you have chosen
  * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available credentials instead of falling back to discovering remote
- * options, and false (default) otherwise
+ *   immediately when there is no available credentials instead of falling back to discovering
+ *   remote options, and false (default) otherwise
+ * @property credentialOptions the list of [CredentialOption] from which the user can choose one to
+ *   authenticate to the app
+ * @property origin the origin of a different application if the request is being made on behalf of
+ *   that application. For API level >=34, setting a non-null value for this parameter, will throw a
+ *   SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+ * @property preferIdentityDocUi the value which signals if the UI should be tailored to display an
+ *   identity document like driver license etc.
+ * @property preferUiBrandingComponentName a service [ComponentName] from which the Credential
+ *   Selector UI will pull its label and icon to render top level branding. Your app must have the
+ *   permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
+ *   would not take effect. Notice that this bit may not take effect for Android API level 33 and
+ *   below, depending on the pre-34 provider(s) you have chosen.
+ * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ *   immediately when there is no available credentials instead of falling back to discovering
+ *   remote options, and false (default) otherwise
  * @throws IllegalArgumentException If [credentialOptions] is empty
  */
 class GetCredentialRequest
-@JvmOverloads constructor(
+@JvmOverloads
+constructor(
     val credentialOptions: List<CredentialOption>,
     val origin: String? = null,
     val preferIdentityDocUi: Boolean = false,
@@ -107,8 +108,8 @@ class GetCredentialRequest
 
         /**
          * Sets whether you prefer the operation to return immediately when there is no available
-         * credentials instead of falling back to discovering remote options. The default value
-         * is false.
+         * credentials instead of falling back to discovering remote options. The default value is
+         * false.
          */
         @Suppress("MissingGetterMatchingBuilder")
         fun setPreferImmediatelyAvailableCredentials(
@@ -120,10 +121,10 @@ class GetCredentialRequest
 
         /**
          * Sets service [ComponentName] from which the Credential Selector UI will pull its label
-         * and icon to render top level branding. Your app must have the
-         * permission android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this,
-         * or it would not take effect. Notice that this bit may not take effect for Android API
-         * level 33 and below, depending on the pre-34 provider(s) you have chosen.
+         * and icon to render top level branding. Your app must have the permission
+         * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it would
+         * not take effect. Notice that this bit may not take effect for Android API level 33 and
+         * below, depending on the pre-34 provider(s) you have chosen.
          */
         fun setPreferUiBrandingComponentName(component: ComponentName?): Builder {
             this.preferUiBrandingComponentName = component
@@ -166,15 +167,17 @@ class GetCredentialRequest
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toRequestDataBundle(
-            request: GetCredentialRequest
-        ): Bundle {
+        fun toRequestDataBundle(request: GetCredentialRequest): Bundle {
             val bundle = Bundle()
             bundle.putBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI, request.preferIdentityDocUi)
-            bundle.putBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                request.preferImmediatelyAvailableCredentials)
+            bundle.putBoolean(
+                BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                request.preferImmediatelyAvailableCredentials
+            )
             bundle.putParcelable(
-                BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME, request.preferUiBrandingComponentName)
+                BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME,
+                request.preferUiBrandingComponentName
+            )
             return bundle
         }
 
@@ -187,15 +190,19 @@ class GetCredentialRequest
         ): GetCredentialRequest {
             try {
                 val preferIdentityDocUi = data.getBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI)
-                val preferImmediatelyAvailableCredentials = data.getBoolean(
-                    BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
+                val preferImmediatelyAvailableCredentials =
+                    data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 @Suppress("DEPRECATION")
-                val preferUiBrandingComponentName = data.getParcelable<ComponentName>(
-                    BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME)
-                val getCredentialBuilder = Builder().setCredentialOptions(credentialOptions)
-                    .setPreferIdentityDocUi(preferIdentityDocUi)
-                    .setPreferUiBrandingComponentName(preferUiBrandingComponentName)
-                    .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentials)
+                val preferUiBrandingComponentName =
+                    data.getParcelable<ComponentName>(BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME)
+                val getCredentialBuilder =
+                    Builder()
+                        .setCredentialOptions(credentialOptions)
+                        .setPreferIdentityDocUi(preferIdentityDocUi)
+                        .setPreferUiBrandingComponentName(preferUiBrandingComponentName)
+                        .setPreferImmediatelyAvailableCredentials(
+                            preferImmediatelyAvailableCredentials
+                        )
                 if (origin != null) {
                     getCredentialBuilder.setOrigin(origin)
                 }

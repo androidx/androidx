@@ -21,9 +21,7 @@ import android.os.IBinder
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import org.junit.Rule
 
-/**
- * Base class for all tests in the module.
- */
+/** Base class for all tests in the module. */
 public open class WindowTestBase {
     @get:Rule
     public val activityTestRule: ActivityScenarioRule<TestActivity> =

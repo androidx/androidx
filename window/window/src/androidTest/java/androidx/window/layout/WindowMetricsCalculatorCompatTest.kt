@@ -37,7 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests for [WindowMetricsCalculatorCompat] class.  */
+/** Tests for [WindowMetricsCalculatorCompat] class. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class WindowMetricsCalculatorCompatTest {
@@ -124,7 +124,7 @@ class WindowMetricsCalculatorCompatTest {
     @Test
     fun testGetCurrentWindowBounds_postR() {
         assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle({}) { activity: TestActivity ->
             val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity).bounds
             val windowMetricsBounds = activity.windowManager.currentWindowMetrics.bounds
             assertEquals(windowMetricsBounds, bounds)
@@ -199,7 +199,7 @@ class WindowMetricsCalculatorCompatTest {
     @Test
     fun testGetMaximumWindowBounds_postR() {
         assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle({}) { activity: TestActivity ->
             val bounds = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(activity).bounds
             val windowMetricsBounds = activity.windowManager.maximumWindowMetrics.bounds
             assertEquals(windowMetricsBounds, bounds)
@@ -211,7 +211,7 @@ class WindowMetricsCalculatorCompatTest {
     @OptIn(ExperimentalWindowApi::class)
     fun testGetWindowInsetsCompat_currentWindowMetrics_postR() {
         assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle({}) { activity: TestActivity ->
             val windowMetrics = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity)
             val windowInsets = windowMetrics.getWindowInsets()
             val platformInsets = activity.windowManager.currentWindowMetrics.windowInsets
@@ -225,7 +225,7 @@ class WindowMetricsCalculatorCompatTest {
     @OptIn(ExperimentalWindowApi::class)
     fun testGetWindowInsetsCompat_maximumWindowMetrics_postR() {
         assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle({}) { activity: TestActivity ->
             val windowMetrics = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(activity)
             val windowInsets = windowMetrics.getWindowInsets()
             val platformInsets = activity.windowManager.maximumWindowMetrics.windowInsets
@@ -275,11 +275,7 @@ class WindowMetricsCalculatorCompatTest {
         val scenario = activityScenarioRule.scenario
         try {
             scenario.onActivity { activity: TestActivity ->
-                Assume.assumeFalse(
-                    isInMultiWindowMode(
-                        activity
-                    )
-                )
+                Assume.assumeFalse(isInMultiWindowMode(activity))
             }
         } catch (e: RuntimeException) {
             if (e.cause is AssumptionViolatedException) {
@@ -293,23 +289,25 @@ class WindowMetricsCalculatorCompatTest {
     private class AssertCurrentWindowBoundsEqualsRealDisplaySizeAction :
         ActivityAction<TestActivity> {
         override fun perform(activity: TestActivity) {
-            val display: Display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                activity.display ?: throw Exception("No display for activity")
-            } else {
-                @Suppress("DEPRECATION")
-                activity.windowManager.defaultDisplay
-            }
+            val display: Display =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    activity.display ?: throw Exception("No display for activity")
+                } else {
+                    @Suppress("DEPRECATION") activity.windowManager.defaultDisplay
+                }
             val realDisplaySize = WindowMetricsCalculatorCompat.getRealSizeForDisplay(display)
             val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity).bounds
             assertNotEquals("Device can not have zero width", 0, realDisplaySize.x.toLong())
             assertNotEquals("Device can not have zero height", 0, realDisplaySize.y.toLong())
             assertEquals(
                 "Window bounds width does not match real display width",
-                realDisplaySize.x.toLong(), bounds.width().toLong()
+                realDisplaySize.x.toLong(),
+                bounds.width().toLong()
             )
             assertEquals(
                 "Window bounds height does not match real display height",
-                realDisplaySize.y.toLong(), bounds.height().toLong()
+                realDisplaySize.y.toLong(),
+                bounds.height().toLong()
             )
         }
     }
@@ -317,21 +315,23 @@ class WindowMetricsCalculatorCompatTest {
     private class AssertMaximumWindowBoundsEqualsRealDisplaySizeAction :
         ActivityAction<TestActivity> {
         override fun perform(activity: TestActivity) {
-            val display: Display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                activity.display ?: throw Exception("No display for activity")
-            } else {
-                @Suppress("DEPRECATION")
-                activity.windowManager.defaultDisplay
-            }
+            val display: Display =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    activity.display ?: throw Exception("No display for activity")
+                } else {
+                    @Suppress("DEPRECATION") activity.windowManager.defaultDisplay
+                }
             val realDisplaySize = WindowMetricsCalculatorCompat.getRealSizeForDisplay(display)
             val bounds = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(activity).bounds
             assertEquals(
                 "Window bounds width does not match real display width",
-                realDisplaySize.x.toLong(), bounds.width().toLong()
+                realDisplaySize.x.toLong(),
+                bounds.width().toLong()
             )
             assertEquals(
                 "Window bounds height does not match real display height",
-                realDisplaySize.y.toLong(), bounds.height().toLong()
+                realDisplaySize.y.toLong(),
+                bounds.height().toLong()
             )
         }
     }

@@ -26,24 +26,21 @@ import androidx.credentials.PasswordCredential
  * A request to a password provider to begin the flow of retrieving the user's saved passwords.
  *
  * Providers must use the parameters in this option to retrieve the corresponding credentials'
- * metadata, and then return them in the form of a list of [PasswordCredentialEntry]
- * set on the [BeginGetCredentialResponse].
+ * metadata, and then return them in the form of a list of [PasswordCredentialEntry] set on the
+ * [BeginGetCredentialResponse].
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  *
  * @property allowedUserIds a optional set of user ids with which the credentials associated are
- * requested; left as empty if the caller app wants to request all the available user credentials
+ *   requested; left as empty if the caller app wants to request all the available user credentials
  */
-class BeginGetPasswordOption constructor(
+class BeginGetPasswordOption
+constructor(
     val allowedUserIds: Set<String>,
     candidateQueryData: Bundle,
     id: String,
-) : BeginGetCredentialOption(
-    id,
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    candidateQueryData
-) {
+) : BeginGetCredentialOption(id, PasswordCredential.TYPE_PASSWORD_CREDENTIAL, candidateQueryData) {
 
     internal companion object {
         @JvmStatic
@@ -53,8 +50,8 @@ class BeginGetPasswordOption constructor(
         }
 
         internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
-            val allowUserIdList = data.getStringArrayList(
-                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
+            val allowUserIdList =
+                data.getStringArrayList(GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
             return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
         }
     }

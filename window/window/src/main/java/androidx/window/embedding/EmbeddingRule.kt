@@ -20,13 +20,14 @@ package androidx.window.embedding
  * Base abstract class for activity embedding presentation rules, such as [SplitPairRule] and
  * [ActivityRule]. Allows grouping different rule types together when updating.
  */
-abstract class EmbeddingRule internal constructor(
+abstract class EmbeddingRule
+internal constructor(
     /**
-     * A unique string to identify this [EmbeddingRule], which defaults to `null`.
-     * The suggested usage is to set the tag in the corresponding rule builder to be able to
-     * differentiate between different rules in the [SplitAttributesCalculatorParams.splitRuleTag].
-     * For example, it can be used to compute the right [SplitAttributes] for the right split rule
-     * in callback set in [SplitController.setSplitAttributesCalculator].
+     * A unique string to identify this [EmbeddingRule], which defaults to `null`. The suggested
+     * usage is to set the tag in the corresponding rule builder to be able to differentiate between
+     * different rules in the [SplitAttributesCalculatorParams.splitRuleTag]. For example, it can be
+     * used to compute the right [SplitAttributes] for the right split rule in callback set in
+     * [SplitController.setSplitAttributesCalculator].
      *
      * @see androidx.window.embedding.RuleController.addRule
      */

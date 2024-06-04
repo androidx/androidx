@@ -22,20 +22,16 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /** Describes a split pair of two containers with activities. */
-class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
-    /**
-     * The [ActivityStack] representing the primary split container.
-     */
+class SplitInfo
+@RestrictTo(LIBRARY_GROUP)
+constructor(
+    /** The [ActivityStack] representing the primary split container. */
     val primaryActivityStack: ActivityStack,
-    /**
-     * The [ActivityStack] representing the secondary split container.
-     */
+    /** The [ActivityStack] representing the secondary split container. */
     val secondaryActivityStack: ActivityStack,
     /** The [SplitAttributes] of this split pair. */
     val splitAttributes: SplitAttributes,
-    /**
-     * A token uniquely identifying this `SplitInfo`.
-     */
+    /** A token uniquely identifying this `SplitInfo`. */
     internal val token: IBinder,
 ) {
     /**
@@ -43,8 +39,7 @@ class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
      * contains the [activity].
      */
     operator fun contains(activity: Activity): Boolean {
-        return primaryActivityStack.contains(activity) ||
-            secondaryActivityStack.contains(activity)
+        return primaryActivityStack.contains(activity) || secondaryActivityStack.contains(activity)
     }
 
     override fun equals(other: Any?): Boolean {

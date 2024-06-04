@@ -38,8 +38,8 @@ import org.junit.runner.RunWith
 class AuthenticationActionTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
-    private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
-        PendingIntent.FLAG_IMMUTABLE)
+    private val mPendingIntent =
+        PendingIntent.getActivity(mContext, 0, mIntent, PendingIntent.FLAG_IMMUTABLE)
 
     @Test
     fun build_success() {
@@ -60,7 +60,9 @@ class AuthenticationActionTest {
         Assert.assertThrows(
             "Expected empty title to throw IAE",
             IllegalArgumentException::class.java
-        ) { AuthenticationAction("", mPendingIntent) }
+        ) {
+            AuthenticationAction("", mPendingIntent)
+        }
     }
 
     @Test
@@ -81,14 +83,11 @@ class AuthenticationActionTest {
     @Test
     @SdkSuppress(minSdkVersion = 34)
     fun fromAction_success() {
-        val originalAction =
-            AuthenticationAction(TITLE, mPendingIntent)
+        val originalAction = AuthenticationAction(TITLE, mPendingIntent)
         val slice = toSlice(originalAction)
         assertNotNull(slice)
 
-        val action = fromAction(
-            Action(slice)
-        )
+        val action = fromAction(Action(slice))
 
         assertNotNull(action)
         assertThat(action!!.pendingIntent).isEqualTo(mPendingIntent)

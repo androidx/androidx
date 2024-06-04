@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("deprecation")
+
 package androidx.credentials.playservices.controllers.BeginSignIn
 
 import android.content.Context
@@ -50,29 +51,22 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import java.util.concurrent.Executor
 
-/**
- * A controller to handle the BeginSignIn flow with play services.
- */
+/** A controller to handle the BeginSignIn flow with play services. */
 internal class CredentialProviderBeginSignInController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
         BeginSignInRequest,
         SignInCredential,
         GetCredentialResponse,
-        GetCredentialException>(context) {
+        GetCredentialException
+    >(context) {
 
-    /**
-     * The callback object state, used in the protected handleResponse method.
-     */
+    /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    lateinit var callback: CredentialManagerCallback<GetCredentialResponse,
-        GetCredentialException>
+    lateinit var callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
 
-    /**
-     * The callback requires an executor to invoke it.
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    lateinit var executor: Executor
+    /** The callback requires an executor to invoke it. */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) lateinit var executor: Executor
 
     /**
      * The cancellation signal, which is shuttled around to stop the flow at any moment prior to
@@ -81,26 +75,27 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private var cancellationSignal: CancellationSignal? = null
 
-    private val resultReceiver = object : ResultReceiver(
-        Handler(Looper.getMainLooper())
-    ) {
-        public override fun onReceiveResult(
-            resultCode: Int,
-            resultData: Bundle
-        ) {
-            if (maybeReportErrorFromResultReceiver(
-                    resultData,
-                    CredentialProviderBaseController
-                        .Companion::getCredentialExceptionTypeToException,
-                    executor = executor, callback = callback, cancellationSignal
+    private val resultReceiver =
+        object : ResultReceiver(Handler(Looper.getMainLooper())) {
+            public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                if (
+                    maybeReportErrorFromResultReceiver(
+                        resultData,
+                        CredentialProviderBaseController.Companion::
+                            getCredentialExceptionTypeToException,
+                        executor = executor,
+                        callback = callback,
+                        cancellationSignal
+                    )
                 )
-            ) return
-            handleResponse(
-                resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode,
-                resultData.getParcelable(RESULT_DATA_TAG)
-            )
+                    return
+                handleResponse(
+                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                    resultCode,
+                    resultData.getParcelable(RESULT_DATA_TAG)
+                )
+            }
         }
-    }
 
     override fun invokePlayServices(
         request: GetCredentialRequest,
@@ -123,9 +118,13 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         try {
             context.startActivity(hiddenIntent)
         } catch (e: Exception) {
-            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
-                this.callback.onError(
-                    GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                this.executor.execute {
+                    this.callback.onError(
+                        GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)
+                    )
+                }
+            }
         }
     }
 
@@ -138,22 +137,21 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
             )
             return
         }
-        if (maybeReportErrorResultCodeGet(resultCode,
-                { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e ->
-                    this.executor.execute {
-                        this.callback.onError(e)
-                    }
-                }, cancellationSignal
+        if (
+            maybeReportErrorResultCodeGet(
+                resultCode,
+                { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
+                { e -> this.executor.execute { this.callback.onError(e) } },
+                cancellationSignal
             )
-        ) return
+        )
+            return
         try {
-            val signInCredential = Identity.getSignInClient(context)
-                .getSignInCredentialFromIntent(data)
+            val signInCredential =
+                Identity.getSignInClient(context).getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                this.executor.execute {
-                    this.callback.onResult(response)
-                }
+                this.executor.execute { this.callback.onResult(response) }
             }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)
@@ -163,60 +161,58 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
                 exception = GetCredentialInterruptedException(e.message)
             }
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(exception)
-                }
+                executor.execute { callback.onError(exception) }
             }
             return
         } catch (e: GetCredentialException) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(e)
-                }
+                executor.execute { callback.onError(e) }
             }
         } catch (t: Throwable) {
             val e = GetCredentialUnknownException(t.message)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(e)
-                }
+                executor.execute { callback.onError(e) }
             }
         }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public override fun convertRequestToPlayServices(request: GetCredentialRequest):
-        BeginSignInRequest {
+    public override fun convertRequestToPlayServices(
+        request: GetCredentialRequest
+    ): BeginSignInRequest {
         return constructBeginSignInRequest(request, context)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public override fun convertResponseToCredentialManager(response: SignInCredential):
-        GetCredentialResponse {
+    public override fun convertResponseToCredentialManager(
+        response: SignInCredential
+    ): GetCredentialResponse {
         var cred: Credential? = null
         if (response.password != null) {
             cred = PasswordCredential(response.id, response.password!!)
         } else if (response.googleIdToken != null) {
             cred = createGoogleIdCredential(response)
         } else if (response.publicKeyCredential != null) {
-            cred = PublicKeyCredential(
-                PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
-            )
+            cred =
+                PublicKeyCredential(
+                    PublicKeyCredentialControllerUtility.toAssertPasskeyResponse(response)
+                )
         } else {
             Log.w(TAG, "Credential returned but no google Id or password or passkey found")
         }
         if (cred == null) {
             throw GetCredentialUnknownException(
-                "When attempting to convert get response, " +
-                    "null credential found"
+                "When attempting to convert get response, " + "null credential found"
             )
         }
         return GetCredentialResponse(cred)
     }
 
     private fun createGoogleIdCredential(response: SignInCredential): GoogleIdTokenCredential {
-        var cred = GoogleIdTokenCredential.Builder().setId(response.id)
-            .setIdToken(response.googleIdToken!!)
+        var cred =
+            GoogleIdTokenCredential.Builder()
+                .setId(response.id)
+                .setIdToken(response.googleIdToken!!)
 
         if (response.displayName != null) {
             cred.setDisplayName(response.displayName)
@@ -251,9 +247,8 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
          * @return a credential provider controller for a specific begin sign in credential request
          */
         @JvmStatic
-        fun getInstance(context: Context):
-            CredentialProviderBeginSignInController {
-                return CredentialProviderBeginSignInController(context)
+        fun getInstance(context: Context): CredentialProviderBeginSignInController {
+            return CredentialProviderBeginSignInController(context)
         }
     }
 }

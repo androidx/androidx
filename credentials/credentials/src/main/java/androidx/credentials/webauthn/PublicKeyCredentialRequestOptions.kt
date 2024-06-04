@@ -21,20 +21,20 @@ import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class PublicKeyCredentialRequestOptions(requestJson: String) {
-  val json: JSONObject
+    val json: JSONObject
 
-  val challenge: ByteArray
-  val timeout: Long
-  val rpId: String
-  val userVerification: String
+    val challenge: ByteArray
+    val timeout: Long
+    val rpId: String
+    val userVerification: String
 
-  init {
-    json = JSONObject(requestJson)
+    init {
+        json = JSONObject(requestJson)
 
-    val challengeString = json.getString("challenge")
-    challenge = WebAuthnUtils.b64Decode(challengeString)
-    timeout = json.optLong("timeout", 0)
-    rpId = json.optString("rpId", "")
-    userVerification = json.optString("userVerification", "preferred")
-  }
+        val challengeString = json.getString("challenge")
+        challenge = WebAuthnUtils.b64Decode(challengeString)
+        timeout = json.optLong("timeout", 0)
+        rpId = json.optString("rpId", "")
+        userVerification = json.optString("userVerification", "preferred")
+    }
 }

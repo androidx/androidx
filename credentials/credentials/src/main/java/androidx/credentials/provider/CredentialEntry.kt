@@ -25,8 +25,7 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
 import androidx.credentials.R
 
 /**
- * Base class for a credential entry to be displayed on
- * the selector.
+ * Base class for a credential entry to be displayed on the selector.
  *
  * The [entryGroupId] allows the credential selector display to, in the case of multiple entries
  * across providers that have the same [entryGroupId] value, trim down to a single, most recently
@@ -40,20 +39,21 @@ import androidx.credentials.R
  *
  * (RestrictTo property) type the type of the credential associated with this entry, e.g. a
  * [BeginGetPasswordOption] will have type [TYPE_PASSWORD_CREDENTIAL]
- * @property beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
- * for which this credential entry is being added
+ *
+ * @property beginGetCredentialOption the option from the original [BeginGetCredentialRequest], for
+ *   which this credential entry is being added
  * @property entryGroupId an ID used for deduplication or to group entries during display
- * @property affiliatedDomain the user visible affiliated domain, a CharSequence
- * representation of a web domain or an app package name that the given credential in this
- * entry is associated with when it is different from the requesting entity, default null
+ * @property affiliatedDomain the user visible affiliated domain, a CharSequence representation of a
+ *   web domain or an app package name that the given credential in this entry is associated with
+ *   when it is different from the requesting entity, default null
  * @property isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
- * default credential type icon when you are the only available provider; see individual subclasses
- * for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
- * [R.drawable.ic_password])
+ *   default credential type icon when you are the only available provider; see individual
+ *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
+ *   [R.drawable.ic_password])
  */
-abstract class CredentialEntry internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
+abstract class CredentialEntry
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
     val beginGetCredentialOption: BeginGetCredentialOption,
     val entryGroupId: CharSequence,
     val isDefaultIconPreferredAsSingleProvider: Boolean,
@@ -63,12 +63,14 @@ abstract class CredentialEntry internal constructor(
     @RequiresApi(34)
     private object Api34Impl {
         @JvmStatic
-        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
-            CredentialEntry? {
+        fun fromCredentialEntry(
+            credentialEntry: android.service.credentials.CredentialEntry
+        ): CredentialEntry? {
             val slice = credentialEntry.slice
             return fromSlice(slice)
         }
     }
+
     companion object {
 
         /**
@@ -76,14 +78,15 @@ abstract class CredentialEntry internal constructor(
          * [CredentialEntry] class
          *
          * Note that this API is not needed in a general credential retrieval flow that is
-         * implemented using this jetpack library, where you are only required to construct
-         * an instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
+         * implemented using this jetpack library, where you are only required to construct an
+         * instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
          *
          * @param credentialEntry the instance of framework class to be converted
          */
         @JvmStatic
-        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
-            CredentialEntry? {
+        fun fromCredentialEntry(
+            credentialEntry: android.service.credentials.CredentialEntry
+        ): CredentialEntry? {
             if (Build.VERSION.SDK_INT >= 34) {
                 return Api34Impl.fromCredentialEntry(credentialEntry)
             }

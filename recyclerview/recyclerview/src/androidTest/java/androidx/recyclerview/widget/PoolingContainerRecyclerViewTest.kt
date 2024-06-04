@@ -41,14 +41,13 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 /**
- * Note: this test's structure largely parallels AndroidComposeViewsRecyclerViewTest
- * (though there are notable implementation differences)
+ * Note: this test's structure largely parallels AndroidComposeViewsRecyclerViewTest (though there
+ * are notable implementation differences)
  *
  * Consider if new tests added here should also be added there.
  */
 class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
-    @get:Rule
-    val animationRule = AnimationDurationScaleRule.create()
+    @get:Rule val animationRule = AnimationDurationScaleRule.create()
 
     @Before
     fun setup() {
@@ -62,11 +61,9 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             // Animators cause items to stick around and prevent clean rebinds, which we don't want,
             // since it makes testing this less straightforward.
             recyclerView.itemAnimator = null
-            recyclerView.layoutManager =
-                LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-            recyclerView.layoutParams = TestedFrameLayout.FullControlLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 100
-            )
+            recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            recyclerView.layoutParams =
+                TestedFrameLayout.FullControlLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100)
         }
     }
 
@@ -74,14 +71,14 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     fun allItemsChanged_noDisposals() {
         val adapter = PoolingContainerTestAdapter(activity, 100)
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items created and bound
         assertThat(adapter.creations).isEqualTo(100)
         assertThat(adapter.binds).isEqualTo(100)
 
         instrumentation.runOnMainSync { adapter.notifyItemRangeChanged(0, 100) }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items changed: no new creations, but all items rebound
         assertThat(adapter.creations).isEqualTo(100)
@@ -93,7 +90,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     fun viewDiscarded_allDisposed() {
         val adapter = PoolingContainerTestAdapter(activity, 100)
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
         assertThat(adapter.creations).isEqualTo(100)
         assertThat(adapter.releases).isEqualTo(0)
         instrumentation.runOnMainSync { activity.container.removeAllViews() }
@@ -104,7 +101,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     fun reattachedAndDetached_disposedTwice() {
         val adapter = PoolingContainerTestAdapter(activity, 100)
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Initially added: all items created, no disposals
         assertThat(adapter.creations).isEqualTo(100)
@@ -137,14 +134,12 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             }
         }
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
         assertThat(mRecyclerView.height).isEqualTo(100)
         assertThat(adapter.creations).isEqualTo(50)
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            mRecyclerView.smoothScrollBy(0, 100)
-        }
+        instrumentation.runOnMainSync { mRecyclerView.smoothScrollBy(0, 100) }
 
         mRecyclerView.awaitScrollIdle()
 
@@ -172,12 +167,10 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             }
         }
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            mRecyclerView.smoothScrollBy(0, 100)
-        }
+        instrumentation.runOnMainSync { mRecyclerView.smoothScrollBy(0, 100) }
 
         mRecyclerView.awaitScrollIdle()
 
@@ -188,9 +181,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             .isEqualTo(50 - mRecyclerView.mRecycler.mViewCacheMax)
 
         // Clear pool, confirm contents of pool are disposed
-        instrumentation.runOnMainSync {
-            mRecyclerView.recycledViewPool.clear()
-        }
+        instrumentation.runOnMainSync { mRecyclerView.recycledViewPool.clear() }
         instrumentation.runOnMainSync { recyclerViewContainer.removeAllViews() }
         assertThat(adapter.releases).isEqualTo(100)
     }
@@ -199,23 +190,17 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     fun setAdapter_allDisposed() {
         // Replacing the adapter when it is the only adapter attached to the pool means that
         // the pool is cleared, so everything should be disposed.
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) {
-            mRecyclerView.adapter = it
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) { mRecyclerView.adapter = it }
     }
 
     @Test
     fun swapAdapter_noDisposals() {
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 0) {
-            mRecyclerView.swapAdapter(it, false)
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 0) { mRecyclerView.swapAdapter(it, false) }
     }
 
     @Test
     fun setAdapterToNull_allDisposed() {
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) {
-            mRecyclerView.adapter = null
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) { mRecyclerView.adapter = null }
     }
 
     private fun doSetOrSwapTest(
@@ -231,12 +216,10 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             }
         }
         setAdapter(adapter)
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            mRecyclerView.smoothScrollBy(0, 100)
-        }
+        instrumentation.runOnMainSync { mRecyclerView.smoothScrollBy(0, 100) }
 
         mRecyclerView.awaitScrollIdle()
 
@@ -247,9 +230,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             .isEqualTo(50 - mRecyclerView.mRecycler.mViewCacheMax)
 
         // Set or swap adapter, confirm contents of pool are correct
-        instrumentation.runOnMainSync {
-            setOrSwapBlock(adapter2)
-        }
+        instrumentation.runOnMainSync { setOrSwapBlock(adapter2) }
         assertThat(adapter.releases + adapter2.releases).isEqualTo(expectedDisposalsAfterBlock)
 
         // Remove the RecyclerView, confirm everything is disposed
@@ -273,7 +254,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             }
         }
 
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items created and bound
         assertThat(adapter.creations).isEqualTo(100)
@@ -284,7 +265,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             adapter.notifyItemRangeRemoved(0, 100)
             adapter.notifyItemRangeInserted(0, 100)
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         assertThat(adapter.creations).isEqualTo(200)
 
@@ -297,9 +278,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     @Test
     fun sharedViewPool() {
         val itemViewCacheSize = 2
-        instrumentation.runOnMainSync {
-            activity.container.removeAllViews()
-        }
+        instrumentation.runOnMainSync { activity.container.removeAllViews() }
         val lp1 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         val lp2 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         val rv1: RecyclerView = mRecyclerView.also { it.layoutParams = lp1 }
@@ -309,14 +288,20 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
         val adapter1 = PoolingContainerTestAdapter(activity, 100, 10)
         val adapter2 = PoolingContainerTestAdapter(activity, 100, 10)
         instrumentation.runOnMainSync {
-            rv2 = RecyclerView(activity).also { setUpRecyclerView(it); it.layoutParams = lp2 }
-            container = LinearLayout(activity).also {
-                it.layoutParams = TestedFrameLayout.FullControlLayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    200
-                )
-                it.orientation = LinearLayout.VERTICAL
-            }
+            rv2 =
+                RecyclerView(activity).also {
+                    setUpRecyclerView(it)
+                    it.layoutParams = lp2
+                }
+            container =
+                LinearLayout(activity).also {
+                    it.layoutParams =
+                        TestedFrameLayout.FullControlLayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            200
+                        )
+                    it.orientation = LinearLayout.VERTICAL
+                }
             rv1.setItemViewCacheSize(itemViewCacheSize)
             rv2.setItemViewCacheSize(itemViewCacheSize)
             rv1.adapter = adapter1
@@ -331,15 +316,11 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
             rv2.setRecycledViewPool(pool)
         }
 
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
         assertThat(adapter1.creations).isEqualTo(10)
 
         // Scroll to put some views into the shared pool
-        repeat(10) {
-            instrumentation.runOnMainSync {
-                rv1.scrollBy(0, 10)
-            }
-        }
+        repeat(10) { instrumentation.runOnMainSync { rv1.scrollBy(0, 10) } }
 
         // The RV keeps a couple items in its view cache before returning them to the pool
         val expectedRecycledItems = 10 - itemViewCacheSize
@@ -353,10 +334,8 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
         assertThat(adapter1Creations).isAtLeast(20)
 
         // Remove the first RecyclerView
-        instrumentation.runOnMainSync {
-            container.removeView(rv1)
-        }
-        instrumentation.runOnMainSync { } // get the relayout
+        instrumentation.runOnMainSync { container.removeView(rv1) }
+        instrumentation.runOnMainSync {} // get the relayout
 
         // After the first RecyclerView is removed, we expect everything it created to be disposed,
         // *except* for what's in the shared pool
@@ -366,9 +345,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
         assertThat(adapter2.creations).isEqualTo(20) // it's twice as tall with rv1 gone
         assertThat(adapter2.releases).isEqualTo(0) // it hasn't scrolled
 
-        instrumentation.runOnMainSync {
-            container.removeView(rv2)
-        }
+        instrumentation.runOnMainSync { container.removeView(rv2) }
         assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just to be really sure...
         assertThat(adapter1.releases).isEqualTo(adapter1Creations) // at this point they're all off
         assertThat(adapter2.creations).isEqualTo(20) // again, just checking
@@ -379,9 +356,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
     fun animationTest() = runBlocking {
         animationRule.setAnimationDurationScale(1f)
 
-        withContext(Dispatchers.Main) {
-            mRecyclerView.itemAnimator = DefaultItemAnimator()
-        }
+        withContext(Dispatchers.Main) { mRecyclerView.itemAnimator = DefaultItemAnimator() }
 
         val adapter = PoolingContainerTestAdapter(activity, 100, itemHeightPx = 2)
         setAdapter(adapter)
@@ -418,8 +393,7 @@ class PoolingContainerTestAdapter(
     val context: Context,
     var items: Int,
     private val itemHeightPx: Int = 1
-) :
-    RecyclerView.Adapter<PoolingContainerTestAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PoolingContainerTestAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     var creations = 0
@@ -458,10 +432,12 @@ private suspend fun RecyclerView.awaitItemAnimationsComplete() {
     val rv = this
     withContext(Dispatchers.Main) {
         suspendCancellableCoroutine<Unit> { continuation ->
-            val animator = rv.itemAnimator ?: throw IllegalStateException(
-                "awaitItemAnimationsComplete() was called on a RecyclerView with no ItemAnimator." +
-                    " This may have been unintended."
-            )
+            val animator =
+                rv.itemAnimator
+                    ?: throw IllegalStateException(
+                        "awaitItemAnimationsComplete() was called on a RecyclerView with no ItemAnimator." +
+                            " This may have been unintended."
+                    )
             animator.isRunning { continuation.resume(Unit) }
         }
     }

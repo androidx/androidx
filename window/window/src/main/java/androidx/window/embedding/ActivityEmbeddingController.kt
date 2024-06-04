@@ -23,9 +23,7 @@ import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.core.ExperimentalWindowApi
 
-/**
- * The controller that allows checking the current [Activity] embedding status.
- */
+/** The controller that allows checking the current [Activity] embedding status. */
 class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
@@ -34,8 +32,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param activity the [Activity] to check.
      */
     // TODO(b/204399167) Migrate to a Flow
-    fun isActivityEmbedded(activity: Activity): Boolean =
-        backend.isActivityEmbedded(activity)
+    fun isActivityEmbedded(activity: Activity): Boolean = backend.isActivityEmbedded(activity)
 
     /**
      * Returns the [ActivityStack] that this [activity] is part of when it is being organized in the
@@ -44,11 +41,10 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activity The [Activity] to check.
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
-     * [ActivityStack].
+     *   [ActivityStack].
      */
     @ExperimentalWindowApi
-    fun getActivityStack(activity: Activity): ActivityStack? =
-        backend.getActivityStack(activity)
+    fun getActivityStack(activity: Activity): ActivityStack? = backend.getActivityStack(activity)
 
     /**
      * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].

@@ -57,49 +57,51 @@ class CredentialManagerTest {
     }
 
     @Test
-    fun getCredential_requestBasedApi_throws() = runBlocking<Unit> {
-        if (Looper.myLooper() == null) {
-            Looper.prepare()
-        }
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(GetPasswordOption())
-            .build()
+    fun getCredential_requestBasedApi_throws() =
+        runBlocking<Unit> {
+            if (Looper.myLooper() == null) {
+                Looper.prepare()
+            }
+            val request =
+                GetCredentialRequest.Builder().addCredentialOption(GetPasswordOption()).build()
 
-        withUse(ActivityScenario.launch(TestActivity::class.java)) {
-            withActivity {
-                runBlocking {
-                    assertThrows<NoCredentialException> {
-                        credentialManager.getCredential(this@withActivity, request)
+            withUse(ActivityScenario.launch(TestActivity::class.java)) {
+                withActivity {
+                    runBlocking {
+                        assertThrows<NoCredentialException> {
+                            credentialManager.getCredential(this@withActivity, request)
+                        }
                     }
                 }
             }
         }
-    }
 
     @Test
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-    fun testPrepareGetCredential_throwsUnimplementedError() = runBlocking<Unit> {
-        val prepareGetCredentialResponse = credentialManager.prepareGetCredential(
-            GetCredentialRequest(listOf(GetPasswordOption()))
-        )
+    fun testPrepareGetCredential_throwsUnimplementedError() =
+        runBlocking<Unit> {
+            val prepareGetCredentialResponse =
+                credentialManager.prepareGetCredential(
+                    GetCredentialRequest(listOf(GetPasswordOption()))
+                )
 
-        if (Looper.myLooper() == null) {
-            Looper.prepare()
-        }
+            if (Looper.myLooper() == null) {
+                Looper.prepare()
+            }
 
-        withUse(ActivityScenario.launch(TestActivity::class.java)) {
-            withActivity {
-                runBlocking {
-                    assertThrows<NoCredentialException> {
-                        credentialManager.getCredential(
-                            this@withActivity,
-                            prepareGetCredentialResponse.pendingGetCredentialHandle!!
-                        )
+            withUse(ActivityScenario.launch(TestActivity::class.java)) {
+                withActivity {
+                    runBlocking {
+                        assertThrows<NoCredentialException> {
+                            credentialManager.getCredential(
+                                this@withActivity,
+                                prepareGetCredentialResponse.pendingGetCredentialHandle!!
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 
     @Test
     fun testCreateCredentialAsyc_successCallbackThrows() {
@@ -108,32 +110,32 @@ class CredentialManagerTest {
         }
         val latch = CountDownLatch(1)
         val loadedResult: AtomicReference<CreateCredentialException> = AtomicReference()
-        val activityScenario = ActivityScenario.launch(
-            TestActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestActivity::class.java)
 
         activityScenario.onActivity { activity ->
             credentialManager.createCredentialAsync(
                 activity,
                 CreatePasswordRequest("test-user-id", "test-password"),
-                null, Executor { obj: Runnable -> obj.run() },
-                object : CredentialManagerCallback<CreateCredentialResponse,
-                    CreateCredentialException> {
+                null,
+                Executor { obj: Runnable -> obj.run() },
+                object :
+                    CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException> {
                     override fun onResult(result: CreateCredentialResponse) {}
+
                     override fun onError(e: CreateCredentialException) {
                         loadedResult.set(e)
                         latch.countDown()
                     }
-                })
+                }
+            )
         }
 
         latch.await(100L, TimeUnit.MILLISECONDS)
         if (loadedResult.get() == null) {
             return // A strange flow occurred where an exception wasn't propagated up
         }
-        assertThat(loadedResult.get().javaClass).isEqualTo(
-            CreateCredentialNoCreateOptionException::class.java
-        )
+        assertThat(loadedResult.get().javaClass)
+            .isEqualTo(CreateCredentialNoCreateOptionException::class.java)
     }
 
     @Ignore // b/290792682
@@ -147,7 +149,8 @@ class CredentialManagerTest {
 
         credentialManager.clearCredentialStateAsync(
             ClearCredentialStateRequest(),
-            null, Executor { obj: Runnable -> obj.run() },
+            null,
+            Executor { obj: Runnable -> obj.run() },
             object : CredentialManagerCallback<Void?, ClearCredentialException> {
                 override fun onError(e: ClearCredentialException) {
                     loadedResult.set(e)
@@ -155,7 +158,8 @@ class CredentialManagerTest {
                 }
 
                 override fun onResult(result: Void?) {}
-            })
+            }
+        )
 
         latch.await(100L, TimeUnit.MILLISECONDS)
         if (loadedResult.get() == null) {
@@ -163,9 +167,10 @@ class CredentialManagerTest {
         }
 
         // Check the exception is the correct type.
-        assertThat(loadedResult.get().type).isEqualTo(
-            ClearCredentialProviderConfigurationException
-                .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
-        )
+        assertThat(loadedResult.get().type)
+            .isEqualTo(
+                ClearCredentialProviderConfigurationException
+                    .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+            )
     }
 }

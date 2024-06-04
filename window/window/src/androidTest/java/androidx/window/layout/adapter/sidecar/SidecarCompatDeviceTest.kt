@@ -53,8 +53,8 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
 /**
- * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat] that are
- * executed with Sidecar implementation provided on the device (and only if one is available).
+ * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat] that are executed with
+ * Sidecar implementation provided on the device (and only if one is available).
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -80,10 +80,8 @@ class SidecarCompatDeviceTest : WindowTestBase() {
             sidecarCompat.setExtensionCallback(callbackInterface)
             sidecarCompat.onWindowLayoutChangeListenerAdded(testActivity)
             val sidecarWindowLayoutInfo = sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
-            verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-                any(),
-                argThat(SidecarMatcher(sidecarWindowLayoutInfo))
-            )
+            verify(callbackInterface, atLeastOnce())
+                .onWindowLayoutChanged(any(), argThat(SidecarMatcher(sidecarWindowLayoutInfo)))
         }
     }
 
@@ -107,14 +105,10 @@ class SidecarCompatDeviceTest : WindowTestBase() {
                 assertNotNull(windowToken)
                 val sidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
-                val expected = SidecarAdapter().translate(
-                    sidecarWindowLayoutInfo,
-                    sidecarCompat.sidecar!!.deviceState
-                )
-                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-                    any(),
-                    eq(expected)
-                )
+                val expected =
+                    SidecarAdapter()
+                        .translate(sidecarWindowLayoutInfo, sidecarCompat.sidecar!!.deviceState)
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), eq(expected))
             }
             scenario.onActivity { activity ->
                 activity.resetLayoutCounter()
@@ -126,14 +120,13 @@ class SidecarCompatDeviceTest : WindowTestBase() {
                 assertNotNull(windowToken)
                 val updatedSidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
-                val expected = SidecarAdapter().translate(
-                    updatedSidecarWindowLayoutInfo,
-                    sidecarCompat.sidecar!!.deviceState
-                )
-                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-                    any(),
-                    eq(expected)
-                )
+                val expected =
+                    SidecarAdapter()
+                        .translate(
+                            updatedSidecarWindowLayoutInfo,
+                            sidecarCompat.sidecar!!.deviceState
+                        )
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), eq(expected))
             }
         }
     }
@@ -143,9 +136,8 @@ class SidecarCompatDeviceTest : WindowTestBase() {
         assumeTrue(Version.VERSION_0_1 == sidecarVersion || Version.VERSION_1_0 == sidecarVersion)
     }
 
-    private class SidecarMatcher(
-        private val sidecarWindowLayoutInfo: SidecarWindowLayoutInfo
-    ) : ArgumentMatcher<WindowLayoutInfo> {
+    private class SidecarMatcher(private val sidecarWindowLayoutInfo: SidecarWindowLayoutInfo) :
+        ArgumentMatcher<WindowLayoutInfo> {
         override fun matches(windowLayoutInfo: WindowLayoutInfo): Boolean {
             val sidecarDisplayFeatures =
                 SidecarAdapter.getSidecarDisplayFeatures(sidecarWindowLayoutInfo)

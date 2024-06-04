@@ -39,16 +39,18 @@ internal object ExtensionsWindowLayoutInfoAdapter {
         windowMetrics: WindowMetrics,
         oemFeature: OEMFoldingFeature,
     ): FoldingFeature? {
-        val type = when (oemFeature.type) {
-            OEMFoldingFeature.TYPE_FOLD -> FOLD
-            OEMFoldingFeature.TYPE_HINGE -> HINGE
-            else -> return null
-        }
-        val state = when (oemFeature.state) {
-            OEMFoldingFeature.STATE_FLAT -> FLAT
-            OEMFoldingFeature.STATE_HALF_OPENED -> HALF_OPENED
-            else -> return null
-        }
+        val type =
+            when (oemFeature.type) {
+                OEMFoldingFeature.TYPE_FOLD -> FOLD
+                OEMFoldingFeature.TYPE_HINGE -> HINGE
+                else -> return null
+            }
+        val state =
+            when (oemFeature.state) {
+                OEMFoldingFeature.STATE_FLAT -> FLAT
+                OEMFoldingFeature.STATE_HALF_OPENED -> HALF_OPENED
+                else -> return null
+            }
         val bounds = Bounds(oemFeature.bounds)
         return if (validBounds(windowMetrics, bounds)) {
             HardwareFoldingFeature(Bounds(oemFeature.bounds), type, state)
@@ -77,21 +79,23 @@ internal object ExtensionsWindowLayoutInfoAdapter {
         windowMetrics: WindowMetrics,
         info: OEMWindowLayoutInfo
     ): WindowLayoutInfo {
-        val features = info.displayFeatures.mapNotNull { feature ->
-            when (feature) {
-                is OEMFoldingFeature -> translate(windowMetrics, feature)
-                else -> null
+        val features =
+            info.displayFeatures.mapNotNull { feature ->
+                when (feature) {
+                    is OEMFoldingFeature -> translate(windowMetrics, feature)
+                    else -> null
+                }
             }
-        }
         return WindowLayoutInfo(features)
     }
 
     /**
      * Checks the bounds for a [FoldingFeature] within a given [WindowMetrics]. Validates the
      * following:
-     *  - [Bounds] are not `0`
-     *  - [Bounds] are either full width or full height
-     *  - [Bounds] do not take up the entire [windowMetrics]
+     * - [Bounds] are not `0`
+     * - [Bounds] are either full width or full height
+     * - [Bounds] do not take up the entire [windowMetrics]
+     *
      * @param windowMetrics Extracted from a [UiContext] housing the [FoldingFeature].
      * @param bounds the bounds of a [FoldingFeature]
      * @return true if the bounds are valid for the [WindowMetrics], false otherwise.

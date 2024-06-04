@@ -25,8 +25,7 @@ import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import java.util.concurrent.Executor
 
-/**
- */
+/**  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackend {
     fun setRules(rules: Set<EmbeddingRule>)
@@ -43,9 +42,7 @@ interface EmbeddingBackend {
         callback: Consumer<List<SplitInfo>>
     )
 
-    fun removeSplitListenerForActivity(
-        consumer: Consumer<List<SplitInfo>>
-    )
+    fun removeSplitListenerForActivity(consumer: Consumer<List<SplitInfo>>)
 
     val splitSupportStatus: SplitController.SplitSupportStatus
 
@@ -56,24 +53,21 @@ interface EmbeddingBackend {
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )
 
-    @RequiresWindowSdkExtension(2)
-    fun clearSplitAttributesCalculator()
+    @RequiresWindowSdkExtension(2) fun clearSplitAttributesCalculator()
 
     fun getActivityStack(activity: Activity): ActivityStack?
 
     @RequiresWindowSdkExtension(3)
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
 
-    @RequiresWindowSdkExtension(3)
-    fun invalidateTopVisibleSplitAttributes()
+    @RequiresWindowSdkExtension(3) fun invalidateTopVisibleSplitAttributes()
 
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 
     companion object {
 
-        private var decorator: (EmbeddingBackend) -> EmbeddingBackend =
-            { it }
+        private var decorator: (EmbeddingBackend) -> EmbeddingBackend = { it }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -98,8 +92,6 @@ interface EmbeddingBackend {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackendDecorator {
 
-    /**
-     * Returns an instance of [EmbeddingBackend]
-     */
+    /** Returns an instance of [EmbeddingBackend] */
     fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend
 }

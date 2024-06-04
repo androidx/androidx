@@ -27,9 +27,7 @@ import org.junit.Test
 class CreatePublicKeyCredentialDomExceptionTest {
     @Test(expected = CreatePublicKeyCredentialDomException::class)
     fun construct_inputNonEmpty_success() {
-        throw CreatePublicKeyCredentialDomException(
-            AbortError(), "msg"
-        )
+        throw CreatePublicKeyCredentialDomException(AbortError(), "msg")
     }
 
     @Test
@@ -38,7 +36,8 @@ class CreatePublicKeyCredentialDomExceptionTest {
         val expectedDomError = EncodingError()
         val expectedType =
             CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                SEPARATOR + expectedDomError.type
+                SEPARATOR +
+                expectedDomError.type
 
         val exception = CreatePublicKeyCredentialDomException(expectedDomError, expectedMessage)
 
@@ -50,15 +49,14 @@ class CreatePublicKeyCredentialDomExceptionTest {
     fun frameworkToJetpackConversion_success() {
         val expectedMessage = "msg"
         val expectedDomError = EncodingError()
-        val expectedType = CreatePublicKeyCredentialDomException
-            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + expectedDomError.type
+        val expectedType =
+            CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+                SEPARATOR +
+                expectedDomError.type
 
-        val exception = CreatePublicKeyCredentialException.createFrom(expectedType,
-            expectedMessage)
+        val exception = CreatePublicKeyCredentialException.createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            CreatePublicKeyCredentialDomException::class.java
-        )
+        assertThat(exception).isInstanceOf(CreatePublicKeyCredentialDomException::class.java)
         assertThat((exception as CreatePublicKeyCredentialDomException).domError)
             .isInstanceOf(EncodingError::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
@@ -74,9 +72,7 @@ class CreatePublicKeyCredentialDomExceptionTest {
 
         val exception = createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            CreateCredentialCustomException::class.java
-        )
+        assertThat(exception).isInstanceOf(CreateCredentialCustomException::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.message).isEqualTo(expectedMessage)
     }

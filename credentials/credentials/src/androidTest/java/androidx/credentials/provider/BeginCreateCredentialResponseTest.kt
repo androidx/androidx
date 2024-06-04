@@ -33,12 +33,7 @@ class BeginCreateCredentialResponseTest {
     @Test
     fun constructor_success() {
         BeginCreateCredentialResponse(
-            createEntries = listOf(
-                constructCreateEntryWithSimpleParams(
-                    "AccountName",
-                    "Desc"
-                )
-            ),
+            createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
             remoteEntry = constructRemoteEntryDefault()
         )
     }
@@ -46,20 +41,13 @@ class BeginCreateCredentialResponseTest {
     @Test
     fun constructor_createEntriesOnly() {
         BeginCreateCredentialResponse(
-            createEntries = listOf(
-                constructCreateEntryWithSimpleParams(
-                    "AccountName",
-                    "Desc"
-                )
-            )
+            createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc"))
         )
     }
 
     @Test
     fun constructor_remoteEntryOnly() {
-        BeginCreateCredentialResponse(
-            remoteEntry = constructRemoteEntryDefault()
-        )
+        BeginCreateCredentialResponse(remoteEntry = constructRemoteEntryDefault())
     }
 
     @Test
@@ -68,14 +56,13 @@ class BeginCreateCredentialResponseTest {
         val expectedDescription = "Desc"
         val expectedSize = 1
 
-        val beginCreateCredentialResponse = BeginCreateCredentialResponse(
-            listOf(
-                constructCreateEntryWithSimpleParams(
-                    expectedAccountName,
-                    expectedDescription
-                )
-            ), null
-        )
+        val beginCreateCredentialResponse =
+            BeginCreateCredentialResponse(
+                listOf(
+                    constructCreateEntryWithSimpleParams(expectedAccountName, expectedDescription)
+                ),
+                null
+            )
         val actualAccountName = beginCreateCredentialResponse.createEntries[0].accountName
         val actualDescription = beginCreateCredentialResponse.createEntries[0].description
 
@@ -87,15 +74,11 @@ class BeginCreateCredentialResponseTest {
     @Test
     fun getter_remoteEntry_null() {
         val expectedRemoteEntry: RemoteEntry? = null
-        val beginCreateCredentialResponse = BeginCreateCredentialResponse(
-            listOf(
-                constructCreateEntryWithSimpleParams(
-                    "AccountName",
-                    "Desc"
-                )
-            ),
-            expectedRemoteEntry
-        )
+        val beginCreateCredentialResponse =
+            BeginCreateCredentialResponse(
+                listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
+                expectedRemoteEntry
+            )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
         assertThat(actualRemoteEntry).isEqualTo(expectedRemoteEntry)
@@ -105,15 +88,11 @@ class BeginCreateCredentialResponseTest {
     fun getter_remoteEntry_nonNull() {
         val expectedRemoteEntry: RemoteEntry = constructRemoteEntryDefault()
 
-        val beginCreateCredentialResponse = BeginCreateCredentialResponse(
-            listOf(
-                constructCreateEntryWithSimpleParams(
-                    "AccountName",
-                    "Desc"
-                )
-            ),
-            expectedRemoteEntry
-        )
+        val beginCreateCredentialResponse =
+            BeginCreateCredentialResponse(
+                listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
+                expectedRemoteEntry
+            )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
         assertThat(actualRemoteEntry).isEqualTo(expectedRemoteEntry)

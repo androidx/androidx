@@ -23,9 +23,10 @@ package androidx.credentials.exceptions
  *
  * @see ClearCredentialException
  */
-class ClearCredentialInterruptedException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
+class ClearCredentialInterruptedException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    ClearCredentialException(TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION"

@@ -23,9 +23,10 @@ package androidx.credentials.exceptions
  *
  * @see GetCredentialException
  */
-class GetCredentialCancellationException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
+class GetCredentialCancellationException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    GetCredentialException(TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
 
     internal companion object {
         internal const val TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION =

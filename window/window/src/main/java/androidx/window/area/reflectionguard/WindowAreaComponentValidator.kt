@@ -20,20 +20,22 @@ import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.reflection.ReflectionUtils.validateImplementation
 
-/**
- * Utility class to validate [WindowAreaComponent] implementation.
- */
+/** Utility class to validate [WindowAreaComponent] implementation. */
 internal object WindowAreaComponentValidator {
 
     internal fun isWindowAreaComponentValid(windowAreaComponent: Class<*>, apiLevel: Int): Boolean {
         return when {
             apiLevel <= 1 -> false
-            apiLevel == 2 -> validateImplementation(
-                windowAreaComponent, WindowAreaComponentApi2Requirements::class.java
-            )
-            else -> validateImplementation(
-                windowAreaComponent, WindowAreaComponentApi3Requirements::class.java
-            )
+            apiLevel == 2 ->
+                validateImplementation(
+                    windowAreaComponent,
+                    WindowAreaComponentApi2Requirements::class.java
+                )
+            else ->
+                validateImplementation(
+                    windowAreaComponent,
+                    WindowAreaComponentApi3Requirements::class.java
+                )
         }
     }
 
@@ -43,9 +45,11 @@ internal object WindowAreaComponentValidator {
     ): Boolean {
         return when {
             apiLevel <= 1 -> false
-            else -> validateImplementation(
-                extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
-            )
+            else ->
+                validateImplementation(
+                    extensionWindowAreaStatus,
+                    ExtensionWindowAreaStatusRequirements::class.java
+                )
         }
     }
 
@@ -55,9 +59,11 @@ internal object WindowAreaComponentValidator {
     ): Boolean {
         return when {
             apiLevel <= 2 -> false
-            else -> validateImplementation(
-                extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
-            )
+            else ->
+                validateImplementation(
+                    extensionWindowAreaPresentation,
+                    ExtensionWindowAreaPresentation::class.java
+                )
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.window.layout.WindowLayoutInfo
 
 /**
  * Returns a [WindowLayoutInfo] with default values for testing.
+ *
  * @param displayFeatures a [List] of [DisplayFeature], the default value is an empty [List].
  * @return [WindowLayoutInfo] with matching [List] of [DisplayFeature]
  * @see WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo

@@ -29,9 +29,7 @@ import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/**
- * Tests for [WindowAreaAdapter].
- */
+/** Tests for [WindowAreaAdapter]. */
 @ExperimentalWindowApi
 class WindowAreaAdapterTest {
 
@@ -42,7 +40,8 @@ class WindowAreaAdapterTest {
                 STATUS_UNSUPPORTED,
                 sessionActive = false,
                 vendorApiLevel = 3
-            ), WINDOW_AREA_STATUS_UNSUPPORTED
+            ),
+            WINDOW_AREA_STATUS_UNSUPPORTED
         )
     }
 
@@ -53,7 +52,8 @@ class WindowAreaAdapterTest {
                 STATUS_AVAILABLE,
                 sessionActive = false,
                 vendorApiLevel = 3
-            ), WINDOW_AREA_STATUS_AVAILABLE
+            ),
+            WINDOW_AREA_STATUS_AVAILABLE
         )
     }
 
@@ -64,7 +64,8 @@ class WindowAreaAdapterTest {
                 STATUS_UNAVAILABLE,
                 sessionActive = false,
                 vendorApiLevel = 3
-            ), WINDOW_AREA_STATUS_UNAVAILABLE
+            ),
+            WINDOW_AREA_STATUS_UNAVAILABLE
         )
 
         // Verify that if there is a session Active, we return ACTIVE
@@ -73,18 +74,16 @@ class WindowAreaAdapterTest {
                 STATUS_UNAVAILABLE,
                 sessionActive = true,
                 vendorApiLevel = 3
-            ), WINDOW_AREA_STATUS_ACTIVE
+            ),
+            WINDOW_AREA_STATUS_ACTIVE
         )
     }
 
     @Test
     fun testWindowAreaAdapterActive_vendorApiLevel3() {
         assertEquals(
-            WindowAreaAdapter.translate(
-                STATUS_ACTIVE,
-                sessionActive = false,
-                vendorApiLevel = 3
-            ), WINDOW_AREA_STATUS_ACTIVE
+            WindowAreaAdapter.translate(STATUS_ACTIVE, sessionActive = false, vendorApiLevel = 3),
+            WINDOW_AREA_STATUS_ACTIVE
         )
     }
 
@@ -95,7 +94,8 @@ class WindowAreaAdapterTest {
                 STATUS_UNSUPPORTED,
                 sessionActive = false,
                 vendorApiLevel = 4
-            ), WINDOW_AREA_STATUS_UNSUPPORTED
+            ),
+            WINDOW_AREA_STATUS_UNSUPPORTED
         )
     }
 
@@ -106,7 +106,8 @@ class WindowAreaAdapterTest {
                 STATUS_AVAILABLE,
                 sessionActive = false,
                 vendorApiLevel = 4
-            ), WINDOW_AREA_STATUS_AVAILABLE
+            ),
+            WINDOW_AREA_STATUS_AVAILABLE
         )
     }
 
@@ -117,18 +118,16 @@ class WindowAreaAdapterTest {
                 STATUS_UNAVAILABLE,
                 sessionActive = false,
                 vendorApiLevel = 4
-            ), WINDOW_AREA_STATUS_UNAVAILABLE
+            ),
+            WINDOW_AREA_STATUS_UNAVAILABLE
         )
     }
 
     @Test
     fun testWindowAreaAdapterActive_vendorApiLevel4() {
         assertEquals(
-            WindowAreaAdapter.translate(
-                STATUS_ACTIVE,
-                sessionActive = false,
-                vendorApiLevel = 4
-            ), WINDOW_AREA_STATUS_ACTIVE
+            WindowAreaAdapter.translate(STATUS_ACTIVE, sessionActive = false, vendorApiLevel = 4),
+            WINDOW_AREA_STATUS_ACTIVE
         )
     }
 }

@@ -132,14 +132,15 @@ class ExtensionsWindowLayoutInfoAdapterTest {
             val windowMetrics = computeCurrentWindowMetrics(activity)
             val windowBounds = windowMetrics.bounds
 
-            val source = invalidNonZeroFoldBounds(windowBounds)
-                .map { featureBounds ->
+            val source =
+                invalidNonZeroFoldBounds(windowBounds).map { featureBounds ->
                     OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
                 }
 
-            val invalidFeatures = source.mapNotNull { feature ->
-                ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, feature)
-            }
+            val invalidFeatures =
+                source.mapNotNull { feature ->
+                    ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, feature)
+                }
 
             assertTrue(source.isNotEmpty())
             assertTrue(

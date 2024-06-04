@@ -45,8 +45,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
-    RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener,
+open class SplitDeviceStateActivityBase :
+    AppCompatActivity(),
+    View.OnClickListener,
+    RadioGroup.OnCheckedChangeListener,
+    CompoundButton.OnCheckedChangeListener,
     AdapterView.OnItemSelectedListener {
 
     private lateinit var splitController: SplitController
@@ -71,10 +74,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
         splitController = SplitController.getInstance(this)
         if (splitController.splitSupportStatus != SPLIT_AVAILABLE) {
-            Toast.makeText(
-                this, R.string.toast_split_not_support,
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, R.string.toast_split_not_support, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -97,8 +97,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             // launched from the primary.
             viewBinding.chooseLayoutTextView.visibility = View.GONE
             radioGroup.visibility = View.GONE
-            viewBinding.launchActivityToSide.text = resources
-                .getString(R.string.finish_this_activity)
+            viewBinding.launchActivityToSide.text =
+                resources.getString(R.string.finish_this_activity)
         }
 
         viewBinding.showHorizontalLayoutInTabletopCheckBox.setOnCheckedChangeListener(this)
@@ -114,8 +114,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             viewBinding.splitByHingeWhenSeparatingRadioButton.isEnabled = false
             hideAllSubCheckBoxes()
             // Add the error message to notify the SplitAttributesCalculator is not available.
-            viewBinding.warningMessageTextView.text = resources
-                .getString(R.string.split_attributes_calculator_not_supported)
+            viewBinding.warningMessageTextView.text =
+                resources.getString(R.string.split_attributes_calculator_not_supported)
         }
 
         lifecycleScope.launch {
@@ -123,11 +123,11 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                splitController.splitInfoList(this@SplitDeviceStateActivityBase)
-                    .collect { newSplitInfos ->
-                        updateSplitAttributesText(newSplitInfos)
-                        updateRadioGroupAndCheckBoxFromRule()
-                    }
+                splitController.splitInfoList(this@SplitDeviceStateActivityBase).collect {
+                    newSplitInfos ->
+                    updateSplitAttributesText(newSplitInfos)
+                    updateRadioGroupAndCheckBoxFromRule()
+                }
             }
         }
     }
@@ -154,9 +154,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             }
             R.id.show_horizontal_layout_in_tabletop_check_box -> {
                 shouldShowHorizontalInTabletop = isChecked
-                updateSplitPairRuleWithRadioButtonId(
-                    R.id.show_fullscreen_in_portrait_radio_button
-                )
+                updateSplitPairRuleWithRadioButtonId(R.id.show_fullscreen_in_portrait_radio_button)
             }
             R.id.show_fullscreen_in_book_mode_check_box -> {
                 shouldShowFullscreenInBookMode = isChecked
@@ -241,70 +239,67 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         ruleController.clearRules()
 
         val splitPairFilters = HashSet<SplitPairFilter>()
-        val splitPairFilter = SplitPairFilter(
-            activityA,
-            activityB,
-            secondaryActivityIntentAction = null
-        )
+        val splitPairFilter =
+            SplitPairFilter(activityA, activityB, secondaryActivityIntentAction = null)
         splitPairFilters.add(splitPairFilter)
-        val defaultSplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_EQUAL)
-            .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-            .build()
+        val defaultSplitAttributes =
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_EQUAL)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .build()
         // Use the tag to control the rule how to change split attributes with the current state
-        var tag = when (id) {
-            R.id.use_default_split_attributes -> TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
-            R.id.show_fullscreen_in_portrait_radio_button -> {
-                if (shouldShowHorizontalInTabletop) {
-                    TAG_SHOW_FULLSCREEN_IN_PORTRAIT + SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
-                } else {
-                    TAG_SHOW_FULLSCREEN_IN_PORTRAIT
+        var tag =
+            when (id) {
+                R.id.use_default_split_attributes -> TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
+                R.id.show_fullscreen_in_portrait_radio_button -> {
+                    if (shouldShowHorizontalInTabletop) {
+                        TAG_SHOW_FULLSCREEN_IN_PORTRAIT + SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
+                    } else {
+                        TAG_SHOW_FULLSCREEN_IN_PORTRAIT
+                    }
                 }
-            }
-            R.id.show_horizontal_layout_in_tabletop_radio_button -> {
-                if (shouldReverseContainerPosition) {
-                    TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP + SUFFIX_REVERSED
-                } else {
-                    TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
+                R.id.show_horizontal_layout_in_tabletop_radio_button -> {
+                    if (shouldReverseContainerPosition) {
+                        TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP + SUFFIX_REVERSED
+                    } else {
+                        TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
+                    }
                 }
-            }
-            R.id.show_different_layout_with_size_radio_button -> {
-                if (shouldShowFullscreenInBookMode) {
-                    TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE
-                } else {
-                    TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE
+                R.id.show_different_layout_with_size_radio_button -> {
+                    if (shouldShowFullscreenInBookMode) {
+                        TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE + SUFFIX_AND_FULLSCREEN_IN_BOOK_MODE
+                    } else {
+                        TAG_SHOW_DIFFERENT_LAYOUT_WITH_SIZE
+                    }
                 }
+                R.id.split_by_hinge_when_separating_radio_button ->
+                    TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
+                else -> null
             }
-            R.id.split_by_hinge_when_separating_radio_button ->
-                TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
-            else -> null
-        }
         if (shouldReverseContainerPosition) {
             tag += SUFFIX_REVERSED
         }
 
-        splitPairRule = SplitPairRule.Builder(splitPairFilters)
-            .setTag(tag)
-            .setMinWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
-            .setMinSmallestWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
-            .setDefaultSplitAttributes(defaultSplitAttributes)
-            .build()
+        splitPairRule =
+            SplitPairRule.Builder(splitPairFilters)
+                .setTag(tag)
+                .setMinWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
+                .setMinSmallestWidthDp(DEFAULT_MINIMUM_WIDTH_DP)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
+                .build()
         ruleController.addRule(splitPairRule)
     }
 
     private suspend fun updateSplitAttributesText(newSplitInfos: List<SplitInfo>) {
-        var splitAttributes: SplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SPLIT_TYPE_EXPAND)
-            .build()
+        var splitAttributes: SplitAttributes =
+            SplitAttributes.Builder().setSplitType(SPLIT_TYPE_EXPAND).build()
         var suggestToFinishItself = false
 
         // Traverse SplitInfos from the end because last SplitInfo has the highest z-order.
         for (info in newSplitInfos.reversed()) {
             if (info.contains(this@SplitDeviceStateActivityBase)) {
                 splitAttributes = info.splitAttributes
-                if (componentName == activityB &&
-                    splitAttributes.splitType == SPLIT_TYPE_EXPAND
-                ) {
+                if (componentName == activityB && splitAttributes.splitType == SPLIT_TYPE_EXPAND) {
                     // We don't put any functionality on activity B. Suggest users to finish the
                     // activity if it fills the host task.
                     suggestToFinishItself = true
@@ -329,9 +324,9 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     private fun updateRadioGroupAndCheckBoxFromRule() {
-        val splitPairRule = ruleController.getRules().firstOrNull { rule ->
-            isRuleForSplitActivityA(rule)
-        } ?: return
+        val splitPairRule =
+            ruleController.getRules().firstOrNull { rule -> isRuleForSplitActivityA(rule) }
+                ?: return
         val tag = splitPairRule.tag
         viewBinding.splitAttributesOptionsRadioGroup.check(
             when (tag?.substringBefore(SUFFIX_REVERSED)) {
@@ -369,8 +364,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             return false
         }
         rule.filters.forEach { filter ->
-            if (filter.primaryActivityName == activityA &&
-                filter.secondaryActivityName == activityB
+            if (
+                filter.primaryActivityName == activityA && filter.secondaryActivityName == activityB
             ) {
                 return true
             }
@@ -392,8 +387,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
          * The default minimum dimension for large screen devices.
          *
          * It is also the default value of [SplitPairRule.minWidthDp] and
-         * [SplitPairRule.minSmallestWidthDp] if the properties are not specified in static rule
-         * XML format.
+         * [SplitPairRule.minSmallestWidthDp] if the properties are not specified in static rule XML
+         * format.
          */
         const val DEFAULT_MINIMUM_WIDTH_DP = 600
     }

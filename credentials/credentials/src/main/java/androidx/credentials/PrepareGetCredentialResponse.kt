@@ -28,9 +28,9 @@ import androidx.annotation.VisibleForTesting
 /**
  * A response object that indicates the get-credential prefetch work is complete and provides
  * metadata about it. It can then be used to issue the full credential retrieval flow via the
- * [CredentialManager.getCredential] (Kotlin) / [CredentialManager.getCredentialAsync] (Java)
- * method to perform the remaining flows such as consent
- * collection and credential selection, to officially retrieve a credential.
+ * [CredentialManager.getCredential] (Kotlin) / [CredentialManager.getCredentialAsync] (Java) method
+ * to perform the remaining flows such as consent collection and credential selection, to officially
+ * retrieve a credential.
  *
  * For now this API requires Android U (level 34). However, it is designed with backward
  * compatibility in mind and can potentially be made accessible <34 if any provider decides to
@@ -39,9 +39,9 @@ import androidx.annotation.VisibleForTesting
  * This class should be constructed using the Builder (see below) for tests/prod usage.
  *
  * @property pendingGetCredentialHandle a handle that represents this pending get-credential
- * operation; pass this handle to [CredentialManager.getCredential] (Kotlin) /
- * [CredentialManager.getCredentialAsync] (Java) to perform the remaining flows to officially
- * retrieve a credential.
+ *   operation; pass this handle to [CredentialManager.getCredential] (Kotlin) /
+ *   [CredentialManager.getCredentialAsync] (Java) to perform the remaining flows to officially
+ *   retrieve a credential.
  * @property hasRemoteResultsDelegate whether the response has remote results
  * @property hasAuthResultsDelegate whether the response has auth results
  * @property credentialTypeDelegate whether the response has a credential result handler
@@ -50,7 +50,8 @@ import androidx.annotation.VisibleForTesting
  */
 @RequiresApi(34)
 @SuppressLint("MissingGetterMatchingBuilder")
-class PrepareGetCredentialResponse private constructor(
+class PrepareGetCredentialResponse
+private constructor(
     val pendingGetCredentialHandle: PendingGetCredentialHandle?,
     val hasRemoteResultsDelegate: HasRemoteResultsDelegate?,
     val hasAuthResultsDelegate: HasAuthenticationResultsDelegate?,
@@ -113,15 +114,14 @@ class PrepareGetCredentialResponse private constructor(
      * [CredentialManager.getCredential] or [CredentialManager.getCredentialAsync] to perform the
      * remaining flows to officially retrieve a credential.
      *
-     * @param frameworkHandle the framework handle representing this pending operation. Must not
-     * be null at API level >= 34.
+     * @param frameworkHandle the framework handle representing this pending operation. Must not be
+     *   null at API level >= 34.
      * @throws NullPointerException If [frameworkHandle] is null at API level >= 34.
      */
     @RequiresApi(34)
     class PendingGetCredentialHandle(
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        val frameworkHandle:
-        PrepareGetCredentialResponse.PendingGetCredentialHandle?
+        val frameworkHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle?
     ) {
         init {
             if (Build.VERSION.SDK_INT >= 34) { // Android U
@@ -171,9 +171,7 @@ class PrepareGetCredentialResponse private constructor(
             return this
         }
 
-        /**
-         * Builds a [PrepareGetCredentialResponse].
-         */
+        /** Builds a [PrepareGetCredentialResponse]. */
         fun build(): androidx.credentials.PrepareGetCredentialResponse {
             return androidx.credentials.PrepareGetCredentialResponse(
                 pendingGetCredentialHandle,
@@ -213,9 +211,7 @@ class PrepareGetCredentialResponse private constructor(
             return this
         }
 
-        /**
-         * Builds a [PrepareGetCredentialResponse].
-         */
+        /** Builds a [PrepareGetCredentialResponse]. */
         fun build(): androidx.credentials.PrepareGetCredentialResponse {
             return androidx.credentials.PrepareGetCredentialResponse(
                 null,

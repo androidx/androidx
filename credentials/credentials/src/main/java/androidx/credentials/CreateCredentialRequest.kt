@@ -31,27 +31,28 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * launch framework UI flows to collect consent and any other metadata needed from the user to
  * register a new user credential.
  *
- * @property type the credential type determined by the credential-type-specific subclass (e.g.
- * the type for [CreatePasswordRequest] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
- * [CreatePublicKeyCredentialRequest] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
+ * @property type the credential type determined by the credential-type-specific subclass (e.g. the
+ *   type for [CreatePasswordRequest] is [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] and for
+ *   [CreatePublicKeyCredentialRequest] is [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL])
  * @property credentialData the request data in the [Bundle] format
- * @property candidateQueryData the partial request data in the [Bundle] format that will be sent
- * to the provider during the initial candidate query stage, which should not contain sensitive
- * user credential information (note: bundle keys in the form of `androidx.credentials.*` are
- * reserved for internal library use)
- * @property isSystemProviderRequired true if must only be fulfilled by a system provider and
- * false otherwise
- * @property isAutoSelectAllowed whether a create option will be automatically chosen if it is
- * the only one available to the user
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
+ *   the provider during the initial candidate query stage, which should not contain sensitive user
+ *   credential information (note: bundle keys in the form of `androidx.credentials.*` are reserved
+ *   for internal library use)
+ * @property isSystemProviderRequired true if must only be fulfilled by a system provider and false
+ *   otherwise
+ * @property isAutoSelectAllowed whether a create option will be automatically chosen if it is the
+ *   only one available to the user
  * @property displayInfo the information to be displayed on the screen
  * @property origin the origin of a different application if the request is being made on behalf of
- * that application (Note: for API level >=34, setting a non-null value for this parameter will
- * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ *   that application (Note: for API level >=34, setting a non-null value for this parameter will
+ *   throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
  * @property preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available passkey registration offering instead of falling back to
- * discovering remote options, and false (preferred by default) otherwise
+ *   immediately when there is no available passkey registration offering instead of falling back to
+ *   discovering remote options, and false (preferred by default) otherwise
  */
-abstract class CreateCredentialRequest internal constructor(
+abstract class CreateCredentialRequest
+internal constructor(
     val type: String,
     val credentialData: Bundle,
     val candidateQueryData: Bundle,
@@ -78,10 +79,11 @@ abstract class CreateCredentialRequest internal constructor(
      *
      * @property userId the user identifier of the created credential
      * @property userDisplayName an optional display name in addition to the [userId] that may be
-     * displayed next to the `userId` during the user consent to help your user better understand
-     * the credential being created
+     *   displayed next to the `userId` during the user consent to help your user better understand
+     *   the credential being created
      */
-    class DisplayInfo internal constructor(
+    class DisplayInfo
+    internal constructor(
         val userId: CharSequence,
         val userDisplayName: CharSequence?,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
@@ -95,11 +97,12 @@ abstract class CreateCredentialRequest internal constructor(
          *
          * @param userId the user id of the created credential
          * @param userDisplayName an optional display name in addition to the [userId] that may be
-         * displayed next to the `userId` during the user consent to help your user better
-         * understand the credential being created
+         *   displayed next to the `userId` during the user consent to help your user better
+         *   understand the credential being created
          * @throws IllegalArgumentException If [userId] is empty
          */
-        @JvmOverloads constructor(
+        @JvmOverloads
+        constructor(
             userId: CharSequence,
             userDisplayName: CharSequence? = null,
         ) : this(
@@ -114,13 +117,13 @@ abstract class CreateCredentialRequest internal constructor(
          *
          * @param userId the user id of the created credential
          * @param userDisplayName an optional display name in addition to the [userId] that may be
-         * displayed next to the `userId` during the user consent to help your user better
-         * understand the credential being created
-         * @param preferDefaultProvider the preferred default provider component name to prioritize in the
-         * selection UI flows. Your app must have the permission
-         * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
-         * would not take effect. Also this bit may not take effect for Android API level 33 and
-         * below, depending on the pre-34 provider(s) you have chosen.
+         *   displayed next to the `userId` during the user consent to help your user better
+         *   understand the credential being created
+         * @param preferDefaultProvider the preferred default provider component name to prioritize
+         *   in the selection UI flows. Your app must have the permission
+         *   android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
+         *   would not take effect. Also this bit may not take effect for Android API level 33 and
+         *   below, depending on the pre-34 provider(s) you have chosen.
          * @throws IllegalArgumentException If [userId] is empty
          */
         constructor(
@@ -160,8 +163,7 @@ abstract class CreateCredentialRequest internal constructor(
             const val BUNDLE_KEY_REQUEST_DISPLAY_INFO =
                 "androidx.credentials.BUNDLE_KEY_REQUEST_DISPLAY_INFO"
             @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-            const val BUNDLE_KEY_USER_ID =
-                "androidx.credentials.BUNDLE_KEY_USER_ID"
+            const val BUNDLE_KEY_USER_ID = "androidx.credentials.BUNDLE_KEY_USER_ID"
 
             internal const val BUNDLE_KEY_USER_DISPLAY_NAME =
                 "androidx.credentials.BUNDLE_KEY_USER_DISPLAY_NAME"
@@ -176,7 +178,7 @@ abstract class CreateCredentialRequest internal constructor(
              * Returns a RequestDisplayInfo from a [CreateCredentialRequest.credentialData] Bundle.
              *
              * @param from the raw display data in the Bundle format, retrieved from
-             * [CreateCredentialRequest.credentialData]
+             *   [CreateCredentialRequest.credentialData]
              */
             @JvmStatic
             @RequiresApi(23)
@@ -209,16 +211,15 @@ abstract class CreateCredentialRequest internal constructor(
 
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
-         * [CreatePublicKeyCredentialRequest], and
-         * [CreateCustomCredentialRequest].
+         * [CreatePublicKeyCredentialRequest], and [CreateCustomCredentialRequest].
          *
          * @param type matches [CreateCredentialRequest.type]
          * @param credentialData matches [CreateCredentialRequest.credentialData]
          * @param candidateQueryData matches [CreateCredentialRequest.candidateQueryData]
          * @param requireSystemProvider whether the request must only be fulfilled by a system
-         * provider
+         *   provider
          * @param origin the origin of a different application if the request is being made on
-         * behalf of that application
+         *   behalf of that application
          */
         @JvmStatic
         @JvmOverloads
@@ -234,17 +235,17 @@ abstract class CreateCredentialRequest internal constructor(
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
                         CreatePasswordRequest.createFrom(credentialData, origin, candidateQueryData)
-
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (credentialData.getString(BUNDLE_KEY_SUBTYPE)) {
                             CreatePublicKeyCredentialRequest
                                 .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
                                 CreatePublicKeyCredentialRequest.createFrom(
-                                    credentialData, origin, candidateQueryData)
-
+                                    credentialData,
+                                    origin,
+                                    candidateQueryData
+                                )
                             else -> throw FrameworkClassParsingException()
                         }
-
                     else -> throw FrameworkClassParsingException()
                 }
             } catch (e: FrameworkClassParsingException) {
@@ -255,13 +256,12 @@ abstract class CreateCredentialRequest internal constructor(
                     credentialData,
                     candidateQueryData,
                     requireSystemProvider,
-                    DisplayInfo.createFrom(
-                        credentialData
-                    ),
+                    DisplayInfo.createFrom(credentialData),
                     credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                     origin,
                     credentialData.getBoolean(
-                        BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false
+                        BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
+                        false
                     ),
                 )
             }

@@ -20,17 +20,18 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /**
  * Contains the list of [DisplayFeature]-s located within the window. For example, a hinge or
- * display fold can go across the window, in which case it might make sense to separate the
- * visual content and interactive elements into two groups, e.g. list-detail or view-controls.
+ * display fold can go across the window, in which case it might make sense to separate the visual
+ * content and interactive elements into two groups, e.g. list-detail or view-controls.
  *
- * Only the features that are present within the current window bounds are reported. Their
- * positions and sizes can change if the window is moved or resized on screen.
+ * Only the features that are present within the current window bounds are reported. Their positions
+ * and sizes can change if the window is moved or resized on screen.
+ *
  * @see WindowInfoTracker.windowLayoutInfo
  */
-class WindowLayoutInfo @RestrictTo(LIBRARY_GROUP) constructor(
-    /**
-     * [displayFeatures] all the [DisplayFeature] within the window.
-     */
+class WindowLayoutInfo
+@RestrictTo(LIBRARY_GROUP)
+constructor(
+    /** [displayFeatures] all the [DisplayFeature] within the window. */
     val displayFeatures: List<DisplayFeature>
 ) {
 

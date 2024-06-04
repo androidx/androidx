@@ -25,8 +25,8 @@ import org.junit.runners.model.Statement
 /**
  * A [TestRule] that will sub out the actual [WindowMetricsCalculator] with a more simple one that
  * will support testing independent of the current platform. The fake [WindowMetricsCalculator] that
- * is used will return the width and height from the [android.util.DisplayMetrics] associated to
- * an [Activity]. The result of [WindowMetricsCalculator.computeCurrentWindowMetrics] and
+ * is used will return the width and height from the [android.util.DisplayMetrics] associated to an
+ * [Activity]. The result of [WindowMetricsCalculator.computeCurrentWindowMetrics] and
  * [WindowMetricsCalculator.computeMaximumWindowMetrics] will be the same. For accurate results use
  * the Espresso Test framework with an actual [Activity] and use the actual
  * [WindowMetricsCalculator].

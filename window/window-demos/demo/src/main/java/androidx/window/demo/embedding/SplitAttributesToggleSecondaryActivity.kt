@@ -39,8 +39,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalWindowApi::class)
-open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivityBase(),
-    View.OnClickListener, AdapterView.OnItemSelectedListener {
+open class SplitAttributesToggleSecondaryActivity :
+    SplitAttributesToggleActivityBase(), View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     protected lateinit var viewBinding: ActivitySplitAttributesToggleSecondaryActivityBinding
 
@@ -62,10 +62,11 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
         demoActivityEmbeddingController.shouldExpandSecondaryContainer.set(false)
 
         activityEmbeddingController = ActivityEmbeddingController.getInstance(this)
-        val splitAttributesCustomizationEnabled = demoActivityEmbeddingController
-            .splitAttributesCustomizationEnabled.get()
-        splitAttributesUpdatesSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3 &&
-            !splitAttributesCustomizationEnabled
+        val splitAttributesCustomizationEnabled =
+            demoActivityEmbeddingController.splitAttributesCustomizationEnabled.get()
+        splitAttributesUpdatesSupported =
+            WindowSdkExtensions.getInstance().extensionVersion >= 3 &&
+                !splitAttributesCustomizationEnabled
 
         fullscreenToggleButton.apply {
             // Disable the toggle fullscreen feature if the device doesn't support runtime
@@ -80,20 +81,22 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
         if (demoActivityEmbeddingController.splitAttributesCustomizationEnabled.get()) {
             val splitTypeSpinner = viewBinding.splitTypeSpinner
             splitTypeSpinner.visibility = View.VISIBLE
-            splitTypeSpinner.adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                CUSTOMIZED_SPLIT_TYPES_TEXT,
-            )
+            splitTypeSpinner.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    CUSTOMIZED_SPLIT_TYPES_TEXT,
+                )
             splitTypeSpinner.onItemSelectedListener = this
 
             val layoutDirectionSpinner = viewBinding.layoutDirectionSpinner
             layoutDirectionSpinner.visibility = View.VISIBLE
-            layoutDirectionSpinner.adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
-            )
+            layoutDirectionSpinner.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
+                )
             layoutDirectionSpinner.onItemSelectedListener = this
         }
 
@@ -102,7 +105,8 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                splitController.splitInfoList(this@SplitAttributesToggleSecondaryActivity)
+                splitController
+                    .splitInfoList(this@SplitAttributesToggleSecondaryActivity)
                     .onEach {
                         updateWarningMessages()
                         updateSpinnerFromDemoController()
@@ -111,14 +115,15 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
                         // Empty split info means this activity doesn't participate any split rule:
                         // neither the secondary activity of the split pair rule nor the placeholder
                         // activity of placeholder rule.
-                        fullscreenToggleButton.isEnabled = splitAttributesUpdatesSupported &&
-                            splitInfoList.isNotEmpty()
+                        fullscreenToggleButton.isEnabled =
+                            splitAttributesUpdatesSupported && splitInfoList.isNotEmpty()
 
-                        lastSplitInfo = if (splitInfoList.isEmpty()) {
-                            null
-                        } else {
-                            splitInfoList.last()
-                        }
+                        lastSplitInfo =
+                            if (splitInfoList.isEmpty()) {
+                                null
+                            } else {
+                                splitInfoList.last()
+                            }
                     }
             }
         }
@@ -138,18 +143,21 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
     }
 
     private fun updateWarningMessages() {
-        val warningMessages = StringBuilder().apply {
-            if (!splitAttributesUpdatesSupported) {
-                append("Toggling fullscreen mode is not supported on this device!\n")
+        val warningMessages =
+            StringBuilder().apply {
+                if (!splitAttributesUpdatesSupported) {
+                    append("Toggling fullscreen mode is not supported on this device!\n")
+                }
+                val splitPlaceholderRule = getSplitRule<SplitPlaceholderRule>()
+                if (splitPlaceholderRule?.isSticky == false) {
+                    append(
+                        "Placeholder activity may show again " +
+                            "when clicking \"TOGGLE FULLSCREEN MODE\". " +
+                            "Clear the placeholder rule and launch Activity again " +
+                            "to remove placeholder rule.\n"
+                    )
+                }
             }
-            val splitPlaceholderRule = getSplitRule<SplitPlaceholderRule>()
-            if (splitPlaceholderRule?.isSticky == false) {
-                append("Placeholder activity may show again " +
-                    "when clicking \"TOGGLE FULLSCREEN MODE\". " +
-                    "Clear the placeholder rule and launch Activity again " +
-                    "to remove placeholder rule.\n")
-            }
-        }
         viewBinding.warningMessageTextView.text = warningMessages
     }
 
@@ -159,24 +167,25 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
                 val splitRule = getSplitRule<SplitRule>() ?: return
                 // Toggle the fullscreen mode and trigger SplitAttributes calculation if
                 // the splitAttributes is customized.
-                if (splitRule.tag?.contains(TAG_SHOW_FULLSCREEN_IN_PORTRAIT +
-                    SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP) == true
+                if (
+                    splitRule.tag?.contains(
+                        TAG_SHOW_FULLSCREEN_IN_PORTRAIT + SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
+                    ) == true
                 ) {
-                    val enableFullscreenMode = DemoActivityEmbeddingController.getInstance()
-                        .shouldExpandSecondaryContainer
+                    val enableFullscreenMode =
+                        DemoActivityEmbeddingController.getInstance().shouldExpandSecondaryContainer
                     enableFullscreenMode.set(!enableFullscreenMode.get())
                     splitController.invalidateTopVisibleSplitAttributes()
                 } else {
                     // Update the top splitInfo if single default split Attributes is used.
                     splitController.updateSplitAttributes(
                         splitInfo = lastSplitInfo ?: return,
-                        splitAttributes = if (
-                            lastSplitInfo!!.splitAttributes.splitType == SPLIT_TYPE_EXPAND
-                        ) {
-                            splitRule.defaultSplitAttributes
-                        } else {
-                            EXPAND_ATTRS
-                        }
+                        splitAttributes =
+                            if (lastSplitInfo!!.splitAttributes.splitType == SPLIT_TYPE_EXPAND) {
+                                splitRule.defaultSplitAttributes
+                            } else {
+                                EXPAND_ATTRS
+                            }
                     )
                 }
             }

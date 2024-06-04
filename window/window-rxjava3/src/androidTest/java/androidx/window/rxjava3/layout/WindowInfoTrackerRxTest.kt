@@ -30,6 +30,7 @@ import org.mockito.kotlin.whenever
 /**
  * Test for the adapter functions that convert to [io.reactivex.rxjava3.core.Observable] or
  * [io.reactivex.rxjava3.core.Flowable] and ensure that data is forwarded appropriately.
+ *
  * @see WindowInfoTracker
  */
 @OptIn(ExperimentalWindowApi::class)

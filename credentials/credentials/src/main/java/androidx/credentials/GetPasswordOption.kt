@@ -23,43 +23,46 @@ import android.os.Bundle
  * A request to retrieve the user's saved application password from their password provider.
  *
  * @property allowedUserIds a optional set of user ids with which the credentials associated are
- * requested; leave as empty if you want to request all the available user credentials
+ *   requested; leave as empty if you want to request all the available user credentials
  * @property typePriorityHint always sets the priority of this entry to
- * [CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR], which defines how it appears in the credential
- * selector, with less precedence than account ordering but more precedence than last used time;
- * see [CredentialOption] for more information
+ *   [CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR], which defines how it appears in the credential
+ *   selector, with less precedence than account ordering but more precedence than last used time;
+ *   see [CredentialOption] for more information
  */
-class GetPasswordOption private constructor(
+class GetPasswordOption
+private constructor(
     val allowedUserIds: Set<String>,
     isAutoSelectAllowed: Boolean,
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
     typePriorityHint: @PriorityHints Int = PRIORITY_PASSWORD_OR_SIMILAR,
-) : CredentialOption(
-    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    requestData = requestData,
-    candidateQueryData = candidateQueryData,
-    isSystemProviderRequired = false,
-    isAutoSelectAllowed = isAutoSelectAllowed,
-    allowedProviders = allowedProviders,
-    typePriorityHint = typePriorityHint,
-) {
+) :
+    CredentialOption(
+        type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+        requestData = requestData,
+        candidateQueryData = candidateQueryData,
+        isSystemProviderRequired = false,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        allowedProviders = allowedProviders,
+        typePriorityHint = typePriorityHint,
+    ) {
 
     /**
      * Constructs a [GetPasswordOption].
      *
      * @param allowedUserIds a optional set of user ids with which the credentials associated are
-     * requested; leave as empty if you want to request all the available user credentials
+     *   requested; leave as empty if you want to request all the available user credentials
      * @param isAutoSelectAllowed false by default, allows auto selecting a password if there is
-     * only one available
+     *   only one available
      * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
-     * option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
-     * not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34,
-     * this property will not take effect and you should control the allowed provider via
-     * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
+     *   option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app
+     *   does not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level <
+     *   34, this property will not take effect and you should control the allowed provider via
+     *   [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
      */
-    @JvmOverloads constructor(
+    @JvmOverloads
+    constructor(
         allowedUserIds: Set<String> = emptySet(),
         isAutoSelectAllowed: Boolean = false,
         allowedProviders: Set<ComponentName> = emptySet(),
@@ -88,8 +91,8 @@ class GetPasswordOption private constructor(
                 allowedProviders = allowedProviders,
                 requestData = data,
                 candidateQueryData = candidateQueryData,
-                typePriorityHint = data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                    PRIORITY_PASSWORD_OR_SIMILAR),
+                typePriorityHint =
+                    data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, PRIORITY_PASSWORD_OR_SIMILAR),
             )
         }
 

@@ -35,19 +35,19 @@ class CredentialProviderPlayServicesImplTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiSuccess_returnsTrue() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity ->
-            val mock =
-                Mockito.mock(GoogleApiAvailability::class.java)
-            Mockito.`when`(mock.isGooglePlayServicesAvailable(activity.baseContext,
-                CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION))
+            val mock = Mockito.mock(GoogleApiAvailability::class.java)
+            Mockito.`when`(
+                    mock.isGooglePlayServicesAvailable(
+                        activity.baseContext,
+                        CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION
+                    )
+                )
                 .thenReturn(ConnectionResult.SUCCESS)
             val expectedAvailability = true
 
-            val impl =
-                CredentialProviderPlayServicesImpl(activity.baseContext)
+            val impl = CredentialProviderPlayServicesImpl(activity.baseContext)
             impl.googleApiAvailability = mock
             val actualResponse = impl.isAvailableOnDevice()
 
@@ -58,19 +58,20 @@ class CredentialProviderPlayServicesImplTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity ->
             for (code in ConnectionResultFailureCases) {
                 val mock = Mockito.mock(GoogleApiAvailability::class.java)
-                Mockito.`when`(mock.isGooglePlayServicesAvailable(activity.baseContext,
-                    CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION))
+                Mockito.`when`(
+                        mock.isGooglePlayServicesAvailable(
+                            activity.baseContext,
+                            CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION
+                        )
+                    )
                     .thenReturn(code)
                 val expectedAvailability = false
 
-                val impl =
-                    CredentialProviderPlayServicesImpl(activity.baseContext)
+                val impl = CredentialProviderPlayServicesImpl(activity.baseContext)
                 impl.googleApiAvailability = mock
                 val actualResponse = impl.isAvailableOnDevice()
 
