@@ -614,10 +614,19 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setSpeculativeLoadingStatus(WebSettings, int)}
      * {@link androidx.webkit.WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework SPECULATIVE_LOADING =
             new ApiFeature.NoFramework(WebViewFeature.SPECULATIVE_LOADING,
                     Features.SPECULATIVE_LOADING);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
+     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
+     */
+    public static final ApiFeature.NoFramework BACK_FORWARD_CACHE =
+            new ApiFeature.NoFramework(WebViewFeature.BACK_FORWARD_CACHE,
+                    Features.BACK_FORWARD_CACHE);
 
     // --- Add new feature constants above this line ---
 

@@ -327,4 +327,16 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.getSpeculativeLoadingStatus(settings));
 
     }
+
+    @Test
+    public void testBFCache() {
+        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+
+        assertFalse("disabled should be the default",
+                WebSettingsCompat.getBackForwardCacheEnabled(settings));
+
+        WebSettingsCompat.setBackForwardCacheEnabled(settings, true);
+        Assert.assertTrue(WebSettingsCompat.getBackForwardCacheEnabled(settings));
+    }
 }
