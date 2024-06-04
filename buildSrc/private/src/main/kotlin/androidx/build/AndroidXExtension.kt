@@ -51,23 +51,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         val tomlFileName = "libraryversions.toml"
         val toml = lazyReadFile(tomlFileName)
 
-        // These parameters are used when building pre-release binaries for androidxdev.
-        // These parameters are only expected to be compatible with :compose:compiler:compiler .
-        // To use them may require specifying specific projects and disabling some checks
-        // like this:
-        // `./gradlew :compose:compiler:compiler:publishToMavenLocal
-        // -Pandroidx.versionExtraCheckEnabled=false`
-        val composeCustomVersion = project.providers.environmentVariable("COMPOSE_CUSTOM_VERSION")
-        val composeCustomGroup = project.providers.environmentVariable("COMPOSE_CUSTOM_GROUP")
-        // service that can compute group/version for a project
         versionService =
             project.gradle.sharedServices
                 .registerIfAbsent("libraryVersionsService", LibraryVersionsService::class.java) {
                     spec ->
                     spec.parameters.tomlFileName = tomlFileName
                     spec.parameters.tomlFileContents = toml
-                    spec.parameters.composeCustomVersion = composeCustomVersion
-                    spec.parameters.composeCustomGroup = composeCustomGroup
                 }
                 .get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
