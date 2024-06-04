@@ -170,13 +170,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configureLint()
-        val formatWithKtfmt =
-            project.getKtfmtOptInPathPrefixes().any { prefix -> project.path.startsWith(prefix) }
-        if (formatWithKtfmt) {
-            project.configureKtfmt()
-        } else {
-            project.configureKtlint()
-        }
+        project.configureKtfmt()
         project.configureKotlinVersion()
 
         // Avoid conflicts between full Guava and LF-only Guava.
