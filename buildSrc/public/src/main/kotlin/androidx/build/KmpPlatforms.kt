@@ -21,7 +21,6 @@ import java.util.Locale
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
-import org.jetbrains.kotlin.konan.target.HostManager
 
 /**
  * A comma-separated list of target platform groups you wish to enable or disable.
@@ -128,8 +127,7 @@ fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
 fun Project.enableAndroidNative(): Boolean =
     enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
 
-fun Project.enableMac(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.MAC) && HostManager.hostIsMac
+fun Project.enableMac(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.MAC)
 
 fun Project.enableLinux(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.LINUX)
 
