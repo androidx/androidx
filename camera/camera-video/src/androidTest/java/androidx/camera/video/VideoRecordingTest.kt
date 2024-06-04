@@ -593,6 +593,50 @@ class VideoRecordingTest(
     }
 
     @Test
+    fun boundButNotRecordingDuringCapture_withPreviewAndImageCapture() {
+        // Pre-check and arrange
+        val imageCapture = ImageCapture.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
+
+        val imageFile = temporaryFolder.newFile()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                imageCapture,
+                videoCapture
+            )
+        }
+
+        // Act & verify.
+        completeImageCapture(imageCapture, imageFile)
+    }
+
+    @Test
+    fun boundButNotRecordingDuringFlashCapture_withPreviewAndImageCapture() {
+        // Pre-check and arrange
+        val imageCapture = ImageCapture.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
+
+        val imageFile = temporaryFolder.newFile()
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                imageCapture,
+                videoCapture
+            )
+        }
+
+        // Act & verify.
+        completeImageCapture(imageCapture, imageFile, useFlash = true)
+    }
+
+    @Test
     fun canRecordMultipleFilesInARow() {
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
