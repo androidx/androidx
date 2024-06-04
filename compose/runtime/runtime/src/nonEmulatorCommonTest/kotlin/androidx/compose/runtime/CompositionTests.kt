@@ -44,7 +44,6 @@ import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.skip
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.snapshots.Snapshot
-import java.lang.Integer.min
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -4097,7 +4096,7 @@ class CompositionTests {
         var seen = emptyList<Any?>()
 
         fun seen(list: List<Any>) {
-            for (i in 0 until min(list.size, seen.size)) {
+            for (i in 0 until minOf(list.size, seen.size)) {
                 assertEquals(list[i], seen[i])
             }
             seen = list
