@@ -232,6 +232,8 @@ androidXMultiplatform {
             }
         }
     }
+
+    enableBinaryCompatibilityValidator = true
 }
 
 android {
