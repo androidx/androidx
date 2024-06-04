@@ -337,12 +337,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
             .let {
                 return buildSet {
-                    for (i in it.requestedPermissions.indices) {
+                    val requestedPermissions = it.requestedPermissions ?: emptyArray()
+                    for (i in requestedPermissions.indices) {
                         if (
-                            it.requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
-                                it.requestedPermissionsFlags[i] and REQUESTED_PERMISSION_GRANTED > 0
+                            requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
+                                it.requestedPermissionsFlags!![i] and REQUESTED_PERMISSION_GRANTED >
+                                    0
                         ) {
-                            add(it.requestedPermissions[i])
+                            add(requestedPermissions[i])
                         }
                     }
                 }
@@ -350,12 +352,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun revokeAllPermissions() {
-        val allHealthPermissions =
+        val requestedPermissions =
             context.packageManager
                 .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
-                .requestedPermissions
-                .filter { it.startsWith(PERMISSION_PREFIX) }
-        revokePermissionsFunction(allHealthPermissions)
+                .requestedPermissions ?: emptyArray()
+        val allHealthPermissions = requestedPermissions.filter { it.startsWith(PERMISSION_PREFIX) }
+        if (allHealthPermissions.isNotEmpty()) {
+            revokePermissionsFunction(allHealthPermissions)
+        }
     }
 
     private suspend fun <T> wrapPlatformException(function: suspend () -> T): T {

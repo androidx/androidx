@@ -480,7 +480,7 @@ interface HealthConnectClient {
                 } catch (e: PackageManager.NameNotFoundException) {
                     return false
                 }
-            return packageInfo.applicationInfo.enabled &&
+            return (packageInfo.applicationInfo?.enabled == true) &&
                 (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
                     PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode) &&
                 hasBindableService(packageManager, packageName)
