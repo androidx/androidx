@@ -45,6 +45,7 @@ import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
 import androidx.compose.material3.samples.ChipGroupSingleLineSample
 import androidx.compose.material3.samples.CircularProgressIndicatorSample
+import androidx.compose.material3.samples.CircularWavyProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
 import androidx.compose.material3.samples.ClickableElevatedCardSample
 import androidx.compose.material3.samples.ClickableOutlinedCardSample
@@ -86,6 +87,7 @@ import androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
 import androidx.compose.material3.samples.IconButtonSample
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
+import androidx.compose.material3.samples.IndeterminateCircularWavyProgressIndicatorSample
 import androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
 import androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.InputChipSample
@@ -988,11 +990,25 @@ val ProgressIndicatorsExamples =
             CircularProgressIndicatorSample()
         },
         Example(
+            name = ::CircularWavyProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            CircularWavyProgressIndicatorSample()
+        },
+        Example(
             name = ::IndeterminateCircularProgressIndicatorSample.name,
             description = ProgressIndicatorsExampleDescription,
             sourceUrl = ProgressIndicatorsExampleSourceUrl
         ) {
             IndeterminateCircularProgressIndicatorSample()
+        },
+        Example(
+            name = ::IndeterminateCircularWavyProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            IndeterminateCircularWavyProgressIndicatorSample()
         }
     )
 

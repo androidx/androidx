@@ -374,4 +374,88 @@ class WavyProgressIndicatorTest {
         // Check that the SemanticsNode bounds of the scrolling column are as expected.
         assertEquals(paddingSize.height.toFloat(), semanticsBound.height)
     }
+
+    @Test
+    fun determinateCircularWavyProgressIndicator_Progress() {
+        val tag = "circular"
+        val progress = mutableStateOf(0f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularWavyProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = { progress.value },
+            )
+        }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+
+        rule.runOnUiThread { progress.value = 0.5f }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
+    }
+
+    @Test
+    fun determinateCircularWavyProgressIndicator_ProgressIsCoercedInBounds() {
+        val tag = "circular"
+        val progress = mutableStateOf(-1f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularWavyProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = { progress.value },
+            )
+        }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+
+        rule.runOnUiThread { progress.value = 1.5f }
+
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
+    }
+
+    @Test
+    fun determinateCircularWavyProgressIndicator_Size() {
+        rule
+            .setMaterialContentForSizeAssertions {
+                CircularWavyProgressIndicator(progress = { 0f })
+            }
+            .assertIsSquareWithSize(WavyProgressIndicatorDefaults.CircularContainerSize)
+    }
+
+    @Test
+    fun indeterminateCircularWavyProgressIndicator_progress() {
+        val tag = "circular"
+
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularWavyProgressIndicator(modifier = Modifier.testTag(tag))
+        }
+
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+
+        rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
+    }
+
+    @Test
+    fun indeterminateCircularWavyProgressIndicator_Size() {
+        rule.mainClock.autoAdvance = false
+        val contentToTest =
+            rule.setMaterialContentForSizeAssertions { CircularWavyProgressIndicator() }
+
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+
+        contentToTest.assertIsSquareWithSize(WavyProgressIndicatorDefaults.CircularContainerSize)
+    }
 }

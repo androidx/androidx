@@ -19,11 +19,13 @@ package androidx.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
@@ -161,6 +163,109 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
             }
         }
         assertIndicatorAgainstGolden("linearWavyProgressIndicator_determinate_thick_${scheme.name}")
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_midProgress_determinate() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularWavyProgressIndicator(progress = { 0.7f }) }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_midProgress_determinate_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_lowProgress_determinate() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularWavyProgressIndicator(progress = { 0.09f })
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_lowProgress_determinate_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_highProgress_determinate() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularWavyProgressIndicator(progress = { 0.95f })
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_highProgress_determinate_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_determinate_no_gap() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularWavyProgressIndicator(progress = { 0.7f }, gapSize = 0.dp)
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_determinate_no_gap_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_determinate_thick() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val thickStroke =
+                Stroke(width = with(LocalDensity.current) { 8.dp.toPx() }, cap = StrokeCap.Round)
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularWavyProgressIndicator(
+                    progress = { 0.7f },
+                    modifier = Modifier.size(52.dp),
+                    stroke = thickStroke,
+                    trackStroke = thickStroke
+                )
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_determinate_thick_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_indeterminate() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularWavyProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(500)
+        assertIndicatorAgainstGolden("circularWavyProgressIndicator_indeterminate_${scheme.name}")
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_indeterminate_start() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularWavyProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(0)
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_lightTheme_indeterminate_start_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_determinate_customCapAndTrack() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularWavyProgressIndicator(
+                    progress = { 0.4f },
+                    trackColor = Color.Gray,
+                    stroke = Stroke(width = 6f, cap = StrokeCap.Butt)
+                )
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_determinate_customCapAndTrack_${scheme.name}"
+        )
     }
 
     private fun assertIndicatorAgainstGolden(goldenName: String) {
