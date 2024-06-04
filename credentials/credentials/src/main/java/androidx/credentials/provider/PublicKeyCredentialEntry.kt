@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
-import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_ALLOWED_AUTHENTICATORS
+import androidx.credentials.provider.PublicKeyCredentialEntry.Api28Impl.toSlice
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.toSlice
 import java.time.Instant
 import java.util.Collections
@@ -69,6 +69,9 @@ import java.util.Collections
  *   this entry was created allows this entry to be auto-selected
  * @property hasDefaultIcon whether this entry was created without a custom icon and hence contains
  *   a default icon set by the library, only to be used in Android API levels >= 28
+ * @property biometricPromptData the data that is set optionally to utilize a credential manager
+ *   flow that directly handles the biometric verification and presents back the response; set to
+ *   null by default, so if not opted in, the embedded biometric prompt flow will not show
  * @throws IllegalArgumentException If [username] is empty
  * @see CredentialEntry
  */
@@ -104,7 +107,6 @@ internal constructor(
         biometricPromptData = biometricPromptData,
     ) {
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
-
     @get:JvmName("hasDefaultIcon")
     val hasDefaultIcon: Boolean
         get() {
@@ -145,7 +147,58 @@ internal constructor(
      *   [beginGetPublicKeyCredentialOption] is null
      * @throws IllegalArgumentException if [username] is empty
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    constructor(
+        context: Context,
+        username: CharSequence,
+        pendingIntent: PendingIntent,
+        beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
+        displayName: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
+        isAutoSelectAllowed: Boolean = false,
+        isDefaultIconPreferredAsSingleProvider: Boolean = false,
+    ) : this(
+        username,
+        displayName,
+        context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL),
+        pendingIntent,
+        icon,
+        lastUsedTime,
+        isAutoSelectAllowed,
+        beginGetPublicKeyCredentialOption,
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+    )
+
+    /**
+     * @param context the context of the calling app, required to retrieve fallback resources
+     * @param username the username of the account holding the public key credential
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+     * @param beginGetPublicKeyCredentialOption the option from the original
+     *   [BeginGetCredentialRequest], for which this credential entry is being added
+     * @param displayName the displayName of the account holding the public key credential
+     * @param lastUsedTime the last used time the credential underlying this entry was used by the
+     *   user, distinguishable up to the milli second mark only such that if two entries have the
+     *   same millisecond precision, they will be considered to have been used at the same time
+     * @param icon the icon to be displayed with this entry on the selector, if not set, a default
+     *   icon representing a public key credential type is set by the library
+     * @param isAutoSelectAllowed whether this entry is allowed to be auto selected if it is the
+     *   only one on the UI, only takes effect if the app requesting for credentials also opts for
+     *   auto select
+     * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+     *   default credential type icon (see the default value of [icon]) when you are the only
+     *   available provider; false by default
+     * @param biometricPromptData the data that is set optionally to utilize a credential manager
+     *   flow that directly handles the biometric verification and presents back the response; set
+     *   to null by default, so if not opted in, the embedded biometric prompt flow will not show
+     * @constructor constructs an instance of [PublicKeyCredentialEntry]
+     * @throws NullPointerException If [context], [username], [pendingIntent], or
+     *   [beginGetPublicKeyCredentialOption] is null
+     * @throws IllegalArgumentException if [username] is empty
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     constructor(
         context: Context,
         username: CharSequence,
@@ -178,55 +231,6 @@ internal constructor(
      *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
      *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      * @param beginGetPublicKeyCredentialOption the option from the original
-     *   [BeginGetCredentialRequest], for which this credential entry is being added
-     * @param displayName the displayName of the account holding the public key credential
-     * @param lastUsedTime the last used time the credential underlying this entry was used by the
-     *   user, distinguishable up to the milli second mark only such that if two entries have the
-     *   same millisecond precision, they will be considered to have been used at the same time
-     * @param icon the icon to be displayed with this entry on the selector, if not set, a default
-     *   icon representing a public key credential type is set by the library
-     * @param isAutoSelectAllowed whether this entry is allowed to be auto selected if it is the
-     *   only one on the UI, only takes effect if the app requesting for credentials also opts for
-     *   auto select
-     * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
-     *   default credential type icon (see the default value of [icon]) when you are the only
-     *   available provider; false by default
-     * @constructor constructs an instance of [PublicKeyCredentialEntry]
-     * @throws NullPointerException If [context], [username], [pendingIntent], or
-     *   [beginGetPublicKeyCredentialOption] is null
-     * @throws IllegalArgumentException if [username] is empty
-     */
-    constructor(
-        context: Context,
-        username: CharSequence,
-        pendingIntent: PendingIntent,
-        beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
-        displayName: CharSequence? = null,
-        lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
-        isAutoSelectAllowed: Boolean = false,
-        isDefaultIconPreferredAsSingleProvider: Boolean = false
-    ) : this(
-        username = username,
-        displayName = displayName,
-        typeDisplayName =
-            context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL),
-        pendingIntent = pendingIntent,
-        icon = icon,
-        lastUsedTime = lastUsedTime,
-        isAutoSelectAllowed = isAutoSelectAllowed,
-        beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
-        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
-    )
-
-    /**
-     * @param context the context of the calling app, required to retrieve fallback resources
-     * @param username the username of the account holding the public key credential
-     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     *   entry, must be created with a unique request code per entry, with flag
-     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
-     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
-     * @param beginGetPublicKeyCredentialOption the option from the original
      *   [BeginGetCredentialResponse], for which this credential entry is being added
      * @param displayName the displayName of the account holding the public key credential
      * @param lastUsedTime the last used time the credential underlying this entry was used by the
@@ -248,7 +252,7 @@ internal constructor(
             ReplaceWith(
                 "PublicKeyCredentialEntry(context, username, pendingIntent," +
                     "beginGetPublicKeyCredentialOption, displayName, lastUsedTime, icon, " +
-                    "isAutoSelectAllowed, isDefaultIconPreferredAsSingleProvider)"
+                    "isAutoSelectAllowed, isDefaultIconPreferredAsSingleProvider, biometricPromptData)"
             ),
         level = DeprecationLevel.HIDDEN
     )
@@ -276,13 +280,86 @@ internal constructor(
 
     @RequiresApi(34)
     private object Api34Impl {
-
         @JvmStatic
         fun fromCredentialEntry(
             credentialEntry: android.service.credentials.CredentialEntry
         ): PublicKeyCredentialEntry? {
             val slice = credentialEntry.slice
             return fromSlice(slice)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private object Api35Impl {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun toSlice(entry: PublicKeyCredentialEntry): Slice {
+            val type = entry.type
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(type, REVISION_ID))
+            Api28Impl.addToSlice(entry, sliceBuilder)
+            addToSlice(entry, sliceBuilder)
+            return sliceBuilder.build()
+        }
+
+        // Given multiple API dependencies, this captures common builds across all API levels > V
+        // and across all subclasses for the toSlice method
+        fun addToSlice(entry: PublicKeyCredentialEntry, sliceBuilder: Slice.Builder) {
+            val biometricPromptData = entry.biometricPromptData
+            if (biometricPromptData != null) {
+                val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
+                sliceBuilder.addBundle(
+                    biometricBundle,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                )
+            }
+        }
+
+        /**
+         * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [toSlice]
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
+            val publicKeyCredentialEntry = Api28Impl.fromSlice(slice) ?: return null
+            var biometricPromptDataBundle: Bundle? = null
+            slice.items.forEach {
+                if (it.hasHint(SLICE_HINT_BIOMETRIC_PROMPT_DATA)) {
+                    biometricPromptDataBundle = it.bundle
+                }
+            }
+            return try {
+                PublicKeyCredentialEntry(
+                    username = publicKeyCredentialEntry.username,
+                    displayName = publicKeyCredentialEntry.displayName,
+                    typeDisplayName = publicKeyCredentialEntry.typeDisplayName,
+                    pendingIntent = publicKeyCredentialEntry.pendingIntent,
+                    icon = publicKeyCredentialEntry.icon,
+                    lastUsedTime = publicKeyCredentialEntry.lastUsedTime,
+                    isAutoSelectAllowed = publicKeyCredentialEntry.isAutoSelectAllowed,
+                    beginGetPublicKeyCredentialOption =
+                        publicKeyCredentialEntry.beginGetCredentialOption
+                            as BeginGetPublicKeyCredentialOption,
+                    entryGroupId = publicKeyCredentialEntry.entryGroupId,
+                    isDefaultIconPreferredAsSingleProvider =
+                        publicKeyCredentialEntry.isDefaultIconPreferredAsSingleProvider,
+                    affiliatedDomain = publicKeyCredentialEntry.affiliatedDomain,
+                    autoSelectAllowedFromOption =
+                        publicKeyCredentialEntry.isAutoSelectAllowedFromOption,
+                    isCreatedFromSlice = true,
+                    isDefaultIconFromSlice = publicKeyCredentialEntry.isDefaultIconFromSlice,
+                    biometricPromptData =
+                        if (biometricPromptDataBundle != null)
+                            BiometricPromptData.fromBundle(biometricPromptDataBundle!!)
+                        else null
+                )
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
         }
     }
 
@@ -302,66 +379,60 @@ internal constructor(
         @JvmStatic
         fun toSlice(entry: PublicKeyCredentialEntry): Slice {
             val type = entry.type
-            val title = entry.username
-            val subTitle = entry.displayName
-            val pendingIntent = entry.pendingIntent
-            val typeDisplayName = entry.typeDisplayName
-            val lastUsedTime = entry.lastUsedTime
-            val icon = entry.icon
-            val isAutoSelectAllowed = entry.isAutoSelectAllowed
-            val beginGetPublicKeyCredentialOption = entry.beginGetCredentialOption
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(type, REVISION_ID))
+            addToSlice(entry, sliceBuilder)
+            return sliceBuilder.build()
+        }
+
+        // Specific to only this custom credential entry, but shared across API levels > P
+        fun addToSlice(entry: PublicKeyCredentialEntry, sliceBuilder: Slice.Builder) {
+            val beginGetCredentialOption = entry.beginGetCredentialOption
             val entryGroupId = entry.entryGroupId
-            val affiliatedDomain = entry.affiliatedDomain
             val isDefaultIconPreferredAsSingleProvider =
                 entry.isDefaultIconPreferredAsSingleProvider
-
-            val autoSelectAllowed =
-                if (isAutoSelectAllowed) {
-                    TRUE_STRING
-                } else {
-                    FALSE_STRING
-                }
+            val affiliatedDomain = entry.affiliatedDomain
             val isUsingDefaultIcon =
                 if (isDefaultIconPreferredAsSingleProvider) {
                     TRUE_STRING
                 } else {
                     FALSE_STRING
                 }
-            val sliceBuilder =
-                Slice.Builder(Uri.EMPTY, SliceSpec(type, REVISION_ID))
-                    .addText(
-                        typeDisplayName,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_TYPE_DISPLAY_NAME)
-                    )
-                    .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
-                    .addText(subTitle, /* subType= */ null, listOf(SLICE_HINT_SUBTITLE))
-                    .addText(
-                        autoSelectAllowed,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_AUTO_ALLOWED)
-                    )
-                    .addText(
-                        beginGetPublicKeyCredentialOption.id,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_OPTION_ID)
-                    )
-                    .addIcon(icon, /* subType= */ null, listOf(SLICE_HINT_ICON))
-                    .addText(
-                        entryGroupId,
-                        /*subTypes=*/ null,
-                        listOf(SLICE_HINT_DEDUPLICATION_ID)
-                    )
-                    .addText(
-                        affiliatedDomain,
-                        /*subTypes=*/ null,
-                        listOf(SLICE_HINT_AFFILIATED_DOMAIN)
-                    )
-                    .addText(
-                        isUsingDefaultIcon,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
-                    )
+            sliceBuilder
+                .addText(
+                    beginGetCredentialOption.id,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_OPTION_ID)
+                )
+                .addText(entryGroupId, /* subTypes= */ null, listOf(SLICE_HINT_DEDUPLICATION_ID))
+                .addText(
+                    isUsingDefaultIcon,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
+                )
+                .addText(
+                    affiliatedDomain,
+                    /*subTypes=*/ null,
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
+                )
+            val title = entry.username
+            val subtitle = entry.displayName
+            val pendingIntent = entry.pendingIntent
+            val typeDisplayName = entry.typeDisplayName
+            val lastUsedTime = entry.lastUsedTime
+            val icon = entry.icon
+            val isAutoSelectAllowed = entry.isAutoSelectAllowed
+            val autoSelectAllowed =
+                if (isAutoSelectAllowed) {
+                    TRUE_STRING
+                } else {
+                    FALSE_STRING
+                }
+            sliceBuilder
+                .addText(typeDisplayName, /* subType= */ null, listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
+                .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
+                .addText(subtitle, /* subType= */ null, listOf(SLICE_HINT_SUBTITLE))
+                .addText(autoSelectAllowed, /* subType= */ null, listOf(SLICE_HINT_AUTO_ALLOWED))
+                .addIcon(icon, /* subType= */ null, listOf(SLICE_HINT_ICON))
             try {
                 if (entry.hasDefaultIcon) {
                     sliceBuilder.addInt(
@@ -371,7 +442,6 @@ internal constructor(
                     )
                 }
             } catch (_: IllegalStateException) {}
-
             if (entry.isAutoSelectAllowedFromOption) {
                 sliceBuilder.addInt(
                     /*true=*/ 1,
@@ -393,27 +463,6 @@ internal constructor(
                     .build(),
                 /*subType=*/ null
             )
-
-            val biometricPromptData = entry.biometricPromptData
-            if (biometricPromptData != null) {
-                val allowedAuthenticators = biometricPromptData.allowedAuthenticators
-                // TODO(b/326243730) : Await biometric team dependency for opId, then add
-                val cryptoObjectOpId = biometricPromptData.cryptoObject?.hashCode()
-
-                sliceBuilder.addInt(
-                    allowedAuthenticators,
-                    /*subType=*/ null,
-                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
-                )
-                if (cryptoObjectOpId != null) {
-                    sliceBuilder.addInt(
-                        cryptoObjectOpId,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_CRYPTO_OP_ID)
-                    )
-                }
-            }
-            return sliceBuilder.build()
         }
 
         /**
@@ -425,6 +474,10 @@ internal constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
+            var entryGroupId: CharSequence? = null
+            var affiliatedDomain: CharSequence? = null
+            var isDefaultIconPreferredAsSingleProvider = false
+            var beginGetCredentialOptionId: CharSequence? = null
             var typeDisplayName: CharSequence? = null
             var title: CharSequence? = null
             var subtitle: CharSequence? = null
@@ -432,16 +485,21 @@ internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetPublicKeyCredentialOptionId: CharSequence? = null
             var autoSelectAllowedFromOption = false
-            var isDefaultIconPreferredAsSingleProvider = false
             var isDefaultIcon = false
-            var entryGroupId: CharSequence? = null
-            var affiliatedDomain: CharSequence? = null
-            var allowedAuth: Int? = null
-
             slice.items.forEach {
-                if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
+                if (it.hasHint(SLICE_HINT_OPTION_ID)) {
+                    beginGetCredentialOptionId = it.text
+                } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
+                    entryGroupId = it.text
+                } else if (it.hasHint(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)) {
+                    val defaultIconValue = it.text
+                    if (defaultIconValue == TRUE_STRING) {
+                        isDefaultIconPreferredAsSingleProvider = true
+                    }
+                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
+                    affiliatedDomain = it.text
+                } else if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
                     typeDisplayName = it.text
                 } else if (it.hasHint(SLICE_HINT_TITLE)) {
                     title = it.text
@@ -451,8 +509,6 @@ internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
-                } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
-                    beginGetPublicKeyCredentialOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -462,30 +518,10 @@ internal constructor(
                     }
                 } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
                     autoSelectAllowedFromOption = true
-                } else if (it.hasHint(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)) {
-                    val defaultIconValue = it.text
-                    if (defaultIconValue == TRUE_STRING) {
-                        isDefaultIconPreferredAsSingleProvider = true
-                    }
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
-                } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
-                    entryGroupId = it.text
-                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
-                    affiliatedDomain = it.text
-                } else if (it.hasHint(SLICE_HINT_ALLOWED_AUTHENTICATORS)) {
-                    allowedAuth = it.int
                 }
             }
-
-            // TODO(b/326243730) : Await biometric team dependency for opId, then add - also decide
-            // if we want toBundle to be passed into the framework.
-            var biometricPromptDataBundle: Bundle? = null
-            if (allowedAuth != null) {
-                biometricPromptDataBundle = Bundle()
-                biometricPromptDataBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, allowedAuth!!)
-            }
-
             return try {
                 PublicKeyCredentialEntry(
                     username = title!!,
@@ -498,7 +534,7 @@ internal constructor(
                     beginGetPublicKeyCredentialOption =
                         BeginGetPublicKeyCredentialOption.createFromEntrySlice(
                             Bundle(),
-                            beginGetPublicKeyCredentialOptionId!!.toString(),
+                            beginGetCredentialOptionId!!.toString(),
                         ),
                     entryGroupId = entryGroupId,
                     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
@@ -506,10 +542,6 @@ internal constructor(
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
                     isCreatedFromSlice = true,
                     isDefaultIconFromSlice = isDefaultIcon,
-                    biometricPromptData =
-                        if (biometricPromptDataBundle != null)
-                            BiometricPromptData.fromBundle(biometricPromptDataBundle)
-                        else null
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -521,57 +553,6 @@ internal constructor(
     companion object {
         private const val TAG = "PublicKeyCredEntry"
 
-        private const val SLICE_HINT_TYPE_DISPLAY_NAME =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_TITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
-
-        private const val SLICE_HINT_SUBTITLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
-
-        private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
-        private const val SLICE_HINT_ICON =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
-
-        private const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
-
-        private const val SLICE_HINT_AUTO_ALLOWED =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
-
-        private const val SLICE_HINT_IS_DEFAULT_ICON_PREFERRED =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_IS_DEFAULT_ICON_PREFERRED"
-
-        private const val SLICE_HINT_OPTION_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
-
-        private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
-
-        private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
-
-        private const val SLICE_HINT_AFFILIATED_DOMAIN =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
-
-        private const val SLICE_HINT_DEDUPLICATION_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEDUPLICATION_ID"
-
-        private const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
-
-        private const val SLICE_HINT_CRYPTO_OP_ID =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CRYPTO_OP_ID"
-
-        private const val TRUE_STRING = "true"
-
-        private const val FALSE_STRING = "false"
-
-        private const val REVISION_ID = 1
-
         /**
          * Converts an instance of [PublicKeyCredentialEntry] to a [Slice].
          *
@@ -581,14 +562,16 @@ internal constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun toSlice(entry: PublicKeyCredentialEntry): Slice? {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.toSlice(entry)
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.toSlice(entry)
             }
             return null
         }
 
         /**
-         * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
+         * Returns an instance of [PublicKeyCredentialEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
          */
@@ -596,7 +579,9 @@ internal constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.fromSlice(slice)
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
             }
             return null
@@ -652,9 +637,10 @@ internal constructor(
         /**
          * Sets the biometric prompt data to optionally utilize a credential manager flow that
          * directly handles the biometric verification for you and gives you the response; set to
-         * null by default.
+         * null by default, indicating the default behavior is to not utilize this embedded
+         * biometric prompt flow.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
         fun setBiometricPromptData(biometricPromptData: BiometricPromptData): Builder {
             this.biometricPromptData = biometricPromptData
             return this
@@ -705,7 +691,7 @@ internal constructor(
                 isAutoSelectAllowed = autoSelectAllowed,
                 beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
-                biometricPromptData = biometricPromptData
+                biometricPromptData = biometricPromptData,
             )
         }
     }

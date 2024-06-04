@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
 import android.hardware.biometrics.BiometricPrompt
@@ -33,16 +32,13 @@ import org.jetbrains.annotations.VisibleForTesting
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC] or
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AuthenticationResult(
-    val authenticationType: @AuthenticatorResultTypes Int,
+    val authenticationType: @AuthenticationResultTypes Int,
 ) {
-
-    companion object {
+    internal companion object {
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE = "BIOMETRIC_AUTH_RESULT"
-
         @VisibleForTesting
         internal val biometricFrameworkToJetpackResultMap =
             linkedMapOf(

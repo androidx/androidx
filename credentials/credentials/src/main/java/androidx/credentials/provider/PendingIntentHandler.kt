@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
 import android.app.Activity
@@ -94,8 +93,7 @@ class PendingIntentHandler {
                             frameworkReq.callingAppInfo.signingInfo,
                             frameworkReq.callingAppInfo.origin
                         ),
-                    biometricPromptResult = biometricPromptResult,
-                    isInternal = false
+                    biometricPromptResult = biometricPromptResult
                 )
             } catch (e: IllegalArgumentException) {
                 return null
@@ -196,7 +194,6 @@ class PendingIntentHandler {
                 return null
             }
             val biometricPromptResult = retrieveBiometricPromptResult(intent)
-
             return ProviderGetCredentialRequest.createFrom(
                 frameworkReq.credentialOptions
                     .stream()

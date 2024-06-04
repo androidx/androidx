@@ -193,7 +193,7 @@ class CallingAppInfoTest {
                         packageName,
                         PackageManager.GET_SIGNING_CERTIFICATES
                     )
-                assertNotNull(signingInfo)
+                assertNotNull(packageInfo.signingInfo)
                 signingInfo = packageInfo.signingInfo!!
             } catch (_: PackageManager.NameNotFoundException) {}
         }

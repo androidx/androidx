@@ -20,10 +20,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
-import android.hardware.biometrics.BiometricManager
-import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.core.os.BuildCompat
 import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.CreateEntry
@@ -153,18 +153,32 @@ class CreateEntryTest {
     }
 
     private fun constructEntryWithAllParams(): CreateEntry {
-        return CreateEntry(
-            ACCOUNT_NAME,
-            mPendingIntent,
-            DESCRIPTION,
-            Instant.ofEpochMilli(LAST_USED_TIME),
-            ICON,
-            PASSWORD_COUNT,
-            PUBLIC_KEY_CREDENTIAL_COUNT,
-            TOTAL_COUNT,
-            AUTO_SELECT_BIT,
-            if (BuildCompat.isAtLeastV()) testBiometricPromptData() else null,
-        )
+        if (BuildCompat.isAtLeastV()) {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT,
+                testBiometricPromptData()
+            )
+        } else {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT
+            )
+        }
     }
 
     private fun assertEntryWithAllParams(entry: CreateEntry) {

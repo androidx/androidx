@@ -23,10 +23,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.hardware.biometrics.BiometricManager;
-import android.hardware.biometrics.BiometricPrompt;
 import android.os.Bundle;
 
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -38,11 +38,13 @@ import javax.crypto.NullCipher;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 35)
 public class BiometricPromptDataJavaTest {
 
     private static final BiometricPrompt.CryptoObject TEST_CRYPTO_OBJECT = new
             BiometricPrompt.CryptoObject(new NullCipher());
+
+    private static final long DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID = 0L;
 
     private static final  int TEST_ALLOWED_AUTHENTICATOR = BiometricManager.Authenticators
             .BIOMETRIC_STRONG;
@@ -134,9 +136,23 @@ public class BiometricPromptDataJavaTest {
                 .isEqualTo(TEST_ALLOWED_AUTHENTICATOR);
     }
 
-    // TODO(b/325469910) : Use the proper opId / CryptoObject structure when available
+    @SdkSuppress(maxSdkVersion = 34)
     @Test
     public void fromBundle_validAllowedAuthenticator_success() {
+        Bundle inputBundle = new Bundle();
+        inputBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, TEST_ALLOWED_AUTHENTICATOR);
+
+        BiometricPromptData actualBiometricPromptData = BiometricPromptData.fromBundle(inputBundle);
+
+        assertThat(actualBiometricPromptData).isNotNull();
+        assertThat(actualBiometricPromptData.getAllowedAuthenticators()).isEqualTo(
+                TEST_ALLOWED_AUTHENTICATOR);
+        assertThat(actualBiometricPromptData.getCryptoObject()).isNull();
+    }
+
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    public void fromBundle_validAllowedAuthenticatorAboveApi35_success() {
         int expectedOpId = Integer.MIN_VALUE;
         Bundle inputBundle = new Bundle();
         inputBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, TEST_ALLOWED_AUTHENTICATOR);
@@ -145,12 +161,13 @@ public class BiometricPromptDataJavaTest {
         BiometricPromptData actualBiometricPromptData = BiometricPromptData.fromBundle(inputBundle);
 
         assertThat(actualBiometricPromptData).isNotNull();
-        assertThat(actualBiometricPromptData.getAllowedAuthenticators())
-                .isEqualTo(TEST_ALLOWED_AUTHENTICATOR);
-
+        assertThat(actualBiometricPromptData.getAllowedAuthenticators()).isEqualTo(
+                TEST_ALLOWED_AUTHENTICATOR);
+        assertThat(actualBiometricPromptData.getCryptoObject()).isNotNull();
+        assertThat(actualBiometricPromptData.getCryptoObject().hashCode())
+                .isEqualTo(expectedOpId);
     }
 
-    // TODO(b/325469910) : Use the proper opId / CryptoObject structure when available
     @Test
     public void fromBundle_unrecognizedAllowedAuthenticator_success() {
         int expectedOpId = Integer.MIN_VALUE;
@@ -167,7 +184,6 @@ public class BiometricPromptDataJavaTest {
 
     }
 
-    // TODO(b/325469910) : Use the proper opId / CryptoObject structure when available
     @Test
     public void fromBundle_invalidBundleKey_nullBiometricPromptData() {
         int expectedOpId = Integer.MIN_VALUE;
@@ -181,11 +197,29 @@ public class BiometricPromptDataJavaTest {
         assertThat(actualBiometricPromptData).isNull();
     }
 
+    @SdkSuppress(maxSdkVersion = 34)
     @Test
     public void toBundle_success() {
+        BiometricPromptData testBiometricPromptData = new BiometricPromptData(/*cryptoObject=*/null,
+                TEST_ALLOWED_AUTHENTICATOR);
+
+        Bundle actualBundle = BiometricPromptData.toBundle(
+                testBiometricPromptData);
+
+        assertThat(actualBundle).isNotNull();
+        assertThat(actualBundle.getInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS)).isEqualTo(
+                TEST_ALLOWED_AUTHENTICATOR
+        );
+        assertThat(actualBundle.getInt(BUNDLE_HINT_CRYPTO_OP_ID)).isEqualTo(
+                DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID);
+    }
+
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    public void toBundle_api35AndAboveWithOpId_success() {
         BiometricPromptData testBiometricPromptData = new BiometricPromptData(TEST_CRYPTO_OBJECT,
                 TEST_ALLOWED_AUTHENTICATOR);
-        int expectedOpId = Integer.MIN_VALUE;
+        long expectedOpId = TEST_CRYPTO_OBJECT.hashCode();
 
         Bundle actualBundle = BiometricPromptData.toBundle(
                 testBiometricPromptData);
