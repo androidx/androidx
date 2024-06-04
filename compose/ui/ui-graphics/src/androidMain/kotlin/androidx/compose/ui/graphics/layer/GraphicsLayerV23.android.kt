@@ -306,17 +306,13 @@ internal class GraphicsLayerV23(
         block: DrawScope.() -> Unit
     ) {
         val recordingCanvas = renderNode.start(size.width, size.height)
-        canvasHolder.drawInto(recordingCanvas) {
-            canvasDrawScope.draw(
-                density,
-                layoutDirection,
-                this,
-                size.toSize(),
-                layer,
-                block
-            )
+        try {
+            canvasHolder.drawInto(recordingCanvas) {
+                canvasDrawScope.draw(density, layoutDirection, this, size.toSize(), layer, block)
+            }
+        } finally {
+            renderNode.end(recordingCanvas)
         }
-        renderNode.end(recordingCanvas)
         isInvalidated = false
     }
 
