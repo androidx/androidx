@@ -136,9 +136,6 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
 /** If true, don't restrict usage of compileSdk property. */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
-/** Comma-delimited list of project path prefixes which have been opted-in to ktfmt migration. */
-const val KTFMT_OPT_IN = "androidx.ktfmt.optin"
-
 /** If true, include Jetpack library projects that live outside of `frameworks/support`. */
 const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
 
@@ -177,8 +174,6 @@ val ALL_ANDROIDX_PROPERTIES =
         INCLUDE_OPTIONAL_PROJECTS,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
-val PREFIXED_ANDROIDX_PROPERTIES = setOf(KTFMT_OPT_IN)
-
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for
  * more details
@@ -210,10 +205,7 @@ fun Project.isValidateProjectStructureEnabled(): Boolean =
 fun Project.validateAllAndroidxArgumentsAreRecognized() {
     for (propertyName in project.properties.keys) {
         if (propertyName.startsWith("androidx")) {
-            if (
-                !ALL_ANDROIDX_PROPERTIES.contains(propertyName) &&
-                    PREFIXED_ANDROIDX_PROPERTIES.none { propertyName.startsWith(it) }
-            ) {
+            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
                 val message =
                     "Unrecognized Androidx property '$propertyName'.\n" +
                         "\n" +
@@ -277,15 +269,3 @@ fun Project.findBooleanProperty(propName: String) = booleanPropertyProvider(prop
 fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
     return project.providers.gradleProperty(propName).map { s -> s.toBoolean() }.orElse(false)
 }
-
-/** List of project path prefixes which have been opted-in to the ktfmt migration. */
-fun Project.getKtfmtOptInPathPrefixes(): List<String> = aggregatePropertyPrefix(KTFMT_OPT_IN)
-
-internal fun Project.aggregatePropertyPrefix(prefix: String): List<String> =
-    properties.flatMap { (name, value) ->
-        if (name.startsWith(prefix)) {
-            (value as? String)?.split(",") ?: emptyList()
-        } else {
-            emptyList()
-        }
-    }
