@@ -31,7 +31,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -434,41 +433,6 @@ class RecomposerTests {
 
         // The Recomposer should have received notification for the node's state.
         assertContentEquals(listOf(setOf(countFromEffect)), applications)
-    }
-
-    @Ignore // b/329682091
-    @OptIn(DelicateCoroutinesApi::class)
-    @Test // b/329011032
-    fun validatePotentialDeadlock() = compositionTest {
-        var state by mutableIntStateOf(0)
-        compose {
-            repeat(1000) {
-                Text("This is some text: $state")
-            }
-            LaunchedEffect(Unit) {
-                newSingleThreadContext("other thread").use {
-                    while (true) {
-                        withContext(it) {
-                            state++
-                            Snapshot.registerGlobalWriteObserver { }.dispose()
-                        }
-                    }
-                }
-            }
-            LaunchedEffect(Unit) {
-                while (true) {
-                    withFrameNanos {
-                        state++
-                        Snapshot.sendApplyNotifications()
-                    }
-                }
-            }
-        }
-
-        repeat(10) {
-            state++
-            advance(ignorePendingWork = true)
-        }
     }
 
     @Test
