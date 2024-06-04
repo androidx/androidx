@@ -415,6 +415,7 @@ package androidx.compose.foundation.gestures {
     method public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, boolean reverseDirection, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional boolean startDragImmediately, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior);
     method public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <T> Object? animateToWithDecay(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, float velocity, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, kotlin.coroutines.Continuation<? super java.lang.Float>);
+    method public static inline <T> void forEach(androidx.compose.foundation.gestures.DraggableAnchors<T>, kotlin.jvm.functions.Function2<? super T,? super java.lang.Float,kotlin.Unit> block);
     method public static suspend <T> Object? snapTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
@@ -511,14 +512,15 @@ package androidx.compose.foundation.gestures {
   }
 
   public interface DraggableAnchors<T> {
+    method public T? anchorAt(int index);
     method public T? closestAnchor(float position);
     method public T? closestAnchor(float position, boolean searchUpwards);
-    method public void forEach(kotlin.jvm.functions.Function2<? super T,? super java.lang.Float,kotlin.Unit> block);
     method public int getSize();
-    method public boolean hasAnchorFor(T value);
-    method public float maxAnchor();
-    method public float minAnchor();
-    method public float positionOf(T value);
+    method public boolean hasPositionFor(T anchor);
+    method public float maxPosition();
+    method public float minPosition();
+    method public float positionAt(int index);
+    method public float positionOf(T anchor);
     property public abstract int size;
   }
 
