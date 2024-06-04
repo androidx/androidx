@@ -36,7 +36,7 @@ class SafeWindowAreaComponentProviderTest {
      */
     @Test
     fun windowAreaComponentIsAvailable_ifProviderIsAvailable() {
-        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= 2)
+        assumeTrue(ExtensionsUtil.safeVendorApiLevel >= 3)
         val loader = SafeWindowAreaComponentProvider::class.java.classLoader!!
         val safeComponent = SafeWindowAreaComponentProvider(loader).windowAreaComponent
 

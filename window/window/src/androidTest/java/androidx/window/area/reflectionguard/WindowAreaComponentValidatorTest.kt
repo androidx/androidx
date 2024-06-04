@@ -37,13 +37,7 @@ class WindowAreaComponentValidatorTest {
         assertTrue(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentFullImplementation::class.java,
-                2
-            )
-        )
-        assertTrue(
-            WindowAreaComponentValidator.isWindowAreaComponentValid(
-                WindowAreaComponentFullImplementation::class.java,
-                3
+                apiLevel = 3
             )
         )
     }
@@ -52,29 +46,19 @@ class WindowAreaComponentValidatorTest {
     fun isWindowAreaComponentValid_apiLevel1() {
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
-                WindowAreaComponentApiV2Implementation::class.java,
+                WindowAreaComponentApiV3Implementation::class.java,
                 apiLevel = 1
             )
         )
     }
 
-    /**
-     * Test that validator returns correct results for API Level 2 [WindowAreaComponent]
-     * implementation.
-     */
+    /** Test that validator returns false for API Level 2. */
     @Test
     fun isWindowAreaComponentValid_apiLevel2() {
-        assertTrue(
-            WindowAreaComponentValidator.isWindowAreaComponentValid(
-                WindowAreaComponentApiV2Implementation::class.java,
-                2
-            )
-        )
-
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
-                IncompleteWindowAreaComponentApiV2Implementation::class.java,
-                3
+                WindowAreaComponentApiV3Implementation::class.java,
+                2
             )
         )
     }
@@ -85,7 +69,7 @@ class WindowAreaComponentValidatorTest {
      */
     @Test
     fun isWindowAreaComponentValid_apiLevel3() {
-        assertTrue(
+        assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentApiV3Implementation::class.java,
                 2
@@ -117,7 +101,7 @@ class WindowAreaComponentValidatorTest {
      */
     @Test
     fun isExtensionWindowAreaStatusValid_trueIfValid() {
-        assertTrue(
+        assertFalse(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 ValidExtensionWindowAreaStatus::class.java,
                 2
@@ -185,24 +169,6 @@ class WindowAreaComponentValidatorTest {
         }
 
         override fun getRearDisplayMetrics(): DisplayMetrics {
-            throw NotImplementedError("Not implemented")
-        }
-    }
-
-    private class WindowAreaComponentApiV2Implementation : WindowAreaComponentApi2Requirements {
-        override fun addRearDisplayStatusListener(consumer: Consumer<Int>) {
-            throw NotImplementedError("Not implemented")
-        }
-
-        override fun removeRearDisplayStatusListener(consumer: Consumer<Int>) {
-            throw NotImplementedError("Not implemented")
-        }
-
-        override fun startRearDisplaySession(activity: Activity, consumer: Consumer<Int>) {
-            throw NotImplementedError("Not implemented")
-        }
-
-        override fun endRearDisplaySession() {
             throw NotImplementedError("Not implemented")
         }
     }
