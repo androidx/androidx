@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
@@ -38,9 +39,13 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.isEditable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
@@ -458,5 +463,63 @@ internal class BasicSecureTextFieldTest {
             imm.expectCall("updateSelection(0, 0, -1, -1)")
             imm.expectNoMoreCalls()
         }
+    }
+
+    @Test
+    fun textField_focus_doesNotShowSoftwareKeyboard_ifReadOnly() {
+        val state = TextFieldState()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicSecureTextField(
+                state = state,
+                readOnly = true,
+                modifier = Modifier.fillMaxSize().testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performClick()
+        rule.onNodeWithTag(Tag).assertIsFocused()
+
+        inputMethodInterceptor.assertNoSessionActive()
+    }
+
+    @Test
+    fun isNotEditable_whenDisabledOrReadOnly() {
+        val state = TextFieldState()
+        var enabled by mutableStateOf(true)
+        var readOnly by mutableStateOf(false)
+        rule.setContent {
+            BasicSecureTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                enabled = enabled,
+                readOnly = readOnly
+            )
+        }
+        rule.onNodeWithTag(Tag).assert(isEditable())
+
+        enabled = true
+        readOnly = true
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsEditable, false))
+
+        enabled = false
+        readOnly = false
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsEditable, false))
+
+        enabled = false
+        readOnly = true
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsEditable, false))
+
+        // Make editable again.
+        enabled = true
+        readOnly = false
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNodeWithTag(Tag).assert(isEditable())
     }
 }
