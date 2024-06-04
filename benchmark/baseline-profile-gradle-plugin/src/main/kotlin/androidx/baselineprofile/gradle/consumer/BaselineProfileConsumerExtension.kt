@@ -23,7 +23,6 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.Nested
 
 /** Allows specifying settings for the Baseline Profile Consumer Plugin. */
 abstract class BaselineProfileConsumerExtension @Inject constructor(objectFactory: ObjectFactory) :
@@ -44,7 +43,7 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(objectFactor
         }
     }
 
-    @Nested val warnings = WarningsExtension.register(this.extensions)
+    val warnings = WarningsExtension.register(this.extensions)
 
     val variants: NamedDomainObjectContainer<BaselineProfileVariantConfigurationImpl> =
         objectFactory.domainObjectContainer(BaselineProfileVariantConfigurationImpl::class.java)
@@ -61,6 +60,17 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(objectFactor
             it.saveInSrc = true
             it.automaticGenerationDuringBuild = false
         }
+
+    /**
+     * Controls whether Android Studio should hide synthetic build types created to generate
+     * baseline profiles and run benchmarks. These build types are copied from the existing release
+     * ones, adding as prefix `nonMinified` and `benchmark`. For example, if the build type is
+     * `release` the new build type will be `nonMinifiedRelease` and `benchmarkRelease`. Note that
+     * in case of defined product flavors, these are normally merged in the variant name. For
+     * example with flavor `free` the variant name will be `freeNonMinifiedRelease` and
+     * `freeBenchmarkRelease`.
+     */
+    var hideSyntheticBuildTypesInAndroidStudio: Boolean = true
 
     /**
      * Controls the global [BaselineProfileVariantConfiguration.baselineProfileRulesRewrite]. Note

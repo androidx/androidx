@@ -686,8 +686,8 @@ class ConsumerModule(
             """
                 plugins {
                     id("$androidPlugin")
-                    id("androidx.baselineprofile.consumer")
                     ${if (addAppTargetPlugin) "id(\"androidx.baselineprofile.apptarget\")" else ""}
+                    id("androidx.baselineprofile.consumer")
                     $otherPluginsBlock
                 }
                 android {
