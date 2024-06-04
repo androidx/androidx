@@ -30,8 +30,27 @@ plugins {
 }
 
 dependencies {
+    api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api(libs.kotlinCoroutinesCore)
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation 'androidx.core:core:1.12.0'
+    implementation(project(":webkit:webkit"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.robolectric)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
 }
 
 android {
