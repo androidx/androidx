@@ -26,6 +26,7 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
+import androidx.benchmark.UserInfo
 import androidx.tracing.trace
 import java.io.File
 
@@ -46,6 +47,7 @@ fun collect(
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
+    val uid = UserInfo.currentUserId
     val startTime = System.nanoTime()
     // Ensure the device is awake
     scope.device.wakeUp()
@@ -89,7 +91,7 @@ fun collect(
                 if (Build.VERSION.SDK_INT >= 33) {
                     extractProfile(packageName)
                 } else {
-                    extractProfileRooted(packageName)
+                    extractProfileRooted(uid, packageName)
                 }
 
             // Check stability
@@ -209,7 +211,6 @@ private fun reportResults(
  */
 @RequiresApi(33)
 private fun extractProfile(packageName: String): String {
-
     val dumpCommand = "pm dump-profiles --dump-classes-and-methods $packageName"
     val stdout = Shell.executeScriptCaptureStdout(dumpCommand).trim()
     val expected = "Profile saved to '/data/misc/profman/$packageName-primary.prof.txt'"
@@ -235,11 +236,11 @@ private fun extractProfile(packageName: String): String {
  *
  * Requires root.
  */
-private fun extractProfileRooted(packageName: String): String {
+private fun extractProfileRooted(uid: Int, packageName: String): String {
     // The path of the reference profile
     val referenceProfile = "/data/misc/profiles/ref/$packageName/primary.prof"
     // The path to the primary profile
-    val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
+    val currentProfile = "/data/misc/profiles/cur/$uid/$packageName/primary.prof"
     Log.d(TAG, "Reference profile location: $referenceProfile")
 
     @Suppress("SimplifiableCallChain") // join+block makes ordering unclear
