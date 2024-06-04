@@ -327,35 +327,35 @@ to use HTTP/1.1 with `git config --global http.version HTTP/1.1`.
 
 ### Fixing Kotlin code style errors
 
-`repo upload` automatically runs `ktlint`, which will cause the upload to fail
-if your code has style errors, which it reports on the command line like so:
+`repo upload` automatically runs `ktfmt`, which will cause the upload to fail if
+your code has style errors, which it reports on the command line like so:
 
 ```
-[FAILED] ktlint_hook
+[FAILED] ktfmt_hook
     [path]/MessageListAdapter.kt:36:69: Missing newline before ")"
 ```
 
-To find and fix these errors, you can run ktlint locally, either in a console
+To find and fix these errors, you can run ktfmt locally, either in a console
 window or in the Terminal tool in Android Studio. Running in the Terminal tool
 is preferable because it will surface links to your source files/lines so you
 can easily navigate to the code to fix any problems.
 
 First, to run the tool and see all of the errors, run:
 
-`./gradlew module:submodule:ktlint`
+`./gradlew module:submodule:ktCheck`
 
 where module/submodule are the names used to refer to the module you want to
-check, such as `navigation:navigation-common`. You can also run ktlint on the
+check, such as `navigation:navigation-common`. You can also run ktfmt on the
 entire project, but that takes longer as it is checking all active modules in
 your project.
 
-Many of the errors that ktlint finds can be automatically fixed by running
-ktlintFormat:
+Many of the errors that ktfmt finds can be automatically fixed by running
+ktFormat:
 
-`./gradlew module:submodule:ktlintFormat`
+`./gradlew module:submodule:ktFormat`
 
-ktlintFormat will report any remaining errors, but you can also run `ktlint`
-again at any time to see an updated list of the remaining errors.
+ktFormat will report any remaining errors, but you can also run `ktCheck` again
+at any time to see an updated list of the remaining errors.
 
 ## Building {#building}
 
