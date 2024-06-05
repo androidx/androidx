@@ -72,7 +72,7 @@ public class ClickStats {
     /**
      * Returns whether this click is a good click or not.
      *
-     * @see Builder#isGoodClick
+     * @see Builder#setIsGoodClick
      */
     public boolean isGoodClick() {
         return mIsGoodClick;
