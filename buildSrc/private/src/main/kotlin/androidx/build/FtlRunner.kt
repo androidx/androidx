@@ -94,6 +94,16 @@ abstract class FtlRunner : DefaultTask() {
     )
     abstract val instrumentationArgs: Property<String>
 
+    @get:Optional
+    @get:Input
+    @get:Option(
+        option = "api",
+        description =
+            "repeatable argument for which apis to run ftl tests on. " +
+                "Only relevant to $FTL_ON_APIS_NAME. Can be 21, 26, 28, 30, 33, 34."
+    )
+    abstract val apis: ListProperty<Int>
+
     @get:Input abstract val device: ListProperty<String>
 
     @TaskAction
@@ -163,19 +173,28 @@ abstract class FtlRunner : DefaultTask() {
                     if (testTimeout.isPresent) testTimeout.get() else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
-                ) + getDeviceArguments(device.get())
+                ) + getDeviceArguments()
             )
         }
     }
 
-    private fun getDeviceArguments(devices: List<String>): List<String> {
-        val deviceArguments = mutableListOf<String>()
-        devices.forEach { device ->
-            deviceArguments.addAll(
-                listOf("--device", "model=$device,locale=en_US,orientation=portrait")
-            )
+    private fun getDeviceArguments(): List<String> {
+        val devices = device.get().ifEmpty { readApis() }
+        return devices.flatMap { listOf("--device", "model=$it,locale=en_US,orientation=portrait") }
+    }
+
+    private fun readApis(): Collection<String> {
+        val apis = apis.get()
+        if (apis.isEmpty()) {
+            throw RuntimeException("--api must be specified when using $FTL_ON_APIS_NAME.")
         }
-        return deviceArguments
+
+        val apisWithoutModels = apis.filter { it !in API_TO_MODEL_MAP }
+        if (apisWithoutModels.isNotEmpty()) {
+            throw RuntimeException("Unknown apis specified: ${apisWithoutModels.joinToString()}")
+        }
+
+        return apis.map { API_TO_MODEL_MAP[it]!! }
     }
 }
 
@@ -185,14 +204,33 @@ private const val PETTYL = "pettyl,version=27"
 private const val HWCOR = "HWCOR,version=27"
 private const val Q2Q = "q2q,version=31"
 
+private const val MEDIUM_PHONE_34 = "MediumPhone.arm,version=34"
+private const val PIXEL2_33 = "Pixel2.arm,version=33"
+private const val PIXEL2_30 = "Pixel2.arm,version=30"
+private const val PIXEL2_28 = "Pixel2.arm,version=28"
+private const val PIXEL2_26 = "Pixel2.arm,version=26"
+private const val NEXUS4_21 = "Nexus4.gce_x86,version=21"
+
+private val API_TO_MODEL_MAP =
+    mapOf(
+        34 to MEDIUM_PHONE_34,
+        33 to PIXEL2_33,
+        30 to PIXEL2_30,
+        28 to PIXEL2_28,
+        26 to PIXEL2_26,
+        21 to NEXUS4_21,
+    )
+
+private const val FTL_ON_APIS_NAME = "ftlOnApis"
 private val devicesToRunOn =
     listOf(
-        "ftlmediumphoneapi34" to listOf("MediumPhone.arm,version=34"),
-        "ftlpixel2api33" to listOf("Pixel2.arm,version=33"),
-        "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
-        "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
-        "ftlpixel2api26" to listOf("Pixel2.arm,version=26"),
-        "ftlnexus4api21" to listOf("Nexus4.gce_x86,version=21"),
+        FTL_ON_APIS_NAME to listOf(), // instead read devices via repeatable --api
+        "ftlmediumphoneapi34" to listOf(MEDIUM_PHONE_34),
+        "ftlpixel2api33" to listOf(PIXEL2_33),
+        "ftlpixel2api30" to listOf(PIXEL2_30),
+        "ftlpixel2api28" to listOf(PIXEL2_28),
+        "ftlpixel2api26" to listOf(PIXEL2_26),
+        "ftlnexus4api21" to listOf(NEXUS4_21),
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
