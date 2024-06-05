@@ -189,6 +189,7 @@ dependencies {
     kmpDocs(project(":graphics:graphics-shapes"))
     docs(project(":gridlayout:gridlayout"))
     docs(project(":health:connect:connect-client"))
+    docs(project(":health:connect:connect-testing"))
     docs(project(":health:health-services-client"))
     docs(project(":heifwriter:heifwriter"))
     docs(project(":hilt:hilt-common"))
