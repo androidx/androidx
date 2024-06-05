@@ -145,12 +145,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     private class PlaygroundRepositories(props: PlaygroundProperties) {
-        val sonatypeSnapshot =
-            PlaygroundRepository(
-                url = "https://oss.sonatype.org/content/repositories/snapshots",
-                includeGroupRegex = """com\.pinterest.*""",
-                includeModuleRegex = """ktlint.*"""
-            )
         val snapshots =
             PlaygroundRepository(
                 "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts" +
@@ -173,7 +167,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                 "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev",
                 includeGroupRegex = """org\.jetbrains\.dokka"""
             )
-        val all = listOf(sonatypeSnapshot, snapshots, metalava, dokka, prebuilts)
+        val all = listOf(snapshots, metalava, dokka, prebuilts)
     }
 
     private data class PlaygroundRepository(
