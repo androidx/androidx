@@ -601,7 +601,8 @@ internal class SuspendingPointerInputModifierNodeImpl(
                     previousPosition = old.position,
                     previousUptimeMillis = old.uptimeMillis,
                     previousPressed = old.pressed,
-                    isInitiallyConsumed = old.pressed
+                    isInitiallyConsumed = old.pressed,
+                    type = old.type
                 )
             }
 
