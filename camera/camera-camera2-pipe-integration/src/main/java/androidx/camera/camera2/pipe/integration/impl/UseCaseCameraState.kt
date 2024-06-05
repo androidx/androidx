@@ -210,8 +210,7 @@ constructor(
         //  actually changed.
         debug {
             "UseCaseCameraState#updateState: parameters = $parameters, internalParameters = " +
-                "$internalParameters, streams = $streams, template = $template" +
-                ", listeners = $listeners"
+                "$internalParameters, streams = $streams, template = $template"
         }
 
         if (parameters != null) {
