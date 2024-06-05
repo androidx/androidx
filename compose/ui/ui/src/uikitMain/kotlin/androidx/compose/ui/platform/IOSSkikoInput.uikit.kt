@@ -16,7 +16,16 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.DpOffset
+
 internal interface IOSSkikoInput {
+
+    fun beginFloatingCursor(offset: DpOffset) {}
+
+    fun updateFloatingCursor(offset: DpOffset) {}
+
+    fun endFloatingCursor() {}
 
     /**
      * A Boolean value that indicates whether the text-entry object has any text.

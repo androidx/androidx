@@ -95,6 +95,10 @@ typedef NS_ENUM(NSInteger, CMPViewControllerLifecycleState) {
     [self viewControllerDidEnterWindowHierarchy];
 }
 
+- (void)viewSafeAreaInsetsDidChange {
+    [super viewSafeAreaInsetsDidChange];
+}
+
 - (void)transitLifecycleToStarted {
     switch (_lifecycleState) {
         case CMPViewControllerLifecycleStateDestroyed:

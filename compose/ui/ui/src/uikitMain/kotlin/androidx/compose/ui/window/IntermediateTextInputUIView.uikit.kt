@@ -16,12 +16,16 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.EmptyInputTraits
 import androidx.compose.ui.platform.IOSSkikoInput
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextActions
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.uikit.utils.CMPEditMenuView
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import kotlinx.cinterop.COpaquePointer
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 import kotlinx.cinterop.CValue
@@ -88,6 +92,18 @@ internal class IntermediateTextInputUIView(
     var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
 
     override fun canBecomeFirstResponder() = true
+
+    override fun beginFloatingCursorAtPoint(point: CValue<CGPoint>) {
+        input?.beginFloatingCursor(point.useContents { DpOffset(x.dp, y.dp) })
+    }
+
+    override fun updateFloatingCursorAtPoint(point: CValue<CGPoint>) {
+        input?.updateFloatingCursor(point.useContents { DpOffset(x.dp, y.dp) })
+    }
+
+    override fun endFloatingCursor() {
+        input?.endFloatingCursor()
+    }
 
     override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
         keyboardEventHandler?.pressesBegan(presses, withEvent)
