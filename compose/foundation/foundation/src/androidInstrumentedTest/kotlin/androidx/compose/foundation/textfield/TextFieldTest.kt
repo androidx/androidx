@@ -150,7 +150,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -1176,12 +1175,11 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @Ignore // b/284408746
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenPartiallySelectedTextIsRemoved_SelectionCoercesToEdges() {
         val textFieldValue = mutableStateOf("Hello World!")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
@@ -1230,11 +1228,10 @@ class TextFieldTest : FocusedWindowTest {
     }
 
     @OptIn(ExperimentalTestApi::class)
-    @FlakyTest(bugId = 300053741)
     @Test
     fun whenSelectedTextIsPartiallyRemoved_addedLater_SelectionRemainsPartially() {
         val textFieldValue = mutableStateOf("Hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
