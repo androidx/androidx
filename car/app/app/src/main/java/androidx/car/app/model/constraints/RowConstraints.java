@@ -75,7 +75,18 @@ public final class RowConstraints {
                     .setOnClickListenerAllowed(true)
                     .build();
 
-    /** The constraints for a row in a list (simple + toggle support). */
+    /**
+     * Constraints for rows in a full list which enforces the following:
+     *
+     * <ul>
+     *     <li>No actions (note: this is different than the click listener which turns the entire
+     *     row into a clickable "action")
+     *     <li>Maximum 2 lines of text below the title
+     *     <li>Can have an image
+     *     <li>Can have a toggle
+     *     <li>Can have a click listener
+     * </ul>
+     */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_FULL_LIST =
             new RowConstraints.Builder(ROW_CONSTRAINTS_SIMPLE).setToggleAllowed(true).build();
