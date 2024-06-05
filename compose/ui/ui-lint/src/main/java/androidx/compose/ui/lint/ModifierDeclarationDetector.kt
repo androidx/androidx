@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.analysis.api.calls.KtCall
 import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
 import org.jetbrains.kotlin.analysis.api.calls.KtImplicitReceiverValue
 import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtFunctionSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtReceiverParameterSymbol
 import org.jetbrains.kotlin.idea.references.mainReference
@@ -287,15 +288,20 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
                     node.sourcePsi as? KtThisExpression ?: return isReceiverReferenced
                 analyze(ktThisExpression) {
                     val symbol = ktThisExpression.instanceReference.mainReference.resolveToSymbol()
+                    val referredMethodSymbol =
+                        when (symbol) {
+                            is KtReceiverParameterSymbol -> symbol.owningCallableSymbol
+                            is KtCallableSymbol -> symbol
+                            else -> null
+                        }
                     // The symbol of the enclosing factory method
                     val enclosingMethodSymbol =
                         (factoryMethod.sourcePsi as? KtDeclaration)?.getSymbol()
                             as? KtFunctionSymbol
                     // If the symbol `this` points to matches the enclosing factory method, then we
                     // consider the modifier receiver referenced. If the symbols do not match,
-                    // `this`
-                    // might point to an inner scope
-                    if (symbol == enclosingMethodSymbol) {
+                    // `this` might point to an inner scope
+                    if (referredMethodSymbol == enclosingMethodSymbol) {
                         isReceiverReferenced = true
                         // no further tree traversal, since we found receiver usage.
                         return true
