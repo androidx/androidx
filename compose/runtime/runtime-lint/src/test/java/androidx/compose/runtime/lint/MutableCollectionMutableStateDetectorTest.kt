@@ -28,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [MutableCollectionMutableStateDetector]. */
@@ -1591,4 +1590,3 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

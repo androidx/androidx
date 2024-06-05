@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [RememberDetector]. */
@@ -436,4 +435,3 @@ src/androidx/compose/runtime/foo/FooState.kt:69: Error: remember calls must not 
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

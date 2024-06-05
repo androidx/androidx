@@ -50,8 +50,6 @@ internal fun differentBits(slot: Int): Int = bitsForSlot(0b10, slot)
  */
 @Suppress("NAME_SHADOWING", "UNCHECKED_CAST")
 @Stable
-/* ktlint-disable parameter-list-wrapping */
-// TODO(https://github.com/pinterest/ktlint/issues/921): reenable
 internal class ComposableLambdaImpl(val key: Int, private val tracked: Boolean, block: Any?) :
     ComposableLambda {
     private var _block: Any? = block

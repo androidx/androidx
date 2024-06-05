@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [TransitionDetector]. */
@@ -322,4 +321,3 @@ src/foo/test.kt:22: Error: Target state parameter param is not used [UnusedTrans
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ProduceStateDetector]. */
@@ -145,4 +144,3 @@ src/androidx/compose/runtime/foo/test.kt:21: Error: produceState calls should as
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

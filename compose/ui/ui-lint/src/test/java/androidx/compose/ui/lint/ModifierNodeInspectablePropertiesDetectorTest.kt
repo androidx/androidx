@@ -21,7 +21,6 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
 
-/* ktlint-disable max-line-length */
 class ModifierNodeInspectablePropertiesDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ModifierNodeInspectablePropertiesDetector()
 
@@ -259,4 +258,3 @@ src/test/ElementWithoutReceiver.kt:9: Information: ElementWithoutReceiver does n
             )
     }
 }
-/* ktlint-enable max-line-length */

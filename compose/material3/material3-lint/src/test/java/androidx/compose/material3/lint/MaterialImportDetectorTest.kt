@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [MaterialImportDetector]. */
@@ -295,4 +294,3 @@ src/foo/test.kt:4: Warning: Using a material import while also using the materia
             )
     }
 }
-/* ktlint-enable max-line-length */

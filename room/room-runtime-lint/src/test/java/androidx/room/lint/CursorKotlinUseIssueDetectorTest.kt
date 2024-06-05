@@ -42,7 +42,6 @@ class CursorKotlinUseIssueDetectorTest {
             )
             .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
             src/com/example/Foo.kt:4: Error: Usage of kotlin.io.use() with Cursor requires API 16. [CursorKotlinUse]

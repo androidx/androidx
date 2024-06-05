@@ -48,7 +48,6 @@ class IdleBatteryChargingConstraintsDetectorTest {
             .files(CONSTRAINTS, customApplication)
             .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:8: Warning: Constraints may not be met for some devices [IdleBatteryChargingConstraints]
@@ -58,7 +57,6 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -87,7 +85,6 @@ class IdleBatteryChargingConstraintsDetectorTest {
             .files(CONSTRAINTS, customApplication)
             .issues(IdleBatteryChargingConstraintsDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:8: Warning: Constraints may not be met for some devices [IdleBatteryChargingConstraints]
@@ -97,7 +94,6 @@ class IdleBatteryChargingConstraintsDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

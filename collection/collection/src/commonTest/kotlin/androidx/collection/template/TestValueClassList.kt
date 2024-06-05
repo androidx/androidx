@@ -15,9 +15,6 @@
  */
 @file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier", "UnusedImport")
 
-/* ktlint-disable max-line-length */
-/* ktlint-disable import-ordering */
-
 package androidx.collection.template
 
 import androidx.collection.LongList

@@ -44,7 +44,6 @@ class BanSynchronizedMethodsTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
@@ -53,7 +52,6 @@ src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods i
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected)
     }
@@ -73,7 +71,6 @@ src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods i
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
@@ -82,7 +79,6 @@ src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods i
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected)
     }

@@ -1,5 +1,4 @@
 @file:Suppress(
-    "ktlint",
     "UNCHECKED_CAST",
     "UNSAFE_CALL",
     "DEPRECATION",

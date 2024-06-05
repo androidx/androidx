@@ -27,7 +27,6 @@ class ReplaceWithDetectorImportsTest {
     fun methodWithImportsJava() {
         val input = arrayOf(javaSample("replacewith.MethodWithImportsJava"))
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/MethodWithImportsJava.java:38: Information: Replacement available [ReplaceWith]
@@ -57,7 +56,6 @@ Fix for src/replacewith/MethodWithImportsJava.java line 42: Replace with `newMet
 +         newMethod(null);
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -70,7 +68,6 @@ Fix for src/replacewith/MethodWithImportsJava.java line 42: Replace with `newMet
                 javaSample("replacewith.ReplaceWithUsageJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/MethodWithImportsKotlin.kt:25: Information: Replacement available [ReplaceWith]
@@ -100,7 +97,6 @@ Fix for src/replacewith/MethodWithImportsKotlin.kt line 30: Replace with `"world
 +         "world".toString()
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -109,7 +105,6 @@ Fix for src/replacewith/MethodWithImportsKotlin.kt line 30: Replace with `"world
     fun methodWithNoImportsJava() {
         val input = arrayOf(javaSample("replacewith.MethodWithNoImportsJava"))
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/MethodWithNoImportsJava.java:37: Information: Replacement available [ReplaceWith]
@@ -141,7 +136,6 @@ Fix for src/replacewith/MethodWithNoImportsJava.java line 41: Replace with `newM
 +         newMethod(null);
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -154,7 +148,6 @@ Fix for src/replacewith/MethodWithNoImportsJava.java line 41: Replace with `newM
                 javaSample("replacewith.ReplaceWithUsageJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/MethodWithNoImportsKotlin.kt:22: Information: Replacement available [ReplaceWith]
@@ -186,7 +179,6 @@ Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 26: Replace with `"wor
 +         "world".toString()
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -195,7 +187,6 @@ Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 26: Replace with `"wor
     fun methodWithNoImportsOrPackage() {
         val input = arrayOf(javaSample("replacewith.MethodWithNoImportsOrPackage"))
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/MethodWithNoImportsOrPackage.java:35: Information: Replacement available [ReplaceWith]
@@ -225,7 +216,6 @@ Fix for src/MethodWithNoImportsOrPackage.java line 39: Replace with `newMethod(n
 + import androidx.annotation.NonNull;
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

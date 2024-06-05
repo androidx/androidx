@@ -26,8 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /**
  * Test for [SampledAnnotationDetector]
  *
@@ -660,4 +658,3 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
         checkKotlin(sampleFile = sampleFile, expectedText = expected)
     }
 }
-/* ktlint-enable max-line-length */

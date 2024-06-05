@@ -49,7 +49,6 @@ class KotlinAnnotationsDetectorTest {
                 javaSample("sample.kotlin.UseJavaExperimentalMembersFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/UseJavaExperimentalMembersFromJava.java:30: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -76,7 +75,6 @@ src/sample/kotlin/UseJavaExperimentalMembersFromJava.java:61: Error: This declar
 7 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -90,7 +88,6 @@ src/sample/kotlin/UseJavaExperimentalMembersFromJava.java:61: Error: This declar
                 javaSample("sample.kotlin.UseJavaExperimentalClassFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/UseJavaExperimentalClassFromJava.java:31: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -120,7 +117,6 @@ src/sample/kotlin/UseJavaExperimentalClassFromJava.java:54: Error: This declarat
 8 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -136,7 +132,6 @@ src/sample/kotlin/UseJavaExperimentalClassFromJava.java:54: Error: This declarat
                 javaSample("sample.kotlin.UseJavaExperimentalMultipleMarkersFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/UseJavaExperimentalMultipleMarkersFromJava.java:33: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation2 or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation2.class) [UnsafeOptInUsageError]
@@ -151,7 +146,6 @@ src/sample/kotlin/UseJavaExperimentalMultipleMarkersFromJava.java:34: Error: Thi
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -170,7 +164,7 @@ src/sample/kotlin/UseJavaExperimentalMultipleMarkersFromJava.java:34: Error: Thi
             )
 
         // TODO(b/210881073): Access to annotated property `field` is still not detected.
-        /* ktlint-disable max-line-length */
+
         val expected =
             """
 src/sample/kotlin/UseKtExperimentalFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalKotlinAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalKotlinAnnotation.class) [UnsafeOptInUsageError]
@@ -209,7 +203,6 @@ src/sample/kotlin/UseKtExperimentalFromJava.java:117: Error: This declaration is
 11 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -224,7 +217,6 @@ src/sample/kotlin/UseKtExperimentalFromJava.java:117: Error: This declaration is
                 javaSample("sample.kotlin.UseJavaPackageFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/UseJavaPackageFromJava.java:32: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -242,7 +234,6 @@ src/sample/kotlin/UseJavaPackageFromJava.java:66: Error: This declaration is opt
 4 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -261,13 +252,11 @@ src/sample/kotlin/UseJavaPackageFromJava.java:66: Error: This declaration is opt
                 javaSample("sample.kotlin.foo.RegressionTestJava218798815")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -280,7 +269,6 @@ No warnings.
                 javaSample("sample.kotlin.RegressionTestJava193110413"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/RegressionTestJava193110413.java:92: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -304,7 +292,6 @@ src/sample/kotlin/RegressionTestJava193110413.java:97: Error: This declaration i
 6 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -317,7 +304,6 @@ src/sample/kotlin/RegressionTestJava193110413.java:97: Error: This declaration i
                 javaSample("sample.kotlin.RegressionTestJava192562469"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/RegressionTestJava192562469.java:34: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -344,7 +330,6 @@ src/sample/kotlin/RegressionTestJava192562469.java:67: Error: This declaration i
 7 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -357,7 +342,6 @@ src/sample/kotlin/RegressionTestJava192562469.java:67: Error: This declaration i
                 javaSample("sample.kotlin.RegressionTestJava192562926"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/kotlin/RegressionTestJava192562926.java:39: Error: This declaration is opt-in and its usage should be marked with @sample.kotlin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.kotlin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
@@ -372,12 +356,10 @@ src/sample/kotlin/RegressionTestJava192562926.java:52: Error: This declaration i
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
 
-    /* ktlint-disable max-line-length */
     companion object {
         /**
          * [TestFile] containing RequiresOptIn.kt from the experimental annotation library.
@@ -476,5 +458,4 @@ src/sample/kotlin/RegressionTestJava192562926.java:52: Error: This declaration i
                     "I6JIyQMAAA=="
             )
     }
-    /* ktlint-enable max-line-length */
 }

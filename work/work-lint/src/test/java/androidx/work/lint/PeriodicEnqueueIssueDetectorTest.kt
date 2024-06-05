@@ -50,7 +50,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 WORK_MANAGER,
@@ -71,7 +70,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -97,7 +95,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 WORK_MANAGER,
@@ -118,7 +115,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -146,7 +142,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 WORK_MANAGER,
@@ -167,7 +162,6 @@ class PeriodicEnqueueIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

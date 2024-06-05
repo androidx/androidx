@@ -26,8 +26,6 @@ class Stubs {
 
     companion object {
 
-        /* ktlint-disable max-line-length */
-
         /** [TestFile] containing Keep.java from the annotation library. */
         val Keep =
             TestFiles.java(
@@ -458,6 +456,5 @@ public class BuildCompat {
         """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

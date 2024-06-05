@@ -27,9 +27,6 @@
 
 package androidx.collection.template
 
-/* ktlint-disable max-line-length */
-/* ktlint-disable import-ordering */
-
 import androidx.collection.LongSet
 import androidx.collection.MutableLongSet
 import androidx.collection.TestValueClass
@@ -39,7 +36,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
 
-/* ktlint-disable max-line-length */
 // To use this template, you must substitute several strings. You can copy this and search/replace
 // or use a sed command. These properties must be changed:
 // * androidx.collection.template - target package (e.g. androidx.compose.ui.ui.collection)

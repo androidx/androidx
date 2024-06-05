@@ -31,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/* ktlint-disable max-line-length */
 @RunWith(Parameterized::class)
 class UnnecessaryLambdaCreationDetectorTest(
     @Suppress("unused") private val parameterizedDebugString: String,
@@ -425,4 +424,3 @@ src/test/test.kt:31: Error: Creating an unnecessary lambda to emit a captured la
             )
     }
 }
-/* ktlint-enable max-line-length */

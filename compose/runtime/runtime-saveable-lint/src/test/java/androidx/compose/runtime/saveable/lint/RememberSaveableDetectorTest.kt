@@ -28,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 /** Test for [RememberSaveableDetector]. */
 class RememberSaveableDetectorTest : LintDetectorTest() {
@@ -286,4 +285,3 @@ Fix for src/test/Foo.kt line 22: Change to `stateSaver = fooSaver4`:
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

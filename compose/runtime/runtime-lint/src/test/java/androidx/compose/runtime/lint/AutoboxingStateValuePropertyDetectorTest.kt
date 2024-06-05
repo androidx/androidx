@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class AutoboxingStateValuePropertyDetectorTest : LintDetectorTest() {
 
@@ -308,4 +307,3 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 7: Replace with `int
             )
     }
 }
-/* ktlint-enable max-line-length */

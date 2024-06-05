@@ -1389,7 +1389,7 @@ private constructor(
         internal companion object {
             private fun <T> bindScale(
                 function:
-                    ( // ktlint-disable parameter-list-wrapping
+                    (
                         resources: Resources,
                         parser: XmlResourceParser,
                         complicationScaleX: Float,
@@ -2185,7 +2185,7 @@ private constructor(
         internal companion object {
             private fun <T> bindIdToSetting(
                 function:
-                    ( // ktlint-disable parameter-list-wrapping
+                    (
                         resources: Resources,
                         parser: XmlResourceParser,
                         idToSetting: Map<String, UserStyleSetting>

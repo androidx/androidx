@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class ListIteratorDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ListIteratorDetector()
@@ -205,4 +204,3 @@ src/test/test.kt:7: Error: Creating an unnecessary Iterator to iterate through a
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

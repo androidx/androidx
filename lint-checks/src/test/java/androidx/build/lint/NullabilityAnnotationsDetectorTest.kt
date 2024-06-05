@@ -49,7 +49,6 @@ class NullabilityAnnotationsDetectorTest :
 
         val input = arrayOf(source, JetBrainsAnnotations)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/sample/NullabilityAnnotationsJava.java:5: Error: Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull [NullabilityAnnotationsDetector]
@@ -74,7 +73,6 @@ Autofix for src/androidx/sample/NullabilityAnnotationsJava.java line 8: Replace 
 +     private void method2(@androidx.annotation.Nullable String arg) {
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectFixDiffs)
     }

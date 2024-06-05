@@ -50,7 +50,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -66,7 +65,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastN()) {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -90,7 +88,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -106,7 +103,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (isAtLeastN()) {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -130,7 +126,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -146,7 +141,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastNMR1()) {
             +     if (Build.VERSION.SDK_INT >= 25) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -170,7 +164,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -186,7 +179,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastO()) {
             +     if (Build.VERSION.SDK_INT >= 26) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -210,7 +202,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -226,7 +217,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastOMR1()) {
             +     if (Build.VERSION.SDK_INT >= 27) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -250,7 +240,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -266,7 +255,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastP()) {
             +     if (Build.VERSION.SDK_INT >= 28) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
@@ -290,7 +278,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
@@ -306,7 +293,6 @@ class ObsoleteBuildCompatUsageDetectorTest :
             -     if (BuildCompat.isAtLeastQ()) {
             +     if (Build.VERSION.SDK_INT >= 29) {
         """
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }

@@ -61,7 +61,6 @@ class PrivateConstructorForUtilityClassDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/PrivateConstructorForUtilityClassJava.java:9: Error: Utility class is missing private constructor [PrivateConstructorForUtilityClass]
@@ -76,7 +75,6 @@ src/androidx/PrivateConstructorForUtilityClassJava.java:19: Error: Utility class
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected)
     }

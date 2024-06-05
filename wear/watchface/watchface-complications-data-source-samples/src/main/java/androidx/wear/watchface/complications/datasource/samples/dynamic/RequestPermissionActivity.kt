@@ -53,9 +53,9 @@ class RequestPermissionActivity : Activity() {
     companion object {
         private val ACTION_TO_PERMISSION: Map<String, String> =
             mapOf(
-                "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION" to // ktlint-disable max-line-length
+                "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION" to
                     permission.ACTIVITY_RECOGNITION,
-                "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_BODY_SENSORS_PERMISSION" to // ktlint-disable max-line-length
+                "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_BODY_SENSORS_PERMISSION" to
                     permission.BODY_SENSORS,
             )
     }

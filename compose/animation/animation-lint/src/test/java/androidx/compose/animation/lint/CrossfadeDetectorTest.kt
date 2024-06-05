@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [CrossfadeDetector]. */
@@ -250,4 +249,3 @@ src/foo/test.kt:20: Error: Target state parameter param is not used [UnusedCross
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

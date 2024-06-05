@@ -26,8 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /** Test for [ModifierParameterDetector]. */
 @RunWith(JUnit4::class)
 class ModifierParameterDetectorTest : LintDetectorTest() {
@@ -348,4 +346,3 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

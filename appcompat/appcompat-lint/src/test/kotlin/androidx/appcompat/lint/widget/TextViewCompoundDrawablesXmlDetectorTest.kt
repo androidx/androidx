@@ -98,7 +98,7 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         // We expect the definition of the text view to be flagged since it is using
         // android: namespaced compound drawables attributes. We also expect a matching
         // fix to replace the matching attributes to the app: namespace, retaining the same values
-        /* ktlint-disable max-line-length */
+
         lint()
             .files(layout)
             .issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
@@ -123,7 +123,6 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

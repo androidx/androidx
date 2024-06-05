@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
 
 // Disabling max line length is needed for the link to work properly in the KDoc.
-/* ktlint-disable max-line-length */
+
 /**
  * Support for opening android intents on other devices.
  *
@@ -69,7 +69,6 @@ import kotlinx.coroutines.flow.flowOf
  * @param executor [Executor] used for getting data to be passed in remote intent. If not specified,
  *   default will be `Executors.newSingleThreadExecutor()`.
  */
-/* ktlint-enable max-line-length */
 public class RemoteActivityHelper
 @JvmOverloads
 constructor(

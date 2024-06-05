@@ -90,7 +90,7 @@ interface ImageBitmap {
     fun prepareToDraw()
 
     /** Provide an empty companion object to hang platform-specific companion extensions onto. */
-    companion object {} // ktlint-disable no-empty-class-body
+    companion object {}
 }
 
 /**

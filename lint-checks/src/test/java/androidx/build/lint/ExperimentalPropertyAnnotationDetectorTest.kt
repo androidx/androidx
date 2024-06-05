@@ -90,7 +90,6 @@ class ExperimentalPropertyAnnotationDetectorTest :
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -130,7 +129,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -173,7 +171,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 14: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -214,7 +211,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -270,7 +266,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 21: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -299,7 +294,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
 +                     @get:ExperimentalKotlinAnnotation
 +                     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -386,7 +380,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 11: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:7: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -402,7 +395,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
 +                     @set:ExperimentalJavaAnnotation
 +                     @property:ExperimentalJavaAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -426,7 +418,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 7: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/test.kt:4: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -442,7 +433,6 @@ Fix for src/java/androidx/test.kt line 4: Add missing annotations:
 +                 @set:ExperimentalKotlinAnnotation
 +                 @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -470,7 +460,6 @@ Fix for src/java/androidx/test.kt line 4: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:6: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -486,7 +475,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
 +                         @set:ExperimentalKotlinAnnotation
 +                         @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -512,7 +500,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 6: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:5: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -527,7 +514,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
 @@ -5 +5
 +                     @property:ExperimentalKotlinAnnotation
         """
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)
@@ -656,7 +642,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 5: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/AnnotatedProperty.kt:7: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -681,7 +666,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 10: Add missing annotations:
 +     @get:ExperimentalKotlinAnnotation
 +     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -722,7 +706,6 @@ Fix for src/java/androidx/AnnotatedProperty.kt line 10: Add missing annotations:
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/test.kt:3: Error: This property does not have all required annotations to correctly mark it as experimental. [ExperimentalPropertyAnnotation]
@@ -738,7 +721,6 @@ Fix for src/java/androidx/test.kt line 3: Add missing annotations:
 + @get:ExperimentalKotlinAnnotation
 + @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

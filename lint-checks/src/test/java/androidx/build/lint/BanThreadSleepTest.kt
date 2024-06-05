@@ -37,7 +37,6 @@ class BanThreadSleepTest :
                 javaSample("androidx.ThreadSleepUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThreadSleep]
@@ -46,7 +45,6 @@ src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThread
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -58,7 +56,6 @@ src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThread
                 ktSample("androidx.ThreadSleepUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ThreadSleepUsageKotlin.kt:21: Error: Uses Thread.sleep() [BanThreadSleep]
@@ -67,7 +64,6 @@ src/androidx/ThreadSleepUsageKotlin.kt:21: Error: Uses Thread.sleep() [BanThread
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

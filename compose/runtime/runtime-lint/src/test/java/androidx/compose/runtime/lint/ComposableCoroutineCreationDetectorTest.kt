@@ -29,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ComposableCoroutineCreationDetector]. */
@@ -454,4 +453,3 @@ src/androidx/compose/runtime/foo/test.kt:54: Error: Calls to launchIn should hap
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */
