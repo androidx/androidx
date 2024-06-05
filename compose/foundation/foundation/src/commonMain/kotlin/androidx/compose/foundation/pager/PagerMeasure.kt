@@ -415,9 +415,12 @@ internal fun LazyLayoutMeasureScope.measurePager(
         val positionedPagesAfter =
             if (extraPagesAfter.isEmpty()) emptyList()
             else positionedPages.fastFilter { it.index > visiblePages.last().index }
+
+        val layoutSize = mainAxisAvailableSize + beforeContentPadding + afterContentPadding
+
         val newCurrentPage =
             calculateNewCurrentPage(
-                if (orientation == Orientation.Vertical) layoutHeight else layoutWidth,
+                layoutSize,
                 visiblePagesInfo,
                 beforeContentPadding,
                 afterContentPadding,
@@ -428,7 +431,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
 
         val snapOffset =
             snapPosition.position(
-                mainAxisAvailableSize,
+                layoutSize,
                 pageAvailableSize,
                 beforeContentPadding,
                 afterContentPadding,

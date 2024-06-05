@@ -161,12 +161,13 @@ internal fun rememberPagerMeasurePolicy(
 
             val currentPage: Int
             val currentPageOffset: Int
+            val layoutSize = mainAxisAvailableSize + beforeContentPadding + afterContentPadding
 
             Snapshot.withoutReadObservation {
                 currentPage = state.matchScrollPositionWithKey(itemProvider, state.currentPage)
                 currentPageOffset =
                     snapPosition.currentPageOffset(
-                        mainAxisAvailableSize,
+                        layoutSize,
                         pageAvailableSize,
                         spaceBetweenPages,
                         beforeContentPadding,

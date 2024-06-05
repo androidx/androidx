@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
@@ -199,6 +200,39 @@ class PagerStateTest : SingleParamBasePagerTest() {
                     rule.waitForIdle()
                     assertTrue { pagerState.currentPage == nextPage }
                     param.confirmPageIsInCorrectPosition(pagerState.currentPage)
+                }
+
+                // reset
+                resetTestCase()
+            }
+        }
+    }
+
+    @Test
+    fun animateScrollToPage_fixedPageSize_shouldPlacePagesCorrectly() {
+        // Arrange
+        rule.setContent { config ->
+            ParameterizedPager(
+                modifier = Modifier.fillMaxSize(),
+                orientation = config.orientation,
+                layoutDirection = config.layoutDirection,
+                reverseLayout = config.reverseLayout,
+                snapPosition = config.snapPosition.first,
+                pageSize = PageSize.Fixed(200.dp)
+            )
+        }
+
+        rule.forEachParameter(PagerStateTestParams) { _ ->
+            runBlocking {
+                // Act and Assert
+                repeat(DefaultAnimationRepetition) {
+                    val nextPage = pagerState.currentPage + 1
+                    withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                        pagerState.animateScrollToPage(nextPage)
+                    }
+                    rule.waitForIdle()
+                    assertTrue { pagerState.currentPage == nextPage }
+                    assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(0.0f)
                 }
 
                 // reset
