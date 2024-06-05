@@ -68,10 +68,14 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * appropriate for entering secure content. Additionally, some context menu actions like cut, copy,
  * and drag are disabled for added security.
  *
- * @param state [TextFieldState] object that holds the internal state of a [BasicTextField].
+ * @param state [TextFieldState] object that holds the internal state of a [BasicSecureTextField].
  * @param modifier optional [Modifier] for this text field.
- * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text field
- *   will be neither editable nor focusable, the input of the text field will not be selectable.
+ * @param enabled controls the enabled state of the [BasicSecureTextField]. When `false`, the text
+ *   field will be neither editable nor focusable, the input of the text field will not be
+ *   selectable.
+ * @param readOnly controls the editable state of the [BasicSecureTextField]. When `true`, the text
+ *   field can not be modified, however, a user can focus it and copy text from it. Read-only text
+ *   fields are usually used to display pre-filled forms that user can not edit.
  * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
  *   to the [TextFieldState] made by the user. The transformation will be applied to changes made by
  *   hardware and software keyboard events, pasting or dropping text, accessibility services, and
@@ -116,6 +120,7 @@ fun BasicSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.SecureTextField,
@@ -181,7 +186,7 @@ fun BasicSecureTextField(
             state = state,
             modifier = secureTextFieldModifier,
             enabled = enabled,
-            readOnly = false,
+            readOnly = readOnly,
             inputTransformation =
                 if (revealLastTypedEnabled) {
                     inputTransformation.then(secureTextFieldController.passwordInputTransformation)
@@ -333,4 +338,45 @@ private fun DisableCutCopy(content: @Composable () -> Unit) {
             content()
         }
     }
+}
+
+@Deprecated(
+    message = "Please use the overload that takes in readOnly parameter.",
+    level = DeprecationLevel.HIDDEN
+)
+@Suppress("ComposableLambdaParameterPosition")
+@Composable
+fun BasicSecureTextField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    inputTransformation: InputTransformation? = null,
+    textStyle: TextStyle = TextStyle.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.SecureTextField,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+    cursorBrush: Brush = SolidColor(Color.Black),
+    decorator: TextFieldDecorator? = null,
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
+    textObfuscationCharacter: Char = DefaultObfuscationCharacter,
+) {
+    BasicSecureTextField(
+        state = state,
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = false,
+        inputTransformation = inputTransformation,
+        textStyle = textStyle,
+        keyboardOptions = keyboardOptions,
+        onKeyboardAction = onKeyboardAction,
+        onTextLayout = onTextLayout,
+        interactionSource = interactionSource,
+        cursorBrush = cursorBrush,
+        decorator = decorator,
+        textObfuscationMode = textObfuscationMode,
+        textObfuscationCharacter = textObfuscationCharacter
+    )
 }
