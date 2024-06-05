@@ -282,6 +282,13 @@ internal class PullToRefreshModifierNode(
 
     override fun onAttach() {
         delegate(nestedScrollNode)
+        coroutineScope.launch {
+            if (isRefreshing) {
+                state.snapTo(1f)
+            } else {
+                state.snapTo(0f)
+            }
+        }
     }
 
     override fun onPreScroll(
