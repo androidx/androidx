@@ -608,8 +608,6 @@ docs-tip-of-tree:docs completing
 i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
 # buildPrivacySandboxSdkApksForDebug (b/329101823)
 Extracted sandbox SDK APK for.*
-# > Configure project :
-The Dependency Analysis plugin is only known to work with versions of AGP between [0-9]+\.[0-9]+\.[0-9]+ and [0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\. You are using [0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\. Proceed at your own risk\.
 # > Task :appcompat:appcompat:findDeclaredProcsDebug
 Could not reflectively access processor class 'androidx\.resourceinspection\.processor\.ResourceInspectionProcessor'
 # > Task :buildHealth
