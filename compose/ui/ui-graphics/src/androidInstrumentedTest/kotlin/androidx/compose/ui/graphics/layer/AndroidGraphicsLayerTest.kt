@@ -1427,6 +1427,28 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testEndRecordingAlwaysCalled() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+                try {
+                    layer.record {
+                        // Intentionally cause an exception to be thrown during recording
+                        throw Exception()
+                    }
+                } catch (_: Throwable) {
+                    // NO-OP
+                }
+
+                // Attempts to record after an exception is thrown should still succeed
+                layer.record { drawRect(Color.Red) }
+                drawLayer(layer)
+            },
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
