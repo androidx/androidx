@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -129,6 +131,11 @@ class MenuTest {
 
     @Test
     fun menu_scrolledContent() {
+        // TODO This test is disabled on API 33+. See b/335809611 & b/335815616. Once popups are
+        //  handled correctly with the introduction of a default edge to edge policy, we should be
+        //  able to re-enable it.
+        Assume.assumeTrue(SDK_INT >= 33)
+
         rule.setContent {
             with(LocalDensity.current) {
                 Box(Modifier.requiredSize(20.toDp()).background(color = Color.Blue)) {
