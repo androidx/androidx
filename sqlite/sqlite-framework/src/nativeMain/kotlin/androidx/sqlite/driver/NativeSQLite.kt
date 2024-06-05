@@ -24,6 +24,7 @@ import kotlinx.cinterop.UShortVar
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.toKStringFromUtf16
 import sqlite3.SQLITE_OPEN_CREATE
+import sqlite3.SQLITE_OPEN_EXRESCODE
 import sqlite3.SQLITE_OPEN_FULLMUTEX
 import sqlite3.SQLITE_OPEN_MEMORY
 import sqlite3.SQLITE_OPEN_NOFOLLOW
@@ -45,7 +46,8 @@ import sqlite3.sqlite3_errmsg16
             SQLITE_OPEN_MEMORY,
             SQLITE_OPEN_NOMUTEX,
             SQLITE_OPEN_FULLMUTEX,
-            SQLITE_OPEN_NOFOLLOW
+            SQLITE_OPEN_NOFOLLOW,
+            SQLITE_OPEN_EXRESCODE
         ],
 )
 @Retention(AnnotationRetention.SOURCE)
