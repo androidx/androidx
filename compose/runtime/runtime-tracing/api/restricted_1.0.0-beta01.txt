@@ -4,7 +4,7 @@ package androidx.compose.runtime.tracing {
   public final class ComposeTracingInitializer implements androidx.startup.Initializer<kotlin.Unit> {
     ctor public ComposeTracingInitializer();
     method public void create(android.content.Context context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>>> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object?>>> dependencies();
   }
 
 }

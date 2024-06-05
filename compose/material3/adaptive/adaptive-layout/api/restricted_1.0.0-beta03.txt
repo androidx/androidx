@@ -162,8 +162,8 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public final class ThreePaneScaffoldValueKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object!>? currentDestination);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, java.util.List<? extends androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object!>> destinationHistory);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object?>? currentDestination);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, java.util.List<? extends androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object?>> destinationHistory);
   }
 
 }

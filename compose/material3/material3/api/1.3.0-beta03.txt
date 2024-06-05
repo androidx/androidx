@@ -124,8 +124,8 @@ package androidx.compose.material3 {
   }
 
   public static final class BottomAppBarState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,? extends java.lang.Object?> Saver;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class BottomSheetDefaults {
@@ -2112,8 +2112,8 @@ package androidx.compose.material3 {
   }
 
   public static final class TopAppBarState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TopAppBarState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TopAppBarState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TopAppBarState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TopAppBarState,? extends java.lang.Object?> Saver;
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
@@ -2199,8 +2199,8 @@ package androidx.compose.material3.carousel {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final class CarouselState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.carousel.CarouselState,? extends java.lang.Object?> Saver;
   }
 
   public final class CarouselStateKt {

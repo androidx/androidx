@@ -146,8 +146,8 @@ package androidx.tv.foundation.lazy.grid {
   }
 
   public static final class TvLazyGridState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.grid.TvLazyGridState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.grid.TvLazyGridState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.grid.TvLazyGridState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.grid.TvLazyGridState,? extends java.lang.Object?> Saver;
   }
 
   public final class TvLazyGridStateKt {
@@ -245,8 +245,8 @@ package androidx.tv.foundation.lazy.list {
   }
 
   public static final class TvLazyListState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.list.TvLazyListState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.list.TvLazyListState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.list.TvLazyListState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.foundation.lazy.list.TvLazyListState,? extends java.lang.Object?> Saver;
   }
 
 }

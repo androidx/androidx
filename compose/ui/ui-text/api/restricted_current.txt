@@ -63,8 +63,8 @@ package androidx.compose.ui.text {
   }
 
   public static final class AnnotatedString.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,? extends java.lang.Object?> Saver;
   }
 
   @androidx.compose.runtime.Immutable public static final class AnnotatedString.Range<T> {

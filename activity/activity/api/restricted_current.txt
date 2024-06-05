@@ -249,11 +249,11 @@ package androidx.activity.result {
 
   public abstract class ActivityResultLauncher<I> {
     ctor public ActivityResultLauncher();
-    method public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> getContract();
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object?> getContract();
     method public void launch(I input);
     method public abstract void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @MainThread public abstract void unregister();
-    property public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> contract;
+    property public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object?> contract;
   }
 
   public final class ActivityResultLauncherKt {
