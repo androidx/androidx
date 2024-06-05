@@ -28,6 +28,7 @@ import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
@@ -235,7 +236,7 @@ internal class EmbeddingCompat(
         return options
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams
@@ -244,30 +245,30 @@ internal class EmbeddingCompat(
             ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
         }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
-        windowSdkExtensions.requireExtensionVersion(6)
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         overlayController!!.overlayAttributesCalculator = calculator
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun clearOverlayAttributesCalculator() {
-        windowSdkExtensions.requireExtensionVersion(6)
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         overlayController!!.overlayAttributesCalculator = null
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
-        windowSdkExtensions.requireExtensionVersion(6)
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         overlayController!!.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
@@ -291,7 +292,7 @@ internal class EmbeddingCompat(
             }
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         overlayController?.removeOverlayInfoCallback(overlayInfoCallback)
     }

@@ -20,6 +20,7 @@ import android.graphics.Rect
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
 import androidx.window.embedding.EmbeddingBounds.Alignment.Companion.ALIGN_BOTTOM
@@ -48,6 +49,7 @@ import kotlin.math.min
  * @property width The width of the bounds.
  * @property height The height of the bounds.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
     override fun toString(): String {
         return "Bounds:{alignment=$alignment, width=$width, height=$height}"

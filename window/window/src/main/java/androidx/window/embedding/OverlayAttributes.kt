@@ -16,6 +16,8 @@
 
 package androidx.window.embedding
 
+import androidx.annotation.RestrictTo
+
 /**
  * The attributes to describe how an overlay container should look like.
  *
@@ -23,6 +25,7 @@ package androidx.window.embedding
  * @property bounds The overlay container's [EmbeddingBounds], which defaults to
  *   [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayAttributes
 @JvmOverloads
 constructor(val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {

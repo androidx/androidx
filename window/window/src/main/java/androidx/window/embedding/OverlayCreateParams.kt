@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import androidx.annotation.RestrictTo
 import java.util.UUID
 
 /**
@@ -34,6 +35,7 @@ import java.util.UUID
  * @property overlayAttributes The attributes of the overlay [ActivityStack], which defaults to the
  *   default value of [OverlayAttributes].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayCreateParams
 @JvmOverloads
 constructor(

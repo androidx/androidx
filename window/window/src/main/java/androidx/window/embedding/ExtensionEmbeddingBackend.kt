@@ -38,6 +38,7 @@ import androidx.window.core.PredicateAdapter
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.ExtensionEmbeddingBackend.Api31Impl.isSplitPropertyEnabled
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
@@ -399,7 +400,7 @@ constructor(
     override fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle =
         embeddingExtension?.setLaunchingActivityStack(options, activityStack) ?: options
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
@@ -425,24 +426,24 @@ constructor(
         embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
         embeddingExtension?.setOverlayAttributesCalculator(calculator)
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun clearOverlayAttributesCalculator() {
         embeddingExtension?.clearOverlayAttributesCalculator()
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         embeddingExtension?.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
@@ -459,7 +460,7 @@ constructor(
             )
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
         embeddingExtension?.removeOverlayInfoCallback(overlayInfoCallback)
     }

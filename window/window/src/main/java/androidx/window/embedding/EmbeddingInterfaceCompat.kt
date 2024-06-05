@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.util.concurrent.Executor
 
@@ -56,7 +57,7 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(5)
     fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
 
     @RequiresWindowSdkExtension(5) fun finishActivityStacks(activityStacks: Set<ActivityStack>)
@@ -69,24 +70,24 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     )
 
-    @RequiresWindowSdkExtension(6) fun clearOverlayAttributesCalculator()
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION) fun clearOverlayAttributesCalculator()
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
         overlayInfoCallback: Consumer<OverlayInfo>,
     )
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
 
     @RequiresWindowSdkExtension(6)

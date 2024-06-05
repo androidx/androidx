@@ -23,6 +23,7 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
@@ -42,6 +43,12 @@ import java.util.concurrent.Executor;
  * @see androidx.window.extensions.WindowExtensions
  */
 public interface ActivityEmbeddingComponent {
+
+    /**
+     * The vendor API level of the overlay feature APIs.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int OVERLAY_FEATURE_API_LEVEL = 6;
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
@@ -260,7 +267,7 @@ public interface ActivityEmbeddingComponent {
      *
      * @param activityStackToken the token of an {@link ActivityStack}.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     @Nullable
     default ParentContainerInfo getParentContainerInfo(
             @NonNull ActivityStack.Token activityStackToken) {
@@ -283,7 +290,7 @@ public interface ActivityEmbeddingComponent {
      * @param calculator The calculator function to calculate {@link ActivityStackAttributes} based
      *                   on {@link ActivityStackAttributesCalculatorParams}.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     default void setActivityStackAttributesCalculator(@NonNull Function<
             ActivityStackAttributesCalculatorParams, ActivityStackAttributes> calculator) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
@@ -294,7 +301,7 @@ public interface ActivityEmbeddingComponent {
      * Clears the calculator function previously set by
      * {@link #setActivityStackAttributesCalculator(Function)}
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     default void clearActivityStackAttributesCalculator() {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
@@ -308,7 +315,7 @@ public interface ActivityEmbeddingComponent {
      * @param token The {@link ActivityStack} to update.
      * @param activityStackAttributes The attributes to be applied
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     default void updateActivityStackAttributes(@NonNull ActivityStack.Token token,
             @NonNull ActivityStackAttributes activityStackAttributes) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
@@ -334,7 +341,7 @@ public interface ActivityEmbeddingComponent {
      * @return The {@link ActivityStack}'s token that the tag is associated with, or {@code null}
      * if there's no such an {@link ActivityStack}.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     @Nullable
     default ActivityStack.Token getActivityStackToken(@NonNull String tag) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"

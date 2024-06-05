@@ -25,6 +25,7 @@ import androidx.window.WindowSdkExtensionsRule
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties
@@ -86,7 +87,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     @Test
-    fun testVendorApiLevel1() {
+    fun testWindowExtensionsVersion1() {
         testRule.overrideExtensionVersion(1)
         createTestEmbeddingCompat()
 
@@ -126,7 +127,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     @Test
-    fun testVendorApiLevel2() {
+    fun testWindowExtensionsVersion2() {
         testRule.overrideExtensionVersion(2)
         createTestEmbeddingCompat()
 
@@ -165,7 +166,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     @Test
-    fun testVendorApiLevel3() {
+    fun testWindowExtensionsVersion3() {
         testRule.overrideExtensionVersion(3)
         createTestEmbeddingCompat()
 
@@ -209,7 +210,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     @Test
-    fun testVendorApiLevel4() {
+    fun testWindowExtensionsVersion4() {
         testRule.overrideExtensionVersion(4)
         createTestEmbeddingCompat()
 
@@ -253,7 +254,7 @@ class RequiresWindowSdkExtensionTests {
     }
 
     @Test
-    fun testVendorApiLevel5() {
+    fun testWindowExtensionsVersion5() {
         testRule.overrideExtensionVersion(5)
         createTestEmbeddingCompat()
 
@@ -292,8 +293,26 @@ class RequiresWindowSdkExtensionTests {
         verifyActivityWindowInfoCallbackController()
     }
 
+    @Test
+    fun testWindowExtensionsVersion6() {
+        testRule.overrideExtensionVersion(6)
+        createTestEmbeddingCompat()
+
+        verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
+    }
+
+    @Test
+    fun testWindowExtensionsVersion7() {
+        testRule.overrideExtensionVersion(7)
+        createTestEmbeddingCompat()
+
+        verifyOverlayFeatureApis()
+        verifyActivityWindowInfoCallbackController()
+    }
+
     private fun verifyOverlayFeatureApis() {
-        if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+        if (WindowSdkExtensions.getInstance().extensionVersion >= OVERLAY_FEATURE_VERSION) {
             embeddingCompat.setOverlayCreateParams(options, OverlayCreateParams())
             // Verify if the overlay tag is put to the activityOptions bundle
             verify(options).putString(any(), any())
@@ -358,7 +377,7 @@ class RequiresWindowSdkExtensionTests {
 
     private fun createTestEmbeddingCompat() {
         val overlayController =
-            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+            if (WindowSdkExtensions.getInstance().extensionVersion >= OVERLAY_FEATURE_VERSION) {
                 spy(
                     OverlayControllerImpl(
                         embeddingExtension,
@@ -380,10 +399,6 @@ class RequiresWindowSdkExtensionTests {
             } else {
                 null
             }
-        activityWindowInfoCallbackController?.apply {
-            doNothing().whenever(this).addCallback(any(), any())
-            doNothing().whenever(this).removeCallback(any())
-        }
 
         embeddingCompat =
             EmbeddingCompat(

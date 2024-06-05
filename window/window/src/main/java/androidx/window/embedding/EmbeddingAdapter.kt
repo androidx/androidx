@@ -35,6 +35,7 @@ import androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange
 import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes
 import androidx.window.embedding.DividerAttributes.FixedDividerAttributes
 import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_ACTIVITY_STACK
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -160,7 +161,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         return builder.build()
     }
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi", "ClassVerificationFailure")
     internal fun translate(

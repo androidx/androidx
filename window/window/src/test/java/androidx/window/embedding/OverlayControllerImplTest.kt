@@ -22,6 +22,7 @@ import android.graphics.Rect
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.WindowSdkExtensionsRule
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
@@ -42,7 +43,7 @@ class OverlayControllerImplTest {
 
     @Before
     fun setUp() {
-        testRule.overrideExtensionVersion(6)
+        testRule.overrideExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         overlayController = TestableOverlayControllerImpl()
     }

@@ -16,6 +16,8 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.ActivityEmbeddingComponent.OVERLAY_FEATURE_API_LEVEL;
+
 import android.app.Activity;
 import android.os.Binder;
 import android.os.Bundle;
@@ -121,7 +123,7 @@ public class ActivityStack {
     /**
      * Returns the associated tag if specified. Otherwise, returns {@code null}.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
     @Nullable
     public String getTag() {
         return mTag;

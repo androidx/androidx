@@ -21,8 +21,10 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 
 /**
  * Sets the target launching [ActivityStack] to the given [Bundle].
@@ -88,7 +90,8 @@ fun Bundle.setLaunchingActivityStack(context: Context, activityStack: ActivitySt
  * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 6.
  */
-@RequiresWindowSdkExtension(6)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
 fun Bundle.setOverlayCreateParams(
     activity: Activity,
     overlayCreateParams: OverlayCreateParams

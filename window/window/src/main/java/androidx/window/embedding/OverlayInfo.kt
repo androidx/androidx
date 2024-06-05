@@ -17,8 +17,10 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import androidx.annotation.RestrictTo
 
 /** Describes an overlay [ActivityStack] associated with [OverlayCreateParams.tag]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayInfo
 internal constructor(
     /** The unique identifier associated with the overlay [ActivityStack]. */
