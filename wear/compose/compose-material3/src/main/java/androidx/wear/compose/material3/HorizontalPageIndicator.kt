@@ -106,6 +106,7 @@ public fun HorizontalPageIndicator(
     spacing: Dp = 4.dp
 ) {
     val isScreenRound = isRoundDevice()
+    val padding = PageIndicatorDefaults.edgePadding
 
     // Converting offsetFraction into range 0..1f
     val currentPageOffsetWithFraction = currentPage + currentPageOffsetFraction()
@@ -138,15 +139,15 @@ public fun HorizontalPageIndicator(
             // the top left corner of the indicator. Its placement should look similar to
             // Alignment.BottomCenter.
             IntOffset(
-                x = (containerSize.width - measuredSize.width) / 2,
-                y = containerSize.height - measuredSize.height,
+                x = (containerSize.width - measuredSize.width) / 2 - padding.toPx().toInt(),
+                y = containerSize.height - measuredSize.height - padding.toPx().toInt() * 2,
             )
         }
 
         BoundsLimiter(
             offset = boundsOffset,
             size = boundsSize,
-            modifier = modifier,
+            modifier = modifier.padding(padding),
             onSizeChanged = { containerSize = it }
         ) {
             CurvedPageIndicator(
@@ -175,7 +176,7 @@ public fun HorizontalPageIndicator(
         }
     } else {
         LinearPageIndicator(
-            modifier = modifier,
+            modifier = modifier.padding(padding),
             visibleDotIndex = pagesState.visibleDotIndex,
             pagesOnScreen = pagesOnScreen,
             indicator = { page ->
@@ -205,6 +206,9 @@ public fun HorizontalPageIndicator(
 internal object PageIndicatorDefaults {
 
     val MaxNumberOfIndicators = 6
+
+    // TODO: replace with scaffold constant when it is available
+    internal val edgePadding = 2.dp
 }
 
 @Composable
