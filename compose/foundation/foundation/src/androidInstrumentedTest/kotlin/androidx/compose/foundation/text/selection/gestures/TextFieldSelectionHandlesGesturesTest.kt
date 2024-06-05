@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.selection.gestures
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.TextField1SelectionAsserter
@@ -46,6 +47,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGesturesTest() {
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     override val pointerAreaTag = "testTag"
     private val textContent = "line1\nline2 text1 text2\nline3"
@@ -56,12 +58,14 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
 
     @Composable
     override fun Content() {
-        BasicTextField(
-            value = textFieldValue.value,
-            onValueChange = { textFieldValue.value = it },
-            textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-            modifier = Modifier.fillMaxWidth().testTag(pointerAreaTag),
-        )
+        inputMethodInterceptor.Content {
+            BasicTextField(
+                value = textFieldValue.value,
+                onValueChange = { textFieldValue.value = it },
+                textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                modifier = Modifier.fillMaxWidth().testTag(pointerAreaTag),
+            )
+        }
     }
 
     @Before
