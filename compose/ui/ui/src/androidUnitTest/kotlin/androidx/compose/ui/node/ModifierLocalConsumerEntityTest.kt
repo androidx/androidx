@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -292,7 +294,7 @@ class ModifierLocalConsumerEntityTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
     private class FakeOwner : Owner {
         val listeners = mutableVectorOf<() -> Unit>()
 
@@ -440,6 +442,8 @@ class ModifierLocalConsumerEntityTest {
         override fun onSemanticsChange() = TODO("Not yet implemented")
 
         override fun onLayoutChange(layoutNode: LayoutNode) = TODO("Not yet implemented")
+
+        override fun onInteropViewLayoutChange(view: InteropView) = TODO("Not yet implemented")
 
         override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
 
