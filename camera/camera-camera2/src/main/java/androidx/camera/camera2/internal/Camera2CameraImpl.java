@@ -440,7 +440,10 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         if (!mCameraAvailability.isCameraAvailable()) {
-            debugLog("Ignore configAndClose since camera is unavailable.");
+            mIsConfigAndCloseRequired = false;
+            finishClose();
+            debugLog("Ignore configAndClose and finish the close flow directly since camera is"
+                    + " unavailable.");
             return;
         }
 
