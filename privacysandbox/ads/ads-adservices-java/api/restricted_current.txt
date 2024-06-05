@@ -83,6 +83,20 @@ package androidx.privacysandbox.ads.adservices.java.measurement {
 
 }
 
+package androidx.privacysandbox.ads.adservices.java.signals {
+
+  public abstract class ProtectedSignalsManagerFutures {
+    method public static final androidx.privacysandbox.ads.adservices.java.signals.ProtectedSignalsManagerFutures? from(android.content.Context context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_PROTECTED_SIGNALS) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> updateSignalsAsync(androidx.privacysandbox.ads.adservices.signals.UpdateSignalsRequest request);
+    field public static final androidx.privacysandbox.ads.adservices.java.signals.ProtectedSignalsManagerFutures.Companion Companion;
+  }
+
+  public static final class ProtectedSignalsManagerFutures.Companion {
+    method public androidx.privacysandbox.ads.adservices.java.signals.ProtectedSignalsManagerFutures? from(android.content.Context context);
+  }
+
+}
+
 package androidx.privacysandbox.ads.adservices.java.topics {
 
   public abstract class TopicsManagerFutures {

@@ -738,7 +738,8 @@ class AdSelectionManagerTest {
             request: android.adservices.adselection.PersistAdSelectionResultRequest
         ) {
             val adTechIdentifier = android.adservices.common.AdTechIdentifier.fromString(adId)
-            @Suppress("DEPRECATION") val expectedRequest =
+            @Suppress("DEPRECATION")
+            val expectedRequest =
                 android.adservices.adselection.PersistAdSelectionResultRequest.Builder()
                     .setAdSelectionId(adSelectionId)
                     .setSeller(adTechIdentifier)

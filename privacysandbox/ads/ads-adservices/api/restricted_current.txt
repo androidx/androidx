@@ -221,6 +221,9 @@ package androidx.privacysandbox.ads.adservices.common {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext11 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext11OptIn {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext12 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext12OptIn {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext8 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext8OptIn {
   }
 
@@ -466,6 +469,26 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method public java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> getWebTriggerParams();
     property public final android.net.Uri destination;
     property public final java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> webTriggerParams;
+  }
+
+}
+
+package androidx.privacysandbox.ads.adservices.signals {
+
+  public abstract class ProtectedSignalsManager {
+    method @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext12OptIn public static final androidx.privacysandbox.ads.adservices.signals.ProtectedSignalsManager? obtain(android.content.Context context);
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_PROTECTED_SIGNALS) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext12OptIn public abstract suspend Object? updateSignals(androidx.privacysandbox.ads.adservices.signals.UpdateSignalsRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    field public static final androidx.privacysandbox.ads.adservices.signals.ProtectedSignalsManager.Companion Companion;
+  }
+
+  public static final class ProtectedSignalsManager.Companion {
+    method @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext12OptIn public androidx.privacysandbox.ads.adservices.signals.ProtectedSignalsManager? obtain(android.content.Context context);
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext12OptIn public final class UpdateSignalsRequest {
+    ctor public UpdateSignalsRequest(android.net.Uri updateUri);
+    method public android.net.Uri getUpdateUri();
+    property public final android.net.Uri updateUri;
   }
 
 }
