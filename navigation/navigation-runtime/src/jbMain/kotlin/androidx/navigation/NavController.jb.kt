@@ -55,6 +55,7 @@ public actual open class NavController {
         }
 
     private var navigatorStateToRestore: Bundle? = null
+    private var backStackToRestore: List<NavBackStackEntryState>? = null
     private var deepLinkHandled = false
 
     private val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
@@ -593,6 +594,14 @@ public actual open class NavController {
     }
 
     @MainThread
+    public fun clearBackStack(destinationId: Int): Boolean {
+        val cleared = clearBackStackInternal(destinationId)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
+
+    @MainThread
     public actual inline fun <reified T : Any> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
@@ -613,8 +622,7 @@ public actual open class NavController {
             state.isNavigating = true
         }
         val restored = restoreStateInternal(destinationId, null,
-            navOptions { restoreState = true }, null
-        )
+            navOptions { restoreState = true }, null)
         navigatorState.values.forEach { state ->
             state.isNavigating = false
         }
@@ -761,9 +769,7 @@ public actual open class NavController {
                     upwardStateTransitions[entry] = Lifecycle.State.STARTED
                 }
                 started.parent?.let {
-                    if (!nextStarted.contains(it)) {
-                        nextStarted.add(it)
-                    }
+                    if (!nextStarted.contains(it)) { nextStarted.add(it) }
                 }
             } else {
                 entry.maxLifecycle = Lifecycle.State.CREATED
@@ -831,19 +837,19 @@ public actual open class NavController {
             backQueue.forEach { entry ->
                 // we will trace this hierarchy in new graph to get new destination instance
                 val hierarchy = entry.destination.hierarchy.toList().asReversed()
-                val newDestination =
-                    hierarchy.fold(_graph!!) { newDest: NavDestination, oldDest: NavDestination ->
-                        if (oldDest == _graph && newDest == graph) {
-                            // if root graph, it is already the node that matches with oldDest
-                            newDest
-                        } else if (newDest is NavGraph) {
-                            // otherwise we walk down the hierarchy to the next child
-                            newDest.findNode(oldDest.id)!!
-                        } else {
-                            // final leaf node found
-                            newDest
-                        }
+                val newDestination = hierarchy.fold(_graph!!) {
+                        newDest: NavDestination, oldDest: NavDestination ->
+                    if (oldDest == _graph && newDest == graph) {
+                        // if root graph, it is already the node that matches with oldDest
+                        newDest
+                    } else if (newDest is NavGraph) {
+                        // otherwise we walk down the hierarchy to the next child
+                        newDest.findNode(oldDest.id)!!
+                    } else {
+                        // final leaf node found
+                        newDest
                     }
+                }
                 entry.destination = newDestination
             }
         }
@@ -995,21 +1001,18 @@ public actual open class NavController {
                         navOptions.isPopUpToInclusive(),
                         navOptions.shouldPopUpToSaveState()
                     )
-
                 navOptions.popUpToRouteClass != null ->
                     popped = popBackStackInternal(
                         navOptions.popUpToRouteClass!!.serializer().hashCode(),
                         navOptions.isPopUpToInclusive(),
                         navOptions.shouldPopUpToSaveState()
                     )
-
                 navOptions.popUpToRouteObject != null ->
                     popped = popBackStackInternal(
                         navOptions.popUpToRouteObject!!,
                         navOptions.isPopUpToInclusive(),
                         navOptions.shouldPopUpToSaveState()
                     )
-
                 navOptions.popUpToId != -1 ->
                     popped = popBackStackInternal(
                         navOptions.popUpToId,
@@ -1279,8 +1282,8 @@ public actual open class NavController {
         // Pop any orphaned navigation graphs that don't connect to the new destinations
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
             (backQueue.last().destination as NavGraph).findNode(
-                overlappingDestination.id, false
-            ) == null
+                    overlappingDestination.id, false
+                ) == null
         ) {
             popEntryFromBackStack(backQueue.last())
         }

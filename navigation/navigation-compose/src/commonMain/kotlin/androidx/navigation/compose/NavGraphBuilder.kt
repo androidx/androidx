@@ -174,6 +174,54 @@ public fun NavGraphBuilder.composable(
 }
 
 /**
+ * Add the [Composable] to the [NavGraphBuilder]
+ *
+ * @param T route from a [KClass] for the destination
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param enterTransition callback to determine the destination's enter transition
+ * @param exitTransition callback to determine the destination's exit transition
+ * @param popEnterTransition callback to determine the destination's popEnter transition
+ * @param popExitTransition callback to determine the destination's popExit transition
+ * @param sizeTransform callback to determine the destination's sizeTransform.
+ * @param content composable for the destination
+ */
+public inline fun <reified T : Any> NavGraphBuilder.composable(
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
+    @JvmSuppressWildcards EnterTransition?)? = null,
+    noinline exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
+    @JvmSuppressWildcards ExitTransition?)? = null,
+    noinline popEnterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
+    @JvmSuppressWildcards EnterTransition?)? = enterTransition,
+    noinline popExitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
+    @JvmSuppressWildcards ExitTransition?)? = exitTransition,
+    noinline sizeTransform: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
+    @JvmSuppressWildcards SizeTransform?)? = null,
+    noinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+) {
+    destination(
+        ComposeNavigatorDestinationBuilder(
+            provider[ComposeNavigator::class],
+            T::class,
+            typeMap,
+            content
+        ).apply {
+            deepLinks.forEach { deepLink ->
+                deepLink(deepLink)
+            }
+            this.enterTransition = enterTransition
+            this.exitTransition = exitTransition
+            this.popEnterTransition = popEnterTransition
+            this.popExitTransition = popExitTransition
+            this.sizeTransform = sizeTransform
+        }
+    )
+}
+
+/**
  * Construct a nested [NavGraph]
  *
  * @sample androidx.navigation.compose.samples.NavWithArgsInNestedGraph

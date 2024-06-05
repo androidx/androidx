@@ -40,7 +40,7 @@ import java.util.UUID
  * @param content The content [Composable]
  */
 @Composable
-actual fun NavBackStackEntry.LocalOwnersProvider(
+public actual fun NavBackStackEntry.LocalOwnersProvider(
     saveableStateHolder: SaveableStateHolder,
     content: @Composable () -> Unit
 ) {

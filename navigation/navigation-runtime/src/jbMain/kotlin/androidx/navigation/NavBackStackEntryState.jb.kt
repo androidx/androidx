@@ -20,18 +20,18 @@ import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 
 // TODO: Make @Serializable
-internal actual class NavBackStackEntryState {
-    actual val id: String
-    actual val destinationId: Int
-    actual val args: Bundle?
-    actual val savedState: Bundle
-
-    @Suppress("ConvertSecondaryConstructorToPrimary")
-    actual constructor(entry: NavBackStackEntry) {
-        id = entry.id
-        destinationId = entry.destination.id
-        args = entry.arguments
+internal data class NavBackStackEntryState(
+    val id: String,
+    val destinationId: Int,
+    val args: Bundle?,
+    val savedState: Bundle
+) {
+    constructor(entry: NavBackStackEntry) : this(
+        id = entry.id,
+        destinationId = entry.destination.id,
+        args = entry.arguments,
         savedState = Bundle()
+    ) {
         entry.saveState(savedState)
     }
 

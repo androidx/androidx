@@ -25,7 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
+import androidx.navigation.NavType
 import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * DSL for constructing a new [ComposeNavigator.Destination]
@@ -64,6 +67,25 @@ public class ComposeNavigatorDestinationBuilder :
         route: String,
         content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
     ) : super(navigator, route) {
+        this.composeNavigator = navigator
+        this.content = content
+    }
+
+    /**
+     * DSL for constructing a new [ComposeNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route from a [KClass]
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     * @param content composable for the destination
+     */
+    public constructor(
+        navigator: ComposeNavigator,
+        route: KClass<*>,
+        typeMap: Map<KType, NavType<*>>,
+        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+    ) : super(navigator, route, typeMap) {
         this.composeNavigator = navigator
         this.content = content
     }
