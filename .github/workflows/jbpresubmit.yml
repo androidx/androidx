@@ -105,12 +105,12 @@ jobs:
           set -x
           ./development/apilint.py -f ${{ steps.changed-files.outputs.files }}
 
-      - name: "Parse changed-files as ktlint args"
-        id: ktlint-file-args
+      - name: "Parse changed-files as ktfmt args"
+        id: ktfmt-file-args
         run: |
           set -x
-          KTLINT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=../&|g' | grep -v "*.txt"`
-          echo "::set-output name=ktlint-file-args::$KTLINT_FILES"
+          KTFMT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=../&|g' | grep -v "*.txt"`
+          echo "::set-output name=ktfmt-file-args::$KTFMT_FILES"
 
       - name: "Parse changed-files as affected files args"
         id: affected-file-args
@@ -134,12 +134,12 @@ jobs:
           gradle-executable: activity/gradlew
           wrapper-directory: activity/gradle/wrapper
           distributions-cache-enabled: true
-      - name: "ktlint"
+      - name: "ktfmt"
         uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          arguments: -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
+          arguments: -q :ktCheckFile ${{ steps.ktfmt-file-args.outputs.ktfmt-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
           build-root-directory: activity
           configuration-cache-enabled: false
           dependencies-cache-enabled: false
