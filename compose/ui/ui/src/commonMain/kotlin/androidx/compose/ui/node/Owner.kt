@@ -317,6 +317,20 @@ internal interface Owner : PositionCalculator {
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing
 
+    /**
+     * Tracks sensitive content on the screen to protect user privacy. Increment sensitive component
+     * count by 1. Implementation may protect user privacy by not showing sensitive content
+     * (username, password etc) to remote viewer during screen share.
+     */
+    fun incrementSensitiveComponentCount() {}
+
+    /**
+     * Tracks sensitive content on the screen to protect user privacy. Decrement sensitive component
+     * count by 1. Implementation may protect user privacy by not showing sensitive content
+     * (username, password etc) to remote viewer during screen share.
+     */
+    fun decrementSensitiveComponentCount() {}
+
     companion object {
         /**
          * Enables additional (and expensive to do in production) assertions. Useful to be set to

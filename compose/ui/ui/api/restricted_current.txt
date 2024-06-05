@@ -191,6 +191,10 @@ package androidx.compose.ui {
   public static final class MotionDurationScale.Key implements kotlin.coroutines.CoroutineContext.Key<androidx.compose.ui.MotionDurationScale> {
   }
 
+  public final class SensitiveContentKt {
+    method public static androidx.compose.ui.Modifier sensitiveContent(androidx.compose.ui.Modifier, optional boolean isContentSensitive);
+  }
+
   @androidx.compose.runtime.ComposableTargetMarker(description="UI Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface UiComposable {
   }
 

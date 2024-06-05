@@ -2435,6 +2435,27 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun shouldDelayChildPressedState(): Boolean = false
 
+    // Track sensitive composable visible in this view
+    private var sensitiveComponentCount = 0
+
+    override fun incrementSensitiveComponentCount() {
+        if (SDK_INT >= 35) {
+            if (sensitiveComponentCount == 0) {
+                AndroidComposeViewSensitiveContent35.setContentSensitivity(view, true)
+            }
+            sensitiveComponentCount += 1
+        }
+    }
+
+    override fun decrementSensitiveComponentCount() {
+        if (SDK_INT >= 35) {
+            if (sensitiveComponentCount == 1) {
+                AndroidComposeViewSensitiveContent35.setContentSensitivity(view, false)
+            }
+            sensitiveComponentCount -= 1
+        }
+    }
+
     companion object {
         private var systemPropertiesClass: Class<*>? = null
         private var getBooleanMethod: Method? = null
@@ -2616,6 +2637,19 @@ private interface CalculateMatrixToWindow {
      * Calculates the matrix from [view] to screen coordinates and returns the value in [matrix].
      */
     fun calculateMatrixToWindow(view: View, matrix: Matrix)
+}
+
+@RequiresApi(35)
+private object AndroidComposeViewSensitiveContent35 {
+    @DoNotInline
+    @RequiresApi(35)
+    fun setContentSensitivity(view: View, isSensitiveContent: Boolean) {
+        if (isSensitiveContent) {
+            view.setContentSensitivity(View.CONTENT_SENSITIVITY_SENSITIVE)
+        } else {
+            view.setContentSensitivity(View.CONTENT_SENSITIVITY_AUTO)
+        }
+    }
 }
 
 @RequiresApi(Q)
