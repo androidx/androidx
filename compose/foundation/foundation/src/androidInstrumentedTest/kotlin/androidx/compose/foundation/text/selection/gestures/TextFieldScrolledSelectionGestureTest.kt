@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.assertNoMagnifierExists
 import androidx.compose.foundation.text.selection.assertThatOffset
@@ -84,6 +85,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
     @get:Rule val rule = createComposeRule()
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val fontFamily = TEST_FONT_FAMILY
     private val fontSize = 15.sp
@@ -93,16 +95,18 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
 
     private fun setContent(content: @Composable (tag: String) -> Unit) {
         rule.setTextFieldTestContent {
-            CompositionLocalProvider(
-                LocalDensity provides density,
-                LocalViewConfiguration provides
-                    TestViewConfiguration(
-                        minimumTouchTargetSize = DpSize.Zero,
-                        touchSlop = Float.MIN_VALUE,
-                    ),
-            ) {
-                Box(modifier = Modifier.fillMaxSize().padding(32.dp).wrapContentSize()) {
-                    content(pointerAreaTag)
+            inputMethodInterceptor.Content {
+                CompositionLocalProvider(
+                    LocalDensity provides density,
+                    LocalViewConfiguration provides
+                        TestViewConfiguration(
+                            minimumTouchTargetSize = DpSize.Zero,
+                            touchSlop = Float.MIN_VALUE,
+                        ),
+                ) {
+                    Box(modifier = Modifier.fillMaxSize().padding(32.dp).wrapContentSize()) {
+                        content(pointerAreaTag)
+                    }
                 }
             }
         }
