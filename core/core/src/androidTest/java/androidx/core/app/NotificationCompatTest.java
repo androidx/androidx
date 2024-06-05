@@ -786,7 +786,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         Notification n3 = new NotificationCompat.Builder(mContext, "channelId")
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomContentView(new RemoteViews(mContext.getPackageName(),
-                        R.layout.notification_custom_content_view))
+                        androidx.core.test.R.layout.notification_custom_content_view))
                 .build();
         texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n3);
         assertThat(texts).isNotEmpty();
@@ -795,7 +795,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         Notification n4 = new NotificationCompat.Builder(mContext, "channelId")
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomBigContentView(new RemoteViews(mContext.getPackageName(),
-                        R.layout.notification_custom_content_view))
+                        androidx.core.test.R.layout.notification_custom_content_view))
                 .build();
         texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n4);
         assertThat(texts).isNotEmpty();
@@ -804,7 +804,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         Notification n5 = new NotificationCompat.Builder(mContext, "channelId")
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomHeadsUpContentView(new RemoteViews(mContext.getPackageName(),
-                        R.layout.notification_custom_content_view))
+                        androidx.core.test.R.layout.notification_custom_content_view))
                 .build();
         texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n5);
         assertThat(texts).isNotEmpty();
