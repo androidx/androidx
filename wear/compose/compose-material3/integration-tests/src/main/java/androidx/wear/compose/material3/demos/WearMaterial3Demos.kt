@@ -79,6 +79,7 @@ val WearMaterial3Demos =
                 )
             ),
             Material3DemoCategory("Slider", SliderDemos),
+            Material3DemoCategory("Picker", PickerDemos),
             Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),
             Material3DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
             Material3DemoCategory("Placeholder", PlaceholderDemos),
