@@ -54,11 +54,20 @@
                 android:value="true" />
         </service>
 
+        <!-- Control interface for creating/managing calls in a separate isolated process -->
         <service
             android:name="androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControl"
             android:launchMode="singleInstance"
             android:exported="true"
             android:process=":voip_with_extensions_process">
+        </service>
+
+        <!-- Control interface for creating/managing calls in the same process as the test
+        (required to perform tests with the Self-Managed ConnectionService interface) -->
+        <service
+            android:name="androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControlLocal"
+            android:launchMode="singleInstance"
+            android:exported="true">
         </service>
 
         <activity android:name="androidx.core.telecom.test.utils.MockDialerActivity"

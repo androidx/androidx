@@ -21,6 +21,7 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
+import android.os.Bundle
 import android.os.UserHandle
 import android.os.UserManager
 import android.telecom.Call
@@ -33,14 +34,22 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
+import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import org.junit.Assert.assertEquals
 
 /** Singleton class. */
 @RequiresApi(VERSION_CODES.O)
@@ -155,6 +164,11 @@ object TestUtils {
         if (!mCompleteOnSetInactive) {
             throw Exception(CALLBACK_FAILED_EXCEPTION_MSG)
         }
+    }
+
+    internal val mOnEventLambda: suspend (event: String, extras: Bundle) -> Unit = { event, _ ->
+        Log.i(LOG_TAG, "onEvent: $event")
+        // No users of this yet
     }
 
     val mOnAnswerLambda: suspend (type: Int) -> Unit = {
@@ -412,5 +426,40 @@ object TestUtils {
         for (v in participants) {
             Log.i(LOG_TAG, "id=${v.id} name=${v.name}, uri=${v.speakerIconUri}")
         }
+    }
+}
+
+@ExperimentalAppActions
+class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppControlCallback.Stub() {
+    private val raisedHandFlow: MutableSharedFlow<Pair<String, Boolean>> = MutableSharedFlow()
+    private val kickParticipantFlow: MutableSharedFlow<Pair<String, Participant?>> =
+        MutableSharedFlow()
+
+    override fun raiseHandStateAction(callId: String?, isHandRaised: Boolean) {
+        if (callId == null) return
+        scope.launch { raisedHandFlow.emit(Pair(callId, isHandRaised)) }
+    }
+
+    override fun kickParticipantAction(callId: String?, participant: Participant?) {
+        if (callId == null) return
+        scope.launch { kickParticipantFlow.emit(Pair(callId, participant)) }
+    }
+
+    suspend fun waitForRaiseHandState(callId: String, expectedState: Boolean) {
+        val result =
+            withTimeoutOrNull(5000) {
+                raisedHandFlow.filter { it.first == callId && it.second == expectedState }.first()
+            }
+        assertEquals("raised hands action never received", expectedState, result?.second)
+    }
+
+    suspend fun waitForKickParticipant(callId: String, expectedParticipant: Participant?) {
+        val result =
+            withTimeoutOrNull(5000) {
+                kickParticipantFlow
+                    .filter { it.first == callId && it.second == expectedParticipant }
+                    .first()
+            }
+        assertEquals("kick participant action never received", expectedParticipant, result?.second)
     }
 }

@@ -30,14 +30,10 @@ import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
-import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.Capability
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
@@ -49,7 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 @RequiresApi(34)
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("ClassVerificationFailure")
 internal class CallSession(
     val coroutineContext: CoroutineContext,
@@ -59,7 +55,7 @@ internal class CallSession(
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
     private val callChannels: CallChannels,
-    private val voipExtensionManager: VoipExtensionManager,
+    private val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
     private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.CallControlCallback, android.telecom.CallEventCallback {
     private var mPlatformInterface: CallControl? = null
@@ -72,12 +68,10 @@ internal class CallSession(
     private val mIsCurrentEndpointSet = CompletableDeferred<Unit>()
     private val mIsAvailableEndpointsSet = CompletableDeferred<Unit>()
     private val mIsCurrentlyDisplayingVideo = attributes.isVideoCall()
-    /** Stubbed supported capabilities for v2 connections. */
-    @ExperimentalAppActions private val supportedCapabilities = mutableListOf(Capability())
 
     companion object {
         private val TAG: String = CallSession::class.java.simpleName
-        private val SWITCH_TO_SPEAKER_TIMEOUT: Long = 1000L
+        private const val SWITCH_TO_SPEAKER_TIMEOUT: Long = 1000L
     }
 
     fun getIsCurrentEndpointSet(): CompletableDeferred<Unit> {
@@ -121,24 +115,9 @@ internal class CallSession(
         TODO("Implement with the CallStreaming code")
     }
 
-    @ExperimentalAppActions
     override fun onEvent(event: String, extras: Bundle) {
-        // Call events are sent via Call#sendCallEvent(event, extras). Begin initial capability
-        // exchange procedure once we know that the ICS supports it.
-        if (event == CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE) {
-            Log.i(
-                TAG,
-                "onEvent: EVENT_JETPACK_CAPABILITY_EXCHANGE: " + "beginning capability exchange."
-            )
-            // Launch a new coroutine from the context of the current coroutine
-            CoroutineScope(coroutineContext).launch {
-                voipExtensionManager.initiateVoipAppCapabilityExchange(
-                    extras,
-                    supportedCapabilities,
-                    TAG
-                )
-            }
-        }
+        Log.i(TAG, "onEvent: received $event")
+        CoroutineScope(coroutineContext).launch { onEventCallback(event, extras) }
     }
 
     /**

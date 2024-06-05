@@ -23,7 +23,6 @@ import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
@@ -31,7 +30,6 @@ import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.TEST_CALL_ATTRIB_NAME
 import androidx.core.telecom.test.utils.TestUtils.TEST_PHONE_NUMBER_9001
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -46,7 +44,6 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 @RequiresApi(VERSION_CODES.O)
-@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class JetpackConnectionServiceTest : BaseTelecomTest() {
     private val callChannels = CallChannels()
@@ -246,7 +243,6 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
             JetpackConnectionService.REQUEST_ID_MATCHER_KEY,
             pendingRequestId
         )
-
         val pr =
             JetpackConnectionService.PendingConnectionRequest(
                 pendingRequestId,
@@ -258,9 +254,10 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
                 TestUtils.mOnDisconnectLambda,
                 TestUtils.mOnSetActiveLambda,
                 TestUtils.mOnSetInActiveLambda,
-                CompletableDeferred(),
-                VoipExtensionManager(mContext, null, callChannels, listOf())
+                TestUtils.mOnEventLambda,
+                CompletableDeferred()
             )
+
         // add to the list of pendingRequests
         JetpackConnectionService.mPendingConnectionRequests.add(pr)
         // create a ConnectionRequest

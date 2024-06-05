@@ -17,7 +17,6 @@
 package androidx.core.telecom.internal
 
 import androidx.annotation.RestrictTo
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.Objects
 
 /**
@@ -50,7 +49,6 @@ internal sealed class AddCallResult {
      * [androidx.core.telecom.CallsManager.addCall] used a [CallSessionLegacy] to manage the call
      * meaning the client is using sdk 33- (backwards compat layer aka ConnectionService).
      */
-    @ExperimentalAppActions
     class SuccessCallSessionLegacy(val callSessionLegacy: CallSessionLegacy) : AddCallResult() {
         override fun toString(): String {
             return "AddCallResult(SuccessCallSessionLegacy)"
