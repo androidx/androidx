@@ -42,6 +42,14 @@ KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#Para
 
 
 NullableCollection: androidx.compose.ui.text.SpanStyle#getLocaleList():
-    Return type of method androidx.compose.ui.text.SpanStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
+    Return type of method androidx.compose.ui.text.SpanStyle.getLocaleList() uses a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
 NullableCollection: androidx.compose.ui.text.TextStyle#getLocaleList():
-    Return type of method androidx.compose.ui.text.TextStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
+    Return type of method androidx.compose.ui.text.TextStyle.getLocaleList() uses a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
+
+
+NullableCollectionElement: androidx.compose.ui.text.MultiParagraph#getPlaceholderRects():
+    Collection java.util.List<androidx.compose.ui.geometry.Rect> should not have a nullable element type (androidx.compose.ui.geometry.Rect) in method androidx.compose.ui.text.MultiParagraph.getPlaceholderRects()
+NullableCollectionElement: androidx.compose.ui.text.Paragraph#getPlaceholderRects():
+    Collection java.util.List<androidx.compose.ui.geometry.Rect> should not have a nullable element type (androidx.compose.ui.geometry.Rect) in method androidx.compose.ui.text.Paragraph.getPlaceholderRects()
+NullableCollectionElement: androidx.compose.ui.text.TextLayoutResult#getPlaceholderRects():
+    Collection java.util.List<androidx.compose.ui.geometry.Rect> should not have a nullable element type (androidx.compose.ui.geometry.Rect) in method androidx.compose.ui.text.TextLayoutResult.getPlaceholderRects()
