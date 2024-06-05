@@ -32,6 +32,8 @@ plugins {
 }
 
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     android()
     ios()
     jvm()
