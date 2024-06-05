@@ -4308,9 +4308,9 @@ public class MediaSessionCompat {
             @Override
             public Bundle getSessionInfo() {
                 MediaSessionImplApi21 mediaSessionImpl = mMediaSessionImplRef.get();
-                return mediaSessionImpl.mSessionInfo == null
-                        ? null
-                        : new Bundle(mediaSessionImpl.mSessionInfo);
+                return mediaSessionImpl != null && mediaSessionImpl.mSessionInfo != null
+                        ? new Bundle(mediaSessionImpl.mSessionInfo)
+                        : null;
             }
 
             @Override
