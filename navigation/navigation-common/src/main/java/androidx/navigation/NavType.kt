@@ -412,6 +412,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: IntArray?): List<String> =
                     value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): IntArray = intArrayOf()
             }
 
         /**
@@ -449,6 +451,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: List<Int>?): List<String> =
                     value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Int> = emptyList()
             }
 
         /**
@@ -527,6 +531,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: LongArray?): List<String> =
                     value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): LongArray = longArrayOf()
             }
 
         /**
@@ -566,6 +572,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: List<Long>?): List<String> =
                     value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Long> = emptyList()
             }
 
         /**
@@ -632,6 +640,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: FloatArray?): List<String> =
                     value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): FloatArray = floatArrayOf()
             }
 
         /**
@@ -671,6 +681,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: List<Float>?): List<String> =
                     value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Float> = emptyList()
             }
 
         /**
@@ -748,6 +760,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: BooleanArray?): List<String> =
                     value?.toList()?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): BooleanArray = booleanArrayOf()
             }
 
         /**
@@ -790,6 +804,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: List<Boolean>?): List<String> =
                     value?.map { it.toString() } ?: emptyList()
+
+                override fun emptyCollection(): List<Boolean> = emptyList()
             }
 
         /**
@@ -877,6 +893,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: Array<String>?): List<String> =
                     value?.map { Uri.encode(it) } ?: emptyList()
+
+                override fun emptyCollection(): Array<String> = arrayOf()
             }
 
         /**
@@ -924,6 +942,8 @@ public abstract class NavType<T>(
 
                 override fun serializeAsValues(value: List<String>?): List<String> =
                     value?.map { Uri.encode(it) } ?: emptyList()
+
+                override fun emptyCollection(): List<String> = emptyList()
             }
     }
 

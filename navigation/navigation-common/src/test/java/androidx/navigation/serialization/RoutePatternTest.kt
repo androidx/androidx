@@ -475,6 +475,8 @@ class RoutePatternTest {
 
                 override fun serializeAsValues(value: List<CustomType>): List<String> = emptyList()
 
+                override fun emptyCollection(): List<CustomType> = emptyList()
+
                 override fun get(bundle: Bundle, key: String): List<CustomType>? = null
 
                 override fun parseValue(value: String): List<CustomType> = listOf()

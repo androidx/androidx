@@ -803,6 +803,8 @@ class NavArgumentGeneratorTest {
 
                 override fun serializeAsValues(value: Array<TestEnum>) = emptyList<String>()
 
+                override fun emptyCollection(): Array<TestEnum> = emptyArray()
+
                 override fun get(bundle: Bundle, key: String) = null
 
                 override fun parseValue(value: String) = emptyArray<TestEnum>()
