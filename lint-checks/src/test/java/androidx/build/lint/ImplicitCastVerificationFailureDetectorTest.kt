@@ -96,7 +96,6 @@ class ImplicitCastVerificationFailureDetectorTest :
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java:11: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -129,7 +128,6 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
 @@ -24 +35
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -204,7 +202,6 @@ Fix for src/java/androidx/UnsafeImplicitCastAsMethodArgumentJava.java line 11: E
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java:15: Error: This expression has type android.view.WindowManager.InvalidDisplayException (introduced in API level 17) but it used as type java.lang.Throwable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -231,7 +228,6 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
 + }
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -278,7 +274,6 @@ Fix for src/java/androidx/UnsafeImplicitCastInCatchBlockJava.java line 15: Extra
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/UnsafeImplicitCastInAssignmentJava.java:11: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -311,7 +306,6 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
 @@ -14 +25
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -354,7 +348,6 @@ Fix for src/java/androidx/UnsafeImplicitCastInAssignmentJava.java line 11: Extra
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/ImplicitCastOnReturnJava.java:9: Error: This expression has type android.app.Notification.MessagingStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -387,7 +380,6 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
 @@ -12 +23
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -453,7 +445,6 @@ Fix for src/java/androidx/ImplicitCastOnReturnJava.java line 9: Extract to stati
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/ImplicitCastOfMethodCallResultJava.java:11: Error: This expression has type android.graphics.drawable.AdaptiveIconDrawable (introduced in API level 26) but it used as type android.graphics.drawable.Drawable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -480,7 +471,6 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
 + }
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -790,7 +780,6 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type android.icu.number.FormattedNumber (introduced in API level 30) but it used as type java.lang.CharSequence (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
@@ -861,7 +850,6 @@ Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static in
 @@ -23 +34
 + }
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

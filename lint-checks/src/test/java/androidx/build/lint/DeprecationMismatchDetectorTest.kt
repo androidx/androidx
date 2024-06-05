@@ -97,7 +97,6 @@ class DeprecationMismatchDetectorTest :
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/java/androidx/Foo.java:6: Error: Items with a @deprecated doc tag must be annotated with @Deprecated [DeprecationMismatch]
@@ -132,7 +131,6 @@ class DeprecationMismatchDetectorTest :
             +     @Deprecated
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -161,7 +159,6 @@ class DeprecationMismatchDetectorTest :
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/java/androidx/Foo.java:4: Error: Items annotated with @Deprecated must have a @deprecated doc tag [DeprecationMismatch]
@@ -179,7 +176,6 @@ class DeprecationMismatchDetectorTest :
             4 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

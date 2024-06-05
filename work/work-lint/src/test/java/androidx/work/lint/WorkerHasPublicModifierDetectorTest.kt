@@ -42,7 +42,6 @@ class WorkerHasPublicModifierDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 // Source files
@@ -60,7 +59,6 @@ class WorkerHasPublicModifierDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

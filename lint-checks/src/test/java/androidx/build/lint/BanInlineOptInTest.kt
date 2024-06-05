@@ -43,7 +43,6 @@ inline fun String.myInlineFun() = this.length
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/ExperimentalSampleAnnotation.kt:5: Error: Inline functions cannot opt into experimental APIs. [BanInlineOptIn]
@@ -52,7 +51,6 @@ inline fun String.myInlineFun() = this.length
 1 errors, 0 warnings
           """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(input).expect(expected)
     }

@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class LambdaStructuralEqualityDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = LambdaStructuralEqualityDetector()
@@ -108,4 +107,3 @@ Autofix for src/test/test.kt line 10: Change to !==:
             )
     }
 }
-/* ktlint-enable max-line-length */

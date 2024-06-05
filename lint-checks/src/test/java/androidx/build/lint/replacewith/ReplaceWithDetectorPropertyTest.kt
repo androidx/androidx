@@ -31,7 +31,6 @@ class ReplaceWithDetectorPropertyTest {
                 javaSample("replacewith.PropertyJava")
             )
 
-        /* ktlint-disable max-line-length */
         // TODO(b/323214452): This is incomplete, but we have explicitly suppressed replacement of
         // Kotlin property accessors until we can properly convert the expressions to Java.
         val expected =
@@ -60,7 +59,6 @@ Fix for src/replacewith/PropertyJava.java line 43: Replace with `otherProperty`:
 +         clazz.otherProperty();
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

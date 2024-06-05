@@ -157,7 +157,6 @@ internal const val ARGUMENT_SERVICE_CLASS_NAME =
     "androidx.work.impl.workers.RemoteListenableWorker.ARGUMENT_CLASS_NAME"
 
 // The RemoteListenableWorker class to delegate to.
-/* ktlint-disable max-line-length */
+
 internal const val ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME =
     "androidx.work.multiprocess.RemoteListenableDelegatingWorker.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME"
-/* ktlint-enable max-line-length */

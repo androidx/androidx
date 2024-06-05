@@ -37,7 +37,6 @@ class BanVisibleForTestingParamsTest :
                 javaSample("androidx.VisibleForTestingUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/VisibleForTestingUsageJava.java:23: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
@@ -74,7 +73,6 @@ Fix for src/androidx/VisibleForTestingUsageJava.java line 32: Remove non-default
 +     @VisibleForTesting
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
@@ -86,7 +84,6 @@ Fix for src/androidx/VisibleForTestingUsageJava.java line 32: Remove non-default
                 ktSample("androidx.VisibleForTestingUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/VisibleForTestingUsageKotlin.kt:26: Error: Found non-default otherwise value for @VisibleForTesting [UsesNonDefaultVisibleForTesting]
@@ -145,7 +142,6 @@ Fix for src/androidx/VisibleForTestingUsageKotlin.kt line 42: Remove non-default
 +     @get:VisibleForTesting val testPropertyGet = "test"
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }

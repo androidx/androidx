@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [CompositionLocalNamingDetector]. */
@@ -236,4 +235,3 @@ src/androidx/compose/runtime/foo/Test.kt:16: Warning: CompositionLocal propertie
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -36,7 +36,6 @@ class TargetApiAnnotationDetectorTest :
                 javaSample("androidx.TargetApiUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/TargetApiUsageJava.java:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
@@ -48,7 +47,6 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -60,7 +58,6 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
                 ktSample("androidx.TargetApiUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/TargetApiUsageKotlin.kt:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
@@ -72,7 +69,6 @@ src/androidx/TargetApiUsageKotlin.kt:25: Error: Use @RequiresApi instead of @Tar
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

@@ -207,7 +207,6 @@ class InvalidSetHasFixedSizeTest {
             .files(VIEW, RECYCLER_VIEW, layoutFile, resourceIds, source)
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/Example.kt:10: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
@@ -217,7 +216,6 @@ class InvalidSetHasFixedSizeTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -279,7 +277,6 @@ class InvalidSetHasFixedSizeTest {
             .files(VIEW, RECYCLER_VIEW, layoutFile, resourceIds, source)
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/Example.kt:10: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
@@ -289,7 +286,6 @@ class InvalidSetHasFixedSizeTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -354,7 +350,6 @@ class InvalidSetHasFixedSizeTest {
             .files(VIEW, RECYCLER_VIEW, layoutFile, resourceIds, source)
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/Example.kt:14: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
@@ -364,6 +359,5 @@ class InvalidSetHasFixedSizeTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

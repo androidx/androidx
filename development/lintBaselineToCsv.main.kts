@@ -198,11 +198,9 @@ fun runTests() {
 
 @Test
 fun `Baseline with one issue parses contents correctly`() {
-    /* ktlint-disable max-line-length */
     var lintBaselineText = """
         <?xml version="1.0" encoding="UTF-8"?>
         <issues format="5" by="lint 4.2.0-beta06" client="gradle" variant="debug" version="4.2.0-beta06">
-        
             <issue
                 id="ClassVerificationFailure"
                 message="This call references a method added in API level 19; however, the containing class androidx.print.PrintHelper is reachable from earlier API levels and will fail run-time class verification."
@@ -215,7 +213,6 @@ fun `Baseline with one issue parses contents correctly`() {
             </issue>
         </issues>
     """.trimIndent()
-    /* ktlint-enable max-line-length */
 
     var listIssues = LintBaselineParser.parse(lintBaselineText)
     assertEquals(1, listIssues.size)
@@ -239,14 +236,12 @@ fun `Baseline with one issue parses contents correctly`() {
 
 @Test
 fun `Empty baseline has no issues`() {
-    /* ktlint-disable max-line-length */
     var lintBaselineText = """
         <?xml version="1.0" encoding="UTF-8"?>
         <issues format="5" by="lint 4.2.0-beta06" client="gradle" version="4.2.0-beta06">
 
         </issues>
     """.trimIndent()
-    /* ktlint-enable max-line-length */
 
     var listIssues = LintBaselineParser.parse(lintBaselineText)
     assertEquals(1, listIssues.size)

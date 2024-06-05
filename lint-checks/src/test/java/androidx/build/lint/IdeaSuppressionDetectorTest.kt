@@ -55,7 +55,6 @@ class IdeaSuppressionDetectorTest :
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
@@ -64,7 +63,6 @@ src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppressi
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, input)
@@ -99,7 +97,6 @@ src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppressi
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
@@ -108,7 +105,7 @@ src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppressi
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
+
         lint()
             .files(*stubs, input)
             .allowDuplicates()

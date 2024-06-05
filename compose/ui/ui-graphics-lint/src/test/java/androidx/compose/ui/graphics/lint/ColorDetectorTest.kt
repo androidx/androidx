@@ -26,8 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /** Test for [ColorDetector]. */
 @RunWith(JUnit4::class)
 class ColorDetectorTest : LintDetectorTest() {
@@ -180,4 +178,3 @@ src/test/test.kt:8: Warning: Invalid Color hex value [InvalidColorHexValue]
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

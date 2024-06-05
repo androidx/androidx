@@ -183,8 +183,7 @@ class ColorProvidersTest {
                         .m3_sys_color_dynamic_light_secondary_container,
                 androidx.glance.R.color.glance_colorOnSecondaryContainer to
                     com.google.android.material.R.color
-                        .m3_sys_color_dynamic_light_on_secondary_container, // ktlint-disable
-                // max-line-length
+                        .m3_sys_color_dynamic_light_on_secondary_container,
                 androidx.glance.R.color.glance_colorTertiary to
                     com.google.android.material.R.color.m3_sys_color_dynamic_light_tertiary,
                 androidx.glance.R.color.glance_colorOnTertiary to
@@ -194,8 +193,7 @@ class ColorProvidersTest {
                         .m3_sys_color_dynamic_light_tertiary_container,
                 androidx.glance.R.color.glance_colorOnTertiaryContainer to
                     com.google.android.material.R.color
-                        .m3_sys_color_dynamic_light_on_tertiary_container, // ktlint-disable
-                // max-line-length
+                        .m3_sys_color_dynamic_light_on_tertiary_container,
                 androidx.glance.R.color.glance_colorBackground to
                     com.google.android.material.R.color.m3_sys_color_dynamic_light_background,
                 androidx.glance.R.color.glance_colorOnBackground to
@@ -253,8 +251,7 @@ class ColorProvidersTest {
                         .m3_sys_color_dynamic_dark_secondary_container,
                 androidx.glance.R.color.glance_colorOnSecondaryContainer to
                     com.google.android.material.R.color
-                        .m3_sys_color_dynamic_dark_on_secondary_container, // ktlint-disable
-                // max-line-length
+                        .m3_sys_color_dynamic_dark_on_secondary_container,
                 androidx.glance.R.color.glance_colorTertiary to
                     com.google.android.material.R.color.m3_sys_color_dynamic_dark_tertiary,
                 androidx.glance.R.color.glance_colorOnTertiary to

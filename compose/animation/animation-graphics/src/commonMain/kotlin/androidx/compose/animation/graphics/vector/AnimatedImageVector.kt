@@ -47,7 +47,7 @@ internal constructor(
         targets.fastMaxBy { it.animator.totalDuration }?.animator?.totalDuration ?: 0
 
     /** Provide an empty companion object to hang platform-specific companion extensions onto. */
-    companion object {} // ktlint-disable no-empty-class-body
+    companion object {}
 }
 
 /** Definition of animation to one of the elements in a [AnimatedImageVector]. */

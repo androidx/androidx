@@ -30,7 +30,6 @@ object SettingsParser {
      * Match lines that start with includeProject, followed by a require argument for project gradle
      * path and an optional argument for project file path.
      */
-    /* ktlint-disable max-line-length */
     private val includeProjectPattern =
         Regex(
                 """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",

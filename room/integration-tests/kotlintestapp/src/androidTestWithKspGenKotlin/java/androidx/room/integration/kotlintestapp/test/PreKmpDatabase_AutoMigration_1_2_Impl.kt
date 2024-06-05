@@ -1,5 +1,3 @@
-@file:Suppress("ktlint") // Generated code
-
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.room.migration.AutoMigrationSpec

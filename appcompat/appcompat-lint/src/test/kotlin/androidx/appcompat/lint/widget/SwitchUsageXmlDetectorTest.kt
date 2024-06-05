@@ -72,7 +72,7 @@ class SwitchUsageXmlDetectorTest {
                 .within("res")
 
         // We expect the definition of the core Switch to be flagged
-        /* ktlint-disable max-line-length */
+
         TestLintTask.lint()
             .files(layout)
             .issues(SwitchUsageXmlDetector.USING_CORE_SWITCH_XML)
@@ -86,6 +86,5 @@ res/layout/switch.xml:6: Warning: Use SwitchCompat from AppCompat or MaterialSwi
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

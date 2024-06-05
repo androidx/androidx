@@ -100,9 +100,7 @@ class RemoteListenableDelegatingWorker(
 
         // The RemoteListenableWorker class to delegate to.
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        /* ktlint-disable max-line-length */
         const val ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME =
             "androidx.work.multiprocess.RemoteListenableDelegatingWorker.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME"
-        /* ktlint-enable max-line-length */
     }
 }

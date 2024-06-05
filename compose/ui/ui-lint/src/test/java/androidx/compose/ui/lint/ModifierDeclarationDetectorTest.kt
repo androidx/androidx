@@ -27,8 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /** Test for [ModifierDeclarationDetector]. */
 @RunWith(JUnit4::class)
 class ModifierDeclarationDetectorTest : LintDetectorTest() {
@@ -964,4 +962,3 @@ src/androidx/compose/ui/foo/TestModifier.kt:29: Error: Modifier factory function
             )
     }
 }
-/* ktlint-enable max-line-length */

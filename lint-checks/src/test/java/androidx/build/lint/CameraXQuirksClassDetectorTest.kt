@@ -34,7 +34,6 @@ class CameraXQuirksClassDetectorTest :
     fun `Detection of CameraX Quirks in Java`() {
         val input = arrayOf(javaSample("androidx.CameraXMissingQuirkSummaryJava"))
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/androidx/CameraXMissingQuirkSummaryJava.java:22: Error: CameraX quirks should include this template in the javadoc:
@@ -49,7 +48,6 @@ class CameraXQuirksClassDetectorTest :
             1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(*stubs, *input)

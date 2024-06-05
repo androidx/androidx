@@ -55,7 +55,6 @@ class OutsideGroupExperimentalAnnotatedClass {
         // Nothing to see here.
     }
 
-    /* ktlint-disable max-line-length */
     @kotlin.OptIn(
         RequiresOptInSampleAnnotationJava::class,
         RequiresOptInSampleAnnotationJavaDuplicate::class
@@ -63,8 +62,6 @@ class OutsideGroupExperimentalAnnotatedClass {
     fun invalidMethodWithMultipleOptInsWithoutLineBreaks() {
         // Nothing to see here.
     }
-
-    /* ktlint-enable max-line-length */
 
     @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
     fun invalidMethodWithSingleAndroidXOptIn() {
@@ -79,7 +76,6 @@ class OutsideGroupExperimentalAnnotatedClass {
         // Nothing to see here.
     }
 
-    /* ktlint-disable max-line-length */
     @androidx.annotation.OptIn(
         RequiresAndroidXOptInSampleAnnotationJava::class,
         RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class
@@ -87,5 +83,4 @@ class OutsideGroupExperimentalAnnotatedClass {
     fun invalidMethodWithMultipleAndroidXOptInsWithoutLineBreaks() {
         // Nothing to see here.
     }
-    /* ktlint-enable max-line-length */
 }

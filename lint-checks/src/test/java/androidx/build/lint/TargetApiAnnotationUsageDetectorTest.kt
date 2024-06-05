@@ -74,7 +74,6 @@ public class SampleClass {
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/sample/SampleClass.java:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
@@ -86,9 +85,7 @@ src/androidx/sample/SampleClass.java:7: Error: Use @RequiresApi instead of @Targ
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
-        /* ktlint-disable max-line-length */
         val expectFixDiffs =
             """
 Fix for src/androidx/sample/SampleClass.java line 5: Replace with `@RequiresApi`:
@@ -101,7 +98,6 @@ Fix for src/androidx/sample/SampleClass.java line 7: Replace with `@RequiresApi`
 +     @androidx.annotation.RequiresApi(15)
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)
     }
@@ -126,7 +122,6 @@ class SampleClass {
                     .trimIndent()
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/sample/SampleClass.kt:5: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
@@ -138,9 +133,7 @@ src/androidx/sample/SampleClass.kt:7: Error: Use @RequiresApi instead of @Target
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
-        /* ktlint-disable max-line-length */
         val expectFixDiffs =
             """
 Fix for src/androidx/sample/SampleClass.kt line 5: Replace with `@RequiresApi`:
@@ -153,7 +146,6 @@ Fix for src/androidx/sample/SampleClass.kt line 7: Replace with `@RequiresApi`:
 +     @androidx.annotation.RequiresApi(15)
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         checkTask(input).run().expect(expected).expectFixDiffs(expectFixDiffs)
     }

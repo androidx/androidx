@@ -28,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ActivityResultLaunchDetector]. */
@@ -220,4 +219,3 @@ src/com/example/test.kt:46: Error: Calls to launch should happen inside of a Sid
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

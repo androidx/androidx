@@ -37,7 +37,6 @@ class BanRestrictToTestsScopeTest :
                 javaSample("androidx.RestrictToTestsAnnotationUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/RestrictToTestsAnnotationUsageJava.java:26: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
@@ -79,7 +78,6 @@ Fix for src/androidx/RestrictToTestsAnnotationUsageJava.java line 35: Replace wi
 +     @androidx.annotation.VisibleForTesting
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }
@@ -91,7 +89,6 @@ Fix for src/androidx/RestrictToTestsAnnotationUsageJava.java line 35: Replace wi
                 ktSample("androidx.RestrictToTestsAnnotationUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/RestrictToTestsAnnotationUsageKotlin.kt:24: Error: Replace @RestrictTo(TESTS) with @VisibleForTesting [UsesRestrictToTestsScope]
@@ -123,7 +120,6 @@ Fix for src/androidx/RestrictToTestsAnnotationUsageKotlin.kt line 28: Replace wi
 +     @get:VisibleForTesting val testPropertyGet = "test"
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(fixDiffs)
     }

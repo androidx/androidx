@@ -27,8 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /** Test for [ComposedModifierDetector]. */
 @RunWith(JUnit4::class)
 class ComposedModifierDetectorTest : LintDetectorTest() {
@@ -166,4 +164,3 @@ src/test/test.kt:22: Warning: Unnecessary use of Modifier.composed [UnnecessaryC
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

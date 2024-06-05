@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ComposableNamingDetector]. */
@@ -230,4 +229,3 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

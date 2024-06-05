@@ -55,7 +55,6 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:9: Error: Missing dataSync foregroundServiceType in the AndroidManifest.xml [SpecifyForegroundServiceType]
@@ -65,7 +64,6 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -121,7 +119,6 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:9: Error: Missing dataSync foregroundServiceType in the AndroidManifest.xml [SpecifyForegroundServiceType]
@@ -131,7 +128,6 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

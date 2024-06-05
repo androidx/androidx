@@ -25,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = CommonModuleIncompatibilityDetector()
@@ -345,4 +344,3 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
         lint().files(jvmFile, androidFile, file).run().expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -42,7 +42,6 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(JOB_SERVICE, service)
             .issues(SpecifyJobSchedulerIdRangeIssueDetector.ISSUE)
@@ -56,7 +55,6 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

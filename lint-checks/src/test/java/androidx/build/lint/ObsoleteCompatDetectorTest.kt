@@ -55,7 +55,6 @@ class ObsoleteCompatDetectorTest :
                 javaSample("androidx.ObsoleteCompatMethod"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethod.java:33: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -87,7 +86,6 @@ Fix for src/androidx/ObsoleteCompatMethod.java line 38: Replace obsolete compat 
 +     /** @deprecated Call {@link Object#hashCode()} directly. */
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }
@@ -99,7 +97,6 @@ Fix for src/androidx/ObsoleteCompatMethod.java line 38: Replace obsolete compat 
                 javaSample("androidx.ObsoleteCompatMethodMissingReplaceWith"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethodMissingReplaceWith.java:32: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -118,7 +115,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Re
 +     @ReplaceWith(expression = "obj.hashCode()")
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }
@@ -130,7 +126,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Re
                 javaSample("androidx.ObsoleteCompatMethodMissingMultiLineReplaceWith"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java:32: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -149,7 +144,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java li
 +     @ReplaceWith(expression = "obj.hashCode()")
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }
@@ -161,7 +155,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java li
                 javaSample("androidx.ObsoleteCompatMethodMissingDeprecated"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethodMissingDeprecated.java:37: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -178,7 +171,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Rep
 +     @Deprecated
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }
@@ -190,7 +182,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Rep
                 javaSample("androidx.ObsoleteCompatMethodMissingJavadoc"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethodMissingJavadoc.java:37: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -213,7 +204,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 44: Replac
 +     /** @deprecated Call {@link Object#hashCode()} directly. */
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }
@@ -225,7 +215,6 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 44: Replac
                 javaSample("androidx.ObsoleteCompatMethodMissingDeprecatedAndJavadoc"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java:36: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
@@ -251,7 +240,6 @@ Fix for src/androidx/ObsoleteCompatMethodMissingDeprecatedAndJavadoc.java line 4
 +     /** @deprecated Call {@link Object#hashCode()} directly. */
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
     }

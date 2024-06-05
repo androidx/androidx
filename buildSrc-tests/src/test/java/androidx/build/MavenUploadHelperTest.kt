@@ -34,8 +34,6 @@ class MavenUploadHelperTest {
     fun insertDefaultMultiplatformDependenciesTest() {
         val pom = XmlProviderImpl(POM_COLLECTION)
 
-        /* ktlint-disable max-line-length */
-
         // Expect that collection-jvm has been inserted in <dependencies>.
         val expected = """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -84,7 +82,6 @@ class MavenUploadHelperTest {
   </dependencies>
 </project>
 """
-        /* ktlint-enable max-line-length */
 
         insertDefaultMultiplatformDependencies(pom, "jvm")
 
@@ -95,8 +92,6 @@ class MavenUploadHelperTest {
     @Test
     fun insertDefaultMultiplatformDependenciesNoDepsTest() {
         val pom = XmlProviderImpl(POM_COMPOSE_UI_GEOMETRY)
-
-        /* ktlint-disable max-line-length */
 
         // Expect that collection-jvm has been inserted in <dependencies>.
         val expected = """<?xml version="1.0"?>
@@ -142,7 +137,6 @@ class MavenUploadHelperTest {
   </dependencies>
 </project>
 """
-        /* ktlint-enable max-line-length */
 
         insertDefaultMultiplatformDependencies(pom, "android")
 
@@ -158,7 +152,7 @@ class MavenUploadHelperTest {
             "androidx.lifecycle:lifecycle-runtime"
         )
 
-        /* ktlint-disable max-line-length */
+
 
         // Expect that elements in <dependencies> are sorted alphabetically.
         val expected = """<?xml version="1.0"?>
@@ -261,7 +255,6 @@ class MavenUploadHelperTest {
   </dependencies>
 </project>
 """
-        /* ktlint-enable max-line-length */
 
         assignAarDependencyTypes(pom, androidLibrariesSet)
 
@@ -271,7 +264,6 @@ class MavenUploadHelperTest {
 
     @Test
     fun testEnsureConsistentJvmSuffix() {
-        /* ktlint-disable max-line-length */
 
         val pom = """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -308,7 +300,6 @@ class MavenUploadHelperTest {
   </dependencies>
 </project>
 """
-        /* ktlint-enable max-line-length */
 
         val xmlProvider = XmlProviderImpl(pom)
         ensureConsistentJvmSuffix(xmlProvider)
@@ -319,7 +310,6 @@ class MavenUploadHelperTest {
 
     @Test
     fun testAssignSingleVersionDependenciesInGroupForPom() {
-        /* ktlint-disable max-line-length */
 
         val pom = """<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -368,7 +358,6 @@ class MavenUploadHelperTest {
   </dependencies>
 </project>
 """
-        /* ktlint-enable max-line-length */
 
         val xmlProvider = XmlProviderImpl(pom)
         val mavenGroup = LibraryGroup("androidx.example", Version("1.0.0"))
@@ -381,8 +370,6 @@ class MavenUploadHelperTest {
     @Test
     fun testSortPomDependencies() {
         val pom = POM_COLLECTION_JVM
-
-        /* ktlint-disable max-line-length */
 
         // Expect that elements in <dependencies> are sorted alphabetically.
         val expected = """<?xml version="1.0" encoding="UTF-8"?>
@@ -440,7 +427,6 @@ class MavenUploadHelperTest {
     </dependency>
   </dependencies>
 </project>"""
-        /* ktlint-enable max-line-length */
 
         val actual = sortPomDependencies(pom)
         assertEquals(expected, actual)
@@ -448,7 +434,6 @@ class MavenUploadHelperTest {
 
     @Test
     fun testSortGradleMetadataDependencies() {
-        /* ktlint-disable max-line-length */
         val metadata = """
 {
   "formatVersion": "1.1",
@@ -665,7 +650,6 @@ class MavenUploadHelperTest {
   ]
 }
         """.trimIndent()
-        /* ktlint-enable max-line-length */
 
         val actual = sortGradleMetadataDependencies(metadata)
         assertEquals(expected, actual)
@@ -673,7 +657,6 @@ class MavenUploadHelperTest {
 
     @Test
     fun testSortGradleMetadataDependenciesWithConstraints() {
-        /* ktlint-disable max-line-length */
         val metadata = """
 {
   "formatVersion": "1.1",
@@ -1024,7 +1007,6 @@ class MavenUploadHelperTest {
   ]
 }
         """.trimIndent()
-        /* ktlint-enable max-line-length */
 
         val actual = sortGradleMetadataDependencies(metadata)
         assertEquals(expected, actual)
@@ -1032,7 +1014,6 @@ class MavenUploadHelperTest {
 
     @Test
     fun testVerifyGradleMetadata() {
-        /* ktlint-disable max-line-length */
         val metadata = """
 {
   "formatVersion": "1.1",

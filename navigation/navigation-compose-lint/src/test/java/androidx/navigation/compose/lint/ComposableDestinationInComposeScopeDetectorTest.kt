@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ComposableDestinationInComposeScopeDetector]. */
@@ -159,4 +158,3 @@ src/com/example/test.kt:14: Error: Using navigation inside of a compose scope [C
             )
     }
 }
-/* ktlint-enable max-line-length */

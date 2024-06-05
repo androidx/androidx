@@ -38,7 +38,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 )
                 .indented()
                 .within("src")
-        /* ktlint-disable max-line-length */
+
         val snippet =
             kotlin(
                     "com/example/Test.kt",
@@ -71,7 +71,6 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -90,7 +89,6 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         val snippet =
             kotlin(
                     "com/example/Test.kt",
@@ -111,7 +109,6 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 )
                 .indented()
                 .within("src")
-        /* ktlint-enable max-line-length */
 
         lint()
             .files(LISTENABLE_WORKER, PERIODIC_WORK_REQUEST, worker, snippet)
@@ -135,7 +132,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 )
                 .indented()
                 .within("src")
-        /* ktlint-disable max-line-length */
+
         val snippet =
             kotlin(
                     "com/example/Test.kt",
@@ -169,7 +166,6 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -187,7 +183,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 )
                 .indented()
                 .within("src")
-        /* ktlint-disable max-line-length */
+
         val snippet =
             kotlin(
                     "com/example/Test.kt",
@@ -221,7 +217,6 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

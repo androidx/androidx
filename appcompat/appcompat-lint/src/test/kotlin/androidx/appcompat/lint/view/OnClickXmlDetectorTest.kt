@@ -123,7 +123,7 @@ class OnClickXmlDetectorTest {
             )
 
         // We expect the android:onClick to be flagged on pre-24 min SDK
-        /* ktlint-disable max-line-length */
+
         lint()
             .files(
                 Stubs.APPCOMPAT_ACTIVITY,
@@ -144,7 +144,6 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

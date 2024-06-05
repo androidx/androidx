@@ -26,8 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
-
 /** Test for [SuspiciousModifierThenDetector]. */
 @RunWith(JUnit4::class)
 class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
@@ -120,4 +118,3 @@ src/test/TestModifier.kt:14: Error: Using Modifier.then with a Modifier factory 
             )
     }
 }
-/* ktlint-enable max-line-length */

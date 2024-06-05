@@ -117,7 +117,6 @@ class TestFragment extends Fragment {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
 src/com/example/TestFragment.java:12: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
@@ -126,7 +125,6 @@ src/com/example/TestFragment.java:12: Error: Use getViewLifecycleOwner() as the 
 1 errors, 0 warnings
             """
             )
-            /* ktlint-enable max-line-length */
             .checkFix(
                 null,
                 java(
@@ -193,7 +191,6 @@ class TestFragment : Fragment {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
 src/com/example/TestFragment.kt:11: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
@@ -202,7 +199,6 @@ src/com/example/TestFragment.kt:11: Error: Use viewLifecycleOwner as the Lifecyc
 1 errors, 0 warnings
             """
             )
-            /* ktlint-enable max-line-length */
             .checkFix(
                 null,
                 kotlin(
@@ -271,7 +267,6 @@ class TestFragment : Fragment {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
 src/com/example/TestFragment.kt:15: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
@@ -280,7 +275,6 @@ src/com/example/TestFragment.kt:15: Error: Use viewLifecycleOwner as the Lifecyc
 1 errors, 0 warnings
             """
             )
-            /* ktlint-enable max-line-length */
             .checkFix(
                 null,
                 kotlin(
@@ -346,7 +340,6 @@ class Foo {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
 src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
@@ -355,7 +348,6 @@ src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment inst
 1 errors, 0 warnings
             """
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -405,7 +397,6 @@ class Foo {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
 src/com/example/test/Foo.kt:17: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
@@ -414,7 +405,6 @@ src/com/example/test/Foo.kt:17: Error: Unsafe call to observe with Fragment inst
 1 errors, 0 warnings
             """
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -439,7 +429,6 @@ class TestFragment: Fragment {
             """
                 )
             )
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/TestFragment.kt:12: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
@@ -449,7 +438,6 @@ class TestFragment: Fragment {
                 """
                     .trimIndent()
             )
-            /* ktlint-enable max-line-length */
             .checkFix(
                 null,
                 kotlin(

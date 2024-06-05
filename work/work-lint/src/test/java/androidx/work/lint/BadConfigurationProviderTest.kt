@@ -86,7 +86,6 @@ class BadConfigurationProviderTest {
                 .indented()
                 .within("src")
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 ANDROID_APPLICATION,
@@ -103,7 +102,6 @@ class BadConfigurationProviderTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

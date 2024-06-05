@@ -31,7 +31,6 @@ class ReplaceWithDetectorConstructorTest {
                 javaSample("replacewith.ConstructorStaticClass")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorStaticClass.java:25: Information: Replacement available [ReplaceWith]
@@ -49,7 +48,6 @@ Fix for src/replacewith/ConstructorStaticClass.java line 25: Replace with `Strin
 +         new StringBuffer("parameter");
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -62,7 +60,6 @@ Fix for src/replacewith/ConstructorStaticClass.java line 25: Replace with `Strin
                 javaSample("replacewith.ConstructorNonStaticClass")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorNonStaticClass.java:25: Information: Replacement available [ReplaceWith]
@@ -80,7 +77,6 @@ Fix for src/replacewith/ConstructorNonStaticClass.java line 25: Replace with `In
 +         new ReplaceWithUsageJava().new InnerClass();
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -93,7 +89,6 @@ Fix for src/replacewith/ConstructorNonStaticClass.java line 25: Replace with `In
                 javaSample("replacewith.ConstructorToStaticMethod")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorToStaticMethod.java:25: Information: Replacement available [ReplaceWith]
@@ -111,7 +106,6 @@ Fix for src/replacewith/ConstructorToStaticMethod.java line 25: Replace with `Re
 +         ReplaceWithUsageJava.newInstance(10000);
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -124,7 +118,6 @@ Fix for src/replacewith/ConstructorToStaticMethod.java line 25: Replace with `Re
                 ktSample("replacewith.ConstructorStaticClassKotlin")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorStaticClassKotlin.kt:22: Information: Replacement available [ReplaceWith]
@@ -142,7 +135,6 @@ Fix for src/replacewith/ConstructorStaticClassKotlin.kt line 22: Replace with `S
 +         StringBuffer("parameter")
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -155,7 +147,6 @@ Fix for src/replacewith/ConstructorStaticClassKotlin.kt line 22: Replace with `S
                 ktSample("replacewith.ConstructorNonStaticClassKotlin")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorNonStaticClassKotlin.kt:22: Information: Replacement available [ReplaceWith]
@@ -173,7 +164,6 @@ Fix for src/replacewith/ConstructorNonStaticClassKotlin.kt line 22: Replace with
 +         ReplaceWithUsageJava().InnerClass()
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -186,7 +176,6 @@ Fix for src/replacewith/ConstructorNonStaticClassKotlin.kt line 22: Replace with
                 ktSample("replacewith.ConstructorToStaticMethodKotlin")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/ConstructorToStaticMethodKotlin.kt:22: Information: Replacement available [ReplaceWith]
@@ -204,7 +193,6 @@ Fix for src/replacewith/ConstructorToStaticMethodKotlin.kt line 22: Replace with
 +         ReplaceWithUsageJava.newInstance(10000)
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

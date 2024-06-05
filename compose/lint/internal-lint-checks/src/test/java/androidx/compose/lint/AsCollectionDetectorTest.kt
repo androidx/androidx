@@ -23,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/* ktlint-disable max-line-length */
 @RunWith(Parameterized::class)
 class AsCollectionDetectorTest(val types: CollectionType) : LintDetectorTest() {
 

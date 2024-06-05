@@ -52,7 +52,6 @@ class IgnoreClassLevelDetectorTest :
                 Stubs.TestAnnotation
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/TestClass.kt:7: Error: @Ignore should not be used at the class level. Move the annotation to each test individually. [IgnoreClassLevelDetector]
@@ -60,7 +59,6 @@ src/java/androidx/TestClass.kt:7: Error: @Ignore should not be used at the class
                 ~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -91,7 +89,6 @@ src/java/androidx/TestClass.kt:7: Error: @Ignore should not be used at the class
                 Stubs.TestAnnotation
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/TestClass.java:7: Error: @Ignore should not be used at the class level. Move the annotation to each test individually. [IgnoreClassLevelDetector]
@@ -99,7 +96,6 @@ src/java/androidx/TestClass.java:7: Error: @Ignore should not be used at the cla
                     ~~~~~~~
 1 errors, 0 warnings
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

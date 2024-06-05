@@ -32,7 +32,6 @@ class UseCompatDetectorTest {
                 javaSample("com.example.android.appcompat.CoreActivityExt")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/com/example/android/appcompat/AppCompatLintDemo.java:68: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
@@ -47,7 +46,6 @@ src/com/example/android/appcompat/AppCompatLintDemo.java:64: Warning: Use TextVi
 0 errors, 3 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -56,7 +54,6 @@ src/com/example/android/appcompat/AppCompatLintDemo.java:64: Warning: Use TextVi
     fun checkCompatSubstitutionsOnWidget() {
         val input = arrayOf(javaSample("com.example.android.appcompat.CustomSwitch"))
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/com/example/android/appcompat/CustomSwitch.java:27: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
@@ -65,7 +62,6 @@ public class CustomSwitch extends Switch {
 0 errors, 1 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

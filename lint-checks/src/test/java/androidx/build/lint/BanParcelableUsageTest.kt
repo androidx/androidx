@@ -36,7 +36,6 @@ class BanParcelableUsageTest :
                 javaSample("androidx.ParcelableUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ParcelableUsageJava.java:25: Error: Class implements android.os.Parcelable [BanParcelableUsage]
@@ -45,7 +44,6 @@ public class ParcelableUsageJava implements Parcelable {
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -57,7 +55,6 @@ public class ParcelableUsageJava implements Parcelable {
                 ktSample("androidx.ParcelableUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/ParcelableUsageKotlin.kt:23: Error: Class implements android.os.Parcelable [BanParcelableUsage]
@@ -66,7 +63,6 @@ open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcela
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
