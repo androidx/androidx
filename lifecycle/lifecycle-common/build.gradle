@@ -58,6 +58,7 @@ androidXMultiplatform {
         jvmMain.dependsOn(commonMain)
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)

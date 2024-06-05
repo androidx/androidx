@@ -51,6 +51,7 @@ androidXMultiplatform {
         }
 
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
             }
@@ -70,6 +71,7 @@ androidXMultiplatform {
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
             }
         }
