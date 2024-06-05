@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidatePlacement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -161,9 +162,7 @@ private class OffsetElement(
     }
 
     override fun update(node: OffsetNode) {
-        node.x = x
-        node.y = y
-        node.rtlAware = rtlAware
+        node.update(x, y, rtlAware)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -192,6 +191,15 @@ private class OffsetElement(
 private class OffsetNode(var x: Dp, var y: Dp, var rtlAware: Boolean) :
     LayoutModifierNode, Modifier.Node() {
 
+    override val shouldAutoInvalidate: Boolean = false
+
+    fun update(x: Dp, y: Dp, rtlAware: Boolean) {
+        if (this.x != x || this.y != y || this.rtlAware != rtlAware) invalidatePlacement()
+        this.x = x
+        this.y = y
+        this.rtlAware = rtlAware
+    }
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -217,8 +225,7 @@ private class OffsetPxElement(
     }
 
     override fun update(node: OffsetPxNode) {
-        node.offset = offset
-        node.rtlAware = rtlAware
+        node.update(offset, rtlAware)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -243,6 +250,15 @@ private class OffsetPxElement(
 
 private class OffsetPxNode(var offset: Density.() -> IntOffset, var rtlAware: Boolean) :
     LayoutModifierNode, Modifier.Node() {
+
+    override val shouldAutoInvalidate: Boolean = false
+
+    fun update(offset: Density.() -> IntOffset, rtlAware: Boolean) {
+        if (this.offset !== offset || this.rtlAware != rtlAware) invalidatePlacement()
+        this.offset = offset
+        this.rtlAware = rtlAware
+    }
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
