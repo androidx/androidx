@@ -18,6 +18,7 @@ package androidx.navigation
 import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.core.os.bundleOf
 import androidx.navigation.serialization.generateRoutePattern
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -265,10 +266,15 @@ internal constructor(
         bundle: Bundle,
         arguments: Map<String, NavArgument?>
     ): Boolean {
+        // key is queryParameterName (argName could be different), value is NavDeepLink.ParamQuery
         queryArgsMap.forEach { entry ->
             val paramName = entry.key
             val storedParam = entry.value
 
+            // a list of the arg values under this queryParameterName
+            // collection types (i.e. list, array) would potentially have listOf(arg1, arg2, arg3,
+            // etc..)
+            // non-collection types would usually have listOf(theArgValue)
             var inputParams = deepLink.getQueryParameters(paramName)
             if (isSingleQueryParamValueOnly) {
                 // If the deep link contains a single query param with no value,
@@ -287,40 +293,58 @@ internal constructor(
         return true
     }
 
+    /**
+     * @param inputParams list of arg values under the same Uri.queryParameterName. For example:
+     * 1. sample route "...?myArg=1&myArg=2" inputParams = listOf("1", "2")
+     * 2. sample route "...?myArg=John_Doe" inputParams = listOf("John_Doe")
+     *
+     * @param storedParam the [ParamQuery] for a single Uri.queryParameter
+     */
     private fun parseInputParams(
         inputParams: List<String>?,
         storedParam: ParamQuery,
         bundle: Bundle,
         arguments: Map<String, NavArgument?>,
     ): Boolean {
+        val tempBundle = bundleOf()
         inputParams?.forEach { inputParam ->
             val argMatcher =
                 storedParam.paramRegex?.let {
                     Pattern.compile(it, Pattern.DOTALL).matcher(inputParam)
                 }
+            // check if this particular arg value matches the expected regex.
+            // for example, if the query was list of Int like "...?intId=1&intId=2&intId=abc",
+            // this would return false when matching "abc".
             if (argMatcher == null || !argMatcher.matches()) {
                 return false
             }
-
-            val queryParamBundle = Bundle()
-            try {
-                storedParam.arguments.mapIndexed { index, argName ->
-                    val value = argMatcher.group(index + 1) ?: ""
-                    val argument = arguments[argName]
-                    if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
+            // iterate over each argName under the same queryParameterName
+            storedParam.arguments.mapIndexed { index, argName ->
+                // make sure we get the correct value for this particular argName
+                // i.e. if route is "...?myArg={firstName}_{lastName}"
+                // and the inputParam is "John_Doe"
+                // we need to map values to argName like this:
+                // [firstName to "John", lastName to "Doe"]
+                val value = argMatcher.group(index + 1) ?: ""
+                val argument = arguments[argName]
+                try {
+                    if (!tempBundle.containsKey(argName)) {
                         // Passing in a value the exact same as the placeholder will be treated the
                         // as if no value was passed (unless value is based on String),
                         // being replaced if it is optional or throwing an error if it is required.
-                        parseArgument(queryParamBundle, argName, value, argument)
+                        parseArgument(tempBundle, argName, value, argument)
+                    } else {
+                        parseArgumentForRepeatedParam(tempBundle, argName, value, argument)
                     }
+                } catch (e: IllegalArgumentException) {
+                    // Failed to parse means that at least one of the arguments that
+                    // were supposed to fill in the query parameter was not valid.
+                    // We will need to handle it here. Values that are not handled
+                    // here will just be excluded from the argument bundle.
                 }
-                bundle.putAll(queryParamBundle)
-            } catch (e: IllegalArgumentException) {
-                // Failed to parse means that at least one of the arguments that were supposed
-                // to fill in the query parameter was not valid and therefore, we will exclude
-                // that particular parameter from the argument bundle.
             }
         }
+        bundle.putAll(tempBundle)
         // parse success
         return true
     }
@@ -348,6 +372,13 @@ internal constructor(
         }
     }
 
+    /**
+     * Parses subsequent arg values under the same queryParameterName
+     *
+     * For example with route "...?myArg=one&myArg=two&myArg=three", [bundle] is expected to already
+     * contain bundleOf([name] to "one"), and this function will parse & put values "two" and
+     * "three" into the bundle under the same [name].
+     */
     private fun parseArgumentForRepeatedParam(
         bundle: Bundle,
         name: String,
@@ -368,6 +399,8 @@ internal constructor(
     /** Used to maintain query parameters and the mArguments they match with. */
     private class ParamQuery {
         var paramRegex: String? = null
+        // list of arg names under the same queryParamName, i.e. "...?name={first}_{last}"
+        // queryParamName = "name", arguments = ["first", "last"]
         val arguments = mutableListOf<String>()
 
         fun addArgumentName(name: String) {

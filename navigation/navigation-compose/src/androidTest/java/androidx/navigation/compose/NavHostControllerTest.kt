@@ -36,6 +36,7 @@ import androidx.navigation.NavType
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -278,6 +279,40 @@ class NavHostControllerTest {
                 .that(navigator.backStack.value.size)
                 .isEqualTo(1)
             assertThat(value).isEqualTo("value2")
+        }
+    }
+
+    @Test
+    fun testNavigateOptionSingleTopDifferentListArguments() {
+        var value: List<String> = listOf()
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first?arg=value1&arg=value2") {
+                composable(
+                    "first?arg={arg}",
+                    arguments = listOf(navArgument("arg") { type = NavType.StringListType })
+                ) { entry ->
+                    if (entry.arguments?.containsKey("arg") == true) {
+                        value = NavType.StringListType.get(entry.arguments!!, "arg")!!
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            assertThat(value).containsExactly("value1", "value2")
+            navController.navigate("first?arg=value3&arg=value4") { launchSingleTop = true }
+        }
+        composeTestRule.runOnIdle {
+            val navigator =
+                navController.navigatorProvider.get<ComposeNavigator>(
+                    navController.currentDestination?.navigatorName!!
+                )
+            assertWithMessage("there should be 1 destination on back stack when using singleTop")
+                .that(navigator.backStack.value.size)
+                .isEqualTo(1)
+            assertThat(value).containsExactly("value3", "value4")
         }
     }
 
