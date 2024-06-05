@@ -30,7 +30,9 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -79,6 +81,11 @@ public final class OpenGlRenderer {
 
     private static final String VAR_TEXTURE_COORD = "vTextureCoord";
     private static final String VAR_TEXTURE = "sTexture";
+    private static final String VAR_TEXTURE_YUV = "sTextureYuv";
+    // SAMPLER_SELECTOR_UNKNOWN must be 0 to correctly initialize HDR shader uniform selector
+    private static final int SAMPLER_SELECTOR_UNKNOWN = 0;
+    private static final int SAMPLER_SELECTOR_DEFAULT = 1;
+    private static final int SAMPLER_SELECTOR_YUV = 2;
     private static final int PIXEL_STRIDE = 4;
     private static final int[] EMPTY_ATTRIBS = {EGL14.EGL_NONE};
     private static final int[] HLG_SURFACE_ATTRIBS = {
@@ -118,10 +125,12 @@ public final class OpenGlRenderer {
 
     private static final String HDR_FRAGMENT_SHADER = String.format(Locale.US,
             "#version 300 es\n"
-                    + "#extension GL_OES_EGL_image_external : require\n"
+                    + "#extension GL_OES_EGL_image_external_essl3 : require\n"
                     + "#extension GL_EXT_YUV_target : require\n"
                     + "precision mediump float;\n"
+                    + "uniform samplerExternalOES %s;\n"
                     + "uniform __samplerExternal2DY2YEXT %s;\n"
+                    + "uniform int uSamplerSelector;\n"
                     + "in vec2 %s;\n"
                     + "out vec4 outColor;\n"
                     + "\n"
@@ -136,9 +145,25 @@ public final class OpenGlRenderer {
                     + "}\n"
                     + "\n"
                     + "void main() {\n"
-                    + "  vec3 srcYuv = texture(%s, %s).xyz;\n"
-                    + "  outColor = vec4(yuvToRgb(srcYuv), 1.0);\n"
-                    + "}", VAR_TEXTURE, VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE_COORD
+                    + "  if (uSamplerSelector == %d) {\n"
+                    + "    outColor = texture(%s, %s);\n"
+                    + "  } else if (uSamplerSelector == %d) {\n"
+                    + "    vec3 srcYuv = texture(%s, %s).xyz;\n"
+                    + "    outColor = vec4(yuvToRgb(srcYuv), 1.0);\n"
+                    + "  } else {\n"
+                    + "    outColor = vec4(0.0);\n"
+                    + "  }\n"
+                    + "}",
+            VAR_TEXTURE,
+            VAR_TEXTURE_YUV,
+            VAR_TEXTURE_COORD,
+            SAMPLER_SELECTOR_DEFAULT,
+            VAR_TEXTURE,
+            VAR_TEXTURE_COORD,
+            SAMPLER_SELECTOR_YUV,
+            VAR_TEXTURE_YUV,
+            VAR_TEXTURE_COORD
+
     );
 
     private static final float[] VERTEX_COORDS = {
@@ -183,6 +208,28 @@ public final class OpenGlRenderer {
     private int mTexMatrixLoc = -1;
     private int mPositionLoc = -1;
     private int mTexCoordLoc = -1;
+    private int mSamplerDefaultLoc = -1;
+    private int mSamplerYuvLoc = -1;
+    private int mSamplerSelectorLoc = -1;
+    private int mExternalTexNumUnits = -1;
+    private boolean mIsDefaultHdrShader = false;
+    private InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
+
+    public enum InputFormat {
+        UNKNOWN(SAMPLER_SELECTOR_UNKNOWN),
+        DEFAULT(SAMPLER_SELECTOR_DEFAULT),
+        YUV(SAMPLER_SELECTOR_YUV);
+
+        private final int mSamplerSelector;
+
+        InputFormat(int samplerSelector) {
+            mSamplerSelector = samplerSelector;
+        }
+
+        private int getSamplerSelector() {
+            return mSamplerSelector;
+        }
+    }
 
     /**
      * Initializes the OpenGLRenderer
@@ -286,6 +333,44 @@ public final class OpenGlRenderer {
         checkGlThreadOrThrow();
 
         return mExternalTextureId;
+    }
+
+    /**
+     * Sets the input format.
+     *
+     * <p>This will ensure the correct sampler is used for the input.
+     *
+     * @param inputFormat The input format for the input texture.
+     * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
+     *                               on the GL thread.
+     */
+    public void setInputFormat(@NonNull InputFormat inputFormat) {
+        checkInitializedOrThrow(true);
+        checkGlThreadOrThrow();
+
+        if (mCurrentInputformat != inputFormat) {
+            mCurrentInputformat = inputFormat;
+            activateExternalTexture();
+        }
+    }
+
+    private void activateExternalTexture() {
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+
+        int texUnit = GLES20.GL_TEXTURE0;
+        if (mIsDefaultHdrShader) {
+            GLES20.glUniform1i(mSamplerSelectorLoc, mCurrentInputformat.getSamplerSelector());
+            checkGlErrorOrThrow("glUniform1i " + mCurrentInputformat);
+
+            if (mCurrentInputformat == InputFormat.YUV) {
+                texUnit = GLES20.GL_TEXTURE0 + mExternalTexNumUnits;
+            }
+        }
+        GLES20.glActiveTexture(texUnit);
+        checkGlErrorOrThrow("glActiveTexture");
+
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        checkGlErrorOrThrow("glBindTexture");
     }
 
     /**
@@ -436,8 +521,7 @@ public final class OpenGlRenderer {
         deleteTexture(texture);
         deleteFbo(fbo);
         // Set the external texture to be active.
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        activateExternalTexture();
     }
 
     // Returns a pair of GL extension (first) and EGL extension (second) strings.
@@ -634,9 +718,11 @@ public final class OpenGlRenderer {
         GLES20.glUseProgram(mProgramHandle);
         checkGlErrorOrThrow("glUseProgram");
 
-        // Set the texture.
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        // Initialize the samplers to the correct texture unit offsets
+        GLES20.glUniform1i(mSamplerDefaultLoc, 0);
+        if (mIsDefaultHdrShader) {
+            GLES20.glUniform1i(mSamplerYuvLoc, mExternalTexNumUnits);
+        }
 
         // Enable the "aPosition" vertex attribute.
         GLES20.glEnableVertexAttribArray(mPositionLoc);
@@ -659,6 +745,9 @@ public final class OpenGlRenderer {
         GLES20.glVertexAttribPointer(mTexCoordLoc, coordsPerTex, GLES20.GL_FLOAT,
                 /*normalized=*/false, texStride, TEX_BUF);
         checkGlErrorOrThrow("glVertexAttribPointer");
+
+        // Activate the texture
+        activateExternalTexture();
     }
 
     private void loadLocations() {
@@ -668,6 +757,14 @@ public final class OpenGlRenderer {
         checkLocationOrThrow(mTexCoordLoc, "aTextureCoord");
         mTexMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTexMatrix");
         checkLocationOrThrow(mTexMatrixLoc, "uTexMatrix");
+        mSamplerDefaultLoc = GLES20.glGetUniformLocation(mProgramHandle, VAR_TEXTURE);
+        checkLocationOrThrow(mSamplerDefaultLoc, VAR_TEXTURE);
+        if (mIsDefaultHdrShader) {
+            mSamplerYuvLoc = GLES20.glGetUniformLocation(mProgramHandle, VAR_TEXTURE_YUV);
+            checkLocationOrThrow(mSamplerYuvLoc, VAR_TEXTURE_YUV);
+            mSamplerSelectorLoc = GLES20.glGetUniformLocation(mProgramHandle, "uSamplerSelector");
+            checkLocationOrThrow(mSamplerSelectorLoc, "uSamplerSelector");
+        }
     }
 
     private void createTexture() {
@@ -689,14 +786,44 @@ public final class OpenGlRenderer {
                 GLES20.GL_CLAMP_TO_EDGE);
         checkGlErrorOrThrow("glTexParameter");
 
+        // Collect the required texture units for GL_TEXTURE_EXTERNAL_OES so we know
+        // which texture unit we can use to bind the YUV sampler. The documentation says
+        // GL_TEXTURE_EXTERNAL_OES can only use a maximum of 3 texture units, so default
+        // to that if we can't query the required units
+        int requiredUnits = -1;
+        try {
+            int[] texParams = new int[1];
+            GLES30.glGetTexParameteriv(
+                    GL_TEXTURE_EXTERNAL_OES,
+                    GLES11Ext.GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES,
+                    texParams, 0
+            );
+            checkGlErrorOrThrow("glGetTexParameteriv");
+            if (texParams[0] >= 0 && texParams[0] <= 3) {
+                requiredUnits = texParams[0];
+            } else {
+                Log.e(TAG, "Query for GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES returned out of"
+                        + " bounds size: " + texParams[0] + ". Defaulting to 3.");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to query GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES", e);
+        }
+
+        mExternalTexNumUnits = requiredUnits != -1 ? requiredUnits : 3;
         mExternalTextureId = texId;
     }
 
     private int loadFragmentShader(@NonNull DynamicRange dynamicRange,
             @NonNull ShaderProvider shaderProvider) {
         if (shaderProvider == ShaderProvider.DEFAULT) {
-            return loadShader(GLES20.GL_FRAGMENT_SHADER,
-                    dynamicRange.is10BitHdr() ? HDR_FRAGMENT_SHADER : DEFAULT_FRAGMENT_SHADER);
+            String shader;
+            if (dynamicRange.is10BitHdr()) {
+                shader = HDR_FRAGMENT_SHADER;
+                mIsDefaultHdrShader = true;
+            } else {
+                shader = DEFAULT_FRAGMENT_SHADER;
+            }
+            return loadShader(GLES20.GL_FRAGMENT_SHADER, shader);
         } else {
             // Throw IllegalArgumentException if the shader provider can not provide a valid
             // fragment shader.
@@ -769,9 +896,15 @@ public final class OpenGlRenderer {
         mTexMatrixLoc = -1;
         mPositionLoc = -1;
         mTexCoordLoc = -1;
+        mSamplerDefaultLoc = -1;
+        mSamplerYuvLoc = -1;
+        mSamplerSelectorLoc = -1;
         mExternalTextureId = -1;
+        mExternalTexNumUnits = -1;
+        mCurrentInputformat = InputFormat.UNKNOWN;
         mCurrentSurface = null;
         mGlThread = null;
+        mIsDefaultHdrShader = false;
     }
 
     private void checkInitializedOrThrow(boolean shouldInitialized) {
