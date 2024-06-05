@@ -17,19 +17,15 @@
 package androidx.compose.foundation.anchoredDraggable
 
 import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.generateDecayAnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -37,14 +33,12 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.WithTouchSlop
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeWithVelocity
@@ -52,21 +46,19 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
-import org.junit.Rule
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @LargeTest
 @OptIn(ExperimentalFoundationApi::class)
-class AnchoredDraggableOverscrollTest {
-
-    @get:Rule val rule = createComposeRule()
+class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
+    AnchoredDraggableBackwardsCompatibleTest(testNewBehavior) {
 
     private val AnchoredDraggableTestTag = "dragbox"
     private val AnchoredDraggableBoxSize = 200.dp
@@ -74,18 +66,16 @@ class AnchoredDraggableOverscrollTest {
     @Test
     fun anchoredDraggable_scrollOutOfBounds_haveDeltaForOverscroll() {
         val overscrollEffect = TestOverscrollEffect()
-        val state =
-            AnchoredDraggableState(
+        val (state, modifier) =
+            createStateAndModifier(
                 initialValue = A,
-                positionalThreshold = DefaultPositionalThreshold,
-                velocityThreshold = DefaultVelocityThreshold,
                 anchors =
                     DraggableAnchors {
                         A at 0f
                         B at 250f
                     },
-                snapAnimationSpec = tween(),
-                decayAnimationSpec = DefaultDecayAnimationSpec
+                orientation = Orientation.Horizontal,
+                overscrollEffect = overscrollEffect
             )
         rule.setContent {
             WithTouchSlop(0f) {
@@ -93,11 +83,7 @@ class AnchoredDraggableOverscrollTest {
                     Box(
                         Modifier.requiredSize(AnchoredDraggableBoxSize)
                             .testTag(AnchoredDraggableTestTag)
-                            .anchoredDraggable(
-                                state = state,
-                                orientation = Orientation.Horizontal,
-                                overscrollEffect = overscrollEffect
-                            )
+                            .then(modifier)
                             .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                     )
                 }
@@ -134,18 +120,18 @@ class AnchoredDraggableOverscrollTest {
     fun anchoredDraggable_swipeWithVelocity_haveVelocityForOverscroll() {
         val endVelocity = 4000f
         val overscrollEffect = TestOverscrollEffect()
-        val state =
-            AnchoredDraggableState(
+        val (state, modifier) =
+            createStateAndModifier(
                 initialValue = A,
-                positionalThreshold = DefaultPositionalThreshold,
-                velocityThreshold = DefaultVelocityThreshold,
-                snapAnimationSpec = tween(),
-                decayAnimationSpec = DefaultDecayAnimationSpec,
                 anchors =
                     DraggableAnchors {
                         A at 0f
                         B at 250f
-                    }
+                    },
+                orientation = Orientation.Horizontal,
+                overscrollEffect = overscrollEffect,
+                decayAnimationSpec =
+                    SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
             )
 
         rule.setContent {
@@ -154,11 +140,7 @@ class AnchoredDraggableOverscrollTest {
                     Box(
                         Modifier.requiredSize(AnchoredDraggableBoxSize)
                             .testTag(AnchoredDraggableTestTag)
-                            .anchoredDraggable(
-                                state = state,
-                                orientation = Orientation.Horizontal,
-                                overscrollEffect = overscrollEffect
-                            )
+                            .then(modifier)
                             .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                             .background(Color.Red)
                     )
@@ -199,22 +181,19 @@ class AnchoredDraggableOverscrollTest {
 
     @Test
     fun anchoredDraggable_swipeWithVelocity_notAtBounds_noOverscroll() {
-        val positionalThreshold = 0.5f
-        val absThreshold = abs(positionalThreshold)
         val overscrollEffect = TestOverscrollEffect()
-        val state =
-            AnchoredDraggableState(
+
+        val (state, modifier) =
+            createStateAndModifier(
                 initialValue = A,
-                positionalThreshold = { distance -> absThreshold * distance },
-                velocityThreshold = DefaultVelocityThreshold,
-                snapAnimationSpec = tween(),
-                decayAnimationSpec = DefaultDecayAnimationSpec,
                 anchors =
                     DraggableAnchors {
                         A at 0f
                         B at 250f
                         C at 500f
-                    }
+                    },
+                orientation = Orientation.Horizontal,
+                overscrollEffect = overscrollEffect
             )
 
         rule.setContent {
@@ -224,11 +203,7 @@ class AnchoredDraggableOverscrollTest {
                         Box(
                             Modifier.requiredSize(AnchoredDraggableBoxSize)
                                 .testTag(AnchoredDraggableTestTag)
-                                .anchoredDraggable(
-                                    state = state,
-                                    orientation = Orientation.Horizontal,
-                                    overscrollEffect = overscrollEffect
-                                )
+                                .then(modifier)
                                 .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                                 .background(Color.Red)
                         )
@@ -241,7 +216,7 @@ class AnchoredDraggableOverscrollTest {
         val positionB = state.anchors.positionOf(B)
 
         val distance = abs(positionB - positionA)
-        val delta = distance * absThreshold * 1.1f
+        val delta = distance * 0.55f
 
         assertThat(state.currentValue).isEqualTo(A)
         assertThat(state.offset).isEqualTo(positionA)
@@ -263,22 +238,20 @@ class AnchoredDraggableOverscrollTest {
         assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isWithin(1f).of(0f)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun anchoredDraggable_swipeWithVelocity_notEnoughVelocityForOverscroll() {
         val overscrollEffect = TestOverscrollEffect()
-        val state =
-            AnchoredDraggableState(
+
+        val (state, modifier) =
+            createStateAndModifier(
                 initialValue = A,
-                positionalThreshold = DefaultPositionalThreshold,
-                velocityThreshold = DefaultVelocityThreshold,
-                snapAnimationSpec = tween(),
-                decayAnimationSpec = DefaultDecayAnimationSpec,
                 anchors =
                     DraggableAnchors {
                         A at 0f
                         B at 250f
-                    }
+                    },
+                orientation = Orientation.Horizontal,
+                overscrollEffect = overscrollEffect
             )
 
         rule.setContent {
@@ -287,11 +260,7 @@ class AnchoredDraggableOverscrollTest {
                     Box(
                         Modifier.requiredSize(AnchoredDraggableBoxSize)
                             .testTag(AnchoredDraggableTestTag)
-                            .anchoredDraggable(
-                                state = state,
-                                orientation = Orientation.Horizontal,
-                                overscrollEffect = overscrollEffect
-                            )
+                            .then(modifier)
                             .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                             .background(Color.Red)
                     )
@@ -322,14 +291,11 @@ class AnchoredDraggableOverscrollTest {
         assertThat(abs(overscrollEffect.flingOverscrollVelocity.x)).isWithin(1f).of(0f)
     }
 
-    private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {
-        with(rule.density) { 56.dp.toPx() }
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "testNewBehavior={0}")
+        fun params() = listOf(false, true)
     }
-
-    private val DefaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
-
-    private val DefaultDecayAnimationSpec: DecayAnimationSpec<Float> =
-        SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
 }
 
 @OptIn(ExperimentalFoundationApi::class)

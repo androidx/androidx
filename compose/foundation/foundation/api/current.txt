@@ -392,50 +392,67 @@ package androidx.compose.foundation.gestures {
     method public void dragTo(float newOffset, optional float lastKnownVelocity);
   }
 
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class AnchoredDraggableDefaults {
+    method @androidx.compose.runtime.Composable public <T> androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
+    method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getDecayAnimationSpec();
+    method public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getPositionalThreshold();
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
+    property public final androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> DecayAnimationSpec;
+    property public final kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> PositionalThreshold;
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> SnapAnimationSpec;
+    field public static final androidx.compose.foundation.gestures.AnchoredDraggableDefaults INSTANCE;
+  }
+
   public final class AnchoredDraggableKt {
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.AnchoredDraggableState<T> AnchoredDraggableState(T initialValue, androidx.compose.foundation.gestures.DraggableAnchors<T> anchors, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.AnchoredDraggableState<T> AnchoredDraggableState(T initialValue, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.DraggableAnchors<T> DraggableAnchors(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.gestures.DraggableAnchorsConfig<T>,kotlin.Unit> builder);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean startDragImmediately);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, boolean reverseDirection, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean startDragImmediately);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateToWithDecay(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean startDragImmediately, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, boolean reverseDirection, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean startDragImmediately, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateToWithDecay(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, float velocity, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? snapTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class AnchoredDraggableState<T> {
-    ctor @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public AnchoredDraggableState(T initialValue, androidx.compose.foundation.gestures.DraggableAnchors<T> anchors, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
-    ctor public AnchoredDraggableState(T initialValue, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    ctor @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public AnchoredDraggableState(T initialValue, androidx.compose.foundation.gestures.DraggableAnchors<T> anchors, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    ctor public AnchoredDraggableState(T initialValue, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
     method public suspend Object? anchoredDrag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.AnchoredDragScope,? super androidx.compose.foundation.gestures.DraggableAnchors<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? anchoredDrag(T targetValue, optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.gestures.AnchoredDragScope,? super androidx.compose.foundation.gestures.DraggableAnchors<T>,? super T,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public androidx.compose.foundation.gestures.DraggableAnchors<T> getAnchors();
     method public T getCurrentValue();
-    method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getDecayAnimationSpec();
+    method @Deprecated public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getDecayAnimationSpec();
     method public float getLastVelocity();
     method public float getOffset();
     method @Deprecated @FloatRange(from=0.0, to=1.0) public float getProgress();
     method public T getSettledValue();
-    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
+    method @Deprecated public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method public T getTargetValue();
     method public boolean isAnimationRunning();
     method @FloatRange(from=0.0, to=1.0) public float progress(T from, T to);
     method public float requireOffset();
-    method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
+    method public suspend Object? settle(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public void updateAnchors(androidx.compose.foundation.gestures.DraggableAnchors<T> newAnchors, optional T newTarget);
     property public final androidx.compose.foundation.gestures.DraggableAnchors<T> anchors;
     property public final T currentValue;
-    property public final androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec;
+    property @Deprecated public final androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec;
     property public final boolean isAnimationRunning;
     property public final float lastVelocity;
     property public final float offset;
     property @Deprecated @FloatRange(from=0.0, to=1.0) public final float progress;
     property public final T settledValue;
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
+    property @Deprecated public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property public final T targetValue;
     field public static final androidx.compose.foundation.gestures.AnchoredDraggableState.Companion Companion;
+    field @Deprecated public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec;
+    field @Deprecated public androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
   }
 
   public static final class AnchoredDraggableState.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.gestures.AnchoredDraggableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.gestures.AnchoredDraggableState<T>,T> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, kotlin.jvm.functions.Function0<java.lang.Float> velocityThreshold, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public <T> androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.gestures.AnchoredDraggableState<T>,T> Saver(optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmValueChange);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BringIntoViewSpec {

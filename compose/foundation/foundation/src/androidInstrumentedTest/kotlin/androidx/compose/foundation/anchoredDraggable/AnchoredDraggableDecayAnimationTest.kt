@@ -20,7 +20,6 @@ import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.runtime.getValue
@@ -29,7 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.createParameterizedComposeTestRule
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
@@ -40,13 +38,15 @@ import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalFoundationApi::class)
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @LargeTest
-class AnchoredDraggableDecayAnimationTest {
+class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
+    AnchoredDraggableBackwardsCompatibleTest(testNewBehavior) {
 
-    @get:Rule val rule = createParameterizedComposeTestRule<Params>()
+    @get:Rule val parameterizedRule = createParameterizedComposeTestRule<Params>()
 
     private val AllAnchorConfigurations =
         listOf(
@@ -67,23 +67,24 @@ class AnchoredDraggableDecayAnimationTest {
     @Test
     fun anchoredDraggable_animateToWithDecay() {
         lateinit var scope: CoroutineScope
-        rule.setContent { scope = rememberCoroutineScope() }
-        rule.forEachParameter(AllAnchorConfigurations) { parameters ->
+        parameterizedRule.setContent { scope = rememberCoroutineScope() }
+        parameterizedRule.forEachParameter(AllAnchorConfigurations) { parameters ->
             val offsets = mutableListOf<Float>()
             val decaySpec =
                 createFakeDecayAnimationSpec(
                     from = parameters.from,
                     to = parameters.to + parameters.directionalOvershoot
                 )
+            val generatedSpec = decaySpec.generateDecayAnimationSpec<Float>()
             val state by
                 mutableStateOf(
-                    AnchoredDraggableState(
+                    createAnchoredDraggableState(
                         initialValue = parameters.anchors.closestAnchor(parameters.from)!!,
                         positionalThreshold = defaultPositionalThreshold,
                         velocityThreshold = defaultVelocityThreshold,
-                        snapAnimationSpec = defaultAnimationSpec,
-                        decayAnimationSpec = decaySpec.generateDecayAnimationSpec(),
-                        anchors = parameters.anchors
+                        anchors = parameters.anchors,
+                        decayAnimationSpec = generatedSpec,
+                        snapAnimationSpec = defaultAnimationSpec
                     )
                 )
 
@@ -97,10 +98,14 @@ class AnchoredDraggableDecayAnimationTest {
             scope.launch {
                 state.animateToWithDecay(
                     targetValue = state.anchors.closestAnchor(parameters.to)!!,
-                    velocity = defaultVelocityThreshold() * 10f * parameters.direction
+                    velocity = defaultVelocityThreshold() * 10f * parameters.direction,
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = generatedSpec
                 )
             }
-            rule.waitForIdle()
+            parameterizedRule.mainClock.advanceTimeUntil {
+                offsets.size == decaySpec.values.toTypedArray().size
+            }
 
             assertThat(offsets).containsExactlyElementsIn(decaySpec.values.toTypedArray())
             assertThat(state.offset).isEqualTo(parameters.to)
@@ -113,7 +118,9 @@ class AnchoredDraggableDecayAnimationTest {
     private val defaultPositionalThreshold: (totalDistance: Float) -> Float = {
         with(rule.density) { 56.dp.toPx() }
     }
-    private val defaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
+    private val defaultVelocityThreshold: () -> Float = {
+        with(parameterizedRule.density) { 125.dp.toPx() }
+    }
     private val defaultAnimationSpec = tween<Float>()
 
     /**
@@ -137,6 +144,12 @@ class AnchoredDraggableDecayAnimationTest {
     enum class ParameterizedTestAnchorValue {
         Start,
         End
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "testNewBehavior={0}")
+        fun params() = listOf(false, true)
     }
 }
 
