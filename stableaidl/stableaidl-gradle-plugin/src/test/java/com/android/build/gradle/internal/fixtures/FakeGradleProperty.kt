@@ -112,10 +112,6 @@ class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
         throw NotImplementedError()
     }
 
-    override fun replace(transformation: Transformer<out Provider<out T>?, in Provider<T>>) {
-        throw NotImplementedError()
-    }
-
     @Deprecated("Deprecated in Java")
     override fun forUseAtConfigurationTime(): Provider<T> {
         throw NotImplementedError()
