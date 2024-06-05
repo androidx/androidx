@@ -14,6 +14,9 @@ final class androidx.sqlite.driver/NativeSQLiteConnection : androidx.sqlite/SQLi
 final class androidx.sqlite.driver/NativeSQLiteDriver : androidx.sqlite/SQLiteDriver { // androidx.sqlite.driver/NativeSQLiteDriver|null[0]
     constructor <init>() // androidx.sqlite.driver/NativeSQLiteDriver.<init>|<init>(){}[0]
     final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite.driver/NativeSQLiteDriver.open|open(kotlin.String){}[0]
+    final fun open(kotlin/String, kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.sqlite.driver/NativeSQLiteDriver.open|open(kotlin.String;kotlin.Int){}[0]
+    final val threadingMode // androidx.sqlite.driver/NativeSQLiteDriver.threadingMode|{}threadingMode[0]
+        final fun <get-threadingMode>(): kotlin/Int // androidx.sqlite.driver/NativeSQLiteDriver.threadingMode.<get-threadingMode>|<get-threadingMode>(){}[0]
 }
 final class androidx.sqlite.driver/NativeSQLiteStatement : androidx.sqlite/SQLiteStatement { // androidx.sqlite.driver/NativeSQLiteStatement|null[0]
     constructor <init>(kotlinx.cinterop/CPointer<cnames.structs/sqlite3>, kotlinx.cinterop/CPointer<cnames.structs/sqlite3_stmt>) // androidx.sqlite.driver/NativeSQLiteStatement.<init>|<init>(kotlinx.cinterop.CPointer<cnames.structs.sqlite3>;kotlinx.cinterop.CPointer<cnames.structs.sqlite3_stmt>){}[0]
@@ -33,4 +36,7 @@ final class androidx.sqlite.driver/NativeSQLiteStatement : androidx.sqlite/SQLit
     final fun isNull(kotlin/Int): kotlin/Boolean // androidx.sqlite.driver/NativeSQLiteStatement.isNull|isNull(kotlin.Int){}[0]
     final fun reset() // androidx.sqlite.driver/NativeSQLiteStatement.reset|reset(){}[0]
     final fun step(): kotlin/Boolean // androidx.sqlite.driver/NativeSQLiteStatement.step|step(){}[0]
+}
+open annotation class androidx.sqlite.driver/OpenFlag : kotlin/Annotation { // androidx.sqlite.driver/OpenFlag|null[0]
+    constructor <init>() // androidx.sqlite.driver/OpenFlag.<init>|<init>(){}[0]
 }
