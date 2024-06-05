@@ -59,6 +59,7 @@ import android.graphics.Paint.Cap;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Looper;
@@ -172,6 +173,8 @@ import androidx.wear.protolayout.proto.ModifiersProto;
 import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
 import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
+import androidx.wear.protolayout.proto.ModifiersProto.Corner;
+import androidx.wear.protolayout.proto.ModifiersProto.CornerRadius;
 import androidx.wear.protolayout.proto.ModifiersProto.EnterTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.FadeInTransition;
@@ -5477,6 +5480,73 @@ public class ProtoLayoutInflaterTest {
         ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
         // The text inside the ArcAdapter is skipped
         assertThat(arcLayout.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void inflate_boxWithFourAsymmetricalCorners() {
+        float[] rValues = new float[]{1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
+        Box.Builder boxBuilder = Box.newBuilder()
+                .setWidth(expand())
+                .setHeight(expand())
+                .setModifiers(Modifiers.newBuilder()
+                        .setBackground(
+                                ModifiersProto.Background.newBuilder()
+                                        .setCorner(
+                                                Corner.newBuilder()
+                                                        .setTopLeftRadius(
+                                                                CornerRadius.newBuilder()
+                                                                        .setX(dp(rValues[0]))
+                                                                        .setY(dp(rValues[1])))
+                                                        .setTopRightRadius(
+                                                                CornerRadius.newBuilder()
+                                                                        .setX(dp(rValues[2]))
+                                                                        .setY(dp(rValues[3])))
+                                                        .setBottomRightRadius(
+                                                                CornerRadius.newBuilder()
+                                                                        .setX(dp(rValues[4]))
+                                                                        .setY(dp(rValues[5])))
+                                                        .setBottomLeftRadius(
+                                                                CornerRadius.newBuilder()
+                                                                        .setX(dp(rValues[6]))
+                                                                        .setY(dp(rValues[7])))
+                                                        .build()))
+                        .build());
+        LayoutElement root = LayoutElement.newBuilder().setBox(boxBuilder).build();
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        Drawable background = box.getBackground();
+        assertThat(background).isInstanceOf(GradientDrawable.class);
+        float[] radii = ((GradientDrawable) background).getCornerRadii();
+        assertThat(Arrays.equals(radii, rValues)).isTrue();
+    }
+
+    @Test
+    public void inflate_boxWithOneAsymmetricalCorner() {
+        float[] rValues = new float[]{1f, 1f, 3f, 4f, 1f, 1f, 1f, 1f};
+        Box.Builder boxBuilder = Box.newBuilder()
+                .setWidth(expand())
+                .setHeight(expand())
+                .setModifiers(Modifiers.newBuilder()
+                        .setBackground(
+                                ModifiersProto.Background.newBuilder()
+                                        .setCorner(
+                                                Corner.newBuilder()
+                                                        .setRadius(dp(rValues[0]))
+                                                        .setTopRightRadius(
+                                                                CornerRadius.newBuilder()
+                                                                        .setX(dp(rValues[2]))
+                                                                        .setY(dp(rValues[3])))
+                                                        .build()))
+                        .build());
+        LayoutElement root = LayoutElement.newBuilder().setBox(boxBuilder).build();
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        Drawable background = box.getBackground();
+        assertThat(background).isInstanceOf(GradientDrawable.class);
+        float[] radii = ((GradientDrawable) background).getCornerRadii();
+        assertThat(Arrays.equals(radii, rValues)).isTrue();
     }
 
     @Test
