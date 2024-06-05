@@ -67,6 +67,7 @@ androidXMultiplatform {
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 api(libs.kotlinCoroutinesTest)
             }

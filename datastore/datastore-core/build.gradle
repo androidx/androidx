@@ -104,7 +104,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
-                api(project(":datastore:datastore-core-okio"))
+                implementation(project(":datastore:datastore-core-okio"))
                 implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
