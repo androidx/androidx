@@ -32,4 +32,8 @@
         <attr name="actionModeCopyDrawable" />
         <attr name="actionModePasteDrawable" />
     </declare-styleable>
+
+    <declare-styleable name="FindInFile">
+        <attr name="customColor" format="color" />
+    </declare-styleable>
 </resources>

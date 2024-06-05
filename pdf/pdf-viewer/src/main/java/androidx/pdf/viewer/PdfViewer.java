@@ -16,9 +16,13 @@
 
 package androidx.pdf.viewer;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -31,28 +35,40 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.pdf.R;
 import androidx.pdf.data.DisplayData;
+import androidx.pdf.data.ErrorType;
 import androidx.pdf.data.FutureValue;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
 import androidx.pdf.data.Openable;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
 import androidx.pdf.fetcher.Fetcher;
+import androidx.pdf.find.FindInFileListener;
+import androidx.pdf.find.FindInFileView;
+import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
 import androidx.pdf.models.SelectionBoundary;
+import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ExternalLinks;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.util.GestureTracker.GestureHandler;
+import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.ProjectorContext;
@@ -76,6 +92,8 @@ import androidx.pdf.widget.ZoomView.InitialZoomMode;
 import androidx.pdf.widget.ZoomView.RotateMode;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.ArrayList;
@@ -130,6 +148,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private static final String KEY_SPACE_RIGHT = "rightSpace";
     private static final String KEY_QUIT_ON_ERROR = "quitOnError";
     private static final String KEY_EXIT_ON_CANCEL = "exitOnCancel";
+    private static final String ACTION_ANNOTATE_PDF = "android.intent.action.ANNOTATE";
+    private static final String PDF_MIME_TYPE = "application/pdf";
 
     /** Key to save/retrieve {@link #mEditingAuthorized} from Bundle. */
     private static final String KEY_EDITING_AUTHORIZED = "editingAuthorized";
@@ -205,12 +225,18 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     // Base padding for ZoomView in px as set in saveZoomViewBasePadding().
     private Rect mZoomViewBasePadding = new Rect();
     private boolean mZoomViewBasePaddingSaved;
-
+    private Snackbar mSnackbar;
     private boolean mWaitingOnSelectionToCreateInlineComment;
     private boolean mEditingAuthorized;
 
     /** Only interact with Queue on the main thread. */
     private final List<OnDimensCallback> mDimensCallbackQueue = new ArrayList<>();
+    private Uri mLocalUri;
+    private FrameLayout mPdfViewer;
+
+    private FindInFileView mFindInFileView;
+
+    private FloatingActionButton mAnnotationButton;
 
     /** Callback is called everytime dimensions for a page have loaded. */
     private interface OnDimensCallback {
@@ -258,7 +284,11 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
         mPaginationModel = new PaginationModel();
-        mFastScrollView = (FastScrollView) inflater.inflate(R.layout.file_viewer_pdf, null);
+
+        mPdfViewer = (FrameLayout) inflater.inflate(R.layout.pdf_viewer_container, container,
+                false);
+        mFindInFileView = mPdfViewer.findViewById(R.id.search);
+        mFastScrollView = mPdfViewer.findViewById(R.id.fast_scroll_view);
 
         mZoomView = mFastScrollView.findViewById(R.id.zoom_view);
         mZoomView.setStraightenVerticalScroll(true);
@@ -290,7 +320,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mFastScrollView.setScrollable(this);
         mFastScrollView.setId(getId() * 10);
-        return mFastScrollView;
+
+        setUpEditFab();
+
+        return mPdfViewer;
     }
 
     private void applyReservedSpace() {
@@ -489,6 +522,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mSnackbar != null) {
+            mSnackbar.dismiss();
+        }
         if (mFastscrollerPositionObserverKey != null && mFastScrollView != null) {
             mFastScrollView.getScrollerPositionY().removeObserver(mFastscrollerPositionObserverKey);
         }
@@ -540,6 +576,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         }
 
         fetchFile(fileUri);
+        mLocalUri = fileUri;
     }
 
     private void validateFileUri(Uri fileUri) {
@@ -615,7 +652,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         Preconditions.checkNotNull(contents);
 
         setQuitOnError(true);
-        setExitOnPasswordCancel(true);
+        setExitOnPasswordCancel(false);
         feed(contents);
         postEnter();
     }
@@ -935,6 +972,16 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                 computeImportantRange(position), position.zoom, position.stable)) {
                             showFastScrollView();
                         }
+
+                        if (showEditFab()) {
+                            if (position.scrollY > 0) {
+                                mAnnotationButton.setVisibility(View.GONE);
+                            } else if (position.scrollY == 0
+                                    && mAnnotationButton.getVisibility() == View.GONE
+                                    && mFindInFileView.getVisibility() == View.GONE) {
+                                mAnnotationButton.setVisibility(View.VISIBLE);
+                            }
+                        }
                     }
 
                     @Override
@@ -1030,6 +1077,42 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 };
     }
 
+    private FindInFileListener makeFindInFileListener() {
+        return new FindInFileListener() {
+            @Override
+            public boolean onQueryTextChange(@Nullable String query) {
+                if (mSearchModel != null) {
+                    mSearchModel.setQuery(query, getViewingPage());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onFindNextMatch(String query, boolean backwards) {
+                if (mSearchModel != null) {
+                    CycleRange.Direction direction;
+                    if (backwards) {
+                        direction = CycleRange.Direction.BACKWARDS;
+                        // TODO: Track "find previous" action event.
+                    } else {
+                        direction = CycleRange.Direction.FORWARDS;
+                        // TODO: Track "find next" action event.
+                    }
+                    mSearchModel.selectNextMatch(direction, getViewingPage());
+                    return true;
+                }
+                return false;
+            }
+
+            @Nullable
+            @Override
+            public ObservableValue<MatchCount> matchCount() {
+                return mSearchModel != null ? mSearchModel.matchCount() : null;
+            }
+        };
+    }
+
     /** Gesture listener for PageView's handling of tap and long press. */
     private class PageTouchListener extends GestureHandler {
 
@@ -1067,6 +1150,14 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
          * statements.
          */
         private boolean handleSingleTapNoFormFilling(MotionEvent e) {
+            if (showEditFab()) {
+                if (mAnnotationButton.getVisibility() == View.GONE
+                        && mFindInFileView.getVisibility() == GONE) {
+                    mAnnotationButton.setVisibility(View.VISIBLE);
+                } else {
+                    mAnnotationButton.setVisibility(View.GONE);
+                }
+            }
             boolean hadSelection =
                     mSelectionModel != null && mSelectionModel.selection().get() != null;
             if (hadSelection) {
@@ -1119,11 +1210,57 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     { // Init pdfLoaderCallbacks
         mPdfLoaderCallbacks =
                 new PdfLoaderCallbacks() {
+                    static final String PASSWORD_DIALOG_TAG = "password-dialog";
+
+                    @Nullable
+                    private PdfPasswordDialog currentPasswordDialog(@Nullable FragmentManager fm) {
+                        if (fm != null) {
+                            Fragment passwordDialog = fm.findFragmentByTag(PASSWORD_DIALOG_TAG);
+                            if (passwordDialog instanceof PdfPasswordDialog) {
+                                return (PdfPasswordDialog) passwordDialog;
+                            }
+                        }
+                        return null;
+                    }
+
                     // Callbacks should exit early if viewState == NO_VIEW (typically a Destroy
                     // is in progress).
                     @Override
                     public void requestPassword(boolean incorrect) {
-                        throw new UnsupportedOperationException("TODO: PDF Password");
+                        mIsPasswordProtected = true;
+
+                        if (!isShowing()) {
+                            // This would happen if the service decides to start while we're in
+                            // the background.
+                            // The dialog code below would then crash. We can't just bypass it
+                            // because then we'd
+                            // have
+                            // a started service with no loaded PDF and no means to load it. The
+                            // best way is to
+                            // just
+                            // kill the service which will restart on the next onStart.
+                            if (mPdfLoader != null) {
+                                mPdfLoader.disconnect();
+                            }
+                            return;
+                        }
+
+                        if (viewState().get() != ViewState.NO_VIEW) {
+                            FragmentManager fm = requireActivity().getSupportFragmentManager();
+
+                            PdfPasswordDialog passwordDialog = currentPasswordDialog(fm);
+                            if (passwordDialog == null) {
+                                passwordDialog = new PdfPasswordDialog();
+                                passwordDialog.setTargetFragment(PdfViewer.this, 0);
+                                passwordDialog.setFinishOnCancel(
+                                        getArguments().getBoolean(KEY_EXIT_ON_CANCEL));
+                                passwordDialog.show(fm, PASSWORD_DIALOG_TAG);
+                            }
+
+                            if (incorrect) {
+                                passwordDialog.retry();
+                            }
+                        }
                     }
 
                     @Override
@@ -1142,6 +1279,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                             mPaginatedView.setModel(mPaginationModel);
                             mPaginationModel.addObserver(mPaginatedView);
 
+                            dismissPasswordDialog();
                             maybeLayoutPages(1);
                             mPageIndicator.setNumPages(numPages);
                             mSearchModel.setNumPages(numPages);
@@ -1150,11 +1288,16 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         if (mShouldRedrawOnDocumentLoaded) {
                             mShouldRedrawOnDocumentLoaded = false;
                         }
+
+                        if (showEditFab()) {
+                            mAnnotationButton.setVisibility(VISIBLE);
+                        }
                     }
 
                     @Override
                     public void documentNotLoaded(PdfStatus status) {
                         if (viewState().get() != ViewState.NO_VIEW) {
+                            dismissPasswordDialog();
                             if (getArguments().getBoolean(KEY_QUIT_ON_ERROR)) {
                                 getActivity().finish();
                             }
@@ -1190,6 +1333,15 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                     .setFailure(getString(R.string.error_on_page, page + 1));
                             Toaster.LONG.popToast(getActivity(), R.string.error_on_page, page + 1);
                             // TODO: Track render error.
+                        }
+                    }
+
+                    private void dismissPasswordDialog() {
+                        DialogFragment passwordDialog = currentPasswordDialog(
+                                requireActivity().getSupportFragmentManager());
+                        if (passwordDialog != null
+                                && PdfViewer.this.equals(passwordDialog.getTargetFragment())) {
+                            passwordDialog.dismiss();
                         }
                     }
 
@@ -1385,12 +1537,95 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Create callback to retry password input when user cancels password prompt. */
     public void setPasswordCancelError() {
+        Runnable retryCallback = () -> mPdfLoaderCallbacks.requestPassword(false);
+        displayViewerError(ErrorType.FILE_PASSWORD_PROTECTED, this, retryCallback);
+    }
 
+    private void displayViewerError(ErrorType errorType, Viewer viewer, Runnable actionCallback) {
+        switch (errorType) {
+            case FILE_PASSWORD_PROTECTED:
+                showSnackBar(R.string.password_not_entered, R.string.retry_button_text,
+                        actionCallback);
+                return;
+            default:
+                break;
+        }
+
+    }
+
+    private void showSnackBar(int text, int actionText, Runnable actionCallback) {
+        mSnackbar = Snackbar.make(mPdfViewer, text, Snackbar.LENGTH_INDEFINITE);
+        View.OnClickListener mResolveClickListener =
+                v -> {
+                    actionCallback.run();
+                };
+        mSnackbar.setAction(actionText, mResolveClickListener);
+        mSnackbar.show();
     }
 
     private void showFastScrollView() {
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
+    }
+
+    /**
+     * Set up the find in file menu.
+     * @param visibility
+     */
+    public void setFindInFileView(boolean visibility) {
+        if (visibility) {
+            mFindInFileView.setVisibility(VISIBLE);
+            setupFindInFileBtn();
+        } else {
+            mFindInFileView.setVisibility(GONE);
+        }
+    }
+
+    private void setupFindInFileBtn() {
+        mFindInFileView.setFindInFileListener(this.makeFindInFileListener());
+        mFindInFileView.queryBoxRequestFocus();
+
+        TextView queryBox = mFindInFileView.findViewById(R.id.find_query_box);
+        ImageView close_button = mFindInFileView.findViewById(R.id.close_btn);
+        close_button.setOnClickListener(view -> {
+            View parentLayout = (View) close_button.getParent();
+            queryBox.clearFocus();
+            queryBox.setText("");
+            parentLayout.setVisibility(GONE);
+            if (showEditFab()) {
+                mAnnotationButton.setVisibility(VISIBLE);
+            }
+        });
+    }
+
+    private void setUpEditFab() {
+        mAnnotationButton = mPdfViewer.findViewById(R.id.edit_fab);
+        mAnnotationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performEdit();
+            }
+        });
+
+    }
+
+    private void performEdit() {
+        Intent intent = getAnnotationIntent();
+        intent.setData(mLocalUri);
+        startActivity(intent);
+    }
+
+    private boolean showEditFab() {
+        Intent intent = getAnnotationIntent();
+        return intent.resolveActivity(getContext().getPackageManager()) != null;
+    }
+
+    private Intent getAnnotationIntent() {
+        Intent intent = new Intent(ACTION_ANNOTATE_PDF);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(mLocalUri, PDF_MIME_TYPE);
+        return intent;
     }
 }
