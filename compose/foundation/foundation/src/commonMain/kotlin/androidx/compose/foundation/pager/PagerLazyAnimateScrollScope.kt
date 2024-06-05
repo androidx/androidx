@@ -19,7 +19,6 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
-import androidx.compose.ui.util.fastFirstOrNull
 
 /**
  * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager]. The
@@ -48,21 +47,12 @@ internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateSc
         }
 
         override fun calculateDistanceTo(targetIndex: Int): Float {
-            val visibleItem =
-                state.layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == targetIndex }
-            return if (visibleItem == null) {
-                (targetIndex - state.currentPage) * visibleItemsAverageSize.toFloat() -
-                    state.currentPageOffsetFraction * state.pageSizeWithSpacing
-            } else {
-                (visibleItem.offset).toFloat()
-            }
+            return (targetIndex - state.currentPage) * state.pageSizeWithSpacing -
+                state.currentPageOffsetFraction * state.pageSizeWithSpacing
         }
 
         override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {
             state.scroll(block = block)
         }
-
-        private val visibleItemsAverageSize: Int
-            get() = state.pageSize + state.pageSpacing
     }
 }

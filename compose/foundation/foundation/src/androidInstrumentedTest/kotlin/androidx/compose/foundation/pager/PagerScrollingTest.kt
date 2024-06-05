@@ -721,6 +721,80 @@ class PagerScrollingTest : SingleParamBasePagerTest() {
         }
 
     @Test
+    fun swipeWithHighVelocity_overHalfPage_customPageSize_shouldGoToNextPage() =
+        with(rule) {
+            // Arrange
+            setContent {
+                ParameterizedPager(
+                    initialPage = 5,
+                    modifier = Modifier.fillMaxSize(),
+                    orientation = it.orientation,
+                    pageSpacing = it.pageSpacing,
+                    contentPadding = it.mainAxisContentPadding,
+                    snapPosition = it.snapPosition.first,
+                    pageSize = PageSize.Fixed(200.dp)
+                )
+            }
+
+            val ParamsToTest =
+                mutableListOf<SingleParamConfig>().apply {
+                    for (orientation in TestOrientation) {
+                        for (pageSpacing in TestPageSpacing) {
+                            for (contentPadding in testContentPaddings(orientation)) {
+                                for (snapPosition in TestSnapPosition) {
+                                    add(
+                                        SingleParamConfig(
+                                            orientation = orientation,
+                                            pageSpacing = pageSpacing,
+                                            mainAxisContentPadding = contentPadding,
+                                            snapPosition = snapPosition
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+            forEachParameter(ParamsToTest) { param ->
+                // make sure the scroll distance is enough to go to next page
+                val delta = pageSize * 0.8f * param.scrollForwardSign
+
+                // Act - forward
+                runAndWaitForPageSettling {
+                    onPager().performTouchInput {
+                        with(param) {
+                            swipeWithVelocityAcrossMainAxis(1.1f * MinFlingVelocityDp.toPx(), delta)
+                        }
+                    }
+                }
+
+                // Assert
+                onNodeWithTag("6").assertIsDisplayed()
+                assertThat(pagerState.currentPage).isEqualTo(6)
+                assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(0.0f)
+
+                // Act - backward
+                runAndWaitForPageSettling {
+                    onPager().performTouchInput {
+                        with(param) {
+                            swipeWithVelocityAcrossMainAxis(
+                                1.1f * MinFlingVelocityDp.toPx(),
+                                delta * -1
+                            )
+                        }
+                    }
+                }
+
+                // Assert
+                onNodeWithTag("5").assertIsDisplayed()
+                assertThat(pagerState.currentPage).isEqualTo(5)
+                assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(0.0f)
+                resetTestCase(5)
+            }
+        }
+
+    @Test
     fun scrollWithoutVelocity_shouldSettlingInClosestPage() =
         with(rule) {
             // Arrange
