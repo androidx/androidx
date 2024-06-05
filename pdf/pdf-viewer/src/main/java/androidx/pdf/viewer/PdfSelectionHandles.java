@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.models.PageSelection;
@@ -42,7 +43,8 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
     private SelectionBoundary mDragging;
 
     public PdfSelectionHandles(
-            PdfSelectionModel selectionModel, ZoomView zoomView, PaginatedView pdfView) {
+            @NonNull PdfSelectionModel selectionModel, @NonNull ZoomView zoomView,
+            @NonNull PaginatedView pdfView) {
         super(
                 zoomView, (ViewGroup) zoomView.findViewById(R.id.zoomed_view),
                 selectionModel.selection());

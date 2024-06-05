@@ -40,7 +40,7 @@ public interface Openable extends Parcelable {
 
     /** Open this data and return an object that allows reading it. */
     @NonNull
-    Open openWith(Opener opener) throws IOException;
+    Open openWith(@NonNull Opener opener) throws IOException;
 
     /** Returns the length of the data in bytes (pre-connection, so might be an estimate). */
     long length();
@@ -58,6 +58,7 @@ public interface Openable extends Parcelable {
          * <br>
          * Callers take ownership of the returned InputStream and are responsible for closing it.
          */
+        @NonNull
         InputStream getInputStream() throws IOException;
 
         /**
@@ -67,12 +68,14 @@ public interface Openable extends Parcelable {
          * closing
          * it.
          */
+        @NonNull
         ParcelFileDescriptor getFd() throws IOException;
 
         /** Returns the declared length of the data. */
         long length();
 
         /** Returns the declared content-type of the data. */
+        @NonNull
         String getContentType();
     }
 }

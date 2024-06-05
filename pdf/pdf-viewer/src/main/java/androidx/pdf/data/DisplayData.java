@@ -63,14 +63,17 @@ public class DisplayData {
         this.mOpenable = Preconditions.checkNotNull(openable);
     }
 
+    @NonNull
     public Uri getUri() {
         return mUri;
     }
 
+    @NonNull
     public String getName() {
         return mName;
     }
 
+    @NonNull
     public Openable getOpenable() {
         return mOpenable;
     }

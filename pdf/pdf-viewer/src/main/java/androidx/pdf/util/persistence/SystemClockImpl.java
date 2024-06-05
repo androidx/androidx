@@ -16,8 +16,6 @@
 
 package androidx.pdf.util.persistence;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.annotation.RestrictTo;
@@ -67,38 +65,11 @@ public final class SystemClockImpl implements Clock {
     // This actually *reduces* the number of classes in an optimized build by allowing
     // Clock+SystemClockImpl to be removed.
     private static final class ElapsedRealtimeNanosImpl {
-        /** Number of nanoseconds in a single millisecond. */
-        private static final long NS_IN_MS = 1_000_000L;
 
-        private static final boolean ELAPSED_REALTIME_NANOS_EXISTS = elapsedRealtimeNanosExists();
-
-        @TargetApi(17) // Guarded by elapsedRealtimeNanosExists()
         static long elapsedRealtimeNanos() {
-            return ELAPSED_REALTIME_NANOS_EXISTS
-                    ? SystemClock.elapsedRealtimeNanos()
-                    // Note: this multiplication overflows after ~292 years of uptime, which is
-                    // probably fine?
-                    : SystemClock.elapsedRealtime() * NS_IN_MS;
+            return SystemClock.elapsedRealtimeNanos();
         }
 
-        private static boolean elapsedRealtimeNanosExists() {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    long unused = SystemClock.elapsedRealtimeNanos();
-                    return true;
-                }
-            } catch (Throwable ignored) {
-                // Some vendors have a SystemClock that doesn't contain elapsedRealtimeNanos()
-                // even though
-                // the SDK should contain it. Also if a test is running Android code but isn't an
-                // android
-                // test or Robolectric test, we don't want to throw here.
-            }
-            return false;
-        }
-
-        private ElapsedRealtimeNanosImpl() {
-        }
     }
 }
 

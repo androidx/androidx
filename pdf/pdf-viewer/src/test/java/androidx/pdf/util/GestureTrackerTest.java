@@ -100,12 +100,12 @@ public class GestureTrackerTest {
 
         assertThat(mGestureTracker.matches(Gesture.FIRST_TAP)).isTrue();
 
-        ThreadUtils.postOnUiThreadDelayed(new Runnable() {
+        ThreadUtils.postOnUiThreadDelayed(TAP_TIMEOUT, new Runnable() {
             @Override
             public void run() {
                 verifySingleTapDelayed();
             }
-        }, TAP_TIMEOUT);
+        });
     }
 
     private void verifySingleTapDelayed() {

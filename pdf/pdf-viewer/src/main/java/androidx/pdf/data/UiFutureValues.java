@@ -18,6 +18,7 @@ package androidx.pdf.data;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.pdf.data.FutureValue.Callback;
@@ -85,6 +86,7 @@ public class UiFutureValues {
      *              {@link
      *              Callback#failed(Throwable)} to be called instead.
      */
+    @NonNull
     public static <T> FutureValue<T> immediateValue(final T value) {
         return callback -> ThreadUtils.runOnUiThread(() -> callback.available(value));
     }
@@ -97,7 +99,8 @@ public class UiFutureValues {
      *
      * @param error the exception to be delivered on fail.
      */
-    public static <T> FutureValue<T> immediateFail(final Exception error) {
+    @NonNull
+    public static <T> FutureValue<T> immediateFail(final @NonNull Exception error) {
         return callback -> ThreadUtils.runOnUiThread(() -> callback.failed(error));
     }
 
@@ -108,8 +111,9 @@ public class UiFutureValues {
     }
 
     /** Wraps up a {@link Supplier} to supply a converted value. */
-    public static <F, T> Supplier<T> postConvert(final Supplier<F> supplier,
-            final Converter<F, T> converter) {
+    @NonNull
+    public static <F, T> Supplier<T> postConvert(final @NonNull Supplier<F> supplier,
+            final @NonNull Converter<F, T> converter) {
         return new Supplier<T>() {
 
             @Override
@@ -123,7 +127,8 @@ public class UiFutureValues {
      * Calls through to {@link #execute(Supplier)} in order to disambigute it from {@link
      * #execute(FutureValue)}.
      */
-    public static <T> FutureValue<T> executeAsync(Supplier<T> supplier) {
+    @NonNull
+    public static <T> FutureValue<T> executeAsync(@NonNull Supplier<T> supplier) {
         return execute(supplier);
     }
 
@@ -133,8 +138,9 @@ public class UiFutureValues {
      *
      * @return The value to be supplied at some point in the future.
      */
+    @NonNull
     @SuppressWarnings("deprecation")
-    public static <T> FutureValue<T> execute(Supplier<T> supplier) {
+    public static <T> FutureValue<T> execute(@NonNull Supplier<T> supplier) {
         SettableFutureValue<T> future = FutureValues.newSettableValue();
         new FutureAsyncTask<>(supplier, future).executeOnExecutor(sExecutor);
         return future;
@@ -147,9 +153,10 @@ public class UiFutureValues {
      *
      * @return a {@link FutureValue} that reports progress and result on the main thread.
      */
-    public static <T> FutureValue<T> execute(final FutureValue<T> sourceFuture) {
+    @NonNull
+    public static <T> FutureValue<T> execute(final @NonNull FutureValue<T> sourceFuture) {
         final SettableFutureValue<T> future = FutureValues.newSettableValue();
-        sExecutor.execute(() -> pipe(sourceFuture, future));
+        sExecutor.execute(() -> pipe(future, sourceFuture));
         return future;
     }
 
@@ -157,7 +164,8 @@ public class UiFutureValues {
      * Pipes the results of one {@link FutureValue} into a {@link SettableFutureValue}, making sure
      * each callback call is run on the UI thread.
      */
-    public static <T> void pipe(FutureValue<T> sourceFuture, SettableFutureValue<T> targetFuture) {
+    public static <T> void pipe(@NonNull SettableFutureValue<T> targetFuture,
+            @NonNull FutureValue<T> sourceFuture) {
         FutureValue.Callback<T> pipeCallback = runOnUi(FutureValues.setterCallback(targetFuture));
         sourceFuture.get(pipeCallback);
     }
@@ -206,8 +214,8 @@ public class UiFutureValues {
      * result
      * into another destination {@link SettableFutureValue}.
      */
-    public static <F, T> void convert(FutureValue<F> sourceFuture, Converter<F, T> converter,
-            final SettableFutureValue<T> destFuture) {
+    public static <F, T> void convert(@NonNull FutureValue<F> sourceFuture,
+            final @NonNull SettableFutureValue<T> destFuture, @NonNull Converter<F, T> converter) {
         FutureValue<T> convertedValue = FutureValues.convert(sourceFuture, converter);
 
         convertedValue.get(new FutureValue.Callback<T>() {

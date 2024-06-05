@@ -16,6 +16,7 @@
 
 package androidx.pdf.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 
@@ -27,5 +28,5 @@ public interface ZoomScrollRestorer {
     /**
      *
      */
-    void attemptRestorePosition(ZoomScroll position);
+    void attemptRestorePosition(@NonNull ZoomScroll position);
 }

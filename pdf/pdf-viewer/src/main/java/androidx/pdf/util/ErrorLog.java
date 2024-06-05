@@ -19,6 +19,7 @@ package androidx.pdf.util;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -40,12 +41,12 @@ public class ErrorLog {
     }
 
     /** Logs and tracks the error message. */
-    public static void log(String tag, String message) {
+    public static void log(@NonNull String tag, @NonNull String message) {
         Log.e(tag, message);
     }
 
     /** Logs and tracks the error message. The 'details' arg is only used locally. */
-    public static void log(String tag, String message, String details) {
+    public static void log(@NonNull String tag, @NonNull String message, @NonNull String details) {
         Log.e(tag, message + " " + details);
     }
 
@@ -53,12 +54,13 @@ public class ErrorLog {
      * Logs and tracks the exception (tracks only the exception name). Doesn't re-throw the
      * exception.
      */
-    public static void log(String tag, String method, Throwable e) {
+    public static void log(@NonNull String tag, @NonNull String method, @NonNull Throwable e) {
         Log.e(tag, method, e);
     }
 
     /** Logs and tracks the exception. If running a dev build, re-throws the exception. */
-    public static void logAndThrow(String tag, String method, Throwable e) {
+    public static void logAndThrow(@NonNull String tag, @NonNull String method,
+            @NonNull Throwable e) {
         log(tag, method, e);
         if (isDebuggable()) {
             Log.e(tag, "In method " + method + ": ", e);
@@ -67,7 +69,8 @@ public class ErrorLog {
     }
 
     /** Logs and tracks the error message. If running a dev build, throws a runtime exception. */
-    public static void logAndThrow(String tag, String method, String message) {
+    public static void logAndThrow(@NonNull String tag, @NonNull String method,
+            @NonNull String message) {
         Log.e(tag, method + ": " + message);
         if (isDebuggable()) {
             throw new RuntimeException(message);
@@ -82,7 +85,8 @@ public class ErrorLog {
     }
 
     /** Logs and tracks the exception, then rethrows it. */
-    public static void logAndAlwaysThrow(String tag, String method, Throwable e) {
+    public static void logAndAlwaysThrow(@NonNull String tag, @NonNull String method,
+            @NonNull Throwable e) {
         log(tag, method, e);
         throw asRuntimeException(e);
     }
@@ -93,7 +97,8 @@ public class ErrorLog {
      * <p>Checks <code>condition</code> and {@link #logAndThrow} the error message as an {@link
      * IllegalArgumentException} if it is false.
      */
-    public static void checkState(boolean condition, String tag, String method, String message) {
+    public static void checkState(boolean condition, @NonNull String tag, @NonNull String method,
+            @NonNull String message) {
         if (!condition) {
             IllegalArgumentException e = new IllegalArgumentException(message);
             logAndThrow(tag, method, e);
@@ -101,7 +106,7 @@ public class ErrorLog {
     }
 
     /** Convert int value to range. */
-    public static String bracketValue(int value) {
+    public static @NonNull String bracketValue(int value) {
         if (value == 0) {
             return "0";
         } else if (value == 1) {

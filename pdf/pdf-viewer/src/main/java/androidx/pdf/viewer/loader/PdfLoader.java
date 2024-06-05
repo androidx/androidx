@@ -271,7 +271,7 @@ public class PdfLoader {
      * Searches for the given term on the given page - once it is ready, will call the
      * {@link PdfLoaderCallbacks#setSearchResults} callback.
      */
-    public void searchPageText(int pageNum, String query) {
+    public void searchPageText(int pageNum, @NonNull String query) {
         getPageLoader(pageNum).searchPageText(query);
     }
 
@@ -279,7 +279,8 @@ public class PdfLoader {
      * Selects the text between the given two boundaries - once it is ready, will call the
      * the {@link PdfLoaderCallbacks#setSelection} callback.
      */
-    public void selectPageText(int pageNum, SelectionBoundary start, SelectionBoundary stop) {
+    public void selectPageText(int pageNum, @NonNull SelectionBoundary start,
+            @NonNull SelectionBoundary stop) {
         getPageLoader(pageNum).selectPageText(start, stop);
     }
 
@@ -289,6 +290,14 @@ public class PdfLoader {
      */
     public void loadPageUrlLinks(int pageNum) {
         getPageLoader(pageNum).loadPageLinks();
+    }
+
+    /**
+     * Finds all the go-to links on the page - once it is ready, will call the {@link
+     * PdfLoaderCallbacks#setPageGotoLinks} callback.
+     */
+    public void loadPageGotoLinks(int pageNum) {
+        getPageLoader(pageNum).loadPageGotoLinks();
     }
 
     /** Cancels all data requested for every page. */
@@ -301,7 +310,8 @@ public class PdfLoader {
     /**
      * Returns a {@link PdfDocumentRemote} which maybe ready or not (i.e. still initializing).
      */
-    protected PdfDocumentRemote getPdfDocument(String forTask) {
+    @NonNull
+    protected PdfDocumentRemote getPdfDocument(@NonNull String forTask) {
         return mConnection.getPdfDocument(forTask);
     }
 
@@ -314,13 +324,14 @@ public class PdfLoader {
      * currently bound, or it is but still initializing).
      */
     @Nullable
-    protected PdfDocumentRemote getLoadedPdfDocument(String forTask) {
+    protected PdfDocumentRemote getLoadedPdfDocument(@NonNull String forTask) {
         return mConnection.isLoaded() ? mConnection.getPdfDocument(forTask) : null;
     }
 
     // Always returns a non-null callbacks - however the callbacks hold only a weak reference to the
     // PdfViewer, so it can be garbage collected if no longer in use, in which case the callbacks
     // all become no-ops.
+    @NonNull
     protected WeakPdfLoaderCallbacks getCallbacks() {
         return mCallbacks;
     }
@@ -415,6 +426,7 @@ public class PdfLoader {
         @Override
         protected void cleanup() { /* nothing to do. */ }
 
+        @NonNull
         @Override
         public String toString() {
             return "LoadDocumentTask(" + mData + ")";

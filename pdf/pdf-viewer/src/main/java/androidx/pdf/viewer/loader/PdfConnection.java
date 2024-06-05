@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.pdflib.PdfDocumentService;
@@ -66,12 +67,12 @@ public class PdfConnection implements ServiceConnection {
     }
 
     /** Sets a {@link Runnable} to be run as soon as the service is (re-)connected. */
-    public void setOnConnectInitializer(Runnable onConnect) {
+    public void setOnConnectInitializer(@NonNull Runnable onConnect) {
         this.mOnConnect = onConnect;
     }
 
     /** Sets a {@link Runnable} to be run if the service never successfully connects. */
-    public void setConnectionFailureHandler(Runnable onConnectFailure) {
+    public void setConnectionFailureHandler(@NonNull Runnable onConnectFailure) {
         this.mOnConnectFailure = onConnectFailure;
     }
 
@@ -79,7 +80,8 @@ public class PdfConnection implements ServiceConnection {
      * Returns a {@link PdfDocumentRemote} if the service is bound. It could be still initializing
      * (see {@link #setDocumentLoaded}).
      */
-    public PdfDocumentRemote getPdfDocument(String forTask) {
+    @NonNull
+    public PdfDocumentRemote getPdfDocument(@NonNull String forTask) {
         Preconditions.checkState(mCurrentTask == null, "already locked: " + mCurrentTask);
         mCurrentTask = forTask;
         return mPdfRemote;

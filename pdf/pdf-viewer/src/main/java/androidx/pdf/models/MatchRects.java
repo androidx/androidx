@@ -144,6 +144,7 @@ public class MatchRects extends ListOfList<Rect> implements Parcelable {
         return Math.min(size() - 1, -searchResult - 1);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return size() + " matches";

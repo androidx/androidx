@@ -16,6 +16,7 @@
 
 package androidx.pdf.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -45,6 +46,7 @@ public class EnumKeyGenerator {
      * @return String representing the {@link Enum}s in {@code enums} or empty {@link String} when
      * {@code enums} is null or empty.
      */
+    @NonNull
     public static <E extends Enum<E>> String createKey(@Nullable Collection<E> enums) {
         if (enums == null || enums.isEmpty()) {
             return "";
