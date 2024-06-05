@@ -727,6 +727,8 @@ internal val collectionNavType =
         override fun serializeAsValues(value: List<CustomTypeWithArg>): List<String> =
             value.map { it.id.toString() }
 
+        override fun emptyCollection(): List<CustomTypeWithArg> = emptyList()
+
         override fun get(bundle: Bundle, key: String): List<CustomTypeWithArg> {
             return bundle.getStringArrayList(key)?.map { CustomTypeWithArg(it.toInt()) }
                 ?: emptyList()

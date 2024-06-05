@@ -743,6 +743,8 @@ class NavControllerRouteTest {
                 override fun serializeAsValues(value: List<CustomType>) =
                     value.map { it.id.toString() }
 
+                override fun emptyCollection(): List<CustomType> = emptyList()
+
                 override fun get(bundle: Bundle, key: String): List<CustomType> {
                     return bundle.getIntArray(key)!!.map { CustomType(it) }
                 }

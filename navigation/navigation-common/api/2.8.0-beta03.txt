@@ -29,6 +29,7 @@ package androidx.navigation {
 
   public abstract class CollectionNavType<T> extends androidx.navigation.NavType<T> {
     ctor public CollectionNavType(boolean isNullableAllowed);
+    method public abstract T emptyCollection();
     method public abstract java.util.List<java.lang.String> serializeAsValues(T value);
   }
 

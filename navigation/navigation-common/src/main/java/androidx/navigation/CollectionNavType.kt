@@ -41,4 +41,11 @@ public abstract class CollectionNavType<T>(
      * @return List containing serialized String representation of [value]
      */
     public abstract fun serializeAsValues(value: T): List<String>
+
+    /**
+     * Create and return an empty collection of type [T]
+     *
+     * For example, [T] of type List<MyType> should return emptyList<MyType>().
+     */
+    public abstract fun emptyCollection(): T
 }
