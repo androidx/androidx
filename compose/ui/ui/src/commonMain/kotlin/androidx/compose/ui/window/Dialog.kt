@@ -35,16 +35,6 @@ import androidx.compose.runtime.Immutable
 expect class DialogProperties(
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
-
-    /*
-     * Temporary hack to skip unsupported arguments from Android source set.
-     * Should be removed after upstreaming changes from JetBrains' fork.
-     *
-     * After skip this unsupported argument, you must name all subsequent arguments.
-     */
-    @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
-    vararg unsupported: Nothing,
-
     usePlatformDefaultWidth: Boolean = true,
 ) {
     val dismissOnBackPress: Boolean

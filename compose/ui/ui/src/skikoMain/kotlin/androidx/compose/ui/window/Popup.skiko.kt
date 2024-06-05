@@ -82,12 +82,11 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
     val usePlatformDefaultWidth: Boolean = false,
     val usePlatformInsets: Boolean = true,
 ) {
-    // Constructor with all non-experimental arguments.
-    constructor(
-        focusable: Boolean = false,
-        dismissOnBackPress: Boolean = true,
-        dismissOnClickOutside: Boolean = true,
-        clippingEnabled: Boolean = true,
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        clippingEnabled: Boolean,
     ) : this(
         focusable = focusable,
         dismissOnBackPress = dismissOnBackPress,
@@ -97,7 +96,8 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         usePlatformInsets = true,
     )
 
-    actual constructor(
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,

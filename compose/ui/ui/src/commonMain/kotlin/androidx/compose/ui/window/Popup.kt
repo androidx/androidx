@@ -18,7 +18,6 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.IntOffset
@@ -42,23 +41,12 @@ import androidx.compose.ui.unit.LayoutDirection
  * screen. By default the window is clipped to the screen boundaries. Setting this to false will
  * allow windows to be accurately positioned.
  * The default value is true.
- * **Might be used only as named argument**.
  */
 @Immutable
 expect class PopupProperties(
     focusable: Boolean = false,
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
-
-    /*
-     * Temporary hack to skip unsupported arguments from Android source set.
-     * Should be removed after upstreaming changes from JetBrains' fork.
-     *
-     * After skip this unsupported argument, you must name all subsequent arguments.
-     */
-    @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
-    vararg unsupported: Nothing,
-
     clippingEnabled: Boolean = true,
 ) {
     val focusable: Boolean
