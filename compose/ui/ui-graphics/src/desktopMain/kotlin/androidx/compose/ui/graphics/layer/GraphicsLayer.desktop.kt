@@ -182,25 +182,29 @@ actual class GraphicsLayer {
             y + size.height.toFloat()
         )
         val canvas = pictureRecorder.beginRecording(bounds)
-        val skiaCanvas = canvas.asComposeCanvas() as SkiaBackedCanvas
-        skiaCanvas.alphaMultiplier = if (compositingStrategy == CompositingStrategy.ModulateAlpha) {
-            this@GraphicsLayer.alpha
-        } else {
-            1.0f
+        try {
+            val skiaCanvas = canvas.asComposeCanvas() as SkiaBackedCanvas
+            skiaCanvas.alphaMultiplier =
+                if (compositingStrategy == CompositingStrategy.ModulateAlpha) {
+                    this@GraphicsLayer.alpha
+                } else {
+                    1.0f
+                }
+            childDependenciesTracker.withTracking(
+                onDependencyRemoved = { it.onRemovedFromParentLayer() }
+            ) {
+                pictureDrawScope.draw(
+                    density,
+                    layoutDirection,
+                    skiaCanvas,
+                    size.toSize(),
+                    this,
+                    block
+                )
+            }
+        } finally {
+            picture = pictureRecorder.finishRecordingAsPicture()
         }
-        childDependenciesTracker.withTracking(
-            onDependencyRemoved = { it.onRemovedFromParentLayer() }
-        ) {
-            pictureDrawScope.draw(
-                density,
-                layoutDirection,
-                skiaCanvas,
-                size.toSize(),
-                this,
-                block
-            )
-        }
-        picture = pictureRecorder.finishRecordingAsPicture()
     }
 
     private fun addSubLayer(graphicsLayer: GraphicsLayer) {
