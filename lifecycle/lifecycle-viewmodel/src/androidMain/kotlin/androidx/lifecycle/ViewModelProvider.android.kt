@@ -18,7 +18,6 @@
 package androidx.lifecycle
 
 import android.app.Application
-import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
@@ -87,7 +86,6 @@ private constructor(
         defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner)
     )
 
-    @MainThread
     public actual operator fun <T : ViewModel> get(modelClass: KClass<T>): T =
         impl.getViewModel(modelClass)
 
@@ -103,10 +101,8 @@ private constructor(
      * @return A ViewModel that is an instance of the given type `T`.
      * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
      */
-    @MainThread
     public open operator fun <T : ViewModel> get(modelClass: Class<T>): T = get(modelClass.kotlin)
 
-    @MainThread
     public actual operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T =
         impl.getViewModel(modelClass, key)
 
@@ -122,7 +118,6 @@ private constructor(
      *   present.
      * @return A ViewModel that is an instance of the given type `T`.
      */
-    @MainThread
     public open operator fun <T : ViewModel> get(key: String, modelClass: Class<T>): T =
         impl.getViewModel(modelClass.kotlin, key)
 
