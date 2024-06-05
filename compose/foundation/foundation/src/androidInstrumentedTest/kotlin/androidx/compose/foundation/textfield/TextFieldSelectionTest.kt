@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -336,7 +335,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
     }
 
-    @Ignore // b/265023621
     @Test
     fun textField_extendsSelection_toRight() {
         textField_extendsSelection(
@@ -347,7 +345,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
-    @Ignore // b/265023621
     @Test
     fun textField_extendsSelection_withPasswordVisualTransformation_toRight() {
         textField_extendsSelection(
@@ -358,7 +355,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
-    @Ignore // b/265023621
     @Test
     fun textField_extendsSelection_withReducedVisualTransformation_toRight() {
         textField_extendsSelection(
@@ -370,7 +366,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
-    @Ignore // b/265023420
     @Test
     fun textField_extendsSelection_toLeft() {
         textField_extendsSelection(
@@ -381,7 +376,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
-    @Ignore // b/265023621
     @Test
     fun textField_extendsSelection_withPasswordVisualTransformation_toLeft() {
         textField_extendsSelection(
