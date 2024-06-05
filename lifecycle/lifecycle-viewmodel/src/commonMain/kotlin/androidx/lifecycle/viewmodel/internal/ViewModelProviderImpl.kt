@@ -19,8 +19,9 @@ package androidx.lifecycle.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.internal.SynchronizedObject
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
+import androidx.lifecycle.viewmodel.internal.synchronized
 import kotlin.reflect.KClass
 
 /**
@@ -34,36 +35,32 @@ import kotlin.reflect.KClass
 internal class ViewModelProviderImpl(
     private val store: ViewModelStore,
     private val factory: ViewModelProvider.Factory,
-    private val extras: CreationExtras,
+    private val defaultExtras: CreationExtras,
 ) {
 
-    constructor(
-        owner: ViewModelStoreOwner,
-        factory: ViewModelProvider.Factory,
-        extras: CreationExtras,
-    ) : this(owner.viewModelStore, factory, extras)
+    private val lock = SynchronizedObject()
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T : ViewModel> getViewModel(
         modelClass: KClass<T>,
         key: String = ViewModelProviders.getDefaultKey(modelClass),
     ): T {
-        val viewModel = store[key]
-        if (modelClass.isInstance(viewModel)) {
-            if (factory is ViewModelProvider.OnRequeryFactory) {
-                factory.onRequery(viewModel!!)
+        return synchronized(lock) {
+            val viewModel = store[key]
+            if (modelClass.isInstance(viewModel)) {
+                if (factory is ViewModelProvider.OnRequeryFactory) {
+                    factory.onRequery(viewModel!!)
+                }
+                return@synchronized viewModel as T
             }
-            return viewModel as T
-        } else {
-            @Suppress("ControlFlowWithEmptyBody")
-            if (viewModel != null) {
-                // TODO: log a warning.
+
+            val modelExtras = MutableCreationExtras(defaultExtras)
+            modelExtras[ViewModelProviders.ViewModelKey] = key
+
+            return@synchronized createViewModel(factory, modelClass, modelExtras).also { vm ->
+                store.put(key, vm)
             }
         }
-        val extras = MutableCreationExtras(extras)
-        extras[ViewModelProviders.ViewModelKey] = key
-
-        return createViewModel(factory, modelClass, extras).also { vm -> store.put(key, vm) }
     }
 }
 
