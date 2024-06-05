@@ -18,24 +18,18 @@
 package androidx.appsearch.cts.app;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.playservicesstorage.PlayServicesStorage;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assume;
-import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 
-// TODO(b/237116468): Remove SdkSuppress once AppSearchAttributionSource available for lower API
-//  levels.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
 
     private boolean mIsGmsAvailable;
@@ -67,14 +61,5 @@ public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
         if (mIsGmsAvailable) {
             super.tearDown();
         }
-    }
-
-    @Override
-    @Test
-    public void testRfc822_unsupportedFeature_throwsException() {
-        // TODO(b/280463238): // TODO(b/280463238): KNOWN_ISSUE will be fixed in next
-        //  play-services-appsearch drop.
-        // expected: tokenizerType is out of range of [0, 1] (too high)
-        // but was : tokenizerType is out of range of [%d, %d] (too high) [0, 1]
     }
 }
