@@ -97,6 +97,7 @@ public class LinkRects extends ListOfList<Rect> implements Parcelable {
         return null;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return size() + " links";

@@ -18,6 +18,7 @@ package androidx.pdf.util;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -38,7 +39,7 @@ public class BundleUtils {
      * value associated with a given key is not a String.
      */
     @Nullable
-    public static Map<String, String> getMapFrom(Bundle bundle) {
+    public static Map<String, String> getMapFrom(@NonNull Bundle bundle) {
         if (bundle == null) {
             return null;
         }
@@ -61,7 +62,7 @@ public class BundleUtils {
      * thus does not account for comparing nested {@link Bundle}s which are values of keys in the
      * input {@link Bundle}s.
      */
-    public static boolean bundleEquals(Bundle b1, Bundle b2) {
+    public static boolean bundleEquals(@NonNull Bundle b1, @NonNull Bundle b2) {
         if (b1 == null && b2 == null) {
             return true;
         }

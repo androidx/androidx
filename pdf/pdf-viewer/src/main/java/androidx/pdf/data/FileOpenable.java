@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.ErrorLog;
@@ -62,7 +63,8 @@ public class FileOpenable implements Openable, Parcelable {
      *
      * @throws FileNotFoundException If the file does not exist.
      */
-    public FileOpenable(File file, @Nullable String mimeType) throws FileNotFoundException {
+    public FileOpenable(@NonNull File file, @Nullable String mimeType)
+            throws FileNotFoundException {
         if (!file.exists()) {
             throw new FileNotFoundException("file does not exist");
         }
@@ -76,12 +78,13 @@ public class FileOpenable implements Openable, Parcelable {
      * @throws IllegalArgumentException If the Uri was not a 'file:' one.
      * @throws FileNotFoundException    If the file does not exist.
      */
-    public FileOpenable(Uri uri) throws FileNotFoundException {
+    public FileOpenable(@NonNull Uri uri) throws FileNotFoundException {
         this(getFile(uri), Uris.extractContentType(uri));
     }
 
+    @NonNull
     @Override
-    public Open openWith(Opener opener) throws IOException {
+    public Open openWith(@NonNull Opener opener) throws IOException {
         return new Open() {
 
             @Override
@@ -117,17 +120,19 @@ public class FileOpenable implements Openable, Parcelable {
         return mFile.length();
     }
 
+    @NonNull
     public String getFileName() {
         return mFile.getName();
     }
 
+    @NonNull
     public Uri getFileUri() {
         return Uri.fromFile(mFile);
     }
 
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(mFile.getPath());
         dest.writeString(mContentType);
     }

@@ -19,12 +19,12 @@ package androidx.pdf.viewer;
 import android.graphics.Rect;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
-import androidx.pdf.util.ProjectorContext;
 import androidx.pdf.util.Screen;
 
 import java.util.AbstractList;
@@ -109,7 +109,7 @@ public class PaginationModel {
     private final Set<PaginationModelObserver> mObservers = new HashSet<>();
 
     public PaginationModel() {
-        Screen screen = ProjectorContext.get().getScreen();
+        Screen screen = PdfViewer.getScreen();
         mPageSpacingPx = screen.pxFromDp(PAGE_SPACING_DP);
     }
 
@@ -171,7 +171,7 @@ public class PaginationModel {
             };
 
     /** Adds the dimensions of the page at {@code pageNum} to this model. */
-    public void addPage(int pageNum, Dimensions pageSize) {
+    public void addPage(int pageNum, @NonNull Dimensions pageSize) {
         Preconditions.checkNotNull(pageSize);
         if (pageNum < mSize) {
             ErrorLog.log(TAG, "addPage", String.format("ignored add page#%d < %d", pageNum, mSize));
@@ -249,7 +249,8 @@ public class PaginationModel {
      * @param includePartial If true, will include pages that are partially visible.
      * @return the range of visible pages (may be an empty range).
      */
-    public Range getPagesInWindow(Range intervalPx, boolean includePartial) {
+    @NonNull
+    public Range getPagesInWindow(@NonNull Range intervalPx, boolean includePartial) {
         if (intervalPx.getFirst() > mPageBottoms.get(mSize - 1)) {
             return new Range(mSize + 1, mSize);
         }
@@ -292,7 +293,7 @@ public class PaginationModel {
      * coordinates -
      * so relative to (0, 0)-(getWidth(), getHeight()).
      */
-    public void setViewArea(Rect viewArea) {
+    public void setViewArea(@NonNull Rect viewArea) {
         mTempViewArea.set(viewArea);
         if (!mTempViewArea.intersect(
                 0, 0, getWidth(), getEstimatedFullHeight())) { // Modifies tempViewArea.
@@ -319,6 +320,7 @@ public class PaginationModel {
      * @param pageNum - index of requested page
      * @return - coordinates of the page within this model
      */
+    @NonNull
     public Rect getPageLocation(int pageNum) {
         int left = 0;
         int right = getWidth();
@@ -354,6 +356,7 @@ public class PaginationModel {
     }
 
     /** Returns the Dimensions of page {@code pageNum}. */
+    @NonNull
     public Dimensions getPageSize(int pageNum) {
         return mPages[pageNum];
     }
@@ -367,6 +370,7 @@ public class PaginationModel {
      * Returns the intersection of this model and the last viewArea that was reported to this model
      * via {@link #setViewArea(Rect)}.
      */
+    @NonNull
     public Rect getViewArea() {
         return mViewArea;
     }
@@ -398,7 +402,7 @@ public class PaginationModel {
      * <p>Allows duplicate registration. Action will be a no-op if the observer is already
      * registered.
      */
-    public void addObserver(PaginationModelObserver observer) {
+    public void addObserver(@NonNull PaginationModelObserver observer) {
         synchronized (mObservers) {
             mObservers.add(observer);
         }
@@ -410,7 +414,7 @@ public class PaginationModel {
      * <p>Allows removal of unregistered observers. Action will be a no-op if the observer was never
      * registered with this model.
      */
-    public void removeObserver(PaginationModelObserver observer) {
+    public void removeObserver(@NonNull PaginationModelObserver observer) {
         synchronized (mObservers) {
             mObservers.remove(observer);
         }
@@ -420,6 +424,7 @@ public class PaginationModel {
      * Provides an iterator over a copy of the references in {@link #mObservers} so they can be
      * notified of updates without synchronizing on {@link #mObservers}.
      */
+    @NonNull
     public Iterator<PaginationModelObserver> iterator() {
         synchronized (mObservers) {
             return new ArrayList<PaginationModelObserver>(mObservers).iterator();

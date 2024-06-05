@@ -18,14 +18,10 @@ package androidx.pdf.util;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.exifinterface.media.ExifInterface;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Handles extracting Exif data for content Uri thumbnails, which don't have exif data embedded.
@@ -47,22 +43,10 @@ public class ExifThumbnailUtils {
      * gives
      * us a way to read the original file's Exif orientation and apply it manually to the Thumbnail.
      */
-    public static int getExifOrientation(Uri contentUri, ContentResolver contentResolver) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-            // On Q and above, the system takes care of applying the exif orientation to the
-            // thumbnail.
-            return 0;
-        }
-        try {
-            InputStream is = contentResolver.openInputStream(contentUri);
-            if (is == null) {
-                return 0;
-            }
-            ExifInterface exifInterface = new ExifInterface(is);
-            return exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
-        } catch (IOException e) {
-            ErrorLog.log(TAG, "Unable to getExifOrientation.", e);
-        }
+    public static int getExifOrientation(@NonNull Uri contentUri,
+            @NonNull ContentResolver contentResolver) {
+        // On Q and above, the system takes care of applying the exif orientation to the
+        // thumbnail.
         return 0;
     }
 }

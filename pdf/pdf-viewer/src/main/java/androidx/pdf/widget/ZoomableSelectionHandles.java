@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.util.ObservableValue;
@@ -56,8 +57,8 @@ public abstract class ZoomableSelectionHandles<S> {
 
     protected S mSelection;
 
-    protected ZoomableSelectionHandles(ZoomView zoomView, ViewGroup handleParent,
-            ObservableValue<S> selectionObservable) {
+    protected ZoomableSelectionHandles(@NonNull ZoomView zoomView, @NonNull ViewGroup handleParent,
+            @NonNull ObservableValue<S> selectionObservable) {
         this.mZoomView = zoomView;
         this.mSelectionObservable = selectionObservable;
 
@@ -70,6 +71,7 @@ public abstract class ZoomableSelectionHandles<S> {
         mZoomViewObserverKey = createZoomViewObserver();
     }
 
+    @NonNull
     protected Object createSelectionObserver() {
         return mSelectionObservable.addObserver(new ValueObserver<S>() {
             @Override
@@ -78,6 +80,7 @@ public abstract class ZoomableSelectionHandles<S> {
                 updateHandles();
             }
 
+            @NonNull
             @Override
             public String toString() {
                 return "ZoomableSelectionHandles#selectionObserver";
@@ -85,6 +88,7 @@ public abstract class ZoomableSelectionHandles<S> {
         });
     }
 
+    @NonNull
     protected Object createZoomViewObserver() {
         return mZoomView.zoomScroll().addObserver(new ValueObserver<ZoomScroll>() {
             @Override
@@ -94,6 +98,7 @@ public abstract class ZoomableSelectionHandles<S> {
                 }
             }
 
+            @NonNull
             @Override
             public String toString() {
                 return "ZoomableSelectionHandles#zoomViewObserver";
@@ -121,7 +126,7 @@ public abstract class ZoomableSelectionHandles<S> {
         mStopHandle.setVisibility(View.GONE);
     }
 
-    protected void showHandle(ImageView handle, float rawX, float rawY, boolean isRight) {
+    protected void showHandle(@NonNull ImageView handle, float rawX, float rawY, boolean isRight) {
         int resId = isRight
                 ? R.drawable.text_select_handle_right
                 : R.drawable.text_select_handle_left;
@@ -156,7 +161,8 @@ public abstract class ZoomableSelectionHandles<S> {
     /**
      * Creates a new text selection handle ImageView and adds it to the parent. Returns the handle.
      */
-    protected ImageView createHandle(ViewGroup parent, boolean isStop) {
+    @NonNull
+    protected ImageView createHandle(@NonNull ViewGroup parent, boolean isStop) {
         ImageView handle = new ImageView(parent.getContext());
         handle.setLayoutParams(
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -172,7 +178,7 @@ public abstract class ZoomableSelectionHandles<S> {
         return handle;
     }
 
-    protected void destroyHandle(ImageView handle) {
+    protected void destroyHandle(@NonNull ImageView handle) {
         handle.setOnTouchListener(null);
         if (handle.getParent() != null) {
             ((ViewGroup) handle.getParent()).removeView(handle);

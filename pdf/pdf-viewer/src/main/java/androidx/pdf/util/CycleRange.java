@@ -16,6 +16,7 @@
 
 package androidx.pdf.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -52,7 +53,8 @@ public class CycleRange implements Iterable<Integer> {
     }
 
     /** Static factory. */
-    public static CycleRange of(int start, int size, Direction direction) {
+    @NonNull
+    public static CycleRange of(int start, int size, @NonNull Direction direction) {
         return new CycleRange(start, size, direction);
     }
 
@@ -63,6 +65,7 @@ public class CycleRange implements Iterable<Integer> {
         this.direction = direction;
     }
 
+    @NonNull
     @Override
     public Iterator iterator() {
         return new Iterator();
@@ -80,6 +83,7 @@ public class CycleRange implements Iterable<Integer> {
         /**
          *
          */
+        @NonNull
         public Integer peekNext() {
             return (start + getAddend() + size) % size;
         }
@@ -109,6 +113,7 @@ public class CycleRange implements Iterable<Integer> {
             throw new UnsupportedOperationException("remove not supported");
         }
 
+        @NonNull
         public Direction getDirection() {
             return direction;
         }

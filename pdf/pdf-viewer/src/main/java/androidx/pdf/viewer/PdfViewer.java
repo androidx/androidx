@@ -22,6 +22,7 @@ import static android.view.View.VISIBLE;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -37,11 +38,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -59,6 +62,8 @@ import androidx.pdf.find.FindInFileListener;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.GotoLink;
+import androidx.pdf.models.GotoLinkDestination;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
@@ -71,7 +76,7 @@ import androidx.pdf.util.GestureTracker.GestureHandler;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
-import androidx.pdf.util.ProjectorContext;
+import androidx.pdf.util.Screen;
 import androidx.pdf.util.StrictModeUtils;
 import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.util.TileBoard;
@@ -131,6 +136,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private static final String TAG = "PdfViewer";
 
+    @NonNull
     @Override
     protected String getLogTag() {
         return TAG;
@@ -153,6 +159,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Key to save/retrieve {@link #mEditingAuthorized} from Bundle. */
     private static final String KEY_EDITING_AUTHORIZED = "editingAuthorized";
+
+    private static Screen sScreen;
 
     /** Single access to the PDF document: loads contents asynchronously (bitmaps, text,...) */
     private PdfLoader mPdfLoader;
@@ -206,6 +214,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private final ValueObserver<Integer> mFastscrollerPositionObserver;
     private Object mFastscrollerPositionObserverKey;
     private FastScrollView mFastScrollView;
+    private ProgressBar mLoadingSpinner;
 
     private boolean mDocumentLoaded = false;
     /**
@@ -257,6 +266,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * If set, this Viewer will call {@link Activity#finish()} if it can't load the PDF. By default,
      * the value is false.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public PdfViewer setQuitOnError(boolean quit) {
         getArguments().putBoolean(KEY_QUIT_ON_ERROR, quit);
@@ -267,6 +277,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * If set, this viewer will finish the attached activity when the user presses cancel on the
      * prompt for the document password.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public PdfViewer setExitOnPasswordCancel(boolean shouldExitOnPasswordCancel) {
         getArguments().putBoolean(KEY_EXIT_ON_CANCEL, shouldExitOnPasswordCancel);
@@ -274,14 +285,17 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@NonNull Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFetcher = Fetcher.build(getContext(), 1);
+        sScreen = new Screen(this.requireActivity().getApplicationContext());
     }
 
+    @NonNull
     @SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+            @Nullable Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
         mPaginationModel = new PaginationModel();
 
@@ -321,9 +335,21 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mFastScrollView.setScrollable(this);
         mFastScrollView.setId(getId() * 10);
 
+        mLoadingSpinner = mFastScrollView.findViewById(R.id.progress_indicator);
+
         setUpEditFab();
 
         return mPdfViewer;
+    }
+
+    @Nullable
+    public static Screen getScreen() {
+        return sScreen;
+    }
+
+    @VisibleForTesting
+    public static void setScreenForTest(@NonNull Context context) {
+        sScreen = new Screen(context);
     }
 
     private void applyReservedSpace() {
@@ -378,7 +404,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@NonNull Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
         if (mPendingScrollPositionObserver != null) {
@@ -389,7 +415,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    protected void onContentsAvailable(DisplayData contents, @Nullable Bundle savedState) {
+    protected void onContentsAvailable(@NonNull DisplayData contents, @Nullable Bundle savedState) {
         mFileData = contents;
 
         // TODO: StrictMode- disk read 58ms.
@@ -484,7 +510,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     /**
      *
      */
-    public void setPassword(String password) {
+    public void setPassword(@NonNull String password) {
         if (mPdfLoader != null) {
             mPdfLoader.applyPassword(password);
         }
@@ -540,7 +566,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(KEY_LAYOUT_REACH, mPageLayoutReach);
         Log.v(TAG, "Saved current reach " + mPageLayoutReach);
 
@@ -575,6 +601,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             finishActivity();
         }
 
+        showSpinner();
         fetchFile(fileUri);
         mLocalUri = fileUri;
     }
@@ -741,7 +768,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         PageMosaicView pageMosaicView = pageView.getPageView();
         // Setting Elevation only works if there is a background color.
         pageMosaicView.setBackgroundColor(Color.WHITE);
-        pageMosaicView.setElevation(ProjectorContext.get().getScreen().pxFromDp(PAGE_ELEVATION_DP));
+        pageMosaicView.setElevation(sScreen.pxFromDp(PAGE_ELEVATION_DP));
         return pageView;
     }
 
@@ -909,6 +936,22 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         }
     }
 
+    /** Show the loading spinner. */
+    @UiThread
+    public void showSpinner() {
+        if (mLoadingSpinner != null) {
+            mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.VISIBLE));
+        }
+    }
+
+    /** Hide the loading spinner. */
+    @UiThread
+    public void hideSpinner() {
+        if (mLoadingSpinner != null) {
+            mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.GONE));
+        }
+    }
+
     private void loadVisiblePageText(int page) {
         PageView pageView = getOrCreatePage(page);
         PageMosaicView pageMosaicView = pageView.getPageView();
@@ -918,7 +961,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (!pageMosaicView.hasPageUrlLinks()) {
             mPdfLoader.loadPageUrlLinks(page);
         }
-
+        if (!pageMosaicView.hasPageGotoLinks()) {
+            mPdfLoader.loadPageGotoLinks(page);
+        }
         if (page == mSelectionModel.getPage()) {
             pageMosaicView.setOverlay(new PdfHighlightOverlay(mSelectionModel.selection().get()));
         } else if (mSearchModel.query().get() != null) {
@@ -984,6 +1029,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         }
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#zoomScrollObserver";
@@ -999,6 +1045,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         mPaginatedView.clearAllOverlays();
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#searchQueryObserver";
@@ -1026,6 +1073,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         lookAtSelection(newSelection);
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#selectedMatchObserver";
@@ -1070,6 +1118,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         }
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#fastscrollerPositionObserver";
@@ -1170,7 +1219,43 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 ExternalLinks.open(linkUrl, getActivity());
             }
 
+            GotoLinkDestination gotoDest = mPageView.getPageView().getGotoDestination(point);
+            if (gotoDest != null) {
+                gotoPageDest(gotoDest);
+            }
+
             return true;
+        }
+
+        private void gotoPageDest(GotoLinkDestination destination) {
+
+            if (destination.getPageNumber() >= mPaginationModel.getSize()) {
+                // We have not yet loaded our destination.
+                layoutPages(destination.getPageNumber() + 1);
+                mDimensCallbackQueue.add(
+                        pageNum -> {
+                            if (pageNum == destination.getPageNumber()) {
+                                gotoPageDest(destination);
+                                return false;
+                            }
+                            return true;
+                        });
+                return;
+            }
+
+            int pageY = (int) destination.getYCoordinate();
+
+            Rect pageRect = mPaginationModel.getPageLocation(destination.getPageNumber());
+            int x = pageRect.left + (pageRect.width() / 2);
+            int y = mPaginationModel.getLookAtY(destination.getPageNumber(), pageY);
+            // Zoom should match the width of the page.
+            float zoom =
+                    ZoomUtils.calculateZoomToFit(
+                            mZoomView.getViewportWidth(), mZoomView.getViewportHeight(),
+                            pageRect.width(), 1);
+
+            mZoomView.setZoom(zoom);
+            mZoomView.centerAt(x, y);
         }
     }
 
@@ -1272,6 +1357,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
                         mDocumentLoaded = true;
                         PdfViewer.this.mNumPages = numPages;
+
+                        hideSpinner();
+
                         // Assume we see at least the first page
                         mMaxPage = 1;
                         if (viewState().get() != ViewState.NO_VIEW) {
@@ -1466,6 +1554,13 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                     }
 
                     @Override
+                    public void setPageGotoLinks(int pageNum, List<GotoLink> links) {
+                        if (viewState().get() != ViewState.NO_VIEW && isPageCreated(pageNum)) {
+                            getPage(pageNum).setPageGotoLinks(links);
+                        }
+                    }
+
+                    @Override
                     public void documentCloned(boolean result) {
                         if (mPrintableVersionCallback != null) {
                             mPrintableVersionCallback.set(result);
@@ -1515,7 +1610,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void setFastScrollListener(final FastScrollListener listener) {
+    public void setFastScrollListener(final @NonNull FastScrollListener listener) {
         mZoomView
                 .getViewTreeObserver()
                 .addOnScrollChangedListener(

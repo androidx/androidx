@@ -96,9 +96,4 @@ public class PageSelection extends TextSelection {
         parcel.writeList(mRects);
         parcel.writeString(mText);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 }

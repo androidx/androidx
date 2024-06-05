@@ -111,7 +111,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      * The returned number is a constant for this device (does not depend on rotations etc.).
      * Used to use @code{GLES20.GL_MAX_TEXTURE_SIZE}, which is now deprecated.
      */
-    public static int getMaxTileSize(Context context) {
+    public static int getMaxTileSize(@NonNull Context context) {
         WindowManager wm = context.getSystemService(WindowManager.class);
         Display display = wm.getDefaultDisplay();
         Point dimPoint = new Point();
@@ -123,8 +123,10 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     /** The bounds of the image, which will define the measures of this view. */
     private final Rect mBounds = new Rect();
 
+    @NonNull
     protected BitmapRecycler mBitmapRecycler;
 
+    @NonNull
     protected BitmapSource mBitmapSource;
 
     @Nullable
@@ -164,15 +166,15 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     /** Whether to request a page bitmap even if tiling. */
     protected boolean mAlwaysRequestPageBitmap = true;
 
-    public MosaicView(Context context) {
+    public MosaicView(@NonNull Context context) {
         super(context);
     }
 
-    public MosaicView(Context context, AttributeSet attrs) {
+    public MosaicView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MosaicView(Context context, AttributeSet attrs, int defStyle) {
+    public MosaicView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -190,8 +192,8 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      * @param bitmapRecycler a {@link BitmapRecycler} instance for recycling bitmaps.
      * @param bitmapSource   the object used to request all bitmaps.
      */
-    public void init(Dimensions dimensions, BitmapRecycler bitmapRecycler,
-            BitmapSource bitmapSource) {
+    public void init(@NonNull Dimensions dimensions, @NonNull BitmapRecycler bitmapRecycler,
+            @NonNull BitmapSource bitmapSource) {
         mBounds.set(0, 0, dimensions.getWidth(), dimensions.getHeight());
         if (mBounds.isEmpty()) {
             ErrorLog.log(TAG, "Page with empty bounds");
@@ -208,10 +210,11 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     public interface BitmapSource {
 
         /** Request to load the whole page bitmap at given {@link Dimensions}. */
-        void requestPageBitmap(Dimensions pageSize, boolean alsoRequestingTiles);
+        void requestPageBitmap(@NonNull Dimensions pageSize, boolean alsoRequestingTiles);
 
         /** Request to load new tiles at given {@link Dimensions}. */
-        void requestNewTiles(Dimensions pageSize, Iterable<TileBoard.TileInfo> newTiles);
+        void requestNewTiles(@NonNull Dimensions pageSize,
+                @NonNull Iterable<TileBoard.TileInfo> newTiles);
 
         /**
          * Cancel the request for a tile bitmap for given tile indices. This method will be called
@@ -219,7 +222,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
          * mean that the entire tile board is now stale or just the given tiles in the tile board
          * are stale. This function is not expected to do a lot of processing.
          */
-        void cancelTiles(Iterable<Integer> tileIds);
+        void cancelTiles(@NonNull Iterable<Integer> tileIds);
     }
 
     @Override
@@ -227,24 +230,25 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
         return super.onTouchEvent(event);
     }
 
+    @NonNull
     protected Dimensions getPageDimensionsAtWidth(int width) {
         int height = width * mBounds.height() / mBounds.width();
         return new Dimensions(width, height);
     }
 
     @Override
-    public void addOverlay(String key, Drawable overlay) {
+    public void addOverlay(@NonNull String key, @NonNull Drawable overlay) {
         mOverlays.put(key, overlay);
         invalidate();
     }
 
     /** Check if the given key has an overlay. */
-    public boolean hasOverlay(String key) {
+    public boolean hasOverlay(@NonNull String key) {
         return mOverlays.get(key) != null;
     }
 
     /** Remove overlay corresponding to the given key. */
-    public void removeOverlay(String key) {
+    public void removeOverlay(@NonNull String key) {
         mOverlays.remove(key);
         invalidate();
     }
@@ -318,7 +322,8 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
         mBaseZoom = zoom;
     }
 
-    protected TileBoard createTileBoard(Dimensions viewSize) {
+    @NonNull
+    protected TileBoard createTileBoard(@NonNull Dimensions viewSize) {
         return new TileBoard(getId(), viewSize, mBitmapRecycler,
                 new TileBoard.CancelTilesCallback() {
                     @Override
@@ -354,7 +359,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     }
 
     /** Set failure message. */
-    public void setFailure(String message) {
+    public void setFailure(@NonNull String message) {
         mFailure = message;
         invalidate();
     }
@@ -405,7 +410,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      * be requested. If the view is using tiling, both the background page bitmap and any affected
      * tiles will be requested.
      */
-    public void requestRedrawAreas(final List<Rect> invalidRects) {
+    public void requestRedrawAreas(final @NonNull List<Rect> invalidRects) {
         if (invalidRects == null || invalidRects.isEmpty()) {
             return;
         }
@@ -510,7 +515,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      * Updates the portion of this View that is visible on the screen, in this View's coordinates -
      * so relative to (0, 0)-(getWidth(), getHeight()).
      */
-    public void setViewArea(Rect viewArea) {
+    public void setViewArea(@NonNull Rect viewArea) {
         setViewArea(viewArea.left, viewArea.top, viewArea.right, viewArea.bottom);
     }
 
@@ -518,6 +523,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      * Returns the portion of this View that is visible on the screen, in this View's coordinates -
      * so relative to (0, 0) - (getWidth(), getHeight()).
      */
+    @NonNull
     public Rect getViewArea() {
         return mViewArea;
     }
@@ -559,7 +565,8 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
         }
     }
 
-    protected boolean clipAreaToPageSize(Rect scaledViewArea, Dimensions pageSize) {
+    protected boolean clipAreaToPageSize(@NonNull Rect scaledViewArea,
+            @NonNull Dimensions pageSize) {
         return scaledViewArea.intersect(0, 0, pageSize.getWidth(), pageSize.getHeight());
     }
 
@@ -610,7 +617,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     }
 
     /** Set tile bitmap. */
-    public void setTileBitmap(TileBoard.TileInfo tileInfo, Bitmap tileBitmap) {
+    public void setTileBitmap(@NonNull TileBoard.TileInfo tileInfo, @NonNull Bitmap tileBitmap) {
         Preconditions.checkNotNull(tileBitmap, "Use removePageBitmap() instead.");
         if (mTileBoard != null && mTileBoard.setTile(tileInfo, tileBitmap)) {
             TileView tile = getTileByIndex(tileInfo.getIndex());
@@ -653,7 +660,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         // No tiling: draw the page bitmap or a white page.
         if (mTileBoard == null) {
             if (mBitmap != null) {
@@ -672,7 +679,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     }
 
     @Override
-    protected void dispatchDraw(Canvas canvas) {
+    protected void dispatchDraw(@NonNull Canvas canvas) {
         super.dispatchDraw(canvas);
         for (Drawable overlay : mOverlays.values()) {
             if (overlay != null) {
@@ -682,7 +689,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     }
 
     @Override
-    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+    protected boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
         TileView tile = (TileView) child;
         canvas.save();
         float scale = (float) getWidth() / mTileBoard.mBounds.getWidth();
@@ -706,6 +713,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
         return Math.min(Math.min(a, b), c);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getLogTag() + String.format(" bg: %s /t: %s",

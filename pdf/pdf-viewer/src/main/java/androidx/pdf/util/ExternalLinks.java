@@ -23,6 +23,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 
@@ -49,12 +50,12 @@ public final class ExternalLinks {
     private static final int SHORTEN_LENGTH = 40;
 
     /** Open the given link in a browser or similar, if it is safe to do so. */
-    public static void open(String url, Activity activity) {
+    public static void open(@NonNull String url, @NonNull Activity activity) {
         open(Uri.parse(url), activity);
     }
 
     /** Open the given URI. */
-    public static void open(Uri uri, Activity activity) {
+    public static void open(@NonNull Uri uri, @NonNull Activity activity) {
         if (TextUtils.isEmpty(uri.getScheme())) {
             uri = uri.buildUpon().scheme("http").build();
         }
@@ -73,7 +74,8 @@ public final class ExternalLinks {
      * {@code Link: www.example.com/page1.html} or
      * {@code Link: webpage at www.example.com}
      */
-    public static String getDescription(String url, Context context) {
+    @NonNull
+    public static String getDescription(@NonNull String url, @NonNull Context context) {
         return getDescription(Uri.parse(url), context);
     }
 

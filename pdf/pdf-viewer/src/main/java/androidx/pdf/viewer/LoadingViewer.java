@@ -65,6 +65,7 @@ public abstract class LoadingViewer extends Viewer {
 
     private boolean mHasContents;
 
+    @NonNull
     protected Fetcher mFetcher;
 
     protected LoadingViewer() {
@@ -83,15 +84,18 @@ public abstract class LoadingViewer extends Viewer {
     }
 
     /** Feed this Viewer with contents to be displayed. */
+    @NonNull
     @CanIgnoreReturnValue
-    public Viewer feed(DisplayData contents) {
+    public Viewer feed(@NonNull DisplayData contents) {
         saveToArguments(contents);
         postContentsAvailable(contents, null);
         return this;
     }
 
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+            @Nullable Bundle savedState) {
         View result = super.onCreateView(inflater, container, savedState);
         if (mFetcher == null) {
             // When changing device languages the system creates a new ImageViewer and the old
@@ -149,7 +153,7 @@ public abstract class LoadingViewer extends Viewer {
      * has its view hierarchy built up and {@link #onCreateView} has finished). It might run right
      * now if the Viewer is currently started.
      */
-    protected void postContentsAvailable(final DisplayData contents,
+    protected void postContentsAvailable(final @NonNull DisplayData contents,
             @Nullable final Bundle savedState) {
         if (mHasContents) {
             log('L', "Replacing contents ");
@@ -174,6 +178,7 @@ public abstract class LoadingViewer extends Viewer {
     }
 
     /** Sets the fetcher to be used by the viewer and returns the viewer. */
+    @NonNull
     public LoadingViewer setFetcher(@NonNull Fetcher fetcher) {
         this.mFetcher = Preconditions.checkNotNull(fetcher);
         return this;

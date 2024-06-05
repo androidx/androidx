@@ -16,6 +16,7 @@
 
 package androidx.pdf.exceptions;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -32,7 +33,7 @@ public final class TaskCancelledException extends Exception {
     /**
      * Constructs this exception with the current stack trace and the specified detail message.
      */
-    public TaskCancelledException(String detailMessage) {
+    public TaskCancelledException(@NonNull String detailMessage) {
         super(detailMessage);
     }
 }

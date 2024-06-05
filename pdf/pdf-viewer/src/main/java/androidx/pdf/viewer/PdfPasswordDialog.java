@@ -18,6 +18,7 @@ package androidx.pdf.viewer;
 
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.viewer.password.PasswordDialog;
 
@@ -30,7 +31,7 @@ import androidx.pdf.viewer.password.PasswordDialog;
 public class PdfPasswordDialog extends PasswordDialog {
 
     @Override
-    public void sendPassword(EditText textField) {
+    public void sendPassword(@NonNull EditText textField) {
         ((PdfViewer) getTargetFragment()).setPassword(textField.getText().toString());
     }
 

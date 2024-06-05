@@ -16,6 +16,7 @@
 
 package androidx.pdf.data;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,5 +35,5 @@ public interface Supplier<T> {
      * thread.
      * @throws Exception Any exception thrown will be {@link FutureValue.Callback#failed(Throwable)}
      */
-    T supply(Progress progress) throws Exception;
+    T supply(@NonNull Progress progress) throws Exception;
 }

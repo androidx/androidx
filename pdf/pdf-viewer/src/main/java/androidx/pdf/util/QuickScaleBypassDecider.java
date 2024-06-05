@@ -20,6 +20,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -67,7 +68,8 @@ public class QuickScaleBypassDecider {
      * {@link MotionEvent#ACTION_DOWN} occurring within {@link #DOUBLE_TAP_TIMEOUT_MS} of a
      * drag/fling event) and skipping the {@code zoomDetector} in this case.
      */
-    public boolean shouldSkipZoomDetector(MotionEvent event, GestureTracker.EventId lastEvent) {
+    public boolean shouldSkipZoomDetector(@NonNull MotionEvent event,
+            @NonNull GestureTracker.EventId lastEvent) {
         if (lastEvent == null || lastEvent.getEventAction() != MotionEvent.ACTION_UP) {
             return false;
         }
@@ -81,7 +83,7 @@ public class QuickScaleBypassDecider {
         return deltaTime < DOUBLE_TAP_TIMEOUT_MS;
     }
 
-    public void setLastGesture(GestureTracker.Gesture gesture) {
+    public void setLastGesture(@NonNull GestureTracker.Gesture gesture) {
         mLastGesture = gesture;
     }
 }

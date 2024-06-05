@@ -16,6 +16,7 @@
 
 package androidx.pdf.util;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -47,6 +48,7 @@ public interface Observable<T> {
      * @return An object that uniquely identifies this observer, for use in {@link #removeObserver}.
      * Unless explicitly documented otherwise, the key will be the passed observer instance.
      */
+    @NonNull
     Object addObserver(T observer);
 
     /**
@@ -55,5 +57,5 @@ public interface Observable<T> {
      *
      * @param observerKey The object previously returned from a call to {@link #addObserver}.
      */
-    void removeObserver(Object observerKey);
+    void removeObserver(@NonNull Object observerKey);
 }
