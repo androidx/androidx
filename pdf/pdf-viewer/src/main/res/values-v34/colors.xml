@@ -22,14 +22,14 @@
     <color name="text_default">#666</color>
     <color name="text_error">#da4336</color>
     <color name="selection_handles">#00aadd</color>
-    <color name="search_background">#F3EDE8</color>
-    <color name="search_textbox">#FEF8F3</color>
-    <color name="search_texthint">#494643</color>
-    <color name="search_textColor">#1D1B19</color>
-    <color name="search_count">#494643</color>
-    <color name="search_prev_button">#494643</color>
-    <color name="search_next_button">#494643</color>
-    <color name="search_close_button">#494643</color>
+    <color name="search_background">@android:color/system_surface_container_light</color>
+    <color name="search_textbox">@android:color/system_surface_bright_light</color>
+    <color name="search_texthint">@android:color/system_on_surface_variant_light</color>
+    <color name="search_textColor">@android:color/system_on_surface_light</color>
+    <color name="search_count">@android:color/system_on_surface_variant_light</color>
+    <color name="search_prev_button">@android:color/system_on_surface_variant_light</color>
+    <color name="search_next_button">@android:color/system_on_surface_variant_light</color>
+    <color name="search_close_button">@android:color/system_on_surface_variant_light</color>
 
 
 </resources>
