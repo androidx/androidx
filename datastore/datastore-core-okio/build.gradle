@@ -65,21 +65,22 @@ androidXMultiplatform {
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
-                api(project(":internal-testutils-datastore"))
-                api(project(":kruth:kruth"))
+                implementation(project(":internal-testutils-datastore"))
             }
         }
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
-                api(project(":internal-testutils-datastore"))
+                implementation(project(":internal-testutils-datastore"))
                 api(project(":kruth:kruth"))
             }
         }
 
         nativeMain {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.atomicFu)
             }

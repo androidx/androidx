@@ -86,6 +86,7 @@ androidXMultiplatform {
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
             }
         }
