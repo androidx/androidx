@@ -31,20 +31,16 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.Utils
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 
-@OptIn(ExperimentalAppActions::class)
 @RequiresApi(api = Build.VERSION_CODES.O)
 internal class JetpackConnectionService : ConnectionService() {
     private val TAG = JetpackConnectionService::class.java.simpleName
 
     /** Wrap all the objects that are associated with a new CallSession request into a class */
-    @ExperimentalAppActions
     data class PendingConnectionRequest(
         /**
          * requestIdMatcher - is important for matching requests sent to the platform via
@@ -64,13 +60,14 @@ internal class JetpackConnectionService : ConnectionService() {
         val onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         val onSetActive: suspend () -> Unit,
         val onSetInactive: suspend () -> Unit,
-        val execution: CompletableDeferred<Unit>,
-        val voipExtensionManager: VoipExtensionManager
+        val onEvent: suspend (event: String, extras: Bundle) -> Unit,
+        val execution: CompletableDeferred<Unit>
     )
 
     companion object {
         const val REQUEST_ID_MATCHER_KEY = "JetpackConnectionService_requestIdMatcher_key"
         const val KEY_NOT_FOUND = "requestIdMatcher KEY NOT FOUND"
+        const val TAG = "JetpackCS"
         const val CONNECTION_CREATION_TIMEOUT: Long = 5000 // time in milli-seconds
         var mPendingConnectionRequests: ArrayList<PendingConnectionRequest> = ArrayList()
     }
@@ -168,8 +165,8 @@ internal class JetpackConnectionService : ConnectionService() {
     ): Connection? {
         Log.i(
             TAG,
-            "onCreateIncomingConnection:" +
-                " connectionManagerPhoneAccount=[$connectionManagerPhoneAccount],  request=[$request]"
+            "onCreateIncomingConnection: " +
+                "connectionManagerPhoneAccount=[$connectionManagerPhoneAccount], request=[$request]"
         )
         if (request == null) {
             // if the Platform provides a null request, there is no way to complete the new request
@@ -224,8 +221,8 @@ internal class JetpackConnectionService : ConnectionService() {
                 targetRequest.onDisconnect,
                 targetRequest.onSetActive,
                 targetRequest.onSetInactive,
-                targetRequest.execution,
-                targetRequest.voipExtensionManager
+                targetRequest.onEvent,
+                targetRequest.execution
             )
 
         // set display name

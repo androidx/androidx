@@ -22,11 +22,11 @@ import androidx.core.telecom.extensions.IParticipantActions;
 import androidx.core.telecom.extensions.IParticipantStateListener;
 import androidx.core.telecom.extensions.ICallDetailsListener;
 
+// VOIP App -> ICS client
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICapabilityExchange {
-    const int VERSION = 1;
-    // Provide the capabilities of the service and request that capabilities of the remote are
+    // V1 - Provide the capabilities of the service and request that capabilities of the remote are
     // calculated passing along a listener to send update back to the host side.
     void beginExchange(in List<Capability> capabilities, in ICapabilityExchangeListener l) = 0;
 }

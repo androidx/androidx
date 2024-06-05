@@ -72,8 +72,8 @@ internal class Utils {
             if (mBuildVersion.hasInvalidBuildVersion()) {
                 throw UnsupportedOperationException(
                     "Core-Telecom only supports builds from" +
-                        " Oreo (Android 8) and above.  In order to utilize Core-Telecom, your device" +
-                        " must be updated."
+                        " Oreo (Android 8) and above.  In order to utilize Core-Telecom, your " +
+                        "device must be updated."
                 )
             }
         }

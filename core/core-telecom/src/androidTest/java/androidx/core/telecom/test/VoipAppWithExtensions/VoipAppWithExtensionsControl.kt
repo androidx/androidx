@@ -31,32 +31,42 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.test.ITestAppControl
+import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
-class VoipAppWithExtensionsControl : Service() {
+open class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null
-    private var mScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-    private var flowOfParticipants = MutableStateFlow(setOf(Participant()))
+    private var mScope: CoroutineScope? = null
+    private var mCallback: ITestAppControlCallback? = null
+    private var participantsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
+    private var activeParticipantFlow: MutableStateFlow<Participant?> = MutableStateFlow(null)
+    private var raisedHandsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
 
     companion object {
         val TAG = VoipAppWithExtensionsControl::class.java.simpleName
         val CLASS_NAME = VoipAppWithExtensionsControl::class.java.canonicalName
     }
 
-    val mBinder: ITestAppControl.Stub =
+    private val mBinder: ITestAppControl.Stub =
         object : ITestAppControl.Stub() {
 
-            var mCurrentCapabilities: MutableList<Capability?> = mutableListOf()
+            override fun setCallback(callback: ITestAppControlCallback) {
+                mCallback = callback
+            }
 
             val mOnSetActiveLambda: suspend () -> Unit = { Log.i(TAG, "onSetActive: completing") }
 
@@ -72,29 +82,44 @@ class VoipAppWithExtensionsControl : Service() {
                 Log.i(TAG, "onDisconnect: disconnectCause=[$it]")
             }
 
-            override fun addCall(isOutgoing: Boolean): String {
+            override fun addCall(capabilities: List<Capability>, isOutgoing: Boolean): String {
                 Log.i(TAG, "VoipAppWithExtensionsControl: addCall: in function")
                 var id = ""
                 runBlocking {
-                    var deferredId = CompletableDeferred<String>()
-                    mScope.launch {
-                        mCallsManager?.addCall(
-                            CallAttributesCompat(
-                                "displayName" /* TODO:: make helper */,
-                                Uri.parse("123") /* TODO:: make helper */,
-                                if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING
-                            ),
-                            mOnAnswerLambda,
-                            mOnDisconnectLambda,
-                            mOnSetActiveLambda,
-                            mOnSetInActiveLambda
-                        ) {
-                            deferredId.complete(this.getCallId().toString())
-
-                            launch {
-                                flowOfParticipants.collect {
-                                    TestUtils.printParticipants(it, "VoIP")
-                                }
+                    val deferredId = CompletableDeferred<String>()
+                    val call = VoipCall(mCallsManager!!, mCallback, capabilities)
+                    mScope?.launch {
+                        with(call) {
+                            addCall(
+                                CallAttributesCompat(
+                                    "displayName" /* TODO:: make helper */,
+                                    Uri.parse("tel:123") /* TODO:: make helper */,
+                                    if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING
+                                ),
+                                mOnAnswerLambda,
+                                mOnDisconnectLambda,
+                                mOnSetActiveLambda,
+                                mOnSetInActiveLambda
+                            ) {
+                                participantsFlow
+                                    .onEach {
+                                        TestUtils.printParticipants(it, "VoIP participants")
+                                        participantStateUpdater!!.updateParticipants(it)
+                                    }
+                                    .launchIn(this)
+                                raisedHandsFlow
+                                    .onEach {
+                                        TestUtils.printParticipants(it, "VoIP raised hands")
+                                        raiseHandStateUpdater!!.updateRaisedHands(it)
+                                    }
+                                    .launchIn(this)
+                                activeParticipantFlow
+                                    .onEach {
+                                        Log.i(TAG, "VOIP active participant: $it")
+                                        participantStateUpdater!!.updateActiveParticipant(it)
+                                    }
+                                    .launchIn(this)
+                                deferredId.complete(this.getCallId().toString())
                             }
                         }
                     }
@@ -104,27 +129,39 @@ class VoipAppWithExtensionsControl : Service() {
                 return id
             }
 
-            override fun setVoipCapabilities(capabilities: List<Capability>?) {
-                if (mCallsManager != null && capabilities != null) {
-                    mCallsManager!!.setVoipCapabilities(capabilities.toMutableList())
-                    mCurrentCapabilities = capabilities.toMutableList()
-                }
-            }
-
-            override fun getVoipCapabilities(): List<Capability?> {
-                return mCurrentCapabilities.toList()
-            }
-
             override fun updateParticipants(setOfParticipants: List<Participant>) {
-                flowOfParticipants.value = setOfParticipants.toSet()
+                participantsFlow.value = setOfParticipants.toSet()
+            }
+
+            override fun updateActiveParticipant(participant: Participant?) {
+                activeParticipantFlow.value = participant
+            }
+
+            override fun updateRaisedHands(raisedHandsParticipants: List<Participant>) {
+                raisedHandsFlow.value = raisedHandsParticipants.toSet()
             }
         }
 
     override fun onBind(intent: Intent?): IBinder? {
-        if (intent?.component?.className.equals(CLASS_NAME)) {
+        mScope = CoroutineScope(Dispatchers.Default)
+        if (intent?.component?.className.equals(getClassName())) {
             mCallsManager = CallsManager(applicationContext)
             return mBinder
         }
         return null
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        mScope?.cancel(CancellationException("Control interface is unbinding"))
+        mScope = null
+        mCallback = null
+        participantsFlow.value = emptySet()
+        activeParticipantFlow.value = null
+        raisedHandsFlow.value = emptySet()
+        return false
+    }
+
+    open fun getClassName(): String? {
+        return CLASS_NAME
     }
 }

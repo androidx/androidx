@@ -28,11 +28,11 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.CapabilityExchange
 import androidx.core.telecom.extensions.ParticipantClientActionsImpl
-import androidx.core.telecom.extensions.voip.CapabilityExchangeListener
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
-import androidx.core.telecom.internal.CallChannels
+import androidx.core.telecom.extensions.addParticipantExtension
 import androidx.core.telecom.internal.CallCompat
+import androidx.core.telecom.internal.CapabilityExchangeListener
 import androidx.core.telecom.internal.InCallServiceCompat
+import androidx.core.telecom.internal.ParticipantActions
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
@@ -43,7 +43,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -268,8 +267,9 @@ class CallCompatTest : BaseTelecomTest() {
         extraToInclude: Pair<String, Boolean>? = null
     ) {
         runBlocking {
-            assertWithinTimeout_addCall(callAttributesCompat) {
-                launch {
+            assertWithinTimeout_addCallWithExtensions(callAttributesCompat) {
+                val extension = addParticipantExtension()
+                onCall {
                     try {
                         // Enforce waiting logic to ensure that call details extras are populated.
                         val call =
@@ -279,19 +279,13 @@ class CallCompatTest : BaseTelecomTest() {
                             )
 
                         callCompat = CallCompat(call)
-
-                        mScope
-                            .async {
-                                callCompat.startCapabilityExchange()
-                                Assert.assertTrue(callCompat.capExchangeSetupComplete)
-                            }
-                            .await()
+                        callCompat.startCapabilityExchange()
+                        assertTrue(callCompat.capExchangeSetupComplete)
+                        extension.updateParticipants(emptySet())
                     } finally {
                         // Always send disconnect signal if possible.
-                        assertEquals(
-                            CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                        )
+                        val result = disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        assertEquals(CallControlResult.Success(), result)
                     }
                 }
             }
@@ -381,11 +375,19 @@ class CallCompatTest : BaseTelecomTest() {
      */
     private fun createCapExchange(voipCaps: MutableList<Capability>): CapabilityExchange {
         val capExchange = CapabilityExchange()
-        val callChannels = CallChannels()
-        val emptyExtensions = emptyList<Capability>()
-        val voipExtensionManager =
-            VoipExtensionManager(mContext, mWorkerContext, callChannels, emptyExtensions)
-        val capExchangeListener = CapabilityExchangeListener(voipExtensionManager, ICS_TEST_ID)
+        // Stub implementation to finish cap exchange
+        val capExchangeListener =
+            CapabilityExchangeListener(
+                onCreateParticipantExtension = { _, binder ->
+                    // Call finishSync to ensure CallCompat completes cap exchange
+                    binder.finishSync(
+                        ParticipantActions(
+                            setHandRaised = { _, _ -> },
+                            kickParticipant = { _, _ -> }
+                        )
+                    )
+                }
+            )
         capExchange.voipCapabilities = voipCaps
         capExchange.capabilityExchangeListener = capExchangeListener
         return capExchange

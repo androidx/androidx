@@ -33,14 +33,10 @@ import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
-import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.Capability
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -48,7 +44,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
 @RequiresApi(VERSION_CODES.O)
 internal class CallSessionLegacy(
     private val id: ParcelUuid,
@@ -59,8 +54,8 @@ internal class CallSessionLegacy(
     val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
-    private val blockingSessionExecution: CompletableDeferred<Unit>,
-    private val voipExtensionManager: VoipExtensionManager
+    val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
+    private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.Connection() {
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
@@ -68,9 +63,6 @@ internal class CallSessionLegacy(
     private var mAlreadyRequestedSpeaker: Boolean = false
     private var mCurrentCallEndpoint: CallEndpointCompat? = null
     private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
-
-    /** Stubbed supported capabilities for legacy connections. */
-    private val supportedCapabilities = mutableListOf(Capability())
 
     companion object {
         private val TAG: String = CallSessionLegacy::class.java.simpleName
@@ -204,26 +196,10 @@ internal class CallSessionLegacy(
      * Call Event Updates
      * =========================================================================================
      */
-    @ExperimentalAppActions
     override fun onCallEvent(event: String?, extras: Bundle?) {
         super.onCallEvent(event, extras)
-        // Call events are sent via Call#sendCallEvent(event, extras). Begin initial capability
-        // exchange procedure once we know that the ICS supports it.
-        if (event == CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE) {
-            Log.i(
-                TAG,
-                "onCallEvent: EVENT_JETPACK_CAPABILITY_EXCHANGE: " +
-                    "beginning capability exchange."
-            )
-            // Launch a new coroutine from the context of the current coroutine
-            CoroutineScope(coroutineContext).launch {
-                voipExtensionManager.initiateVoipAppCapabilityExchange(
-                    extras!!,
-                    supportedCapabilities,
-                    TAG
-                )
-            }
-        }
+        if (event == null) return
+        CoroutineScope(coroutineContext).launch { onEventCallback(event, extras ?: Bundle.EMPTY) }
     }
 
     /**

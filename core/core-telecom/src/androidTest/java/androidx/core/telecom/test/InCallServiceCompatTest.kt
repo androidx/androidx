@@ -51,7 +51,7 @@ import org.junit.runner.RunWith
  *
  * Note: [Call] is package-private so we still need to leverage Telecom to create calls on our
  * behalf for testing. The call properties and extras fields aren't mutable so we need to ensure
- * that we wait for them to become av.ailable before accessing them.
+ * that we wait for them to become available before accessing them.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -75,7 +75,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     @Before
     fun setUp() {
         Utils.resetUtils()
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS, emptySet())
     }
 
     @After
