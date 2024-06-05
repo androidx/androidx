@@ -7,3 +7,7 @@ GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#stable:
     Invalid name for boolean property `stable`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.tooling.data.ParameterInformation#static:
     Invalid name for boolean property `static`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+NullableCollectionElement: androidx.compose.ui.tooling.data.Group#getData():
+    Collection java.util.Collection<java.lang.Object> should not have a nullable element type (java.lang.Object) in method androidx.compose.ui.tooling.data.Group.getData()
