@@ -20,14 +20,16 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION_CODES
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.CallExtensionsScope
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.ParticipantClientActions
+import androidx.core.telecom.extensions.connectExtensions
 import androidx.core.telecom.extensions.getParticipantActions
 import androidx.core.telecom.internal.CallCompat
+import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControl
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControlLocal
@@ -43,6 +45,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.rule.ServiceTestRule
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNull
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -62,7 +66,6 @@ import org.junit.runners.Parameterized.Parameters
  * ConnSrv implementations of CallsManager.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-@RequiresApi(VERSION_CODES.O)
 @OptIn(ExperimentalAppActions::class)
 @RunWith(Parameterized::class)
 class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTest() {
@@ -73,12 +76,12 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         private const val SERVICE_SOURCE_CONNSRV = 2
         // Set up a Capability with all actions supported.
         private val CAPABILITY_PARTICIPANT_WITH_ACTIONS =
-            Capability().apply {
-                featureId = CallsManager.PARTICIPANT
-                featureVersion = 1
-                supportedActions =
-                    intArrayOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
-            }
+            createCapability(
+                id = CallsManager.PARTICIPANT,
+                version = 1,
+                actions =
+                    setOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
+            )
 
         /** Provide all the combinations of parameters that should be tested for each run */
         @JvmStatic
@@ -93,6 +96,14 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
                     TestParameters(SERVICE_SOURCE_CONNSRV, CallAttributesCompat.DIRECTION_OUTGOING)
                 )
                 .toList()
+        }
+
+        fun createCapability(id: Int, version: Int, actions: Set<Int>): Capability {
+            return Capability().apply {
+                featureId = id
+                featureVersion = version
+                supportedActions = actions.toIntArray()
+            }
         }
     }
 
@@ -144,7 +155,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         createAndVerifyVoipCall(
             voipAppControl,
             listOf(CAPABILITY_PARTICIPANT_WITH_ACTIONS),
-            CallAttributesCompat.DIRECTION_OUTGOING
+            parameters.direction
         )
         TestUtils.waitOnInCallServiceToReachXCalls(1)
         try {
@@ -153,6 +164,74 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         } catch (e: Exception) {
             fail("calling extension methods should not result in any exceptions: Exception: $e")
         }
+    }
+
+    /**
+     * Refactor Part 1: Move ICS logic from InCallServiceCompat -> CallExtensions
+     *
+     * <p>
+     * Create a new VOIP call and use [connectExtensions] in the ICS to connect to the VOIP call.
+     * Once complete, use the [CallExtensionsScope.registerExtension] method to register an
+     * extension and ensure that for valid capabilities (PARTICIPANT), we get the remote interface
+     * used to setup/maintain the connection. For capabilities that do not exist on the remote,
+     * ensure we get the correct null indication.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testIcsExtensionsCreation() = runBlocking {
+        setupParameterizedTest()
+        val voipAppControl = bindToVoipAppWithExtensions()
+        createAndVerifyVoipCall(
+            voipAppControl,
+            listOf(CAPABILITY_PARTICIPANT_WITH_ACTIONS),
+            parameters.direction
+        )
+
+        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)!!
+        var hasConnected = false
+        val icsCapability =
+            createCapability(
+                id = CallsManager.PARTICIPANT,
+                version = 2,
+                actions = setOf(CallsManager.RAISE_HAND_ACTION)
+            )
+        // Manually connect extensions here to exercise the CallExtensionsScope class
+        connectExtensions(mContext, call) {
+            val remote =
+                registerExtension(
+                    this,
+                    icsCapability,
+                    negotiatedCapability =
+                        createCapability(
+                            id = CallsManager.PARTICIPANT,
+                            version = 1,
+                            actions = setOf(CallsManager.RAISE_HAND_ACTION)
+                        )
+                )
+            // Create an extension that the VOIP app does not know about and ensure that
+            // we receive a null response during negotiation so we can notify the ICS of the state
+            // of that extension
+            val nonexistentRemote =
+                registerExtension(
+                    this,
+                    icsCapability =
+                        createCapability(id = 8675309, version = 42, actions = emptySet()),
+                    negotiatedCapability = null
+                )
+            onConnected {
+                hasConnected = true
+                assertNotNull(
+                    "Connection to remote should not be null for VOIP supported features",
+                    remote.await()
+                )
+                assertNull(
+                    "Connection to remote should be null for features with no VOIP support",
+                    nonexistentRemote.await()
+                )
+                call.disconnect()
+            }
+        }
+        assertTrue("onConnected never received", hasConnected)
     }
 
     /**
@@ -178,7 +257,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
             createAndVerifyVoipCall(
                 voipAppControl,
                 listOf(CAPABILITY_PARTICIPANT_WITH_ACTIONS),
-                CallAttributesCompat.DIRECTION_OUTGOING
+                parameters.direction
             )
         val icsCall = getLastIcsCall()
 
@@ -227,6 +306,33 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
      * Helpers
      * =========================================================================================
      */
+    private fun registerExtension(
+        scope: CallExtensionsScope,
+        icsCapability: Capability,
+        negotiatedCapability: Capability?
+    ): CompletableDeferred<CapabilityExchangeListenerRemote?> {
+        val deferredVal = CompletableDeferred<CapabilityExchangeListenerRemote?>()
+        // Register a test extension that will receive the PARTICIPANT capability
+        scope.registerExtension(icsCapability) { capability, remote ->
+            assertEquals(
+                "Expected PARTICIPANT capability",
+                negotiatedCapability?.featureId,
+                capability?.featureId
+            )
+            assertEquals(
+                "Expected version to equal the lowest common version",
+                negotiatedCapability?.featureVersion,
+                capability?.featureVersion
+            )
+            assertEquals(
+                "The negotiated actions should be the actions supported by both",
+                negotiatedCapability?.supportedActions?.toSet(),
+                capability?.supportedActions?.toSet()
+            )
+            deferredVal.complete(remote)
+        }
+        return deferredVal
+    }
 
     /** Verify that the ICS state for raised hands matches the VOIP app's updates to the state */
     private suspend fun verifyIcsRaisedHandsMatch(
