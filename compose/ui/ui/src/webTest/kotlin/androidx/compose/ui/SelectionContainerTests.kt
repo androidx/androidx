@@ -21,7 +21,6 @@ package androidx.compose.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.Selection
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,8 @@ import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -44,7 +44,6 @@ import kotlinx.coroutines.withContext
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.MouseEventInit
-import org.w3c.dom.get
 
 class SelectionContainerTests : OnCanvasTests {
 
@@ -110,7 +109,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         selection = syncChannel.receive()
-        assertNotEquals(null, selection)
+        assertNotNull(selection)
         assertEquals(0, selection!!.start.offset)
         assertEquals(6, selection!!.end.offset)
 
@@ -120,11 +119,12 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
+        assertNull(selection)
         assertEquals(null, selection)
     }
 
     @Test
-    fun canSelectOneLineUsingTrippleClick() = runTest {
+    fun canSelectOneLineUsingTripleClick() = runTest {
         createCanvasAndAttach()
 
         val syncChannel = Channel<Selection?>(
@@ -163,7 +163,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         var selection = syncChannel.receive()
-        assertNotEquals(null, selection)
+        assertNotNull(selection)
         assertEquals(0, selection!!.start.offset)
         assertEquals(27, selection!!.end.offset)
 
@@ -173,7 +173,7 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertEquals(null, selection)
+        assertNull(selection)
     }
 
     @Test
