@@ -16,18 +16,6 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
-import android.util.Range;
-import android.util.Size;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
-
 /**
  * Stub advanced extender implementation for bokeh.
  *
@@ -35,81 +23,10 @@ import java.util.Map;
  *
  * @since 1.2
  */
-public class BokehAdvancedExtenderImpl implements AdvancedExtenderImpl {
+public class BokehAdvancedExtenderImpl extends ConfigurableAdvancedExtenderImpl {
     public BokehAdvancedExtenderImpl() {
-    }
-
-    @Override
-    public boolean isExtensionAvailable(@NonNull String cameraId,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
-        return false;
-    }
-
-    @Override
-    public void init(@NonNull String cameraId,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
-    }
-
-    @Override
-    @Nullable
-    public Range<Long> getEstimatedCaptureLatencyRange(
-            @NonNull String cameraId, @Nullable Size size, int imageFormat) {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public Map<Integer, List<Size>> getSupportedPreviewOutputResolutions(
-            @NonNull String cameraId) {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public Map<Integer, List<Size>> getSupportedCaptureOutputResolutions(
-            @NonNull String cameraId) {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public Map<Integer, List<Size>> getSupportedPostviewResolutions(
-            @NonNull Size captureSize) {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @Nullable
-    public List<Size> getSupportedYuvAnalysisResolutions(@NonNull String cameraId) {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public SessionProcessorImpl createSessionProcessor() {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    @NonNull
-    public boolean isCaptureProcessProgressAvailable() {
-        throw new RuntimeException("Stub, replace with implementation.");
-    }
-
-    @Override
-    public boolean isPostviewAvailable() {
-        throw new RuntimeException("Stub, replace with implementation.");
+        super(/* longDurationCapture */ false,
+                /* postviewFormat */ POSTVIEW_NOT_SUPPORTED,
+                /* invokeOnCaptureCompleted */ false);
     }
 }

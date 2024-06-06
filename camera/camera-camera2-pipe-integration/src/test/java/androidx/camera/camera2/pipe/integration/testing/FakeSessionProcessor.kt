@@ -27,6 +27,7 @@ import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
+import androidx.camera.core.impl.TagBundle
 
 class FakeSessionProcessor : SessionProcessor {
     val previewOutputConfigId = 0
@@ -86,7 +87,10 @@ class FakeSessionProcessor : SessionProcessor {
         Log.debug { "$this#onCaptureSessionEnd" }
     }
 
-    override fun startRepeating(callback: SessionProcessor.CaptureCallback): Int {
+    override fun startRepeating(
+        tagBundle: TagBundle,
+        callback: SessionProcessor.CaptureCallback
+    ): Int {
         Log.debug { "$this#startRepeating" }
         return 0
     }
@@ -97,6 +101,7 @@ class FakeSessionProcessor : SessionProcessor {
 
     override fun startCapture(
         postviewEnabled: Boolean,
+        tagBundle: TagBundle,
         callback: SessionProcessor.CaptureCallback
     ): Int {
         Log.debug { "$this#startCapture" }

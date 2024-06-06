@@ -38,7 +38,8 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.interop.CaptureRequestOptions
-import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraSelector.LENS_FACING_BACK
+import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -109,20 +110,13 @@ class ProcessingCaptureSessionTest(
         @Parameterized.Parameters(name = "Lens facing:{0} preview={1} capture={2}")
         fun data() =
             listOf(
-                arrayOf(CameraSelector.LENS_FACING_BACK, (PRIVATE to null), (JPEG to null)),
-                arrayOf(
-                    CameraSelector.LENS_FACING_BACK,
-                    (YUV_420_888 to YUV_420_888),
-                    (JPEG to null)
-                ),
-                arrayOf(CameraSelector.LENS_FACING_BACK, (PRIVATE to null), (JPEG to YUV_420_888)),
-                arrayOf(CameraSelector.LENS_FACING_FRONT, (PRIVATE to null), (JPEG to null)),
-                arrayOf(
-                    CameraSelector.LENS_FACING_FRONT,
-                    (YUV_420_888 to YUV_420_888),
-                    (JPEG to null)
-                ),
-                arrayOf(CameraSelector.LENS_FACING_FRONT, (PRIVATE to null), (JPEG to YUV_420_888))
+                arrayOf(LENS_FACING_BACK, (PRIVATE to null), (JPEG to null)),
+                arrayOf(LENS_FACING_BACK, (YUV_420_888 to YUV_420_888), (JPEG to null)),
+                arrayOf(LENS_FACING_BACK, (PRIVATE to null), (YUV_420_888 to YUV_420_888)),
+                arrayOf(LENS_FACING_BACK, (PRIVATE to null), (JPEG to YUV_420_888)),
+                arrayOf(LENS_FACING_FRONT, (PRIVATE to null), (JPEG to null)),
+                arrayOf(LENS_FACING_FRONT, (YUV_420_888 to YUV_420_888), (JPEG to null)),
+                arrayOf(LENS_FACING_FRONT, (PRIVATE to null), (YUV_420_888 to YUV_420_888))
             )
     }
 

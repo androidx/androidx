@@ -37,6 +37,7 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -199,7 +200,7 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     }
 
     @RequiresApi(23)
-    static final class BokehImageCaptureExtenderCaptureProcessorImpl implements
+    final class BokehImageCaptureExtenderCaptureProcessorImpl implements
             CaptureProcessorImpl {
         private ImageWriter mImageWriter;
 
@@ -210,10 +211,13 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
 
         @Override
         public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+            processInternal(results, null, null);
+        }
+
+        private void processInternal(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @Nullable ProcessResultImpl resultCallback, @Nullable Executor executor) {
             Log.d(TAG, "Started bokeh CaptureProcessor");
-
             Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
-
             if (result == null) {
                 Log.w(TAG,
                         "Unable to process since images does not contain all stages.");
@@ -261,15 +265,39 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
                 }
                 outputImage.setTimestamp(image.getTimestamp());
                 mImageWriter.queueInputImage(outputImage);
+
+                if (resultCallback != null) {
+                    TotalCaptureResult captureResult = result.second;
+
+                    Executor executorForCallback = executor != null ? executor : (cmd) -> cmd.run();
+                    executorForCallback.execute(() -> {
+                        resultCallback.onCaptureCompleted(image.getTimestamp(),
+                                getFilteredResults(captureResult));
+                    });
+                }
             }
 
             Log.d(TAG, "Completed bokeh CaptureProcessor");
         }
 
+        @SuppressWarnings("unchecked")
+        private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
+                TotalCaptureResult captureResult) {
+            List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
+
+            for (CaptureResult.Key availableCaptureResultKey : getAvailableCaptureResultKeys()) {
+                if (captureResult.get(availableCaptureResultKey) != null) {
+                    list.add(new Pair<>(availableCaptureResultKey,
+                            captureResult.get(availableCaptureResultKey)));
+                }
+            }
+            return list;
+        }
+
         @Override
         public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
-            process(results);
+            processInternal(results, resultCallback, executor);
         }
 
         @Override
@@ -315,6 +343,8 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        return null;
+        // return a non-empty list here to indicate that ProcessResultImpl#onCaptureCompleted will
+        // be invoked.
+        return Arrays.asList(CaptureResult.SENSOR_TIMESTAMP);
     }
 }

@@ -50,17 +50,22 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * An {@link AdvancedExtenderImpl} implementation that have long processing time for capture and
- * is capable of outputting the postview and the process progress event.
+ * An {@link AdvancedExtenderImpl} implementation that can be configured to have long processing
+ * time for capture and is capable of outputting the postview and the process progress event.
  */
-public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
+public class ConfigurableAdvancedExtenderImpl implements AdvancedExtenderImpl {
     private static final int EV_INDEX = 10;
-
+    protected static final int POSTVIEW_NOT_SUPPORTED = -1;
     private CameraCharacteristics mCameraCharacteristics;
     private final int mPostviewFormat;
+    private final boolean mLongDurationCapture;
+    private final boolean mInvokeOnCaptureComplete;
 
-    public LongCaptureAdvancedExtenderImpl(int postviewFormat) {
+    public ConfigurableAdvancedExtenderImpl(
+            boolean longDurationCapture, int postviewFormat, boolean invokeOnCaptureComplete) {
+        mLongDurationCapture = longDurationCapture;
         mPostviewFormat = postviewFormat;
+        mInvokeOnCaptureComplete = invokeOnCaptureComplete;
     }
 
     @Override
@@ -79,7 +84,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
     @Nullable
     public Range<Long> getEstimatedCaptureLatencyRange(
             @NonNull String cameraId, @Nullable Size size, int imageFormat) {
-        return new Range<>(2000L, 3000L);
+        return mLongDurationCapture ? new Range<>(2000L, 3000L) : new Range<>(500L, 800L);
     }
 
     @Override
@@ -172,6 +177,10 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
     @Override
     @NonNull
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
+        if (!mInvokeOnCaptureComplete) {
+            return Collections.emptyList();
+        }
+
         List<CaptureResult.Key> keys = new ArrayList<>(Arrays.asList(
                 CaptureResult.CONTROL_AF_MODE,
                 CaptureResult.CONTROL_AE_REGIONS,
@@ -193,7 +202,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
     @Override
     public boolean isPostviewAvailable() {
-        return true;
+        return mPostviewFormat != POSTVIEW_NOT_SUPPORTED;
     }
 
     private class LongCaptureSessionProcessor implements SessionProcessorImpl {
@@ -264,7 +273,8 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
             }
 
             // postview
-            if (postviewSurfaceConfig != null) {
+            if (postviewSurfaceConfig != null
+                    && postviewSurfaceConfig.getImageFormat() != POSTVIEW_NOT_SUPPORTED) {
                 if (postviewSurfaceConfig.getImageFormat() == ImageFormat.YUV_420_888) {
                     // For YUV format postview, it just configures the YUV surface into the camera.
                     mPostviewOutputConfig = Camera2OutputConfigImplBuilder.newSurfaceConfig(
@@ -489,7 +499,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
                 @NonNull CaptureCallback captureCallback) {
 
             // Send postview request
-            if (enablePostivew) {
+            if (enablePostivew && mPostviewFormat != POSTVIEW_NOT_SUPPORTED) {
                 RequestBuilder builderPostview = new RequestBuilder(mPostviewOutputConfig.getId(),
                         CameraDevice.TEMPLATE_PREVIEW);
                 applyParameters(builderPostview);
@@ -502,13 +512,19 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
             // send still capture request
             final int seqId = mNextCaptureSequenceId.getAndIncrement();
-            updateProcessProgressDelayed(captureCallback, 40, 1000);
-            updateProcessProgressDelayed(captureCallback, 70, 2000);
-            updateProcessProgressDelayed(captureCallback, 100, 3000);
-
-            mBackgroundHandler.postDelayed(() -> {
-                submitStillCapture(seqId, captureCallback);
-            }, 2000);
+            if (mLongDurationCapture) {
+                updateProcessProgressDelayed(captureCallback, 40, 1000);
+                updateProcessProgressDelayed(captureCallback, 70, 1600);
+                mBackgroundHandler.postDelayed(() -> {
+                    captureCallback.onCaptureProcessProgressed(100);
+                    submitStillCapture(seqId, captureCallback);
+                }, 2000);
+            } else {
+                mBackgroundHandler.postDelayed(() -> {
+                    captureCallback.onCaptureProcessProgressed(100);
+                    submitStillCapture(seqId, captureCallback);
+                }, 600);
+            }
             return seqId;
         }
 
@@ -549,9 +565,12 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
                 @Override
                 public void onCaptureCompleted(@NonNull RequestProcessorImpl.Request request,
                         @NonNull TotalCaptureResult totalCaptureResult) {
-                    // RequestProcessorImpl.Callback.onCaptureSequenceCompleted will be invoked
-                    // when onCaptureFailed happens. SessionProcessorImpl.CaptureCallback
-                    // .onCaptureSequenceCompleted should be invoked only when the capture succeeds.
+                    if (mInvokeOnCaptureComplete) {
+                        captureCallback.onCaptureCompleted(
+                                totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP),
+                                seqId, Collections.emptyMap());
+                    }
+
                     captureCallback.onCaptureSequenceCompleted(seqId);
                 }
 
@@ -590,7 +609,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
         @Nullable
         @Override
         public Pair<Long, Long> getRealtimeCaptureLatency() {
-            return new Pair<>(500L, 2000L);
+            return mLongDurationCapture ? new Pair<>(500L, 2000L) : new Pair<>(500L, 0L);
         }
     }
 }

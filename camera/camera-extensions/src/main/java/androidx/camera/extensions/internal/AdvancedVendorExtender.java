@@ -181,7 +181,8 @@ public class AdvancedVendorExtender implements VendorExtender {
     }
 
     @NonNull
-    private List<CaptureResult.Key> getSupportedResultKeys() {
+    @Override
+    public List<CaptureResult.Key> getSupportedCaptureResultKeys() {
         List<CaptureResult.Key> keys = Collections.emptyList();
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
             try {
@@ -245,7 +246,7 @@ public class AdvancedVendorExtender implements VendorExtender {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return getSupportedResultKeys().contains(CaptureResult.EXTENSION_CURRENT_TYPE);
+            return getSupportedCaptureResultKeys().contains(CaptureResult.EXTENSION_CURRENT_TYPE);
         } else {
             return false;
         }

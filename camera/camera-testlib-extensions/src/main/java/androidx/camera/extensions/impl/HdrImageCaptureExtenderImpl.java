@@ -39,6 +39,7 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -206,7 +207,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     }
 
     @RequiresApi(23)
-    static final class HdrImageCaptureExtenderCaptureProcessorImpl implements CaptureProcessorImpl {
+    final class HdrImageCaptureExtenderCaptureProcessorImpl implements CaptureProcessorImpl {
         private ImageWriter mImageWriter;
         @Override
         public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
@@ -255,8 +256,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
             // Do processing here
             // The sample here simply returns the normal image result
+            long timestamp = imageDataPairs.get(UNDER_STAGE_ID).first.getTimestamp();
             Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
-            outputImage.setTimestamp(imageDataPairs.get(UNDER_STAGE_ID).first.getTimestamp());
+            outputImage.setTimestamp(timestamp);
             if (outputImage.getWidth() != normalImage.getWidth()
                     || outputImage.getHeight() != normalImage.getHeight()) {
                 throw new IllegalStateException(String.format("input image "
@@ -317,7 +319,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             if (resultCallback != null) {
                 executorForCallback.execute(
                         () -> resultCallback.onCaptureCompleted(
-                                captureResult.get(CaptureResult.SENSOR_TIMESTAMP),
+                                timestamp,
                                 getFilteredResults(captureResult)));
             }
 
@@ -328,13 +330,12 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
                 TotalCaptureResult captureResult) {
             List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
-            if (captureResult.get(CaptureResult.JPEG_ORIENTATION) != null) {
-                list.add(new Pair<>(CaptureResult.JPEG_ORIENTATION,
-                        captureResult.get(CaptureResult.JPEG_ORIENTATION)));
-            }
-            if (captureResult.get(CaptureResult.JPEG_QUALITY) != null) {
-                list.add(new Pair<>(CaptureResult.JPEG_QUALITY,
-                        captureResult.get(CaptureResult.JPEG_QUALITY)));
+
+            for (CaptureResult.Key availableCaptureResultKey : getAvailableCaptureResultKeys()) {
+                if (captureResult.get(availableCaptureResultKey) != null) {
+                    list.add(new Pair<>(availableCaptureResultKey,
+                            captureResult.get(availableCaptureResultKey)));
+                }
             }
             return list;
         }
@@ -409,6 +410,6 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        return null;
+        return Arrays.asList(CaptureResult.SENSOR_TIMESTAMP);
     }
 }

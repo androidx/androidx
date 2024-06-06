@@ -21,6 +21,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
@@ -84,9 +85,9 @@ public interface CameraCaptureResult {
      * @return The {@link CaptureResult}.
      * @see CameraDevice#createReprocessCaptureRequest(TotalCaptureResult)
      */
-    @NonNull
+    @Nullable
     default CaptureResult getCaptureResult() {
-        return CameraCaptureResult.EmptyCameraCaptureResult.create().getCaptureResult();
+        return null;
     }
 
     /** An implementation of CameraCaptureResult which always return default results. */
@@ -148,6 +149,12 @@ public interface CameraCaptureResult {
         @NonNull
         public TagBundle getTagBundle() {
             return TagBundle.emptyBundle();
+        }
+
+        @Nullable
+        @Override
+        public CaptureResult getCaptureResult() {
+            return null;
         }
     }
 }

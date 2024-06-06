@@ -39,23 +39,27 @@ import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.MutableTagBundle
+import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.CaptureProcessorImpl
@@ -73,7 +77,9 @@ import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.BasicVendorExtender
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory
 import androidx.camera.extensions.internal.Version
+import androidx.camera.extensions.internal.awaitWithTimeout
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -150,6 +156,7 @@ class BasicExtenderSessionProcessorTest(
     private lateinit var fakePreviewExtenderImpl: FakePreviewExtenderImpl
     private lateinit var fakeCaptureExtenderImpl: FakeImageCaptureExtenderImpl
     private lateinit var basicExtenderSessionProcessor: BasicExtenderSessionProcessor
+    private lateinit var basicVendorExtender: BasicVendorExtender
 
     @Before
     fun setUp() = runBlocking {
@@ -171,13 +178,12 @@ class BasicExtenderSessionProcessorTest(
 
         fakePreviewExtenderImpl = FakePreviewExtenderImpl(previewProcessorType)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(hasCaptureProcessor)
-        val basicVendorExtender =
-            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
+        basicVendorExtender = BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
+        basicVendorExtender.init(cameraProvider.getCameraInfo(cameraSelector))
         basicExtenderSessionProcessor =
             BasicExtenderSessionProcessor(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
-                emptyList(),
                 emptyList(),
                 basicVendorExtender,
                 context
@@ -216,16 +222,30 @@ class BasicExtenderSessionProcessorTest(
     fun canOutputCorrectly(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
         val previewSemaphore = Semaphore(0)
-        val analysisSemaphore = Semaphore(0)
-        verifyUseCasesOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            previewSemaphore,
-            analysisSemaphore
-        )
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
+    }
+
+    @Test
+    fun canOutputCorrectly_NotInvokeOnCaptureCompletedInCaptureProcessor(): Unit = runBlocking {
+        assumeTrue(hasCaptureProcessor)
+        fakeCaptureExtenderImpl =
+            FakeImageCaptureExtenderImpl(hasCaptureProcessor, invokeOnCaptureCompleted = false)
+        basicVendorExtender = BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
+        basicVendorExtender.init(cameraProvider.getCameraInfo(cameraSelector))
+        basicExtenderSessionProcessor =
+            BasicExtenderSessionProcessor(
+                fakePreviewExtenderImpl,
+                fakeCaptureExtenderImpl,
+                emptyList(),
+                basicVendorExtender,
+                context
+            )
+
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val previewSemaphore = Semaphore(0)
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
     }
 
     private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
@@ -324,28 +344,12 @@ class BasicExtenderSessionProcessorTest(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
                 emptyList(),
-                emptyList(),
                 BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
                 context
             )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
-        assertThrows<ImageCaptureException> {
-            verifyUseCasesOutput(preview, imageCapture, imageAnalysis)
-        }
-    }
-
-    @Test
-    fun canOutputCorrectly_withoutAnalysis(): Unit = runBlocking {
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        val previewSemaphore = Semaphore(0)
-        verifyUseCasesOutput(
-            preview = preview,
-            imageCapture = imageCapture,
-            previewFrameSemaphore = previewSemaphore
-        )
+        assertThrows<ImageCaptureException> { verifyUseCasesOutput(preview, imageCapture) }
     }
 
     suspend fun getSensorRotationDegrees(rotation: Int): Int {
@@ -373,29 +377,17 @@ class BasicExtenderSessionProcessorTest(
     fun canOutputCorrectlyAfterStopStart(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
         val previewSemaphore = Semaphore(0)
-        val analysisSemaphore = Semaphore(0)
 
-        verifyUseCasesOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            previewSemaphore,
-            analysisSemaphore
-        )
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
 
         withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
 
         delay(1000)
         previewSemaphore.drainPermits()
-        analysisSemaphore.drainPermits()
         fakeLifecycleOwner.startAndResume()
 
         assertThat(previewSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-
-        imageAnalysis.let { assertThat(analysisSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue() }
-
         verifyStillCapture(imageCapture)
     }
 
@@ -403,17 +395,8 @@ class BasicExtenderSessionProcessorTest(
     fun canInvokeEventsInOrder(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
         val previewSemaphore = Semaphore(0)
-        val analysisSemaphore = Semaphore(0)
-        val camera =
-            verifyUseCasesOutput(
-                preview,
-                imageCapture,
-                imageAnalysis,
-                previewSemaphore,
-                analysisSemaphore
-            )
+        val camera = verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
 
         val cameraClosedLatch = CountDownLatch(1)
         withContext(Dispatchers.Main) {
@@ -434,6 +417,7 @@ class BasicExtenderSessionProcessorTest(
 
         fakeCaptureExtenderImpl.assertInvokeOrder(
             listOf(
+                "init",
                 "onInit",
                 "onPresetSession",
                 "onEnableSession",
@@ -444,6 +428,7 @@ class BasicExtenderSessionProcessorTest(
 
         fakePreviewExtenderImpl.assertInvokeOrder(
             listOf(
+                "init",
                 "onInit",
                 "onPresetSession",
                 "onEnableSession",
@@ -467,7 +452,6 @@ class BasicExtenderSessionProcessorTest(
             BasicExtenderSessionProcessor(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
-                emptyList(),
                 emptyList(),
                 BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
                 context
@@ -517,27 +501,73 @@ class BasicExtenderSessionProcessorTest(
         )
         val preview = previewBuilder.build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
         val previewSemaphore = Semaphore(0)
-        val analysisSemaphore = Semaphore(0)
         fakePreviewExtenderImpl.captureStage =
             createCaptureStage(
                 parameters =
                     listOf(Pair(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
             )
 
-        verifyUseCasesOutput(
-            preview,
-            imageCapture,
-            imageAnalysis,
-            previewSemaphore,
-            analysisSemaphore
-        )
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
 
         resultMonitor.assertCaptureKey(
             CaptureRequest.CONTROL_AF_MODE,
             CaptureRequest.CONTROL_AF_MODE_OFF
         )
+    }
+
+    @Test
+    fun startTrigger_tagBundleIsSet(): Unit = runBlocking {
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val previewSemaphore = Semaphore(0)
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore, verifyTakePicture = false)
+
+        val tagBundle = MutableTagBundle.create()
+        val captureResultDeferred = CompletableDeferred<CameraCaptureResult>()
+        basicExtenderSessionProcessor.startTrigger(
+            OptionsBundle.emptyBundle(),
+            tagBundle,
+            object : SessionProcessor.CaptureCallback {
+                override fun onCaptureCompleted(
+                    timestamp: Long,
+                    captureSequenceId: Int,
+                    captureResult: CameraCaptureResult
+                ) {
+                    captureResultDeferred.complete(captureResult)
+                }
+            }
+        )
+
+        assertThat(captureResultDeferred.awaitWithTimeout(2000).tagBundle)
+            .isSameInstanceAs(tagBundle)
+    }
+
+    @Test
+    fun startCapture_tagBundleIsSet(): Unit = runBlocking {
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val previewSemaphore = Semaphore(0)
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore, verifyTakePicture = false)
+
+        val tagBundle = MutableTagBundle.create()
+        val captureResultDeferred = CompletableDeferred<CameraCaptureResult>()
+        basicExtenderSessionProcessor.startCapture(
+            false,
+            tagBundle,
+            object : SessionProcessor.CaptureCallback {
+                override fun onCaptureCompleted(
+                    timestamp: Long,
+                    captureSequenceId: Int,
+                    captureResult: CameraCaptureResult
+                ) {
+                    captureResultDeferred.complete(captureResult)
+                }
+            }
+        )
+
+        assertThat(captureResultDeferred.awaitWithTimeout(2000).tagBundle)
+            .isSameInstanceAs(tagBundle)
     }
 
     @Test
@@ -559,15 +589,11 @@ class BasicExtenderSessionProcessorTest(
         )
         val preview = previewBuilder.build()
         val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
         val previewSemaphore = Semaphore(0)
-        val analysisSemaphore = Semaphore(0)
         verifyUseCasesOutput(
             preview,
             imageCapture,
-            imageAnalysis,
             previewSemaphore,
-            analysisSemaphore
         )
 
         // Trigger RequestUpdateProcessor to update repeating request to have new parameters.
@@ -614,10 +640,12 @@ class BasicExtenderSessionProcessorTest(
             basicExtenderSessionProcessor.onCaptureSessionStart(fakeRequestProcessor)
 
             basicExtenderSessionProcessor.startRepeating(
+                TagBundle.emptyBundle(),
                 object : SessionProcessor.CaptureCallback {}
             )
             basicExtenderSessionProcessor.startCapture(
                 false,
+                TagBundle.emptyBundle(),
                 object : SessionProcessor.CaptureCallback {}
             )
             val submittedRequests =
@@ -785,15 +813,13 @@ class BasicExtenderSessionProcessorTest(
      * Verify if the given use cases have expected output.
      * 1) Preview frame is received
      * 2) imageCapture gets a captured JPEG image
-     * 3) imageAnalysis gets a Image in Analyzer.
      */
     private suspend fun verifyUseCasesOutput(
         preview: Preview,
         imageCapture: ImageCapture,
-        imageAnalysis: ImageAnalysis? = null,
         previewFrameSemaphore: Semaphore? = null,
-        analysisSemaphore: Semaphore? = null,
         expectedExifRotation: Int = 0,
+        verifyTakePicture: Boolean = true,
     ): Camera {
         val camera =
             withContext(Dispatchers.Main) {
@@ -804,12 +830,6 @@ class BasicExtenderSessionProcessorTest(
                         }
                     }
                 )
-                imageAnalysis?.setAnalyzer(CameraXExecutors.mainThreadExecutor()) {
-                    it.close()
-                    if (analysisSemaphore?.availablePermits() == 0) {
-                        analysisSemaphore.release()
-                    }
-                }
                 val cameraSelector =
                     getCameraSelectorWithSessionProcessor(
                         cameraSelector,
@@ -819,7 +839,6 @@ class BasicExtenderSessionProcessorTest(
                 val useCaseGroupBuilder = UseCaseGroup.Builder()
                 useCaseGroupBuilder.addUseCase(preview)
                 useCaseGroupBuilder.addUseCase(imageCapture)
-                imageAnalysis?.let { useCaseGroupBuilder.addUseCase(it) }
 
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
@@ -830,11 +849,9 @@ class BasicExtenderSessionProcessorTest(
 
         previewFrameSemaphore?.let { assertThat(it.tryAcquire(3, TimeUnit.SECONDS)).isTrue() }
 
-        analysisSemaphore?.let {
-            assertThat(analysisSemaphore.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
+        if (verifyTakePicture) {
+            verifyStillCapture(imageCapture, expectedExifRotation)
         }
-
-        verifyStillCapture(imageCapture, expectedExifRotation)
         return camera
     }
 
@@ -890,6 +907,9 @@ class BasicExtenderSessionProcessorTest(
                 override fun getSessionProcessor(): SessionProcessor {
                     return sessionProcessor
                 }
+
+                override fun getUseCaseConfigFactory(): UseCaseConfigFactory =
+                    ExtensionsUseCaseConfigFactory(basicVendorExtender)
             }
         }
         val builder = CameraSelector.Builder.fromSelector(cameraSelector)
@@ -917,7 +937,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         fun assertInvokeOrder(expectList: List<String>) {
-            assertThat(expectList).containsExactlyElementsIn(invokeList).inOrder()
+            assertThat(invokeList).containsExactlyElementsIn(expectList).inOrder()
         }
 
         override fun onInit(
@@ -1026,11 +1046,12 @@ class BasicExtenderSessionProcessorTest(
 
     private open class FakeImageCaptureExtenderImpl(
         private val hasCaptureProcessor: Boolean = false,
-        private val throwErrorOnProcess: Boolean = false
+        private val throwErrorOnProcess: Boolean = false,
+        val invokeOnCaptureCompleted: Boolean = true
     ) : ImageCaptureExtenderImpl, FakeExtenderStateListener() {
         val fakeCaptureProcessorImpl: FakeCaptureProcessorImpl? by lazy {
             if (hasCaptureProcessor) {
-                FakeCaptureProcessorImpl(throwErrorOnProcess)
+                FakeCaptureProcessorImpl(throwErrorOnProcess, invokeOnCaptureCompleted)
             } else {
                 null
             }
@@ -1071,9 +1092,12 @@ class BasicExtenderSessionProcessorTest(
             return mutableListOf()
         }
 
-        override fun getAvailableCaptureResultKeys(): MutableList<CaptureResult.Key<Any>> {
-            return mutableListOf()
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getAvailableCaptureResultKeys(): List<CaptureResult.Key<Any>> =
+            if (invokeOnCaptureCompleted)
+            // return a non-empty list to ensure onCaptureCompleted is invoked.
+            listOf(CaptureResult.JPEG_QUALITY as CaptureResult.Key<Any>)
+            else emptyList()
 
         override fun onDeInit() {
             fakeCaptureProcessorImpl?.close()
@@ -1103,16 +1127,36 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private class FakeCaptureProcessorImpl(val throwErrorOnProcess: Boolean = false) :
-        CaptureProcessorImpl {
+    private class FakeCaptureProcessorImpl(
+        val throwErrorOnProcess: Boolean = false,
+        val invokeOnCaptureCompleted: Boolean = true
+    ) : CaptureProcessorImpl {
         private var imageWriter: ImageWriter? = null
 
         override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>) {
+            processInternal(results)
+        }
+
+        private fun processInternal(
+            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl? = null,
+            executor: Executor? = null
+        ) {
             if (throwErrorOnProcess) {
                 throw RuntimeException("Process failed")
             }
             val image = imageWriter!!.dequeueInputImage()
+            val captureResult = results[0]!!.second
+            val timestamp = captureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!
+            image.timestamp = timestamp
             imageWriter!!.queueInputImage(image)
+
+            if (invokeOnCaptureCompleted) {
+                resultCallback?.let {
+                    val invokeExecutor = executor ?: Executor { it.run() }
+                    invokeExecutor.execute { it.onCaptureCompleted(timestamp, emptyList()) }
+                }
+            }
         }
 
         override fun process(
@@ -1120,11 +1164,11 @@ class BasicExtenderSessionProcessorTest(
             resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
-            process(results)
+            processInternal(results, resultCallback, executor)
         }
 
         override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            imageWriter = ImageWriter.newInstance(surface, 2)
+            imageWriter = ImageWriter.newInstance(surface, 2, imageFormat)
         }
 
         override fun onResolutionUpdate(size: Size) {}

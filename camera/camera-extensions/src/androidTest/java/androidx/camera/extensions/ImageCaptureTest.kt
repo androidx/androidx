@@ -42,7 +42,6 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExifUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -87,8 +86,6 @@ class ImageCaptureTest(
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
-
-    @get:Rule var wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     @get:Rule val temporaryFolder = TemporaryFolder(context.cacheDir)
 
@@ -299,14 +296,11 @@ class ImageCaptureTest(
         capabilities.isCaptureProcessProgressSupported
     }
 
-    private fun isPostviewSupported(): Boolean = runBlocking {
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector)
-            }
-
-        val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
-        capabilities.isPostviewSupported
+    private fun isPostviewSupported(): Boolean {
+        return ImageCapture.getImageCaptureCapabilities(
+                cameraProvider.getCameraInfo(extensionsCameraSelector)
+            )
+            .isPostviewSupported
     }
 
     private suspend fun bindAndTakePicture(

@@ -24,8 +24,10 @@ import android.graphics.ImageFormat;
  *
  * @since 1.2
  */
-public class HdrAdvancedExtenderImpl extends LongCaptureAdvancedExtenderImpl {
+public class HdrAdvancedExtenderImpl extends ConfigurableAdvancedExtenderImpl {
     public HdrAdvancedExtenderImpl() {
-        super(/* postviewFormat */ ImageFormat.JPEG);
+        super(/* longDurationCapture */ false,
+                /* postviewFormat */ ImageFormat.JPEG,
+                /* invokeOnCaptureCompleted */ true);
     }
 }

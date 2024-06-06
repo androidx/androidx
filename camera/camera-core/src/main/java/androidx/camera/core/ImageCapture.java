@@ -1247,8 +1247,7 @@ public final class ImageCapture extends UseCase {
         Log.d(TAG, String.format("createPipeline(cameraId: %s, streamSpec: %s)",
                 cameraId, streamSpec));
         Size resolution = streamSpec.getResolution();
-        boolean isVirtualCamera = !requireNonNull(getCamera()).getHasTransform()
-                || isSessionProcessorEnabledInCurrentCamera();
+        boolean isVirtualCamera = !requireNonNull(getCamera()).getHasTransform();
         if (mImagePipeline != null) {
             checkState(isVirtualCamera);
             // On LEGACY devices, when the app is backgrounded, it will trigger StreamSharing's

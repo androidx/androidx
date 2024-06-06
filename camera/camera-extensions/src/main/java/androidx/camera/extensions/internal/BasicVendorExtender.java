@@ -220,11 +220,11 @@ public class BasicVendorExtender implements VendorExtender {
                     // Ensure the PRIVATE format is in the list.
                     // PreviewExtenderImpl.getSupportedResolutions() returns the supported size
                     // for input surface. We need to ensure output surface format is supported.
-                    return replaceImageFormatIfMissing(result,
-                            /* formatToBeReplaced */
-                            ImageFormat.YUV_420_888,
-                            /* newFormat */
-                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+                    return getSupportedResolutionsOfFormat(result,
+                            /* imageFormat */
+                            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                            /* formatToBeReplacedIfMissing */
+                            ImageFormat.YUV_420_888);
                 }
             } catch (NoSuchMethodError e) {
             }
@@ -252,49 +252,48 @@ public class BasicVendorExtender implements VendorExtender {
                 List<Pair<Integer, Size[]>> result =
                         mImageCaptureExtenderImpl.getSupportedResolutions();
                 if (result != null) {
-                    // Ensure the JPEG format is in the list.
-                    // ImageCaptureExtenderImpl.getSupportedResolutions() returns the supported
-                    // size for input surface. We need to ensure output surface format is supported.
-                    return replaceImageFormatIfMissing(result,
-                            ImageFormat.YUV_420_888 /* formatToBeReplaced */,
-                            ImageFormat.JPEG /* newFormat */);
+                    if (mImageCaptureExtenderImpl.getCaptureProcessor() != null) {
+                        // Return YUV supported resolutions when CaptureProcessor is enabled.
+                        // Replace JPEG as YUV sizes if YUV is missing.
+                        return getSupportedResolutionsOfFormat(result,
+                                ImageFormat.YUV_420_888 /* imageFormat */,
+                                ImageFormat.JPEG /* formatToBeReplacedIfMissing */);
+                    } else {
+                        return result;
+                    }
                 }
             } catch (NoSuchMethodError e) {
             }
         }
 
         // Returns output sizes from stream configuration map if OEM returns null or OEM does not
-        // implement the function. BasicVendorExtender's SessionProcessor will always output
-        // JPEG Images, but the input image which connect to the camera could be either YUV or
-        // JPEG. Since the input image from input surface is guaranteed to be able to output to
-        // the output surface, therefore we fetch the sizes from the input image format for the
-        // output format.
+        // implement the function. BasicVendorExtender's SessionProcessor will output
+        // YUV Images if CaptureProcessor implemented, otherwise it will output JPEG image
+        // directly.
         int inputImageFormat = getCaptureInputImageFormat();
-        return Arrays.asList(new Pair<>(ImageFormat.JPEG, getOutputSizes(inputImageFormat)));
+        return Arrays.asList(new Pair<>(inputImageFormat, getOutputSizes(inputImageFormat)));
     }
 
-    private List<Pair<Integer, Size[]>> replaceImageFormatIfMissing(
-            List<Pair<Integer, Size[]>> input, int formatToBeReplaced, int newFormat) {
-        for (Pair<Integer, Size[]> pair : input) {
-            if (pair.first == newFormat) {
-                return input;
-            }
-        }
-
+    private List<Pair<Integer, Size[]>> getSupportedResolutionsOfFormat(
+            List<Pair<Integer, Size[]>> input, int imageFormat, int formatToBeReplacedWhenMissing) {
         List<Pair<Integer, Size[]>> output = new ArrayList<>();
-        boolean formatFound = false;
+
         for (Pair<Integer, Size[]> pair : input) {
-            if (pair.first == formatToBeReplaced) {
-                formatFound = true;
-                output.add(new Pair<>(newFormat, pair.second));
-            } else {
-                output.add(pair);
+            if (pair.first == imageFormat) {
+                output.add(new Pair<>(imageFormat, pair.second));
+                return output;
             }
         }
 
-        if (!formatFound) {
+        for (Pair<Integer, Size[]> pair : input) {
+            if (pair.first == formatToBeReplacedWhenMissing) {
+                output.add(new Pair<>(imageFormat, pair.second));
+            }
+        }
+
+        if (output.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Supported resolution should contain " + newFormat + " format.");
+                    "Supported resolution should contain " + imageFormat + " format.");
         }
         return output;
     }
@@ -334,7 +333,8 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     @NonNull
-    private List<CaptureResult.Key> getSupportedCaptureResultKeys() {
+    @Override
+    public List<CaptureResult.Key> getSupportedCaptureResultKeys() {
         if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
             try {
                 List<CaptureResult.Key> keys =
@@ -403,7 +403,6 @@ public class BasicVendorExtender implements VendorExtender {
         return new BasicExtenderSessionProcessor(
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
-                getSupportedCaptureResultKeys(),
                 this,
                 context);
     }
