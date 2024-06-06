@@ -823,7 +823,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
      */
     override fun dispatchProvideStructure(structure: ViewStructure) {
         if (SDK_INT == 26 || SDK_INT == 27) {
-            AndroidComposeViewAssistHelperMethodsO.setClassName(structure)
+            AndroidComposeViewAssistHelperMethodsO.setClassName(structure, view)
         } else {
             super.dispatchProvideStructure(structure)
         }
@@ -2482,8 +2482,8 @@ private object AndroidComposeViewVerificationHelperMethodsO {
 private object AndroidComposeViewAssistHelperMethodsO {
     @RequiresApi(M)
     @DoNotInline
-    fun setClassName(structure: ViewStructure) {
-        structure.setClassName(javaClass.name)
+    fun setClassName(structure: ViewStructure, view: View) {
+        structure.setClassName(view.accessibilityClassName.toString())
     }
 }
 
