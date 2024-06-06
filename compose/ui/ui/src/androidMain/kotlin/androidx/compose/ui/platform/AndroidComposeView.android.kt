@@ -804,6 +804,19 @@ internal class AndroidComposeView(
         } ?: super.getFocusedRect(rect)
     }
 
+    /**
+     * Avoid Android 8 crash by not traversing assist structure. Autofill assistStructure will be
+     * dispatched via `dispatchProvideAutofillStructure`, not this method. See b/251152083 for more
+     * details.
+     */
+    override fun dispatchProvideStructure(structure: ViewStructure) {
+        if (SDK_INT == 26 || SDK_INT == 27) {
+            AndroidComposeViewAssistHelperMethodsO.setClassName(structure)
+        } else {
+            super.dispatchProvideStructure(structure)
+        }
+    }
+
     private val scrollCapture = if (SDK_INT >= 31) ScrollCapture() else null
     internal val scrollCaptureInProgress: Boolean
         get() = if (SDK_INT >= 31) {
@@ -2415,6 +2428,15 @@ private object AndroidComposeViewVerificationHelperMethodsO {
         view.focusable = focusable
         // not to add the default focus highlight to the whole compose view
         view.defaultFocusHighlightEnabled = defaultFocusHighlightEnabled
+    }
+}
+
+@RequiresApi(M)
+private object AndroidComposeViewAssistHelperMethodsO {
+    @RequiresApi(M)
+    @DoNotInline
+    fun setClassName(structure: ViewStructure) {
+        structure.setClassName(javaClass.name)
     }
 }
 
