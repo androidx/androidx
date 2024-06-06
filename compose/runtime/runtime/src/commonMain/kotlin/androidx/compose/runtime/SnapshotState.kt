@@ -23,6 +23,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
@@ -279,6 +280,30 @@ fun <K, V> mutableStateMapOf(vararg pairs: Pair<K, V>) =
 @Suppress("unused")
 fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
     SnapshotStateMap<K, V>().also { it.putAll(this.toMap()) }
+
+/**
+ * Create a instance of [MutableSet]<T> that is observable and can be snapshot.
+ *
+ * @sample androidx.compose.runtime.samples.stateListSample
+ *
+ * @see mutableStateOf
+ * @see mutableSetOf
+ * @see MutableSet
+ * @see Snapshot.takeSnapshot
+ */
+@StateFactoryMarker fun <T> mutableStateSetOf() = SnapshotStateSet<T>()
+
+/**
+ * Create an instance of [MutableSet]<T> that is observable and can be snapshot.
+ *
+ * @see mutableStateOf
+ * @see mutableSetOf
+ * @see MutableSet
+ * @see Snapshot.takeSnapshot
+ */
+@StateFactoryMarker
+fun <T> mutableStateSetOf(vararg elements: T) =
+    SnapshotStateSet<T>().also { it.addAll(elements.toSet()) }
 
 /**
  * [remember] a [mutableStateOf] [newValue] and update its value to [newValue] on each recomposition
