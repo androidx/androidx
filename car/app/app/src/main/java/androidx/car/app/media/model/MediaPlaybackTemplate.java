@@ -87,6 +87,7 @@ public class MediaPlaybackTemplate implements Template {
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
+    @ExperimentalCarApi
     public static final class Builder {
         @Nullable
         Header mHeader;
