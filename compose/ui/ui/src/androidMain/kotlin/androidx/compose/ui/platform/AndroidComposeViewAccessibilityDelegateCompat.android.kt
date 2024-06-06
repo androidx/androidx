@@ -764,6 +764,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     ) {
         // set classname
         info.className = ClassName
+
+        // Set a classname for text nodes before setting a classname based on a role ensuring that
+        // the latter if present wins (see b/343392125)
+        if (semanticsNode.unmergedConfig.contains(SemanticsActions.SetText)) {
+            info.className = TextFieldClassName
+        }
+        if (semanticsNode.unmergedConfig.contains(SemanticsProperties.Text)) {
+            info.className = TextClassName
+        }
         val role = semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Role)
         role?.let {
             if (semanticsNode.isFake || semanticsNode.replacedChildren.isEmpty()) {
@@ -784,12 +793,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     }
                 }
             }
-        }
-        if (semanticsNode.unmergedConfig.contains(SemanticsActions.SetText)) {
-            info.className = TextFieldClassName
-        }
-        if (semanticsNode.unmergedConfig.contains(SemanticsProperties.Text)) {
-            info.className = TextClassName
         }
 
         info.packageName = view.context.packageName
