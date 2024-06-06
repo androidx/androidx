@@ -17,7 +17,6 @@ package androidx.camera.extensions.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.os.Build;
 import android.util.Pair;
@@ -29,17 +28,17 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 /**
- * Implementation for auto preview use case.
+ * An simple pass-though implementation for auto preview use case whose processorType is
+ * PROCESSOR_TYPE_NONE.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
- * don't need to implement this, unless this is used for related testing usage.
+ * <p>This is only for testing camera-extensions and should not be used as a sample OEM
+ * implementation.
  *
  * @since 1.0
  */
 public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
-    private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE;
 
     public AutoPreviewExtenderImpl() {
     }
@@ -52,16 +51,7 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
-        // Return false to skip tests since old devices do not support extensions.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return false;
-        }
-
-        if (cameraCharacteristics == null) {
-            return false;
-        }
-
-        return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
+        return true;
     }
 
     @NonNull
@@ -70,21 +60,19 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
-
         return captureStage;
     }
 
     @NonNull
     @Override
     public ProcessorType getProcessorType() {
-        return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
+        return ProcessorType.PROCESSOR_TYPE_NONE;
     }
 
     @Nullable
     @Override
     public ProcessorImpl getProcessor() {
-        return RequestUpdateProcessorImpls.noUpdateProcessor();
+        return null;
     }
 
     @Nullable
@@ -117,8 +105,6 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
-
         return captureStage;
     }
 
@@ -129,8 +115,6 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
-
         return captureStage;
     }
 
@@ -141,8 +125,6 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE, EFFECT);
-
         return captureStage;
     }
 

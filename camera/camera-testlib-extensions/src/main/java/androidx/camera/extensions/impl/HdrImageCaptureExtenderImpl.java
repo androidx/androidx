@@ -47,10 +47,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation for HDR image capture use case.
+ * Implementation for HDR image capture use case that implements {@link CaptureProcessorImpl} that
+ * processing the results from a burst capture of 3 frames.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
- * don't need to implement this, unless this is used for related testing usage.
+ * <p>This is only for testing camera-extensions and should not be used as a sample OEM
+ * implementation.
  *
  * @since 1.0
  */
@@ -412,4 +413,11 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
         return Arrays.asList(CaptureResult.SENSOR_TIMESTAMP);
     }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public static void checkTestlibRunning() {}
 }

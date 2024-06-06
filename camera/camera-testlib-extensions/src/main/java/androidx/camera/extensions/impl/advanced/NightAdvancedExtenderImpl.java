@@ -30,4 +30,11 @@ public class NightAdvancedExtenderImpl extends ConfigurableAdvancedExtenderImpl 
                 /* postviewFormat */ ImageFormat.YUV_420_888,
                 /* invokeOnCaptureCompleted */ true);
     }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public static void checkTestlibRunning() {}
 }

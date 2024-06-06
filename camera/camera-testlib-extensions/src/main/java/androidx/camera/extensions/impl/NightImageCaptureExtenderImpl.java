@@ -49,8 +49,8 @@ import java.util.concurrent.Executor;
  * <p>This implementation enable the Extensions-Interface v1.4 features such as postview,
  * onCaptureProcessProgressed callback and realtime capture latency.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
- * don't need to implement this, unless this is used for related testing usage.
+ * <p>This is only for testing camera-extensions and should not be used as a sample OEM
+ * implementation.
  *
  * @since 1.0
  */
@@ -408,4 +408,11 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
             }
         }
     }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public static void checkTestlibRunning() {}
 }
