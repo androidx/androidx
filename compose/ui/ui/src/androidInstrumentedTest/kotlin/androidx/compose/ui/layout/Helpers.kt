@@ -19,6 +19,7 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import com.google.common.truth.Truth
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -81,7 +83,7 @@ internal fun createDelegate(
     return delegate
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
 private class FakeOwner(
     val delegate: MeasureAndLayoutDelegate,
     val createLayer: () -> OwnedLayer,
@@ -147,6 +149,8 @@ private class FakeOwner(
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {}
+
+    override fun onInteropViewLayoutChange(view: InteropView) {}
 
     @OptIn(InternalCoreApi::class)
     override var showLayoutBounds: Boolean = false
