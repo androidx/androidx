@@ -193,6 +193,7 @@ import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.MotionEventCompat.AXIS_SCROLL
@@ -445,6 +446,7 @@ internal class AndroidComposeView(
     private var postponedDirtyLayers: MutableList<OwnedLayer>? = null
 
     private var isDrawingContent = false
+    private var isPendingInteropViewLayoutChangeDispatch = false
 
     private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
@@ -1273,6 +1275,7 @@ internal class AndroidComposeView(
                     requestLayout()
                 }
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                dispatchPendingInteropLayoutCallbacks()
             }
         }
     }
@@ -1285,7 +1288,15 @@ internal class AndroidComposeView(
             // it allows us to not traverse the hierarchy twice.
             if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                dispatchPendingInteropLayoutCallbacks()
             }
+        }
+    }
+
+    private fun dispatchPendingInteropLayoutCallbacks() {
+        if (isPendingInteropViewLayoutChangeDispatch) {
+            viewTreeObserver.dispatchOnGlobalLayout()
+            isPendingInteropViewLayoutChangeDispatch = false
         }
     }
 
@@ -1509,6 +1520,10 @@ internal class AndroidComposeView(
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
         contentCaptureManager.onLayoutChange(layoutNode)
+    }
+
+    override fun onInteropViewLayoutChange(view: InteropView) {
+        isPendingInteropViewLayoutChangeDispatch = true
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
