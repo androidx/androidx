@@ -62,6 +62,9 @@ sealed interface LazyGridItemInfo {
     /**
      * The horizontal span of the item if it's in a [LazyVerticalGrid] or the vertical span if the
      * item is in a [LazyHorizontalGrid].
+     *
+     * Note, [LazyGridLayoutInfo.maxSpan] can be used to get the maximum number of spans in a line,
+     * e.g., to check if the item is filling the whole line.
      */
     val span: Int
 

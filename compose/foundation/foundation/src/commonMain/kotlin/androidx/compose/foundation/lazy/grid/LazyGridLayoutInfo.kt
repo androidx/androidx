@@ -78,4 +78,12 @@ sealed interface LazyGridLayoutInfo {
 
     /** The spacing between lines in the direction of scrolling. */
     val mainAxisItemSpacing: Int
+
+    /**
+     * The max line span an item can occupy. This will be the number of columns in vertical grids or
+     * the number of rows in horizontal grids.
+     *
+     * For example if [LazyVerticalGrid] has 3 columns this value will be 3 for each cell.
+     */
+    val maxSpan: Int
 }

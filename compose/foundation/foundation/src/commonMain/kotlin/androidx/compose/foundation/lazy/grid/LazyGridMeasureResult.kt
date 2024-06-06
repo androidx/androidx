@@ -76,6 +76,9 @@ internal class LazyGridMeasureResult(
     override val beforeContentPadding: Int
         get() = -viewportStartOffset
 
+    override val maxSpan: Int
+        get() = slotsPerLine
+
     /**
      * Creates a new layout info with applying a scroll [delta] for this layout info. In some cases
      * we can apply small scroll deltas by just changing the offsets for each [visibleItemsInfo].
