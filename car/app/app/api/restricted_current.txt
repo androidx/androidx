@@ -882,7 +882,7 @@ package androidx.car.app.media.model {
     method public androidx.car.app.model.Header? getHeader();
   }
 
-  public static final class MediaPlaybackTemplate.Builder {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class MediaPlaybackTemplate.Builder {
     ctor public MediaPlaybackTemplate.Builder();
     ctor public MediaPlaybackTemplate.Builder(androidx.car.app.media.model.MediaPlaybackTemplate);
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
