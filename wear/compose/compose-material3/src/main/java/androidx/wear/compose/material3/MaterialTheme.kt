@@ -85,6 +85,9 @@ object MaterialTheme {
 
     val shapes: Shapes
         @ReadOnlyComposable @Composable get() = LocalShapes.current
+
+    internal val motionScheme: MotionScheme
+        @ReadOnlyComposable @Composable get() = MotionScheme
 }
 
 @Composable
