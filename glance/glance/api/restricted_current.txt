@@ -129,7 +129,7 @@ package androidx.glance.action {
     method public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, androidx.glance.action.Action onClick);
     method public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, androidx.glance.action.Action onClick, optional @DrawableRes int rippleOverride);
     method @androidx.compose.runtime.Composable public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, optional @DrawableRes int rippleOverride, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.glance.ExperimentalGlanceApi public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, optional String? key, optional @DrawableRes int rippleOverride, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @androidx.compose.runtime.Composable public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, optional String? key, optional @DrawableRes int rippleOverride, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @androidx.compose.runtime.Composable public static androidx.glance.GlanceModifier clickable(androidx.glance.GlanceModifier, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     field @DrawableRes public static final int NoRippleOverride = 0; // 0x0
   }
