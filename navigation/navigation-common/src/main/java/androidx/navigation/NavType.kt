@@ -129,8 +129,10 @@ public abstract class NavType<T>(
      * This method can be override for custom serialization implementation on types such custom
      * NavType classes.
      *
+     * Note: Final output should be encoded with [Uri.encode]
+     *
      * @param value a value representing this NavType to be serialized into a String
-     * @return serialized String value of [value]
+     * @return encoded and serialized String value of [value]
      */
     public open fun serializeAsValue(value: T): String {
         return value.toString()
