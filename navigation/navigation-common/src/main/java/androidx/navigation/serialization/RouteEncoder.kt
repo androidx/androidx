@@ -32,7 +32,7 @@ internal class RouteEncoder<T : Any>(
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
-    private val builder = RouteBuilder.Filled(serializer, typeMap)
+    private val builder = OldRouteBuilder.Filled(serializer, typeMap)
 
     /**
      * Entry point to set up and start encoding [T].

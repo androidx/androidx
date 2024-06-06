@@ -35,8 +35,7 @@ import kotlinx.serialization.serializer
  * of class T where T is a concrete class or object.
  *
  * The generated route pattern contains the path, path args, and query args. See
- * [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query) is
- * computed.
+ * [RouteBuilder.computeParamType] for logic on how parameter type (path or query) is computed.
  *
  * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given an argument of
  *   "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
@@ -54,21 +53,14 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
                 "concrete classes or objects."
         )
     }
-
-    val map = mutableMapOf<String, NavType<Any?>>()
-    for (i in 0 until descriptor.elementsCount) {
-        val argName = descriptor.getElementName(i)
-        val type = descriptor.getElementDescriptor(i).computeNavType(argName, typeMap)
-        map[argName] = type
-    }
     val builder =
         if (path != null) {
-            RouteBuilder.Pattern(path, this, map)
+            RouteBuilder(path, this)
         } else {
-            RouteBuilder.Pattern(this, map)
+            RouteBuilder(this)
         }
-    for (elementIndex in 0 until descriptor.elementsCount) {
-        builder.addArg(elementIndex)
+    forEachIndexed(typeMap) { index, argName, navType ->
+        builder.appendPattern(index, argName, navType)
     }
     return builder.build()
 }
@@ -127,7 +119,7 @@ internal fun <T> KSerializer<T>.generateNavArguments(
  * [::navigate] from a destination instance of type T.
  *
  * The generated route pattern contains the path, path args, and query args. See
- * [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query) is
+ * [OldRouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query) is
  * computed.
  */
 @OptIn(InternalSerializationApi::class)
@@ -164,4 +156,15 @@ private fun SerialDescriptor.computeNavType(
         )
     }
     return result as NavType<Any?>
+}
+
+private fun <T> KSerializer<T>.forEachIndexed(
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit
+) {
+    for (i in 0 until descriptor.elementsCount) {
+        val argName = descriptor.getElementName(i)
+        val navType = descriptor.getElementDescriptor(i).computeNavType(argName, typeMap)
+        operation(i, argName, navType)
+    }
 }
