@@ -631,7 +631,7 @@ class ImageCaptureTest(
             )
         }
 
-        assertThat(imageCapture.currentConfig.isHigResolutionDisabled(false)).isTrue()
+        assertThat(imageCapture.currentConfig.isHighResolutionDisabled(false)).isTrue()
     }
 
     class FakeOnImageCaptureCallback : ImageCapture.OnImageCapturedCallback() {

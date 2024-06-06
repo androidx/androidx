@@ -281,7 +281,7 @@ public class ResolutionsMerger {
         // High resolutions need to be included if the feature is not disabled and allowed in any
         // child configuration.
         for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
-            if (childConfig.isHigResolutionDisabled(false)) {
+            if (childConfig.isHighResolutionDisabled(false)) {
                 continue;
             }
 
