@@ -124,21 +124,21 @@ private class MultiLayerComposeSceneImpl(
 
     override var density: Density = density
         set(value) {
-            check(!isClosed) { "ComposeScene is closed" }
+            check(!isClosed) { "density set after ComposeScene is closed" }
             field = value
             mainOwner.density = value
         }
 
     override var layoutDirection: LayoutDirection = layoutDirection
         set(value) {
-            check(!isClosed) { "ComposeScene is closed" }
+            check(!isClosed) { "layoutDirection set after ComposeScene is closed" }
             field = value
             mainOwner.layoutDirection = value
         }
 
     override var size: IntSize? = size
         set(value) {
-            check(!isClosed) { "ComposeScene is closed" }
+            check(!isClosed) { "size set after ComposeScene is closed" }
             check(value == null || (value.width >= 0f && value.height >= 0)) {
                 "Size of ComposeScene cannot be negative"
             }
@@ -196,12 +196,12 @@ private class MultiLayerComposeSceneImpl(
     }
 
     override fun calculateContentSize(): IntSize {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "calculateContentSize called after ComposeScene is closed" }
         return mainOwner.measureInConstraints(Constraints())
     }
 
     override fun invalidatePositionInWindow() {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "invalidatePositionInWindow called after ComposeScene is closed" }
         mainOwner.invalidatePositionInWindow()
     }
 
@@ -420,7 +420,7 @@ private class MultiLayerComposeSceneImpl(
     }
 
     private fun attachLayer(layer: AttachedComposeSceneLayer) {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "attachLayer called after ComposeScene is closed" }
         layers.add(layer)
 
         if (layer.focusable) {
@@ -433,7 +433,7 @@ private class MultiLayerComposeSceneImpl(
     }
 
     private fun detachLayer(layer: AttachedComposeSceneLayer) {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "detachLayer called after ComposeScene is closed" }
         layers.remove(layer)
 
         releaseFocus(layer)

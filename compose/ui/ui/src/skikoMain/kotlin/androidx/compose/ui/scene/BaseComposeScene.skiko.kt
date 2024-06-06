@@ -80,7 +80,7 @@ internal abstract class BaseComposeScene(
 
     private var isInvalidationDisabled = false
     private inline fun <T> postponeInvalidation(traceTag: String, crossinline block: () -> T): T = trace(traceTag) {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "postponeInvalidation called after ComposeScene is closed" }
         isInvalidationDisabled = true
         return try {
             // Try to get see the up-to-date state before running block
@@ -129,7 +129,7 @@ internal abstract class BaseComposeScene(
     override fun hasInvalidations(): Boolean = hasPendingDraws || recomposer.hasPendingWork
 
     override fun setContent(content: @Composable () -> Unit) = postponeInvalidation("BaseComposeScene:setContent") {
-        check(!isClosed) { "ComposeScene is closed" }
+        check(!isClosed) { "setContent called after ComposeScene is closed" }
         inputHandler.onChangeContent()
 
         /*
