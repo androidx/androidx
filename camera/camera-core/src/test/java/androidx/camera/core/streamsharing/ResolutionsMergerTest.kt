@@ -315,6 +315,27 @@ class ResolutionsMergerTest {
         assertThat(merger.getMergedResolutions(parentConfig)).containsExactly(Size(4000, 3000))
     }
 
+    @Test
+    fun getMergedResolutions_whenChildHasResolutionNeverBeSelected_canReturnCorrectly() {
+        // Arrange.
+        val sensorSize = SIZE_3264_2448 // 4:3
+        val config1 = createUseCaseConfig()
+        val config2 = createUseCaseConfig()
+        val childConfigs = setOf(config1, config2)
+        val candidateChildSizes1 = listOf(SIZE_1920_1080) // 16:9
+        val candidateChildSizes2 = listOf(SIZE_1920_1080, SIZE_960_540, SIZE_3840_2160) // 16:9
+        val sorter =
+            FakeSupportedOutputSizesSorter(
+                mapOf(config1 to candidateChildSizes1, config2 to candidateChildSizes2)
+            )
+        val merger = ResolutionsMerger(sensorSize, CAMERA_INFO, childConfigs, sorter)
+
+        // Act & Assert, should returns a list of 16:9 resolutions and not consider child resolution
+        // that will never be selected (3840x2160).
+        val parentConfig = MutableOptionsBundle.create()
+        assertThat(merger.getMergedResolutions(parentConfig)).containsExactly(SIZE_1920_1080)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun getPreferredChildSizePair_whenConfigNotPassedToConstructor_throwsException() {
         // Arrange.
