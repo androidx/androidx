@@ -32,6 +32,10 @@ actual interface AutoMigrationSpec {
     /**
      * Invoked after the migration is completed.
      *
+     * This function is only called when Room is configured without a driver. If a driver is set
+     * using [androidx.room.RoomDatabase.Builder.setDriver], then only the version that receives a
+     * [SQLiteConnection] is called.
+     *
      * @param db The SQLite database.
      */
     fun onPostMigrate(db: SupportSQLiteDatabase) {}
