@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(libs.androidx.annotation)
+    project(":camera:camera-feature-combination-query")
     implementation(project(":camera:camera-feature-combination-query"))
 
     testImplementation(libs.testRunner)
@@ -32,6 +33,13 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 android {
