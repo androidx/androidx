@@ -189,7 +189,6 @@ internal class FocusOwnerImpl(
         if (clearedFocusSuccessfully && clearOwnerFocus) {
             onClearFocusForOwner.invoke()
         }
-
         return clearedFocusSuccessfully
     }
 
