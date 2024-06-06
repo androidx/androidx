@@ -33,15 +33,18 @@ import org.junit.runners.Parameterized
 class JetsnackStartupBenchmark(val startupMode: StartupMode, val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
-    @Test
-    fun startup() =
+    private fun measureStartup(action: String) =
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = PACKAGE_NAME,
+            packageName = PACKAGE_NAME
         ) {
-            action = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY"
+            this.action = action
         }
+
+    @Test fun startup() = measureStartup("$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY")
+
+    @Test fun startupViews() = measureStartup("$PACKAGE_NAME.jetsnack.JETSNACK_VIEWS_ACTIVITY")
 
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilationMode={1}")

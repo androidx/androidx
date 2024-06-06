@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.integration.hero.implementation.jetsnack.theme
+package androidx.compose.integration.hero.implementation.jetsnack.compose.theme
 
 import androidx.compose.ui.graphics.Color
 
