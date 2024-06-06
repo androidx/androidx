@@ -477,6 +477,7 @@ internal class PointerEventSubject(metaData: FailureMetadata, val actual: Pointe
             check("consumed")
                 .that(actualChanges[i].isConsumed)
                 .isEqualTo(expectedChanges[i].isConsumed)
+            check("type").that(actualChanges[i].type).isEqualTo(expectedChanges[i].type)
         }
     }
 }
@@ -549,7 +550,8 @@ internal class PointerInputChangeEmitter(id: Int = 0) {
     fun nextChange(
         position: Offset = Offset.Zero,
         down: Boolean = true,
-        time: Long = 0
+        time: Long = 0,
+        pointerType: PointerType = PointerType.Touch
     ): PointerInputChange {
         return PointerInputChange(
                 id = pointerId,
@@ -559,7 +561,8 @@ internal class PointerInputChangeEmitter(id: Int = 0) {
                 previousTime,
                 previousPosition,
                 previousPressed,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
+                type = pointerType
             )
             .also {
                 previousTime = time
