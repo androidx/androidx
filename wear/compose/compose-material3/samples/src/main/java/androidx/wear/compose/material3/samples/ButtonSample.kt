@@ -45,8 +45,9 @@ fun ButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: 
     Button(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
-        onLongClickLabel = "OnLongClick action",
-        label = { Text("With onLongClick") }
+        onLongClickLabel = "Long click",
+        label = { Text("Button") },
+        secondaryLabel = { Text("with long click") }
     )
 }
 
@@ -82,8 +83,9 @@ fun FilledTonalButtonWithOnLongClickSample(
     FilledTonalButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
-        onLongClickLabel = "OnLongClick action",
-        label = { Text("With onLongClick") }
+        onLongClickLabel = "Long click",
+        label = { Text("Filled Tonal Button") },
+        secondaryLabel = { Text("with long click") }
     )
 }
 
@@ -119,8 +121,9 @@ fun OutlinedButtonWithOnLongClickSample(
     OutlinedButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
-        onLongClickLabel = "OnLongClick action",
-        label = { Text("With onLongClick") }
+        onLongClickLabel = "Long click",
+        label = { Text("Outlined Button") },
+        secondaryLabel = { Text("with long click") }
     )
 }
 
@@ -153,8 +156,9 @@ fun ChildButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHand
     ChildButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
-        onLongClickLabel = "OnLongClick action",
-        label = { Text("With onLongClick") }
+        onLongClickLabel = "Long click",
+        label = { Text("Child Button") },
+        secondaryLabel = { Text("with long click") }
     )
 }
 
@@ -198,8 +202,8 @@ fun CompactButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHa
     CompactButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
-        onLongClickLabel = "OnLongClick action",
-        label = { Text("With onLongClick") }
+        onLongClickLabel = "Long click",
+        label = { Text("Long clickable") }
     )
 }
 

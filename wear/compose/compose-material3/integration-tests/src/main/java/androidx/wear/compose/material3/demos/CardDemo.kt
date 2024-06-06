@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.ListHeader
@@ -29,6 +30,7 @@ import androidx.wear.compose.material3.samples.AppCardSample
 import androidx.wear.compose.material3.samples.AppCardWithIconSample
 import androidx.wear.compose.material3.samples.AppCardWithImageSample
 import androidx.wear.compose.material3.samples.CardSample
+import androidx.wear.compose.material3.samples.CardWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedAppCardSample
 import androidx.wear.compose.material3.samples.OutlinedCardSample
 import androidx.wear.compose.material3.samples.OutlinedTitleCardSample
@@ -39,12 +41,14 @@ import androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSampl
 
 @Composable
 fun CardDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { ListHeader { Text("Card") } }
         item { CardSample() }
+        item { CardWithOnLongClickSample { showOnLongClickToast(context) } }
         item { OutlinedCardSample() }
 
         item { ListHeader { Text("App card") } }

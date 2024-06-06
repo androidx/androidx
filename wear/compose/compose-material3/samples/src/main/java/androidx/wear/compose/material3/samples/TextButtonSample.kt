@@ -83,7 +83,7 @@ fun TextButtonWithOnLongClickSample(onLongClick: () -> Unit) {
     TextButton(
         onClick = { /* Do something for onClick*/ },
         onLongClick = onLongClick,
-        onLongClickLabel = "OnLongClick action"
+        onLongClickLabel = "Long click"
     ) {
         Text(text = "ABC")
     }
