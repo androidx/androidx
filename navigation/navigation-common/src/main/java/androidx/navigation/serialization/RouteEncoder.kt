@@ -16,6 +16,7 @@
 
 package androidx.navigation.serialization
 
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -32,7 +33,8 @@ internal class RouteEncoder<T : Any>(
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
-    private val builder = RouteBuilder.Filled(serializer, typeMap)
+    val map: MutableMap<String, List<String>> = mutableMapOf()
+    var elementIndex: Int = -1
 
     /**
      * Entry point to set up and start encoding [T].
@@ -43,9 +45,9 @@ internal class RouteEncoder<T : Any>(
      * to the default entry by directly calling [super.encodeSerializableValue].
      */
     @Suppress("UNCHECKED_CAST")
-    fun encodeRouteWithArgs(value: Any): String {
+    fun encodeToArgMap(value: Any): Map<String, List<String>> {
         super.encodeSerializableValue(serializer, value as T)
-        return builder.build()
+        return map
     }
 
     /**
@@ -58,12 +60,12 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        builder.addArg(value)
+        internalEncodeValue(value)
     }
 
     /** Essentially called for every single argument. */
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        builder.setElementIndex(index)
+        elementIndex = index
         return true
     }
 
@@ -73,11 +75,24 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun encodeValue(value: Any) {
-        builder.addArg(value)
+        internalEncodeValue(value)
     }
 
     /** Called for primitive / non-primitives of null value */
     override fun encodeNull() {
-        builder.addArg(null)
+        internalEncodeValue(null)
+    }
+
+    private fun internalEncodeValue(value: Any?) {
+        val argName = serializer.descriptor.getElementName(elementIndex)
+        val navType = typeMap[argName]
+        checkNotNull(navType) { "MISSING NAV TYPE" }
+        val parsedValue =
+            if (navType is CollectionNavType) {
+                navType.serializeAsValues(value)
+            } else {
+                listOf(navType.serializeAsValue(value))
+            }
+        map[argName] = parsedValue
     }
 }
