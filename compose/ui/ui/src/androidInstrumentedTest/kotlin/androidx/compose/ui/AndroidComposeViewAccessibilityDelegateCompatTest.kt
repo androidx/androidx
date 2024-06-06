@@ -561,6 +561,49 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    fun textNode_withRoleButton_className_button() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    testTag = tag
+                    text = AnnotatedString("text") // makes it a text node
+                    role = Role.Button
+                }
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.className).isEqualTo("android.widget.Button") }
+    }
+
+    @Test
+    fun textFieldNode_withRoleButton_className_button() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    testTag = tag
+                    editableText = AnnotatedString("")
+                    setText { true } // makes it a text field node
+                    role = Role.Button
+                }
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle { assertThat(info.className).isEqualTo("android.widget.Button") }
+    }
+
+    @Test
     fun nodeWithTextAndLayoutResult_className_textView() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
