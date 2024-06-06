@@ -59,6 +59,25 @@ class PendingIntentHandlerTest {
         private const val BIOMETRIC_AUTHENTICATOR_ERROR_CODE = 5
 
         private const val BIOMETRIC_AUTHENTICATOR_ERROR_MSG = "error"
+
+        private const val FRAMEWORK_EXPECTED_CONSTANT_ERROR_CODE =
+            "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_CODE"
+
+        private const val FRAMEWORK_EXPECTED_CONSTANT_ERROR_MESSAGE =
+            "androidx.credentials.provider.BIOMETRIC_AUTH_ERROR_MESSAGE"
+
+        private const val FRAMEWORK_EXPECTED_CONSTANT_AUTH_RESULT =
+            "androidx.credentials.provider.BIOMETRIC_AUTH_RESULT"
+    }
+
+    @Test
+    fun test_constantsMatchFrameworkExpectations_success() {
+        assertThat(AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE)
+            .isEqualTo(FRAMEWORK_EXPECTED_CONSTANT_AUTH_RESULT)
+        assertThat(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR)
+            .isEqualTo(FRAMEWORK_EXPECTED_CONSTANT_ERROR_CODE)
+        assertThat(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE)
+            .isEqualTo(FRAMEWORK_EXPECTED_CONSTANT_ERROR_MESSAGE)
     }
 
     @Test

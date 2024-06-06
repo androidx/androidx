@@ -38,7 +38,8 @@ class AuthenticationResult(
     internal companion object {
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE = "BIOMETRIC_AUTH_RESULT"
+        const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE =
+            "androidx.credentials.provider.BIOMETRIC_AUTH_RESULT"
         @VisibleForTesting
         internal val biometricFrameworkToJetpackResultMap =
             linkedMapOf(
