@@ -128,19 +128,18 @@ final class CaptureSession implements CaptureSessionInterface {
      * Constructor for CaptureSession without CameraQuirk.
      */
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat) {
-        this(dynamicRangesCompat, null);
+        this(dynamicRangesCompat, new Quirks(Collections.emptyList()));
     }
 
     /**
      * Constructor for CaptureSession.
      */
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
-            @Nullable Quirks cameraQuirks) {
+            @NonNull Quirks cameraQuirks) {
         mState = State.INITIALIZED;
         mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
-        mRequestMonitor = new RequestMonitor(
-                cameraQuirks != null && cameraQuirks.contains(CaptureNoResponseQuirk.class));
+        mRequestMonitor = new RequestMonitor(cameraQuirks.contains(CaptureNoResponseQuirk.class));
         mTemplateParamsOverride = new TemplateParamsOverride(cameraQuirks);
     }
 
