@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.material;
 
+import static org.junit.Assert.assertEquals;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -28,11 +30,13 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
+import androidx.test.uiautomator.UiDevice;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.material.test.GoldenTestActivity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RunnerUtils {
@@ -152,5 +156,24 @@ public class RunnerUtils {
             this.isForRtl = isForRtl;
             this.isForLtr = isForLtr;
         }
+    }
+
+    public static float getFontScale(UiDevice device) throws Exception {
+        String result = device.executeShellCommand("settings get system font_scale");
+        try {
+            return Float.parseFloat(result);
+        } catch (NumberFormatException e) {
+            return 1.0f;
+        }
+    }
+
+    public static void setFontScale(UiDevice device, float fontScale) throws Exception {
+        device.executeShellCommand("settings put system font_scale " + fontScale);
+    }
+
+    public static void setAndAssertFontScale(UiDevice device, float fontScale) throws Exception {
+        setFontScale(device, fontScale);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        assertEquals(getFontScale(device), fontScale, 0.0001f);
     }
 }
