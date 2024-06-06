@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -324,6 +325,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mPageIndicator = new PageIndicator(getActivity(), mFastScrollView);
         applyReservedSpace();
+        adjustZoomViewMargins();
         mFastscrollerPositionObserver.onChange(null, mFastScrollView.getScrollerPositionY().get());
         mFastscrollerPositionObserverKey =
                 mFastScrollView.getScrollerPositionY().addObserver(mFastscrollerPositionObserver);
@@ -401,6 +403,30 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 getResources().getDimensionPixelSize(R.dimen.viewer_doc_additional_top_offset);
 
         mZoomViewBasePaddingSaved = true;
+    }
+
+    /**
+     * Adjusts the horizontal margins (left and right padding) of the ZoomView based on the
+     * screen width to optimize the display of PDF content.
+     *
+     * This method applies different margin values depending on the screen size:
+     * - For screens with a screen width of 840dp or greater, a larger margin is applied
+     *   to enhance readability on larger displays.
+     * - For screens with a screen width < 840dp, no margin is used to
+     *   maximize the use of available space.
+     *
+     * This dynamic adjustment is achieved through the use of resource qualifiers (values-w840dp)
+     * that define different margin values for different screen sizes.
+     *
+     * Note: This method does not affect the top or bottom padding of the ZoomView.
+     */
+    private void adjustZoomViewMargins() {
+        int margin = getResources().getDimensionPixelSize(R.dimen.viewer_doc_padding_x);
+
+        mZoomView.setPadding(margin,
+                mZoomView.getPaddingTop(),
+                margin,
+                mZoomView.getPaddingBottom());
     }
 
     @Override
@@ -571,6 +597,12 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         Log.v(TAG, "Saved current reach " + mPageLayoutReach);
 
         outState.putBoolean(KEY_EDITING_AUTHORIZED, mEditingAuthorized);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adjustZoomViewMargins();
     }
 
     @Override
