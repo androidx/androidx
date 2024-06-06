@@ -37,7 +37,7 @@ dependencies {
     api(project(":compose:runtime:runtime"))
     api("androidx.lifecycle:lifecycle-livedata:2.6.1")
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
-    api("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+    api("androidx.lifecycle:lifecycle-runtime-compose:2.8.2")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
