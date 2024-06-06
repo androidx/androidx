@@ -41,8 +41,10 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -142,6 +144,172 @@ class CardTest {
         rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle { assertEquals(false, clicked) }
+    }
+
+    @Test
+    fun card_responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            Card(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(true, longClicked) }
+    }
+
+    @Test
+    fun card_does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            Card(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(false, longClicked) }
+    }
+
+    @Test
+    fun appCard_responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                appName = {},
+                title = {},
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(true, longClicked) }
+    }
+
+    @Test
+    fun appCard_does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            AppCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                appName = {},
+                title = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(false, longClicked) }
+    }
+
+    @Test
+    fun titleCard_responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                title = {},
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(true, longClicked) }
+    }
+
+    @Test
+    fun titleCard_does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            TitleCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                title = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(false, longClicked) }
+    }
+
+    @Test
+    fun outlinedCard_responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            OutlinedCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(true, longClicked) }
+    }
+
+    @Test
+    fun outlinedCard_does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            OutlinedCard(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                TestImage()
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(false, longClicked) }
     }
 
     @Test

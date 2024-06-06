@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.demos
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,11 +88,7 @@ fun IconButtonDemo() {
             }
         }
         item { ListHeader { Text("With onLongClick") } }
-        item {
-            IconButtonWithOnLongClickSample {
-                Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
-            }
-        }
+        item { IconButtonWithOnLongClickSample { showOnLongClickToast(context) } }
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {

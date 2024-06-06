@@ -64,7 +64,7 @@ fun IconButtonWithOnLongClickSample(onLongClick: () -> Unit) {
     IconButton(
         onClick = { /* Do something for onClick*/ },
         onLongClick = onLongClick,
-        onLongClickLabel = "OnLongClick action"
+        onLongClickLabel = "Long click"
     ) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
