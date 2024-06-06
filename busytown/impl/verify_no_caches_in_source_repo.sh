@@ -33,9 +33,9 @@ function copy() {
 # confirm that no files in the source repo were unexpectedly created (other than known exemptions)
 function checkForGeneratedFilesInSourceRepo() {
 
-  # Paths that are still expected to be generated and that we have to allow
+  # Regexes for paths that are still expected to be generated and that we have to allow
   # If you need add or remove an exemption here, update cleanBuild.sh too
-  EXEMPT_PATHS=".gradle placeholder/.gradle buildSrc/.gradle local.properties reports build"
+  EXEMPT_PATHS=".gradle placeholder/.gradle buildSrc/.gradle local.properties reports build .*.attach_pid.*"
   # put "./" in front of each path to match the output from 'find'
   EXEMPT_PATHS="$(echo " $EXEMPT_PATHS" | sed 's| | ./|g')"
   # build a `find` argument for skipping descending into the exempt paths
@@ -49,13 +49,7 @@ function checkForGeneratedFilesInSourceRepo() {
   for f in $GENERATED_FILES; do
     exempt=false
     for exemption in $EXEMPT_PATHS; do
-      if [ "$f" == "$exemption" ]; then
-        exempt=true
-        break
-      fi
-      if [ "$f" == "$(dirname $exemption)" ]; then
-        # When the exempt directory gets created, its parent dir will be modified
-        # So, we ignore changes to the parent dir too (but not necessarily changes in sibling dirs)
+      if echo "$f" | grep "^${exemption}$" >/dev/null 2>/dev/null; then
         exempt=true
         break
       fi
