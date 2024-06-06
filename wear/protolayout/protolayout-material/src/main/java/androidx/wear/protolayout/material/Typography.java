@@ -16,6 +16,9 @@
 
 package androidx.wear.protolayout.material;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.SP;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
@@ -28,7 +31,6 @@ import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
@@ -40,6 +42,8 @@ import androidx.wear.protolayout.DimensionBuilders.SpProp;
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle;
 import androidx.wear.protolayout.LayoutElementBuilders.FontVariant;
 import androidx.wear.protolayout.LayoutElementBuilders.FontWeight;
+import androidx.wear.protolayout.materialcore.fontscaling.FontScaleConverter;
+import androidx.wear.protolayout.materialcore.fontscaling.FontScaleConverterFactory;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -120,6 +124,9 @@ public class Typography {
         TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION2, 16f);
         TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION3, 14f);
     }
+
+    private Typography() {}
+
     /**
      * Returns the {@link FontStyle.Builder} for the given FontStyle code with the recommended size,
      * weight and letter spacing. Font will be scalable.
@@ -129,8 +136,6 @@ public class Typography {
             @TypographyName int fontStyleCode, @NonNull Context context) {
         return getFontStyleBuilder(fontStyleCode, context, true);
     }
-
-    private Typography() {}
 
     /**
      * Returns the {@link FontStyle.Builder} for the given Typography code with the recommended
@@ -183,17 +188,29 @@ public class Typography {
         return sp(checkNotNull(TYPOGRAPHY_TO_LINE_HEIGHT_SP.get(typography)).intValue());
     }
 
-    @NonNull
-    @SuppressLint("ResourceType")
-    @SuppressWarnings("deprecation") // scaledDensity, b/335215227
-    // This is a helper function to make the font not scalable. It should interpret in value as DP
-    // and convert it to SP which is needed to be passed in as a font size. However, we will pass an
-    // SP object to it, because the default style is defined in it, but for the case when the font
-    // size on device in 1, so the DP is equal to SP.
-    private static SpProp dpToSp(@NonNull Context context, @Dimension(unit = DP) float valueDp) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        float scaledSp = (valueDp / metrics.scaledDensity) * metrics.density;
-        return sp(scaledSp);
+    /**
+     * This is a helper function to make the font not scalable. It should interpret in value as DP
+     * and convert it to SP which is needed to be passed in as a font size. However, we will pass an
+     * SP object to it, because the default style is defined in it, but for the case when the font
+     * size on device is 1, so the DP is equal to SP.
+     */
+    @Dimension(unit = SP)
+    private static float dpToSp(float fontScale, @Dimension(unit = DP) float valueDp) {
+        FontScaleConverter converter =
+                (SDK_INT >= UPSIDE_DOWN_CAKE)
+                        ? FontScaleConverterFactory.forScale(fontScale)
+                        : null;
+
+        if (converter == null) {
+            return dpToSpLinear(fontScale, valueDp);
+        }
+
+        return converter.convertDpToSp(valueDp);
+    }
+
+    @Dimension(unit = SP)
+    private static float dpToSpLinear(float fontScale, @Dimension(unit = DP) float valueDp) {
+        return valueDp / fontScale;
     }
 
     // The @Dimension(unit = SP) on sp() is seemingly being ignored, so lint complains that we're
@@ -206,8 +223,9 @@ public class Typography {
             float letterSpacing,
             boolean isScalable,
             @NonNull Context context) {
+        float fontScale = context.getResources().getConfiguration().fontScale;
         return new FontStyle.Builder()
-                .setSize(isScalable ? DimensionBuilders.sp(size) : dpToSp(context, size))
+                .setSize(DimensionBuilders.sp(isScalable ? size : dpToSp(fontScale, size)))
                 .setLetterSpacing(DimensionBuilders.em(letterSpacing))
                 .setVariant(variant)
                 .setWeight(weight);
