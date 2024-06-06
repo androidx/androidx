@@ -1,0 +1,22 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace 'androidx.pdf.testapp'
+
+    defaultConfig {
+        applicationId "androidx.pdf.testapp"
+        minSdkVersion 31
+    }
+}
+
+dependencies {
+
+    api("com.google.android.material:material:1.11.0")
+    implementation(project(":pdf:pdf-viewer"))
+
+    implementation(libs.constraintLayout)
+}
