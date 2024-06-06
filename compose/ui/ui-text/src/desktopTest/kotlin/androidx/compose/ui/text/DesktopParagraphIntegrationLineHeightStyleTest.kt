@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
+import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -53,7 +54,7 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     private val fontSize = 10.sp
     private val lineHeight = 20.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
-    private val lineHeightInPx = with(defaultDensity) { lineHeight.toPx().roundToInt() }
+    private val lineHeightInPx = with(defaultDensity) { lineHeight.toPx() }
 
     /* single line even */
 
@@ -71,9 +72,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -91,9 +92,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -111,9 +112,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -129,9 +130,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(defaultFontMetrics.lineHeight())
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(defaultFontMetrics.lineHeight())
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -151,9 +152,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -169,9 +170,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val diff = lineHeightInPx - defaultFontMetrics.lineHeight()
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
         }
     }
 
@@ -189,9 +190,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -207,9 +208,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(defaultFontMetrics.lineHeight())
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(defaultFontMetrics.lineHeight())
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -229,9 +230,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -247,9 +248,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val diff = lineHeightInPx - defaultFontMetrics.lineHeight()
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent - diff)
-            assertThat(getLineDescent(0)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent - diff)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
         }
     }
 
@@ -267,9 +268,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -285,9 +286,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(defaultFontMetrics.lineHeight())
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(defaultFontMetrics.lineHeight())
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -307,9 +308,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -327,9 +328,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - descentDiff)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - descentDiff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -347,9 +348,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - ascentDiff)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - ascentDiff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -365,9 +366,9 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(defaultFontMetrics.lineHeight())
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(defaultFontMetrics.lineHeight())
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
         }
     }
 
@@ -388,13 +389,13 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
 
         with(paragraph) {
             for (line in 0 until lineCount) {
-                assertThat(getLineHeight(line)).isEqualTo(lineHeightInPx)
-                assertThat(getLineAscent(line)).isEqualTo(expectedAscent)
-                assertThat(getLineDescent(line)).isEqualTo(expectedDescent)
+                assertThat(getLineHeight(line)).isWithinMetricToleranceOf(lineHeightInPx)
+                assertThat(getLineAscent(line)).isWithinMetricToleranceOf(expectedAscent)
+                assertThat(getLineDescent(line)).isWithinMetricToleranceOf(expectedDescent)
             }
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -412,20 +413,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -443,20 +444,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -474,20 +475,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -507,20 +508,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -538,20 +539,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -569,20 +570,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -600,20 +601,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + diff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -633,20 +634,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -664,20 +665,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -695,20 +696,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -726,20 +727,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - diff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - diff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -759,20 +760,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -790,20 +791,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(0)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - descentDiff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - descentDiff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -821,20 +822,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - ascentDiff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - ascentDiff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -852,20 +853,20 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         val expectedDescent = defaultFontMetrics.descent + descentDiff
 
         with(paragraph) {
-            assertThat(getLineHeight(0)).isEqualTo(lineHeightInPx - ascentDiff)
-            assertThat(getLineAscent(0)).isEqualTo(defaultFontMetrics.ascent)
-            assertThat(getLineDescent(0)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(0)).isWithinMetricToleranceOf(lineHeightInPx - ascentDiff)
+            assertThat(getLineAscent(0)).isWithinMetricToleranceOf(defaultFontMetrics.ascent)
+            assertThat(getLineDescent(0)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(1)).isEqualTo(lineHeightInPx)
-            assertThat(getLineAscent(1)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(1)).isEqualTo(expectedDescent)
+            assertThat(getLineHeight(1)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineAscent(1)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(1)).isWithinMetricToleranceOf(expectedDescent)
 
-            assertThat(getLineHeight(2)).isEqualTo(lineHeightInPx - descentDiff)
-            assertThat(getLineAscent(2)).isEqualTo(expectedAscent)
-            assertThat(getLineDescent(2)).isEqualTo(defaultFontMetrics.descent)
+            assertThat(getLineHeight(2)).isWithinMetricToleranceOf(lineHeightInPx - descentDiff)
+            assertThat(getLineAscent(2)).isWithinMetricToleranceOf(expectedAscent)
+            assertThat(getLineDescent(2)).isWithinMetricToleranceOf(defaultFontMetrics.descent)
 
-            assertThat(getLineBaseline(1) - getLineBaseline(0)).isEqualTo(lineHeightInPx)
-            assertThat(getLineBaseline(2) - getLineBaseline(1)).isEqualTo(lineHeightInPx)
+            assertThat(getLineBaseline(1) - getLineBaseline(0)).isWithinMetricToleranceOf(lineHeightInPx)
+            assertThat(getLineBaseline(2) - getLineBaseline(1)).isWithinMetricToleranceOf(lineHeightInPx)
         }
     }
 
@@ -899,13 +900,13 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
 
         with(paragraphWithEmptyLastLine) {
             for (line in 0 until lineCount) {
-                assertThat(height).isEqualTo(otherParagraph.height)
-                assertThat(getLineTop(line)).isEqualTo(otherParagraph.getLineTop(line))
-                assertThat(getLineBottom(line)).isEqualTo(otherParagraph.getLineBottom(line))
-                assertThat(getLineHeight(line)).isEqualTo(otherParagraph.getLineHeight(line))
-                assertThat(getLineAscent(line)).isEqualTo(otherParagraph.getLineAscent(line))
-                assertThat(getLineDescent(line)).isEqualTo(otherParagraph.getLineDescent(line))
-                assertThat(getLineBaseline(line)).isEqualTo(otherParagraph.getLineBaseline(line))
+                assertThat(height).isWithinMetricToleranceOf(otherParagraph.height)
+                assertThat(getLineTop(line)).isWithinMetricToleranceOf(otherParagraph.getLineTop(line))
+                assertThat(getLineBottom(line)).isWithinMetricToleranceOf(otherParagraph.getLineBottom(line))
+                assertThat(getLineHeight(line)).isWithinMetricToleranceOf(otherParagraph.getLineHeight(line))
+                assertThat(getLineAscent(line)).isWithinMetricToleranceOf(otherParagraph.getLineAscent(line))
+                assertThat(getLineDescent(line)).isWithinMetricToleranceOf(otherParagraph.getLineDescent(line))
+                assertThat(getLineBaseline(line)).isWithinMetricToleranceOf(otherParagraph.getLineBaseline(line))
             }
         }
     }
@@ -933,7 +934,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
         return paragraph
     }
 
-    @Suppress("DEPRECATION")
     private fun multiLineParagraph(
         lineHeightTrim: Trim,
         lineHeightAlignment: Alignment,
@@ -1007,3 +1007,11 @@ private data class FontMetricsInt(
 
     fun lineHeight(): Int = descent - ascent
 }
+
+private const val metricsComparisonTolerance = 0.001f
+
+fun FloatSubject.isWithinMetricToleranceOf(value: Float) =
+    this.isWithin(metricsComparisonTolerance).of(value)
+
+fun FloatSubject.isWithinMetricToleranceOf(value: Int) =
+    this.isWithin(metricsComparisonTolerance).of(value.toFloat())

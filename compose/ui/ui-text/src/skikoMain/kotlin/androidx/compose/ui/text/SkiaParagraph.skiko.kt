@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.isUnspecified
 import kotlin.math.floor
-import kotlin.math.roundToInt
 import org.jetbrains.skia.FontMetrics
 import org.jetbrains.skia.IRange
 import org.jetbrains.skia.paragraph.*
@@ -39,7 +38,7 @@ import org.jetbrains.skia.paragraph.*
 internal class SkiaParagraph(
     intrinsics: ParagraphIntrinsics,
     val maxLines: Int,
-    val ellipsis: Boolean,
+    ellipsis: Boolean,
     val constraints: Constraints
 ) : Paragraph {
 
@@ -176,14 +175,14 @@ internal class SkiaParagraph(
             floor((line.baseline + line.descent).toFloat())
         } ?: 0f
 
-    internal fun getLineAscent(lineIndex: Int): Int =
-        -(lineMetrics.getOrNull(lineIndex)?.ascent?.roundToInt() ?: 0)
+    internal fun getLineAscent(lineIndex: Int): Float =
+        -(lineMetrics.getOrNull(lineIndex)?.ascent?.toFloat() ?: 0f)
 
     override fun getLineBaseline(lineIndex: Int): Float =
         lineMetrics.getOrNull(lineIndex)?.baseline?.toFloat() ?: 0f
 
-    internal fun getLineDescent(lineIndex: Int): Int =
-        lineMetrics.getOrNull(lineIndex)?.descent?.roundToInt() ?: 0
+    internal fun getLineDescent(lineIndex: Int): Float =
+        lineMetrics.getOrNull(lineIndex)?.descent?.toFloat() ?: 0f
 
     private fun lineMetricsForOffset(offset: Int): LineMetrics? {
         checkOffsetIsValid(offset)
@@ -322,7 +321,7 @@ internal class SkiaParagraph(
                         // _________________abc   <- '\n' new line here
                         // ___________________|   <- cursor is in the end of the next line
 
-                        // if '\n' is not the last, then the box should be be aligned to the left of the following box:
+                        // if '\n' is not the last, then the box should be aligned to the left of the following box:
                         // _________________abc   <- '\n' new line here
                         // _________________|qw   <- cursor is before the box ('q') following the new line
 
@@ -391,7 +390,7 @@ internal class SkiaParagraph(
         }
 
         val rects = if (isNotEmptyLine) {
-            // expectedLine width doesn't include whitespaces. Therefore we look at the Rectangle representing the line
+            // expectedLine width doesn't include whitespaces. Therefore, we look at the Rectangle representing the line
             paragraph.getRectsForRange(
                 start = expectedLine.startIndex,
                 end = if (expectedLine.isHardBreak) expectedLine.endIndex else expectedLine.endIndex - 1,
