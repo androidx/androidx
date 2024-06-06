@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -289,7 +288,6 @@ public class PdfPageLoader {
     private void setBroken() {
         // TODO: Track the broken state of the FileInfo object.
         if (!mIsBroken) {
-            Log.w(TAG, String.format("Page %d is broken", mPageNum));
             mIsBroken = true;
         }
     }
@@ -485,11 +483,6 @@ public class PdfPageLoader {
         @Override
         public String toString() {
             return String.format("GetPageTextTask(page=%d)", mPageNum);
-        }
-
-        @Override
-        public String resultToString(String result) {
-            return result.length() + "characters";
         }
     }
 

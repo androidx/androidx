@@ -22,13 +22,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.pdflib.PdfDocumentService;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 
 import java.util.concurrent.locks.Condition;
@@ -108,9 +106,7 @@ public class PdfConnection implements ServiceConnection {
      * </ul>
      */
     public void setDocumentLoaded() {
-        if (mPdfRemote == null) {
-            ErrorLog.log(TAG, "setDocumentLoaded", "Document loaded but Remote == null");
-        } else {
+        if (mPdfRemote != null) {
             mHasSuccessfullyConnectedEver = true;
             mIsLoaded = true;
         }
@@ -118,7 +114,6 @@ public class PdfConnection implements ServiceConnection {
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i(TAG, String.format("Service connected %s", name));
         mConnected = true;
         mIsLoaded = false;
         mLock.lock();
@@ -139,25 +134,17 @@ public class PdfConnection implements ServiceConnection {
         if (mCurrentTask != null) {
             // A task was in progress, we want to report the crash and restart the service.
             mNumCrashes++;
-            ErrorLog.log(mCurrentTask, "Service crash ~ " + ErrorLog.bracketValue(mNumCrashes));
             TaskDenyList.maybeDenyListTask(mCurrentTask);
 
             // We have never connected to this document, and we have crashed repeatedly.
             if (!mHasSuccessfullyConnectedEver && mNumCrashes >= MAX_CONNECT_RETRIES) {
-                Log.w(TAG,
-                        "Failed to ever connect successfully - stuck in a crash loop, "
-                                + "disconnecting.");
                 disconnect();
                 if (mOnConnectFailure != null) {
                     mOnConnectFailure.run();
-                } else {
-                    ErrorLog.logAndAlwaysThrow(TAG, "onServiceDisconnected",
-                            new RepeatedCrashException());
                 }
             }
         } else {
             // No task was in progress, probably just system cleaning up idle resources.
-            Log.d(TAG, "Service was killed by system, let it go. " + name);
             disconnect();
         }
 
@@ -167,7 +154,6 @@ public class PdfConnection implements ServiceConnection {
         mLock.lock();
         try {
             mPdfRemote = null;
-            Log.i(TAG, "Service disconnected for task " + mCurrentTask);
         } finally {
             mLock.unlock();
         }
@@ -180,19 +166,14 @@ public class PdfConnection implements ServiceConnection {
         Intent intent = new Intent(mContext, PdfDocumentService.class);
         // Data is only required here to make sure we start a new service per document.
         intent.setData(uri);
-        Log.d(TAG, "Connecting to service " + uri);
         mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
     void disconnect() {
         if (mConnected) {
-            Log.d(TAG, "Disconnecting service.");
             mContext.unbindService(this);
             mConnected = false;
         }
-    }
-
-    private static class RepeatedCrashException extends RuntimeException {
     }
 
 }

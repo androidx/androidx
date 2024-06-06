@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
 
+import androidx.annotation.NonNull;
 import androidx.pdf.data.FutureValue.Callback;
 import androidx.pdf.data.FutureValues;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
@@ -43,7 +44,7 @@ public class SettableFutureValueTest {
         private float mLastProgressDone = LAST_PROGRESS_DONE_DEFAULT;
 
         @Override
-        public void failed(Throwable thrown) {
+        public void failed(@NonNull Throwable thrown) {
             this.mThrown = thrown;
             this.mResultCount++;
         }

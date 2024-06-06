@@ -36,7 +36,7 @@ import java.util.Objects;
  */
 // TODO: Use android.graphics.pdf.content.PdfPageGotoLinkContent and remove this class
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unchecked"})
 @SuppressLint("BanParcelableUsage")
 public class GotoLink implements Parcelable {
 

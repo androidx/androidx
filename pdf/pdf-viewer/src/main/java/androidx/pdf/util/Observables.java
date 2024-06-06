@@ -80,10 +80,6 @@ public class Observables {
 
         @Override
         protected void finalize() throws Throwable {
-            if (hasObservers()) {
-                ErrorLog.log(TAG, "Leaking " + mObservers.size() + " observers, e.g. "
-                        + mObservers.iterator().next());
-            }
             super.finalize();
         }
 

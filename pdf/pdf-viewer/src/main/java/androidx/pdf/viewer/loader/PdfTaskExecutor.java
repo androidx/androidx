@@ -16,12 +16,9 @@
 
 package androidx.pdf.viewer.loader;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ThreadUtils;
 
 import java.util.Iterator;
@@ -69,7 +66,6 @@ public class PdfTaskExecutor extends Thread {
                 // Could wait indefinitely for a notify(), but this is safer.
                 this.wait(10000);  // Wait 10 seconds.
             } catch (InterruptedException e) {
-                ErrorLog.log(TAG, "Unexpected interrupt while waiting for next task", e);
                 throw new RuntimeException(e);
             }
         }
@@ -83,7 +79,6 @@ public class PdfTaskExecutor extends Thread {
     /** Schedule the given task. */
     public void schedule(@NonNull AbstractPdfTask<?> task) {
         synchronized (this) {
-            Log.v(TAG, "Schedule task: " + task.toString());
             mScheduledTasks.add(task);
             this.notifyAll();
         }

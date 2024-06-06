@@ -26,7 +26,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.TileBoard.TileInfo;
 
@@ -52,9 +51,6 @@ public class TileView extends View {
     void setBitmap(TileInfo tileInfo, Bitmap bitmap) {
         Preconditions.checkArgument(Objects.equals(tileInfo, this.mTileInfo),
                 String.format("Got wrong tileId %s : %s", this.mTileInfo, tileInfo));
-        if (this.mBitmap != null) {
-            ErrorLog.log(getLogTag(), "Used tile receiving new bitmap " + tileInfo);
-        }
         this.mBitmap = bitmap;
         // This View is already properly laid out, but without this requestLayout, it doesn't draw.
         requestLayout();

@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import androidx.annotation.NonNull;
 import androidx.pdf.data.FutureValue;
 import androidx.pdf.data.FutureValue.Callback;
 import androidx.pdf.data.FutureValues;
@@ -78,7 +79,7 @@ public class FutureValuesTest {
                     }
 
                     @Override
-                    public void failed(Throwable thrown) {
+                    public void failed(@NonNull Throwable thrown) {
                         fail("Not expected to fail for ImmediateValue");
                     }
 
@@ -144,7 +145,7 @@ public class FutureValuesTest {
         deferredFutureValue.get(
                 new BlockingCallback<Integer>() {
                     @Override
-                    public void failed(Throwable thrown) {
+                    public void failed(@NonNull Throwable thrown) {
                         super.failed(thrown);
                         failureDetected[0] = true;
                     }
@@ -186,7 +187,7 @@ public class FutureValuesTest {
         deferredFutureValue.get(
                 new SimpleCallback<Integer>() {
                     @Override
-                    public void failed(Throwable thrown) {
+                    public void failed(@NonNull Throwable thrown) {
                         super.failed(thrown);
                         failureDetected[0] = true;
                     }
