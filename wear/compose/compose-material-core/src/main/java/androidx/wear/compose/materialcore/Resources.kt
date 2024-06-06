@@ -16,9 +16,11 @@
 
 package androidx.wear.compose.materialcore
 
+import android.provider.Settings
 import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -36,6 +38,19 @@ fun isLayoutDirectionRtl(): Boolean {
 fun isRoundDevice(): Boolean {
     val configuration = LocalConfiguration.current
     return configuration.isScreenRound
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun isLeftyModeEnabled(): Boolean {
+    val context = LocalContext.current
+    return remember(context) {
+        Settings.System.getInt(
+            context.contentResolver,
+            Settings.System.USER_ROTATION,
+            android.view.Surface.ROTATION_0
+        ) == android.view.Surface.ROTATION_180
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -408,6 +408,18 @@ package androidx.wear.compose.material3 {
     property @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalUseFallbackRippleImplementation;
   }
 
+  public final class ScrollIndicatorDefaults {
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getPositionAnimationSpec();
+    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> PositionAnimationSpec;
+    field public static final androidx.wear.compose.material3.ScrollIndicatorDefaults INSTANCE;
+  }
+
+  public final class ScrollIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.compose.foundation.lazy.LazyListState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+    method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.compose.foundation.ScrollState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+    method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+  }
+
   @androidx.compose.runtime.Immutable public final class SelectableButtonColors {
     ctor public SelectableButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedIconColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedIconColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedIconColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedIconColor);
     method public long getDisabledSelectedContainerColor();
