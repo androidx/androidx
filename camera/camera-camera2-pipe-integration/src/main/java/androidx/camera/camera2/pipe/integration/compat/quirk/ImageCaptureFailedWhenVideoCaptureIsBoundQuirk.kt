@@ -43,7 +43,8 @@ class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
                 isVivo1805 ||
                 isPositivoTwist2Pro ||
                 isPixel4XLApi29 ||
-                isMotoE13
+                isMotoE13 ||
+                isSamsungTabA8
         }
 
         private val isBluStudioX10: Boolean
