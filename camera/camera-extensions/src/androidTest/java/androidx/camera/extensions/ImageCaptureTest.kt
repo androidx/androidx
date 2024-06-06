@@ -113,7 +113,9 @@ class ImageCaptureTest(
             ExtensionsManager.getInstanceAsync(context, cameraProvider)[
                     10000, TimeUnit.MILLISECONDS]
 
-        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+        assumeTrue(
+            ExtensionsTestUtil.isExtensionAvailable(extensionsManager, lensFacing, extensionMode)
+        )
 
         extensionsCameraSelector =
             extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)

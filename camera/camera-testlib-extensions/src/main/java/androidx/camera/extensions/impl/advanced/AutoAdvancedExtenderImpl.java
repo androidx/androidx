@@ -112,4 +112,11 @@ public class AutoAdvancedExtenderImpl implements AdvancedExtenderImpl {
     public boolean isPostviewAvailable() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public static void checkTestlibRunning() {}
 }

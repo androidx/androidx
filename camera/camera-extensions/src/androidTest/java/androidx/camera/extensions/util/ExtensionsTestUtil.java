@@ -39,7 +39,18 @@ import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
+import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.ExtensionVersionImpl;
 import androidx.camera.extensions.impl.ExtensionsTestlibControl;
+import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.advanced.AutoAdvancedExtenderImpl;
+import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl;
+import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
+import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
+import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
 import androidx.camera.extensions.internal.ExtensionVersion;
@@ -65,6 +76,75 @@ public class ExtensionsTestUtil {
                     CameraCaptureSession.CaptureCallback.class);
     public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
     public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
+
+    // Check if the OEM implementation class for the given mode exists or not.
+    private static boolean doesOEMImplementationExistForMode(int extensionMode) {
+        ExtensionVersionImpl extensionVersion = new ExtensionVersionImpl();
+        if (extensionVersion.isAdvancedExtenderImplemented()) {
+            try {
+                switch (extensionMode) {
+                    case HDR:
+                        HdrAdvancedExtenderImpl.checkTestlibRunning();
+                        break;
+                    case BOKEH:
+                        BokehAdvancedExtenderImpl.checkTestlibRunning();
+                        break;
+                    case AUTO:
+                        AutoAdvancedExtenderImpl.checkTestlibRunning();
+                        break;
+                    case FACE_RETOUCH:
+                        BeautyAdvancedExtenderImpl.checkTestlibRunning();
+                        break;
+                    case NIGHT:
+                        NightAdvancedExtenderImpl.checkTestlibRunning();
+                        break;
+                }
+            } catch (NoSuchMethodError e) {
+                return true;
+            }
+        } else {
+            try {
+                switch (extensionMode) {
+                    case HDR:
+                        HdrImageCaptureExtenderImpl.checkTestlibRunning();
+                        break;
+                    case BOKEH:
+                        BokehImageCaptureExtenderImpl.checkTestlibRunning();
+                        break;
+                    case AUTO:
+                        AutoImageCaptureExtenderImpl.checkTestlibRunning();
+                        break;
+                    case FACE_RETOUCH:
+                        BeautyImageCaptureExtenderImpl.checkTestlibRunning();
+                        break;
+                    case NIGHT:
+                        NightImageCaptureExtenderImpl.checkTestlibRunning();
+                        break;
+                }
+            } catch (NoSuchMethodError e) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Returns if extension is supported with the given mode and lens facing. Please note that
+     * if some classes are removed by OEMs, the classes in the test lib could still be used so we
+     * need to return false in this case.
+     */
+    public static boolean isExtensionAvailable(
+            ExtensionsManager extensionsManager, int lensFacing, int extensionMode) {
+        // Return false if classes are removed by OEMs
+        if (ExtensionsTestlibControl.getInstance().getImplementationType() == OEM_IMPL
+                && !doesOEMImplementationExistForMode(extensionMode)) {
+            return false;
+        }
+
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build();
+        return extensionsManager.isExtensionAvailable(cameraSelector, extensionMode);
+    }
 
     /**
      * Returns the parameters which contains the combination of CameraXConfig
@@ -142,10 +222,7 @@ public class ExtensionsTestUtil {
             for (Object[] item : list) {
                 int mode = (int) item[1];
                 int lensFacing = (int) item[2];
-                CameraSelector cameraSelector = new CameraSelector.Builder()
-                        .requireLensFacing(lensFacing)
-                        .build();
-                if (extensionsManager.isExtensionAvailable(cameraSelector, mode)) {
+                if (isExtensionAvailable(extensionsManager, lensFacing, mode)) {
                     result.add(item);
                 }
             }

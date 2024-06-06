@@ -31,10 +31,10 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 /**
- * Implementation for bokeh preview use case.
+ * Implementation for bokeh preview use case that implements a RequestUpdateProcessorImpl.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
- * don't need to implement this, unless this is used for related testing usage.
+ * <p>This is only for testing camera-extensions and should not be used as a sample OEM
+ * implementation.
  *
  * @since 1.0
  */
