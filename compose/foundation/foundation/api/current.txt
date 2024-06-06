@@ -275,8 +275,8 @@ package androidx.compose.foundation {
   }
 
   public static final class ScrollState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.ScrollState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.ScrollState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.ScrollState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.ScrollState,? extends java.lang.Object?> Saver;
   }
 
   public interface SurfaceCoroutineScope extends androidx.compose.foundation.SurfaceScope kotlinx.coroutines.CoroutineScope {
@@ -913,8 +913,8 @@ package androidx.compose.foundation.lazy {
   }
 
   public static final class LazyListState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.LazyListState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.LazyListState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.LazyListState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.LazyListState,? extends java.lang.Object?> Saver;
   }
 
   public final class LazyListStateKt {
@@ -1076,8 +1076,8 @@ package androidx.compose.foundation.lazy.grid {
   }
 
   public static final class LazyGridState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.grid.LazyGridState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.grid.LazyGridState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.grid.LazyGridState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.lazy.grid.LazyGridState,? extends java.lang.Object?> Saver;
   }
 
   public final class LazyGridStateKt {

@@ -2,7 +2,7 @@
 package androidx.navigation.testing {
 
   public final class SavedStateHandleFactoryKt {
-    method public static operator androidx.lifecycle.SavedStateHandle invoke(androidx.lifecycle.SavedStateHandle.Companion, Object route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap);
+    method public static operator androidx.lifecycle.SavedStateHandle invoke(androidx.lifecycle.SavedStateHandle.Companion, Object route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
   }
 
   public final class TestNavHostController extends androidx.navigation.NavHostController {

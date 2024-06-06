@@ -79,7 +79,7 @@ package androidx.compose.material {
   }
 
   public static final class BackdropScaffoldState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,? extends java.lang.Object?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState, androidx.compose.ui.unit.Density density);
   }
 
   public enum BackdropValue {
@@ -183,7 +183,7 @@ package androidx.compose.material {
   }
 
   public static final class BottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,? extends java.lang.Object?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange, androidx.compose.ui.unit.Density density);
   }
 
   public enum BottomSheetValue {
@@ -571,7 +571,7 @@ package androidx.compose.material {
   }
 
   public static final class ModalBottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,? extends java.lang.Object?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
   }
 
   public enum ModalBottomSheetValue {

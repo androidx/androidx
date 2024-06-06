@@ -85,9 +85,9 @@ package androidx.glance.template {
   public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public GlanceTemplateAppWidget();
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void TemplateContent();
-    method public final suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public final suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     property public androidx.glance.appwidget.SizeMode sizeMode;
-    property public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object!>? stateDefinition;
+    property public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object?>? stateDefinition;
     field public static final androidx.glance.template.GlanceTemplateAppWidget.Companion Companion;
   }
 

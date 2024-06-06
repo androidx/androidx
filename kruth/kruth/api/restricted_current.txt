@@ -13,8 +13,8 @@ package androidx.kruth {
     method public void isTrue();
   }
 
-  public final class ClassSubject extends androidx.kruth.Subject<java.lang.Class<? extends java.lang.Object!>> {
-    method public void isAssignableTo(Class<? extends java.lang.Object!> clazz);
+  public final class ClassSubject extends androidx.kruth.Subject<java.lang.Class<? extends java.lang.Object?>> {
+    method public void isAssignableTo(Class<? extends java.lang.Object?> clazz);
   }
 
   public class ComparableSubject<T extends java.lang.Comparable<? super T>> extends androidx.kruth.Subject<T> {
@@ -139,29 +139,29 @@ package androidx.kruth {
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
     ctor protected IterableSubject(androidx.kruth.FailureMetadata metadata, Iterable<? extends T>? actual);
     method public final void contains(Object? element);
-    method public final void containsAnyIn(Iterable<? extends java.lang.Object!>? expected);
+    method public final void containsAnyIn(Iterable<? extends java.lang.Object?>? expected);
     method public final void containsAnyIn(Object?[]? expected);
     method public final void containsAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public final androidx.kruth.Ordered containsAtLeast(Object? firstExpected, Object? secondExpected, java.lang.Object?... restOfExpected);
-    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Iterable<? extends java.lang.Object!>? expected);
+    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Iterable<? extends java.lang.Object?>? expected);
     method public final androidx.kruth.Ordered containsAtLeastElementsIn(Object?[]? expected);
     method public final androidx.kruth.Ordered containsExactly(java.lang.Object?... expected);
-    method public final androidx.kruth.Ordered containsExactlyElementsIn(Iterable<? extends java.lang.Object!>? required);
+    method public final androidx.kruth.Ordered containsExactlyElementsIn(Iterable<? extends java.lang.Object?>? required);
     method public final androidx.kruth.Ordered containsExactlyElementsIn(Object?[]? expected);
     method public final void containsNoDuplicates();
-    method public final void containsNoneIn(Iterable<? extends java.lang.Object!>? excluded);
+    method public final void containsNoneIn(Iterable<? extends java.lang.Object?>? excluded);
     method public final void containsNoneIn(Object?[]? excluded);
     method public final void containsNoneOf(Object? firstExcluded, Object? secondExcluded, java.lang.Object?... restOfExcluded);
     method public final void doesNotContain(Object? element);
     method public final void hasSize(int expectedSize);
     method public final void isEmpty();
     method public void isInOrder();
-    method public final void isInOrder(java.util.Comparator<? extends java.lang.Object!>? comparator);
+    method public final void isInOrder(java.util.Comparator<? extends java.lang.Object?>? comparator);
     method public void isInStrictOrder();
-    method public final void isInStrictOrder(java.util.Comparator<? extends java.lang.Object!>? comparator);
+    method public final void isInStrictOrder(java.util.Comparator<? extends java.lang.Object?>? comparator);
     method @Deprecated public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
     method public final void isNotEmpty();
-    method @Deprecated public void isNotIn(Iterable<? extends java.lang.Object!>? iterable);
+    method @Deprecated public void isNotIn(Iterable<? extends java.lang.Object?>? iterable);
   }
 
   public final class Kruth {
@@ -202,7 +202,7 @@ package androidx.kruth {
     method public static <K, V> androidx.kruth.MultimapSubject<K,V> assertThat(com.google.common.collect.Multimap<K,V> actual);
     method public static <T> androidx.kruth.MultisetSubject<T> assertThat(com.google.common.collect.Multiset<T> actual);
     method public static <R, C, V> androidx.kruth.TableSubject<R,C,V> assertThat(com.google.common.collect.Table<R,C,V> actual);
-    method public static androidx.kruth.ClassSubject assertThat(Class<? extends java.lang.Object!> actual);
+    method public static androidx.kruth.ClassSubject assertThat(Class<? extends java.lang.Object?> actual);
     method public static androidx.kruth.BigDecimalSubject assertThat(java.math.BigDecimal actual);
   }
 
@@ -236,12 +236,12 @@ package androidx.kruth {
   }
 
   public class MultimapSubject<K, V> extends androidx.kruth.Subject<com.google.common.collect.Multimap<K,V>> {
-    method public final androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends java.lang.Object!>... entries);
-    method public final androidx.kruth.Ordered containsAtLeastEntriesIn(com.google.common.collect.Multimap<K,? extends java.lang.Object!>? expectedMultimap);
+    method public final androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends java.lang.Object?>... entries);
+    method public final androidx.kruth.Ordered containsAtLeastEntriesIn(com.google.common.collect.Multimap<K,? extends java.lang.Object?>? expectedMultimap);
     method public final void containsEntry(K key, Object? value);
     method public final androidx.kruth.Ordered containsExactly();
-    method public final androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends java.lang.Object!>... entries);
-    method public final androidx.kruth.Ordered containsExactlyEntriesIn(com.google.common.collect.Multimap<K,? extends java.lang.Object!>? expectedMultimap);
+    method public final androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends java.lang.Object?>... entries);
+    method public final androidx.kruth.Ordered containsExactlyEntriesIn(com.google.common.collect.Multimap<K,? extends java.lang.Object?>? expectedMultimap);
     method public final void containsKey(K key);
     method public final void doesNotContainEntry(K key, Object? value);
     method public final void doesNotContainKey(K key);
@@ -256,7 +256,7 @@ package androidx.kruth {
   }
 
   public final class ObjectArraySubject<T> extends androidx.kruth.Subject<T[]> {
-    method public androidx.kruth.IterableSubject<? extends java.lang.Object!> asList();
+    method public androidx.kruth.IterableSubject<? extends java.lang.Object?> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
@@ -402,11 +402,11 @@ package androidx.kruth {
     method protected final androidx.kruth.StandardSubjectBuilder ignoreCheck();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isEqualTo(Object? expected);
-    method public void isIn(Iterable<? extends java.lang.Object!>? iterable);
+    method public void isIn(Iterable<? extends java.lang.Object?>? iterable);
     method public inline <reified V> void isInstanceOf();
     method public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isNotEqualTo(Object? unexpected);
-    method public void isNotIn(Iterable<? extends java.lang.Object!>? iterable);
+    method public void isNotIn(Iterable<? extends java.lang.Object?>? iterable);
     method public inline <reified V> void isNotInstanceOf();
     method public void isNotNull();
     method public void isNotSameInstanceAs(Object? unexpected);
