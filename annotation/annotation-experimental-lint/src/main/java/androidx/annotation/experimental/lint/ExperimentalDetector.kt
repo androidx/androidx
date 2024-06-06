@@ -576,7 +576,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         annotationFqName: String,
     ): Boolean {
         // Is the element itself experimental?
-        if (isDeclarationAnnotatedWith(context.evaluator, annotationFqName)) {
+        if (isDeclarationAnnotatedWith(annotationFqName)) {
             return true
         }
 
@@ -596,10 +596,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // which is landed on the backing field if any
         if (sourcePsi is KtProperty && this is UMethod) {
             val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
-            if (
-                backingField?.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ==
-                    true
-            ) {
+            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
                 return true
             }
         }
@@ -624,7 +621,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         return config.getOption(ISSUE_ERROR, "opt-in")?.contains(annotationFqName) == true ||
             config.getOption(ISSUE_WARNING, "opt-in")?.contains(annotationFqName) == true ||
             anyParentMatches({ element ->
-                element.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ||
+                element.isDeclarationAnnotatedWith(annotationFqName) ||
                     element.isDeclarationAnnotatedWithOptInOf(annotationFqName, optInFqNames)
             }) ||
             context.evaluator.getPackage(this)?.let { element ->
@@ -900,23 +897,13 @@ private fun PsiPackage.isAnnotatedWithOptInOf(
         }
     }
 
-/**
- * Returns whether the element declaration is annotated with the specified annotation or annotated
- * with annotation that is annotated with the specified annotation
- */
+/** Returns whether the element declaration is annotated with the specified annotation */
 private fun UElement.isDeclarationAnnotatedWith(
-    evaluator: JavaEvaluator,
     annotationFqName: String,
 ): Boolean {
     return (this as? UAnnotated)?.uAnnotations?.firstOrNull { uAnnotation ->
         // Directly annotated
-        if (uAnnotation.qualifiedName == annotationFqName) return@firstOrNull true
-
-        // Annotated with an annotation that is annotated with the specified annotation
-        val cls = uAnnotation.resolve()
-        if (cls == null || !cls.isAnnotationType) return@firstOrNull false
-        val metaAnnotations = evaluator.getAllAnnotations(cls, inHierarchy = false)
-        metaAnnotations.find { it.qualifiedName == annotationFqName } != null
+        uAnnotation.qualifiedName == annotationFqName
     } != null
 }
 

@@ -18,28 +18,33 @@ package sample.optin;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.OptIn;
+
 /** @noinspection unused*/
 @SuppressLint("UnknownNullness")
-public class RegressionTestJava313686921 {
+public class RegressionTestJava344616929 {
     @ExperimentalJavaAnnotation
     public @interface AnnotatedJavaAnnotation {}
 
     /**
-     * Unsafe usage due to the experimental annotation on the annotation
+     * Safe usage due to the opt-in annotation
      */
-    public void unsafeAnnotatedAnnotationUsageOnParam(@AnnotatedJavaAnnotation Object param) {
+    @OptIn(markerClass = ExperimentalJavaAnnotation.class)
+    public Object safeAnnotatedAnnotationUsageOnParam(@AnnotatedJavaAnnotation Object param) {
+        return param;
     }
 
     /**
-     * Unsafe usage due to the experimental annotation on the annotation
+     * Safe usage due to the opt-in annotation
      */
+    @OptIn(markerClass = ExperimentalJavaAnnotation.class)
     @AnnotatedJavaAnnotation
-    public Object unsafeAnnotatedAnnotationUsageOnMethod(Object param) {
+    public Object safeAnnotatedAnnotationUsageOnMethod(Object param) {
         return param;
     }
 
     void usage() {
-        unsafeAnnotatedAnnotationUsageOnMethod("param");
+        safeAnnotatedAnnotationUsageOnMethod("param");
     }
 
     @AnnotatedJavaAnnotation

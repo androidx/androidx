@@ -23,6 +23,7 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -560,6 +561,7 @@ src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't us
      * experimentally-annotated annotations.
      */
     @Test
+    @Ignore("b/313686921")
     fun regressionTestJava313686921() {
         val input =
             arrayOf(
@@ -587,6 +589,7 @@ src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is
      * experimentally-annotated annotations.
      */
     @Test
+    @Ignore("b/313686921")
     fun regressionTestKotlin313686921() {
         val input =
             arrayOf(
@@ -604,6 +607,18 @@ src/sample/optin/AnnotatedKotlinAnnotation.kt:22: Error: This declaration is opt
                 .trimIndent()
 
         check(*input).expect(expected)
+    }
+
+    /** Regression test for b/344616929 that shows where to put @OptIn: use-site! */
+    @Test
+    @Ignore("b/313686921")
+    fun regressionTestJava344616929() {
+        val input =
+            arrayOf(
+                javaSample("sample.optin.ExperimentalJavaAnnotation"),
+                javaSample("sample.optin.RegressionTestJava344616929")
+            )
+        check(*input).expectClean()
     }
 
     companion object {
