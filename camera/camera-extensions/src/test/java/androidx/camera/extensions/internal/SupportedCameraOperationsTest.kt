@@ -21,20 +21,18 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.impl.RestrictedCameraInfo
-import androidx.camera.extensions.impl.CaptureStageImpl
-import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
+import androidx.camera.extensions.internal.fake.FakeImageCaptureExtenderImpl
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -292,61 +290,6 @@ class SupportedCameraOperationsTest(private val extenderType: String) {
                 ),
             expectSupportedOperations = emptySet() // No ops should be supported.
         )
-    }
-
-    private class FakeImageCaptureExtenderImpl(
-        val supportedRequestKeys: List<CaptureRequest.Key<out Any>>
-    ) : ImageCaptureExtenderImpl {
-        override fun isExtensionAvailable(
-            cameraId: String,
-            cameraCharacteristics: CameraCharacteristics
-        ): Boolean = true
-
-        override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {}
-
-        override fun getCaptureProcessor() = null
-
-        override fun getCaptureStages(): List<CaptureStageImpl> = emptyList()
-
-        override fun getMaxCaptureStage() = 2
-
-        override fun getSupportedResolutions() = null
-
-        override fun getEstimatedCaptureLatencyRange(size: Size?) = null
-
-        override fun getAvailableCaptureRequestKeys(): List<CaptureRequest.Key<out Any>> {
-            return supportedRequestKeys
-        }
-
-        override fun getAvailableCaptureResultKeys(): List<CaptureResult.Key<Any>> {
-            return mutableListOf()
-        }
-
-        override fun getSupportedPostviewResolutions(
-            captureSize: Size
-        ): MutableList<Pair<Int, Array<Size>>>? = null
-
-        override fun isCaptureProcessProgressAvailable() = false
-
-        override fun getRealtimeCaptureLatency(): Pair<Long, Long>? = null
-
-        override fun isPostviewAvailable() = false
-
-        override fun onInit(
-            cameraId: String,
-            cameraCharacteristics: CameraCharacteristics,
-            context: Context
-        ) {}
-
-        override fun onDeInit() {}
-
-        override fun onPresetSession(): CaptureStageImpl? = null
-
-        override fun onEnableSession(): CaptureStageImpl? = null
-
-        override fun onDisableSession(): CaptureStageImpl? = null
-
-        override fun onSessionType(): Int = SessionConfiguration.SESSION_REGULAR
     }
 
     private class FakeAdvancedVendorExtenderImpl(

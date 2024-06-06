@@ -25,27 +25,17 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.Logger;
-import androidx.camera.core.SettableImageProxy;
-import androidx.camera.core.impl.ImageOutputConfig;
-import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.OutputSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.ProcessResultImpl;
-import androidx.camera.extensions.internal.Camera2CameraCaptureResult;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
-
-import org.jetbrains.annotations.TestOnly;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,24 +53,17 @@ import java.util.Map;
  *     output surface.
  * 2. When input images from camera and TotalCaptureResult arrives, notify the processor by
  *   {@link #notifyImage(ImageReference)} and {@link #notifyCaptureResult(TotalCaptureResult, int)}.
- * 3. Invoke {@link #setJpegQuality(int)} to adjust the jpeg quality and invoke
- *    {@link #setRotationDegrees(int)} if the device rotation changes.
- * 4. When camera session is finishing, invoke {@link #close()} to reclaim the resources.
- *    Please note that the output JPEG surface should be closed AFTER this processor is closed().
+ * 3. When camera session is finishing, invoke {@link #close()} to reclaim the resources.
+ *    Please note that the output YUV surface should be closed AFTER this processor is closed().
  * </pre>
  */
 class StillCaptureProcessor {
     private static final String TAG = "StillCaptureProcessor";
-    private static final int MAX_IMAGES = 2;
     @NonNull
     final CaptureProcessorImpl mCaptureProcessorImpl;
     @NonNull
     final CaptureResultImageMatcher mCaptureResultImageMatcher = new CaptureResultImageMatcher();
-    @NonNull
-    final ImageReaderProxy mProcessedYuvImageReader;
     private boolean mIsPostviewConfigured;
-    @NonNull
-    YuvToJpegConverter mYuvToJpegConverter;
     final Object mLock = new Object();
     @GuardedBy("mLock")
     @NonNull
@@ -100,62 +83,7 @@ class StillCaptureProcessor {
             @NonNull Size surfaceSize,
             @Nullable OutputSurface postviewOutputSurface) {
         mCaptureProcessorImpl = captureProcessorImpl;
-        /*
-           Processing flow:
-           --> Collecting YUV images (from camera) via notifyImage and TotalCaptureResults
-               via notifyCaptureResult
-           --> mCaptureProcessorImpl.process (OEM process)
-           --> mProcessedYuvImageReader
-           --> mYuvToJpegProcessor (written to captureOutputSurface)
-         */
-        mProcessedYuvImageReader = ImageReaderProxys.createIsolatedReader(
-                surfaceSize.getWidth(),
-                surfaceSize.getHeight(),
-                ImageFormat.YUV_420_888, MAX_IMAGES);
-
-        mYuvToJpegConverter = new YuvToJpegConverter(100, captureOutputSurface);
-        mProcessedYuvImageReader.setOnImageAvailableListener(
-                imageReader -> {
-                    OnCaptureResultCallback onCaptureResultCallback = null;
-                    Exception errorException = null;
-                    synchronized (mLock) {
-                        if (mIsClosed) {
-                            Logger.d(TAG, "Ignore JPEG processing in closed state");
-                            return;
-                        }
-                        ImageProxy imageProxy = imageReader.acquireNextImage();
-                        if (mSourceCaptureResult != null) {
-                            imageProxy = new SettableImageProxy(imageProxy, null,
-                                    new CameraCaptureResultImageInfo(
-                                            new Camera2CameraCaptureResult(mSourceCaptureResult)));
-                            mSourceCaptureResult = null;
-                        }
-                        Logger.d(TAG, "Start converting YUV to JPEG");
-                        if (imageProxy != null) {
-                            try {
-                                mYuvToJpegConverter.writeYuvImage(imageProxy);
-                            } catch (YuvToJpegConverter.ConversionFailedException e) {
-                                errorException = e;
-                            }
-
-                            if (mOnCaptureResultCallback != null) {
-                                onCaptureResultCallback = mOnCaptureResultCallback;
-                                mOnCaptureResultCallback = null;
-                            }
-                        }
-                    }
-
-                    if (onCaptureResultCallback != null) {
-                        if (errorException != null) {
-                            onCaptureResultCallback.onError(errorException);
-                        } else {
-                            onCaptureResultCallback.onCompleted();
-                        }
-                    }
-                }, CameraXExecutors.ioExecutor());
-
-        mCaptureProcessorImpl.onOutputSurface(mProcessedYuvImageReader.getSurface(),
-                ImageFormat.YUV_420_888);
+        mCaptureProcessorImpl.onOutputSurface(captureOutputSurface, ImageFormat.YUV_420_888);
         mCaptureProcessorImpl.onImageFormatUpdate(ImageFormat.YUV_420_888);
 
         mIsPostviewConfigured = (postviewOutputSurface != null);
@@ -172,20 +100,10 @@ class StillCaptureProcessor {
         }
     }
 
-    @TestOnly
-    StillCaptureProcessor(@NonNull CaptureProcessorImpl captureProcessorImpl,
-            @NonNull Surface captureOutputSurface,
-            @NonNull Size surfaceSize,
-            @Nullable OutputSurface postviewOutputSurface,
-            @NonNull YuvToJpegConverter yuvToJpegConverter) {
-        this(captureProcessorImpl, captureOutputSurface, surfaceSize, postviewOutputSurface);
-        mYuvToJpegConverter = yuvToJpegConverter;
-    }
-
     interface OnCaptureResultCallback {
-        void onCompleted();
+        void onProcessCompleted();
 
-        void onCaptureResult(long shutterTimestamp,
+        void onCaptureCompleted(long shutterTimestamp,
                 @NonNull List<Pair<CaptureResult.Key, Object>> result);
 
         void onError(@NonNull Exception e);
@@ -271,7 +189,7 @@ class StillCaptureProcessor {
                                             long shutterTimestamp,
                                             @NonNull List<Pair<CaptureResult.Key,
                                                     Object>> result) {
-                                        onCaptureResultCallback.onCaptureResult(
+                                        onCaptureResultCallback.onCaptureCompleted(
                                                 shutterTimestamp, result);
                                     }
 
@@ -295,7 +213,7 @@ class StillCaptureProcessor {
                                             long shutterTimestamp,
                                             @NonNull List<Pair<CaptureResult.Key,
                                                     Object>> result) {
-                                        onCaptureResultCallback.onCaptureResult(
+                                        onCaptureResultCallback.onCaptureCompleted(
                                                 shutterTimestamp, result);
                                     }
 
@@ -317,6 +235,10 @@ class StillCaptureProcessor {
                     }
                 } finally {
                     Logger.d(TAG, "CaptureProcessorImpl.process() finish");
+                    if (mOnCaptureResultCallback != null) {
+                        mOnCaptureResultCallback.onProcessCompleted();
+                        mOnCaptureResultCallback = null;
+                    }
                     clearCaptureResults();
                 }
             }
@@ -339,15 +261,6 @@ class StillCaptureProcessor {
         mCaptureResultImageMatcher.imageIncoming(imageReference);
     }
 
-    void setJpegQuality(@IntRange(from = 0, to = 100) int quality) {
-        mYuvToJpegConverter.setJpegQuality(quality);
-    }
-
-    void setRotationDegrees(
-            @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
-        mYuvToJpegConverter.setRotationDegrees(rotationDegrees);
-    }
-
     /**
      * Close the processor. Please note that captureOutputSurface passed in must be closed AFTER
      * invoking this function.
@@ -357,10 +270,8 @@ class StillCaptureProcessor {
             Logger.d(TAG, "Close the StillCaptureProcessor");
             mIsClosed = true;
             clearCaptureResults();
-            mProcessedYuvImageReader.clearOnImageAvailableListener();
             mCaptureResultImageMatcher.clearImageReferenceListener();
             mCaptureResultImageMatcher.clear();
-            mProcessedYuvImageReader.close();
         }
     }
 }

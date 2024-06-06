@@ -38,7 +38,6 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.core.impl.SessionProcessor.CaptureCallback
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.streamsharing.StreamSharing
 import javax.inject.Inject
@@ -371,7 +370,9 @@ constructor(
                         it.containerClass == StreamSharing::class.java
                 }
             ) {
-                sessionProcessorManager.startRepeating(object : CaptureCallback {})
+                sessionProcessorManager.startRepeating(
+                    currentSessionConfig!!.repeatingCaptureConfig.tagBundle
+                )
             } else {
                 sessionProcessorManager.stopRepeating()
             }

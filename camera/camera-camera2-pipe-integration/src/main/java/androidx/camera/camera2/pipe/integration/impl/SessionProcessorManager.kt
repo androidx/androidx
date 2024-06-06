@@ -39,6 +39,7 @@ import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessor.CaptureCallback
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.streamsharing.StreamSharing
@@ -176,15 +177,11 @@ class SessionProcessorManager(
             }
 
             // IMPORTANT: The critical section (covered by synchronized) is intentionally expanded
-            // to
-            // cover the sections where we increment and decrement (on failure) the use count on the
-            // DeferrableSurfaces. This is needed because the SessionProcessorManager could be
-            // closed
-            // while we're still initializing, and we need to make sure we either initialize to a
-            // point
-            // where all the lifetimes of Surfaces are setup or we don't initialize at all beyond
-            // this
-            // point.
+            // to cover the sections where we increment and decrement (on failure) the use count on
+            // the DeferrableSurfaces. This is needed because the SessionProcessorManager could be
+            // closed while we're still initializing, and we need to make sure we either initialize
+            // to a point where all the lifetimes of Surfaces are setup or we don't initialize at
+            // all beyond this point.
             val processorSessionConfig =
                 synchronized(lock) {
                     if (isClosed()) return@launch configure(null)
@@ -272,17 +269,21 @@ class SessionProcessorManager(
 
             state = State.STARTED
         }
-        startRepeating(object : CaptureCallback {})
+        val tagBundle = sessionConfig?.repeatingCaptureConfig?.tagBundle ?: TagBundle.emptyBundle()
+        startRepeating(tagBundle)
         captureConfigsToIssue?.let { captureConfigs ->
             submitCaptureConfigs(captureConfigs, checkNotNull(captureCallbacksToIssue))
         }
     }
 
-    internal fun startRepeating(captureCallback: CaptureCallback) {
+    internal fun startRepeating(
+        tagBundle: TagBundle,
+        captureCallback: CaptureCallback = object : CaptureCallback {}
+    ) {
         synchronized(lock) {
             if (state != State.STARTED) return
             Log.debug { "Invoking SessionProcessor#startRepeating" }
-            sessionProcessor.startRepeating(captureCallback)
+            sessionProcessor.startRepeating(tagBundle, captureCallback)
         }
     }
 
@@ -303,11 +304,9 @@ class SessionProcessorManager(
             if (state != State.STARTED) {
                 // The lifetime of image capture requests is separate from the extensions lifetime.
                 // It is therefore possible for capture requests to be issued when the capture
-                // session
-                // hasn't yet started (before invoking SessionProcessor.onCaptureSessionStart). This
-                // is
-                // a copy of camera-camera2's behavior where it stores the last capture configs that
-                // weren't submitted.
+                // session hasn't yet started (before invoking
+                // SessionProcessor.onCaptureSessionStart). This is a copy of camera-camera2's
+                // behavior where it stores the last capture configs that weren't submitted.
                 Log.info {
                     "SessionProcessor#submitCaptureConfigs: Session not yet started. " +
                         "The capture requests will be submitted later"
@@ -346,12 +345,16 @@ class SessionProcessorManager(
                         updateOptions()
                     }
                     Log.debug { "Invoking SessionProcessor.startCapture()" }
-                    sessionProcessor.startCapture(config.isPostviewEnabled, callback)
+                    sessionProcessor.startCapture(
+                        config.isPostviewEnabled,
+                        config.tagBundle,
+                        callback
+                    )
                 } else {
                     val options =
                         CaptureRequestOptions.Builder.from(config.implementationOptions).build()
                     Log.debug { "Invoking SessionProcessor.startTrigger()" }
-                    sessionProcessor.startTrigger(options, callback)
+                    sessionProcessor.startTrigger(options, config.tagBundle, callback)
                 }
             }
         }

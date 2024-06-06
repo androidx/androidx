@@ -69,6 +69,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionProcessor.CaptureCallback
@@ -532,6 +533,8 @@ constructor(
             configs.map {
                 val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
                 object : CaptureCallback {
+                    private var cameraCaptureResult: CameraCaptureResult? = null
+
                     override fun onCaptureStarted(captureSequenceId: Int, timestamp: Long) {
                         for (captureCallback in it.cameraCaptureCallbacks) {
                             captureCallback.onCaptureStarted(it.id)
@@ -554,13 +557,19 @@ constructor(
                         }
                     }
 
+                    override fun onCaptureCompleted(
+                        timestamp: Long,
+                        captureSequenceId: Int,
+                        captureResult: CameraCaptureResult
+                    ) {
+                        cameraCaptureResult = captureResult
+                    }
+
                     override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
                         completeSignal.complete(null)
+                        val captureResult = cameraCaptureResult ?: EmptyCameraCaptureResult()
                         for (captureCallback in it.cameraCaptureCallbacks) {
-                            captureCallback.onCaptureCompleted(
-                                it.id,
-                                CameraCaptureResult.EmptyCameraCaptureResult()
-                            )
+                            captureCallback.onCaptureCompleted(it.id, captureResult)
                         }
                     }
 

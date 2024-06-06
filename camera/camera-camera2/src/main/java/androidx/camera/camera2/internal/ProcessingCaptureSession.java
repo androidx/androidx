@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +42,7 @@ import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
@@ -334,7 +334,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             cancelRequests(Arrays.asList(captureConfig));
             return;
         }
-        mSessionProcessor.startTrigger(options,
+        mSessionProcessor.startTrigger(options, captureConfig.getTagBundle(),
                 new CaptureCallbackAdapter(captureConfig.getId(),
                         captureConfig.getCameraCaptureCallbacks()));
     }
@@ -373,6 +373,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         switch (mProcessorState) {
             case UNINITIALIZED:
             case SESSION_INITIALIZED:
+                if (mPendingCaptureConfigs != null) {
+                    cancelRequests(captureConfigs);
+                    Logger.d(TAG, "cancel the request because are pending un-submitted request");
+                    break;
+                }
                 mPendingCaptureConfigs = captureConfigs;
                 break;
             case ON_CAPTURE_SESSION_STARTED:
@@ -414,13 +419,15 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         mStillCaptureOptions = builder.build();
         updateParameters(mSessionOptions, mStillCaptureOptions);
         mSessionProcessor.startCapture(captureConfig.isPostviewEnabled(),
-                  new CaptureCallbackAdapter(captureConfig.getId(),
+                captureConfig.getTagBundle(),
+                new CaptureCallbackAdapter(captureConfig.getId(),
                           captureConfig.getCameraCaptureCallbacks()));
     }
 
     private static class CaptureCallbackAdapter implements SessionProcessor.CaptureCallback {
         private List<CameraCaptureCallback> mCameraCaptureCallbacks;
         private final int mCaptureConfigId;
+        private CameraCaptureResult mCaptureResult = null;
 
         private CaptureCallbackAdapter(int captureConfigId,
                 List<CameraCaptureCallback> cameraCaptureCallbacks) {
@@ -445,10 +452,17 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
 
         @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull CameraCaptureResult captureResult) {
+            mCaptureResult = captureResult;
+        }
+
+        @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
+            CameraCaptureResult cameraCaptureResult = mCaptureResult != null
+                    ? mCaptureResult : new CameraCaptureResult.EmptyCameraCaptureResult();
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId,
-                        new CameraCaptureResult.EmptyCameraCaptureResult());
+                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId, cameraCaptureResult);
             }
         }
 
@@ -579,9 +593,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
      * surface of repeating request is determined by {@link SessionProcessor}.
      * {@link SessionProcessor#setParameters(Config)} will be called to update the request
      * parameters retrieved from {@link SessionConfig#getImplementationOptions()}. It will also
-     * invoke {@link SessionProcessor#startRepeating(SessionProcessor.CaptureCallback)} if it is not
-     * started yet. {@link SessionConfig#getRepeatingCameraCaptureCallbacks()} will be invoked
-     * but it is unable to invoke callbacks of {@link CaptureCallbackContainer} type.
+     * invoke {@link SessionProcessor#startRepeating(TagBundle, SessionProcessor.CaptureCallback)}
+     * if it is not started yet. {@link SessionConfig#getRepeatingCameraCaptureCallbacks()} will be
+     * invoked but it is unable to invoke callbacks of {@link CaptureCallbackContainer} type.
      *
      * @param sessionConfig has the configuration that will currently active in issuing capture
      *                      request.
@@ -612,7 +626,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             if (!hasPreviewSurface(sessionConfig.getRepeatingCaptureConfig())) {
                 mSessionProcessor.stopRepeating();
             } else {
-                mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
+                mSessionProcessor.startRepeating(
+                        sessionConfig.getRepeatingCaptureConfig().getTagBundle(),
+                        mSessionProcessorCaptureCallback);
             }
         }
     }
@@ -694,7 +710,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         @Override
         public void onCaptureCompleted(long timestamp, int captureSequenceId,
-                @NonNull Map<CaptureResult.Key, Object> result) {
+                @NonNull CameraCaptureResult result) {
 
         }
     }
