@@ -16,8 +16,6 @@
 
 package androidx.pdf.data;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -63,7 +61,6 @@ public class UiFutureValues {
     private static final Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(4,
             new ThreadFactoryBuilder().setNameFormat("PdfViewer-" + TAG + "-%d").build());
     private static Executor sExecutor = DEFAULT_EXECUTOR;
-    private static boolean sDebug;
 
     private UiFutureValues() {
     }
@@ -104,12 +101,6 @@ public class UiFutureValues {
         return callback -> ThreadUtils.runOnUiThread(() -> callback.failed(error));
     }
 
-    /** Log the calling threads stack trace when exceptions occur in the background thread. */
-    public static void setDebugTrace(boolean debug) {
-        Log.v(TAG, "Setting debug trace to " + debug);
-        UiFutureValues.sDebug = debug;
-    }
-
     /** Wraps up a {@link Supplier} to supply a converted value. */
     @NonNull
     public static <F, T> Supplier<T> postConvert(final @NonNull Supplier<F> supplier,
@@ -117,7 +108,7 @@ public class UiFutureValues {
         return new Supplier<T>() {
 
             @Override
-            public T supply(Progress progress) throws Exception {
+            public T supply(@NonNull Progress progress) throws Exception {
                 return converter.convert(supplier.supply(progress));
             }
         };
@@ -190,7 +181,7 @@ public class UiFutureValues {
             }
 
             @Override
-            public void failed(final Throwable thrown) {
+            public void failed(@NonNull final Throwable thrown) {
                 if (ThreadUtils.isUiThread()) {
                     targetCallback.failed(thrown);
                 } else {
@@ -225,7 +216,7 @@ public class UiFutureValues {
             }
 
             @Override
-            public void failed(final Throwable thrown) {
+            public void failed(@NonNull final Throwable thrown) {
                 ThreadUtils.runOnUiThread(() -> destFuture.fail(thrown));
             }
 
@@ -248,15 +239,10 @@ public class UiFutureValues {
         private final FutureValues.SettableFutureValue<T> mFuture;
         // Any throwable caught during the call to supply() is kept here for onPostExecute.
         private Throwable mCaught;
-        // Debug exception to trace the calling threads stack.
-        private Exception mDebugTraceException;
 
         FutureAsyncTask(Supplier<T> supplier, SettableFutureValue<T> settable) {
             this.mSupplier = supplier;
             this.mFuture = settable;
-            if (sDebug) {
-                this.mDebugTraceException = new Exception("A debug stack trace");
-            }
         }
 
         @Override
@@ -271,12 +257,6 @@ public class UiFutureValues {
                 };
                 return mSupplier.supply(progress);
             } catch (Throwable e) {
-                if (mDebugTraceException != null) {
-                    Log.d(TAG, "Exception during background processing: ", e);
-                    Log.d(TAG, "Problem during background called from:", mDebugTraceException);
-                } else {
-                    Log.d(TAG, "Exception during background processing: " + e);
-                }
                 mCaught = e;
                 return null;
             }
@@ -297,13 +277,8 @@ public class UiFutureValues {
                 } else {
                     mFuture.set(result);
                 }
-            } catch (Exception e) {
-                if (mDebugTraceException != null) {
-                    Log.e(TAG, "Exception during post processing: ", e);
-                    Log.e(TAG, "Problem in post-execute called from:", mDebugTraceException);
-                } else {
-                    Log.w(TAG, "Exception during post processing: ", e);
-                }
+            } catch (Exception ignored) {
+                // TODO: Rethrow exception or return error code
             }
         }
     }

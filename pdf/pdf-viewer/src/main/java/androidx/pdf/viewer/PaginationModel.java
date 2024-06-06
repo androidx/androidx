@@ -17,13 +17,11 @@
 package androidx.pdf.viewer;
 
 import android.graphics.Rect;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.Screen;
 
@@ -124,8 +122,11 @@ public class PaginationModel {
         Preconditions.checkArgument(numPages >= 0, "Num pages should be >= 0, " + numPages);
         if (isInitialized()) {
             // Already initialized, don't overwrite existing data.
-            ErrorLog.checkState(mMaxPages == numPages, TAG, "init",
-                    String.format("called with different value %d, was %d.", numPages, mMaxPages));
+            if (mMaxPages != numPages) {
+                throw new IllegalArgumentException(
+                        String.format("called with different value %d, was %d.", numPages,
+                                mMaxPages));
+            }
             return;
         }
 
@@ -174,18 +175,13 @@ public class PaginationModel {
     public void addPage(int pageNum, @NonNull Dimensions pageSize) {
         Preconditions.checkNotNull(pageSize);
         if (pageNum < mSize) {
-            ErrorLog.log(TAG, "addPage", String.format("ignored add page#%d < %d", pageNum, mSize));
             return;
         }
         if (pageNum >= mMaxPages) {
-            ErrorLog.log(TAG, "addPage",
-                    String.format("cant add page - not initialized?" + "page#%d >= maxpages:%d",
-                            pageNum, mMaxPages));
             return;
         }
         for (int i = mSize; i < pageNum; i++) {
             // Edge case: there are missing pages. Create them temporarily as clones of this one.
-            ErrorLog.log(TAG, "Backfill page# " + i);
             mPages[i] = pageSize;
         }
         mPages[pageNum] = pageSize;
@@ -203,8 +199,7 @@ public class PaginationModel {
         int p = 0;
         while (p < mSize - 1) {
             if (mPages[p] == null) {
-                ErrorLog.logAndThrow(TAG, "computeTops",
-                        String.format("Missing page %d in (0,%d)", p, mSize));
+                throw new RuntimeException(String.format("Missing page %d in (0,%d)", p, mSize));
             }
             mPageStops[p + 1] = mPageStops[p] + mPages[p].getHeight() + 2 * mPageSpacingPx;
             p++;
@@ -297,7 +292,6 @@ public class PaginationModel {
         mTempViewArea.set(viewArea);
         if (!mTempViewArea.intersect(
                 0, 0, getWidth(), getEstimatedFullHeight())) { // Modifies tempViewArea.
-            Log.w(TAG, String.format("PaginationModel is outside view area. %s", mTempViewArea));
         }
         if (!mTempViewArea.equals(this.mViewArea)) {
             this.mViewArea.set(mTempViewArea);
@@ -434,11 +428,6 @@ public class PaginationModel {
     /** Just makes sure to clear any observers that have been set. */
     @Override
     protected void finalize() throws Throwable {
-        if (!mObservers.isEmpty()) {
-            ErrorLog.log(TAG, String.format(
-                    "PaginationModel still has %d registered observers during garabage "
-                            + "collection. They" + " will be removed.", mObservers.size()));
-        }
         mObservers.clear();
         super.finalize();
     }

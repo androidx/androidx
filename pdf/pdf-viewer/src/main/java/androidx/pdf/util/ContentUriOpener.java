@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.MediaColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -90,6 +89,7 @@ public class ContentUriOpener {
     }
 
     /**
+     *
      */
     @Nullable
     public String getContentType(@NonNull Uri contentUri) {
@@ -97,7 +97,7 @@ public class ContentUriOpener {
             String[] availableTypes = mContentResolver.getStreamTypes(contentUri, "*/*");
             String declaredType = mContentResolver.getType(contentUri);
             // Sometimes the declared type is actually not available, then pick an available type
-          // instead.
+            // instead.
             String useType = null;
             if (availableTypes != null) {
                 for (String type : availableTypes) {
@@ -106,17 +106,13 @@ public class ContentUriOpener {
                     } else if (type.equals(declaredType)) {
                         useType = declaredType;
                     }
-                    Log.v(TAG, String.format("available type: %s", type));
                 }
             }
-            Log.v(TAG,
-                    String.format("Use content type %s (declared was %s)", useType, declaredType));
             if (useType == null) {
                 useType = declaredType;
             }
             return useType;
         } catch (SecurityException se) {
-            ErrorLog.log(TAG, "content:" + contentUri.getAuthority(), se);
             return null;
         }
     }
@@ -140,12 +136,12 @@ public class ContentUriOpener {
                 return new String[]{mContentResolver.getType(contentUri)};
             }
         } catch (SecurityException se) {
-            ErrorLog.log(TAG, "content:" + contentUri.getAuthority(), se);
             return new String[]{};
         }
     }
 
     /**
+     *
      */
     @Nullable
     public static String extractContentName(@NonNull ContentResolver contentResolver,
@@ -165,7 +161,7 @@ public class ContentUriOpener {
                 }
             } catch (Exception e) {
                 // Misbehaved app!
-                ErrorLog.log(TAG, "extractName", e);
+                // TODO: Rethrow exception or return an error code
             } finally {
                 if (cursor != null) {
                     cursor.close();

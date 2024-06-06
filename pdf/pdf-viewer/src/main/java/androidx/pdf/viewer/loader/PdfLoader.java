@@ -34,7 +34,6 @@ import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
 import androidx.pdf.util.BitmapRecycler;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.TileBoard.TileInfo;
 
 import java.io.FileOutputStream;
@@ -375,7 +374,6 @@ public class PdfLoader {
         protected PdfStatus doInBackground(PdfDocumentRemoteProto pdfDocument)
                 throws RemoteException {
             if (mData == null) {
-                ErrorLog.log(TAG, "Can't load file (data unavailable)");
                 return PdfStatus.FILE_ERROR;
             }
 
@@ -385,7 +383,6 @@ public class PdfLoader {
             ParcelFileDescriptor fd = mData.openFd(mOpener);
 
             if (fd == null || fd.getFd() == -1) {
-                ErrorLog.log(TAG, "Can't load file (doesn't open) ", mData.toString());
                 return PdfStatus.FILE_ERROR;
             }
             int statusIndex = pdfDocument.getPdfDocumentRemote().create(fd, mPassword);

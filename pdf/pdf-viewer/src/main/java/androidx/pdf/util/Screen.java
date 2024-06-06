@@ -19,7 +19,6 @@ package androidx.pdf.util;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -44,7 +43,6 @@ public class Screen {
     public Screen(@NonNull Context ctx) {
         this.mCtx = ctx.getApplicationContext();
         mRes = this.mCtx.getResources();
-        Log.v(TAG, "10dp = " + pxFromDp(10) + "; dpi = " + getDensityDpi());
     }
 
     /** Converts a value given in dp to pixels, based on the screen density. */

@@ -18,7 +18,6 @@ package androidx.pdf.viewer;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.pdf.data.DisplayData;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Observables;
 import androidx.pdf.util.Observables.ExposedValue;
@@ -154,36 +152,28 @@ public abstract class Viewer extends Fragment {
     }
 
     @Override
-    public void onCreate(@NonNull Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mEventlog.length() > 1) { // 'B' is logged before onCreate.
-            log('<', "Reuse an existing instance: " + getEventlog());
-        } else {
-            log('<', "onCreate");
-        }
 
         // editFabTarget = new BaseViewerEditFabTargetImpl(requireActivity(), this);
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
-            @NonNull Bundle savedState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedState) {
         if (container == null) {
             // Don't throw an exception here, as this may happen during restoreInstanceState for
             // Viewers that we don't need anymore.
-            ErrorLog.log(getTag(), "Can't recreate Viewer, make sure the file frame exists.");
             return null;
         }
         this.mContainer = container;
-        log('V', "onCreateView " + savedState);
         return null;
     }
 
     @Override
-    public void onActivityCreated(@NonNull Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        log('A', "onActivityCreated " + mViewState.get());
         if (mViewState.get() == ViewState.NO_VIEW || mViewState.get() == ViewState.ERROR) {
             mViewState.set(ViewState.VIEW_CREATED);
         }
@@ -192,7 +182,6 @@ public abstract class Viewer extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        log('S', "onStart ");
         mStarted = true;
         if (mDelayedEnter || mOnScreen) {
             onEnter();
@@ -205,9 +194,6 @@ public abstract class Viewer extends Fragment {
      * when the Viewer is started.
      */
     public void postEnter() {
-        if (mDelayedEnter) {
-            Log.w(getLogTag(), "Already had delayed enter");
-        }
 
         mOnScreen = true;
         if (mStarted) {
@@ -227,7 +213,6 @@ public abstract class Viewer extends Fragment {
     /** Called after this viewer enters the screen and becomes visible. */
     @CallSuper
     protected void onEnter() {
-        log('E', "onEnter");
         // TODO: Track file opened event, content length and view progress.
         participateInAccessibility(true);
     }
@@ -235,7 +220,6 @@ public abstract class Viewer extends Fragment {
     /** Called after this viewer exits the screen and becomes invisible to the user. */
     @CallSuper
     protected void onExit() {
-        log('e', "onExit");
         // TODO: Track file closed event, content length and view progress.
         participateInAccessibility(false);
     }
@@ -245,7 +229,6 @@ public abstract class Viewer extends Fragment {
         if (mOnScreen) {
             onExit();
         }
-        log('s', "onStop");
         mStarted = false;
         super.onStop();
     }
@@ -254,7 +237,6 @@ public abstract class Viewer extends Fragment {
     public void onDestroyView() {
         destroyView();
         mContainer = null;
-        log('v', "onDestroyView");
         super.onDestroyView();
     }
 
@@ -289,7 +271,6 @@ public abstract class Viewer extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        log('>', "Destroying: " + getEventlog());
     }
 
     /**
@@ -331,13 +312,6 @@ public abstract class Viewer extends Fragment {
     /** Save the {@link DisplayData}'s content reference (not the contents itself) to arguments. */
     protected void saveToArguments(@NonNull DisplayData data) {
         getArguments().putBundle(KEY_DATA, data.asBundle());
-        log('B', "Saved arg " + data.asBundle());
-    }
-
-    /** Logs a step in the life-cycle of this Viewer (e.g. onStop). */
-    protected void log(char tag, @NonNull String step) {
-        Log.v(getLogTag(), "Lifecycle: " + step);
-        mEventlog.append(tag);
     }
 
     /** Returns a compact event log for this Viewer that helps investigating lifecycle issues. */

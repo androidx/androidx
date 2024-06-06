@@ -19,7 +19,6 @@ package androidx.pdf.viewer;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.ZoomView;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A transparent container for virtual views representing clickable links within the Page. NOTE:
@@ -196,7 +196,7 @@ public class PageLinksView extends LinearLayout {
                 // The AccessibilityNodeInfo isn't automatically scaled by the scaling of the View
                 // it is part of, so we have to do that ourselves - in contrast to
                 // #getVirtualViewAt.
-                float zoom = mZoomScroll.get().zoom;
+                float zoom = Objects.requireNonNull(mZoomScroll.get()).zoom;
 
                 // Explicitly cast to int after scaling
                 bounds.top = (int) (bounds.top * zoom);
@@ -209,7 +209,6 @@ public class PageLinksView extends LinearLayout {
         }
 
         private boolean isLinkLoaded(int virtualViewId) {
-            Log.d(TAG, String.format("virtualViewId %d", virtualViewId));
             // Links can be deleted as we unload pages as the user scrolls around - if this
             // happens but an event for the link somehow happens afterward, we should ignore it
             // and try not to crash. Also, the accessibility framework sometimes requests links
@@ -220,7 +219,6 @@ public class PageLinksView extends LinearLayout {
         }
 
         private String getContentDescription(int virtualViewId) {
-            Log.d(TAG, String.format("virtualViewId %d", virtualViewId));
             int linkSize = mUrlLinks != null ? mUrlLinks.size() : 0;
             int gotoLinksSize = mGotoLinks != null ? mGotoLinks.size() : 0;
             if (virtualViewId < linkSize) {
@@ -230,7 +228,6 @@ public class PageLinksView extends LinearLayout {
                         virtualViewId - linkSize).getDestination().getPageNumber();
                 return getContext().getString(R.string.desc_goto_link, pageNum);
             }
-            Log.e(TAG, "Unknown link " + virtualViewId);
             return "";
         }
 

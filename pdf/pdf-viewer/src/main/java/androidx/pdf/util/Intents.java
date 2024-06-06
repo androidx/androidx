@@ -43,7 +43,6 @@ public class Intents {
             context.startActivity(intent);
             return true;
         } catch (Exception e) {
-            ErrorLog.log(logTag, "startActivity: " + toLongString(intent), e);
             return false;
         }
     }

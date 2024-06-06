@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import androidx.pdf.mocks.MockBitmapParcel;
 import androidx.pdf.test.R;
@@ -74,11 +73,6 @@ public class BitmapParcelTest {
 
     private boolean validateBitmap(Bitmap bitmap) {
         boolean same = bitmap.sameAs(mSourceBitmap);
-        Log.i(
-                TAG,
-                String.format(
-                        "Compare bitmaps  %s = %s : %s",
-                        mSourceBitmap.getByteCount(), bitmap.getByteCount(), same));
         return same;
     }
 

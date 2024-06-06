@@ -18,7 +18,6 @@ package androidx.pdf.util;
 
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,7 +65,6 @@ public class BitmapParcel {
             // TODO: StrictMode - close() is not explicitly called.
             pipe = ParcelFileDescriptor.createPipe();
         } catch (IOException e) {
-            ErrorLog.log(TAG, "createPipe-IOX", e);
             return null;
         }
         ParcelFileDescriptor source = pipe[0];
@@ -81,11 +79,7 @@ public class BitmapParcel {
             boolean timedOut = false;
             try {
                 timedOut = !mCountDownLatch.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Log.w(TAG, "Reading thread was interrupted ??", e);
-            }
-            if (timedOut) {
-                Log.w(TAG, "Reading thread took more than 5 seconds ??");
+            } catch (InterruptedException ignored) {
             }
         }
     }
@@ -97,8 +91,6 @@ public class BitmapParcel {
                 () -> {
                     Timer t = Timer.start();
                     receiveBitmap(mBitmap, source);
-                    Log.v(TAG, "Receive bitmap native: " + t.time() + " ms.");
-                    Log.v(TAG, "Finished transfer: " + mTimer.time() + " ms.");
                     mCountDownLatch.countDown();
                 },
                 "Pico-AsyncPipedFdNative.receiveAsync")

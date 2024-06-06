@@ -17,15 +17,12 @@
 package androidx.pdf.viewer.loader;
 
 import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ThreadUtils;
-import androidx.pdf.util.Timer;
 
 /**
  * Performs one command on the PDF Document asynchronously, like rendering a page's bitmap or
@@ -88,8 +85,6 @@ abstract class AbstractPdfTask<T> {
     }
 
     protected final T findPdfAndDoInBackground() {
-        Log.v(getLogTag(), "Start task: " + this);
-        Timer timer = Timer.start();
         T result;
         try {
             PdfDocumentRemote pdfDocument = getPdfDocument();
@@ -98,21 +93,13 @@ abstract class AbstractPdfTask<T> {
                             ? doInBackground(new PdfDocumentRemoteProto(pdfDocument))
                             : doInBackground();
             if (result != null) {
-                Log.v(getLogTag(),
-                        "Finish task: " + this + ", result = " + resultToString(result)
-                                + ", time = "
-                                + timer.time() + "ms");
                 return result;
-            } else {
-                Log.w(getLogTag(),
-                        "Task " + this + " result is null (time=" + timer.time() + "ms).");
             }
         } catch (RemoteException e) {
             mReportError = true;
-            ErrorLog.log(getLogTag(), "doInBackground", e);
         } catch (RuntimeException rx) {
             mReportError = true;
-            ErrorLog.logAndThrow(getLogTag(), "doInBackground", rx);
+            throw rx;
         } finally {
             mPdfLoader.releasePdfDocument();
         }
@@ -146,7 +133,6 @@ abstract class AbstractPdfTask<T> {
      * @return The result of the command. Returning @code{null} cancels the task.
      */
     protected T doInBackground() {
-        Log.w(getLogTag(), "No PdfDocumentRemote available... service crashed ? -- Try reconnect.");
         mPdfLoader.reconnect();
         return null;
     }
@@ -198,15 +184,9 @@ abstract class AbstractPdfTask<T> {
     }
 
     private void onCancelled() {
-        Log.v(getLogTag(), "Task cancelled: " + this);
         if (mReportError) {
             reportError(mPdfLoader.getCallbacks());
         }
         cleanup();
-    }
-
-    // Implementations may override to get better logging of results.
-    protected String resultToString(T result) {
-        return result == null ? "null" : result.toString();
     }
 }

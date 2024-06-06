@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Preconditions;
 
@@ -71,7 +70,7 @@ public class FutureValues {
             }
 
             @Override
-            public void failed(Throwable thrown) {
+            public void failed(@NonNull Throwable thrown) {
                 targetFuture.fail(thrown);
             }
 
@@ -103,7 +102,7 @@ public class FutureValues {
                     }
 
                     @Override
-                    public void failed(Throwable thrown) {
+                    public void failed(@NonNull Throwable thrown) {
                         target.failed(thrown);
                     }
 
@@ -198,7 +197,7 @@ public class FutureValues {
 
     /**
      * A convenient base implementation of {@link FutureValue.Callback} that does nothing. It
-     * assumes no failures are reported and thus handles them with {@link ErrorLog#logAndThrow}.
+     * assumes no failures are reported and thus handles them.
      * Subclasses should override {@link #failed} if failures are expected.
      *
      * @param <T> the type of result
@@ -211,7 +210,6 @@ public class FutureValues {
 
         @Override
         public void failed(@NonNull Throwable thrown) {
-            ErrorLog.logAndThrow(toString(), "failed", thrown);
         }
 
         @Override
@@ -304,7 +302,7 @@ public class FutureValues {
         }
 
         @Override
-        public void get(@NonNull Callback<T> callback) {
+        public void get(@Nullable Callback<T> callback) {
             try {
                 mComputation.supply(progress -> {
                 }).get(callback);
@@ -385,7 +383,7 @@ public class FutureValues {
         }
 
         @Override
-        public void get(@NonNull Callback<T> callback) {
+        public void get(@Nullable Callback<T> callback) {
             if (mValue != null) {
                 callback.available(mValue);
             } else if (mThrown != null) {

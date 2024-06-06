@@ -18,7 +18,6 @@ package androidx.pdf.mocks;
 
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import androidx.pdf.util.BitmapParcel;
 
@@ -45,13 +44,11 @@ public class MockBitmapParcel extends BitmapParcel {
             while (channel.read(buffer) != -1) {
                 buffer.rewind();
                 bitmap.copyPixelsFromBuffer(buffer);
-//                buffer.rewind();
             }
             buffer.rewind();
             channel.close();
             sourceFd.close();
-        } catch (IOException e) {
-            Log.e("MockBitmapParcel", "Failed to close the FD", e);
+        } catch (IOException ignored) {
         }
     }
 }
