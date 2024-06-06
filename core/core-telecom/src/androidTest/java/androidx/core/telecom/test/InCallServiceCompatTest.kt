@@ -41,7 +41,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,7 +97,6 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/343742088
     fun testResolveCallExtension_Extra() {
         setUpBackwardsCompatTest()
         val voipApiExtra = Pair(CallsManager.EXTRA_VOIP_API_VERSION, true)
@@ -124,7 +122,6 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/343742088
     fun testResolveCallExtension_CapabilityExchange() {
         // Add EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED for pre-U testing
         val backwardsCompatExtra = configureCapabilityExchangeTypeTest()
@@ -132,7 +129,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
             TestUtils.OUTGOING_CALL_ATTRIBUTES,
             InCallServiceCompat.CAPABILITY_EXCHANGE,
             // Waiting is not required for U+ testing
-            waitForCallDetailExtras = !TestUtils.buildIsAtLeastU(),
+            waitForCallDetailExtras = !Utils.hasPlatformV2Apis(),
             extraToInclude = backwardsCompatExtra,
         )
     }
@@ -156,7 +153,6 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/343742088
     fun testResolveCallExtension_TransactionalOpsNotSupported() {
         // Phone accounts that don't use the v2 APIs don't support transactional ops.
         setUpBackwardsCompatTest()
@@ -227,7 +223,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     }
 
     private fun configureCapabilityExchangeTypeTest(): Pair<String, Boolean>? {
-        if (TestUtils.buildIsAtLeastU()) {
+        if (Utils.hasPlatformV2Apis()) {
             Log.w(CallCompatTest.TAG, "Setting up v2 tests for U+ device")
             setUpV2TestWithExtensions()
         } else {
@@ -236,7 +232,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         }
 
         // Add EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED for pre-U testing
-        return if (!TestUtils.buildIsAtLeastU())
+        return if (!Utils.hasPlatformV2Apis())
             Pair(CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED, true)
         else null
     }
