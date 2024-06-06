@@ -820,8 +820,9 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
 var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
 
 /**
- * Whether this semantics node is a traversal group. This is defined as a node whose function is to
- * serve as a boundary or border in organizing its children.
+ * Whether this semantics node is a traversal group.
+ *
+ * See https://developer.android.com/jetpack/compose/accessibility#modify-traversal-order
  *
  * @see SemanticsProperties.IsTraversalGroup
  */
