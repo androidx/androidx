@@ -19,6 +19,7 @@ package androidx.compose.integration.demos
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.integration.demos.DemoSettingsActivity.SettingsFragment
+import androidx.compose.integration.demos.settings.CursorBlinkSetting
 import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsSetting
 import androidx.compose.integration.demos.settings.DynamicThemeSetting
 import androidx.compose.integration.demos.settings.LayoutDirectionSetting
@@ -33,6 +34,7 @@ private val allSettings =
         DynamicThemeSetting,
         SoftInputModeSetting,
         DecorFitsSystemWindowsSetting,
+        CursorBlinkSetting,
     )
 
 /**

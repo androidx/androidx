@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
  * spends most of its time delayed so that's a ton of wasted frames. Pure coroutine delays, however,
  * will not cause any work to be done until the delay is over.
  */
-internal class CursorAnimationState {
+internal class CursorAnimationState(val animate: Boolean) {
 
     private var animationJob = AtomicReference<Job?>(null)
 
@@ -72,14 +73,13 @@ internal class CursorAnimationState {
 
                     // Start the new animation and run until cancelled.
                     try {
+                        cursorAlpha = 1f
+                        if (!animate) awaitCancellation()
                         while (true) {
-                            cursorAlpha = 1f
-                            // Ignore MotionDurationScale – the cursor should blink even when
-                            // animations
-                            // are disabled by the system.
                             delay(500)
                             cursorAlpha = 0f
                             delay(500)
+                            cursorAlpha = 1f
                         }
                     } finally {
                         // Hide cursor when the animation is cancelled.

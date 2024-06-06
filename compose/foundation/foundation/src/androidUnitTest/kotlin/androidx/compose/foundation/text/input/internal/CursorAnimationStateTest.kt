@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class CursorAnimationStateTest {
 
-    private val animationState = CursorAnimationState()
+    private val animationState = CursorAnimationState(true)
 
     @Test fun alphaNotAnimatingInitially() = runTest { assertNotAnimating() }
 

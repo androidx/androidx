@@ -16,14 +16,10 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.text.input.internal.CursorAnimationState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +27,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.platform.LocalCursorBlinkEnabled
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,7 +42,8 @@ internal fun Modifier.cursor(
 ) =
     if (enabled)
         composed {
-            val cursorAnimation = remember { CursorAnimationState() }
+            val animateCursor = LocalCursorBlinkEnabled.current
+            val cursorAnimation = remember(animateCursor) { CursorAnimationState(animateCursor) }
             // Don't bother animating the cursor if it wouldn't draw any pixels.
             val isBrushSpecified = !(cursorBrush is SolidColor && cursorBrush.value.isUnspecified)
             // Only animate the cursor when its window is actually focused. This also disables the
@@ -92,21 +90,4 @@ internal fun Modifier.cursor(
         }
     else this
 
-private val cursorAnimationSpec: AnimationSpec<Float> =
-    infiniteRepeatable(
-        animation =
-            keyframes {
-                durationMillis = 1000
-                1f at 0
-                1f at 499
-                0f at 500
-                0f at 999
-            }
-    )
-
 internal val DefaultCursorThickness = 2.dp
-
-private object FixedMotionDurationScale : MotionDurationScale {
-    override val scaleFactor: Float
-        get() = 1f
-}
