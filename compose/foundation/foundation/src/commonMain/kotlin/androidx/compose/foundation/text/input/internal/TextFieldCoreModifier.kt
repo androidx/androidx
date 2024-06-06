@@ -47,8 +47,10 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalCursorBlinkEnabled
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.TextLayoutResult
@@ -145,7 +147,7 @@ internal class TextFieldCoreModifierNode(
      * another half a second when TextField is focused and editable. Initial value should be 0f so
      * that when cursor needs to be drawn for the first time, change to 1f invalidates draw.
      */
-    private val cursorAnimation = CursorAnimationState()
+    private var cursorAnimation: CursorAnimationState? = null
 
     /**
      * Whether to show cursor at all when TextField has focus. This depends on enabled, read only,
@@ -235,7 +237,7 @@ internal class TextFieldCoreModifierNode(
         if (!showCursor) {
             changeObserverJob?.cancel()
             changeObserverJob = null
-            cursorAnimation.cancelAndHide()
+            cursorAnimation?.cancelAndHide()
         } else if (!wasFocused || previousTextFieldState != textFieldState || !previousShowCursor) {
             // this node is writeable, focused and gained that focus just now.
             // start the state value observation
@@ -505,7 +507,7 @@ internal class TextFieldCoreModifierNode(
         // Only draw cursor if it can be shown and its alpha is higher than 0f
         // Alpha is checked before showCursor purposefully to make sure that we read
         // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
-        val cursorAlphaValue = cursorAnimation.cursorAlpha
+        val cursorAlphaValue = cursorAnimation?.cursorAlpha ?: 0f
         if (cursorAlphaValue == 0f || !showCursor) return
 
         val cursorRect = textFieldSelectionState.getCursorRect()
@@ -525,6 +527,10 @@ internal class TextFieldCoreModifierNode(
      * visibility snaps back to "visible".
      */
     private fun startCursorJob() {
+        if (cursorAnimation == null) {
+            cursorAnimation = CursorAnimationState(currentValueOf(LocalCursorBlinkEnabled))
+            invalidateDraw() // draw did not previously have a read observer on alpha, restart it
+        }
         changeObserverJob =
             coroutineScope.launch {
                 // A flag to oscillate the reported isWindowFocused value in snapshotFlow.
@@ -553,7 +559,7 @@ internal class TextFieldCoreModifierNode(
                     }
                     .collectLatest { isWindowFocused ->
                         if (isWindowFocused.absoluteValue == 1) {
-                            cursorAnimation.snapToVisibleAndAnimate()
+                            cursorAnimation?.snapToVisibleAndAnimate()
                         }
                     }
             }
