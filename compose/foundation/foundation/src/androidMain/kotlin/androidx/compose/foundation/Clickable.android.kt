@@ -19,6 +19,7 @@ package androidx.compose.foundation
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_ENTER
 import android.view.KeyEvent.KEYCODE_NUMPAD_ENTER
+import android.view.KeyEvent.KEYCODE_SPACE
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
@@ -67,6 +68,7 @@ private val KeyEvent.isEnter: Boolean
         when (key.nativeKeyCode) {
             KEYCODE_DPAD_CENTER,
             KEYCODE_ENTER,
-            KEYCODE_NUMPAD_ENTER -> true
+            KEYCODE_NUMPAD_ENTER,
+            KEYCODE_SPACE -> true
             else -> false
         }
