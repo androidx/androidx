@@ -299,7 +299,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
      * this configuration
      */
-    default boolean isHigResolutionDisabled(boolean valueIfMissing) {
+    default boolean isHighResolutionDisabled(boolean valueIfMissing) {
         return retrieveOption(OPTION_HIGH_RESOLUTION_DISABLED, valueIfMissing);
     }
 

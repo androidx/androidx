@@ -199,7 +199,7 @@ class PreviewTest(
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector, preview)
         }
 
-        assertThat(preview.currentConfig.isHigResolutionDisabled(false)).isTrue()
+        assertThat(preview.currentConfig.isHighResolutionDisabled(false)).isTrue()
     }
 
     private fun createSurfaceTextureCallback(): SurfaceTextureProvider.SurfaceTextureCallback =
