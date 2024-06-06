@@ -284,10 +284,8 @@ internal constructor(
                     inputParams = listOf(argValue)
                 }
             }
-            if (!parseInputParams(inputParams, storedParam, bundle, arguments)) {
-                // failed to parse input parameters
-                return false
-            }
+            val parseSuccess = parseInputParams(inputParams, storedParam, bundle, arguments)
+            if (!parseSuccess) return false
         }
         // parse success
         return true
@@ -301,13 +299,23 @@ internal constructor(
      * @param storedParam the [ParamQuery] for a single Uri.queryParameter
      */
     private fun parseInputParams(
-        inputParams: List<String>?,
+        inputParams: List<String>,
         storedParam: ParamQuery,
         bundle: Bundle,
         arguments: Map<String, NavArgument?>,
     ): Boolean {
         val tempBundle = bundleOf()
-        inputParams?.forEach { inputParam ->
+        // try to start off by adding an empty bundle if there is no default value.
+        storedParam.arguments.forEach { argName ->
+            val argument = arguments[argName]
+            val navType = argument?.type
+            // for CollectionNavType, only fallback to empty collection if there isn't a default
+            // value
+            if (navType is CollectionNavType && !argument.isDefaultValuePresent) {
+                navType.put(tempBundle, argName, navType.emptyCollection())
+            }
+        }
+        inputParams.forEach { inputParam ->
             val argMatcher =
                 storedParam.paramRegex?.let {
                     Pattern.compile(it, Pattern.DOTALL).matcher(inputParam)
@@ -327,6 +335,7 @@ internal constructor(
                 // [firstName to "John", lastName to "Doe"]
                 val value = argMatcher.group(index + 1) ?: ""
                 val argument = arguments[argName]
+
                 try {
                     if (!tempBundle.containsKey(argName)) {
                         // Passing in a value the exact same as the placeholder will be treated the
@@ -688,6 +697,7 @@ internal constructor(
                     "argument and the pattern provided in your URI will be used to " +
                     "parse each query parameter instance."
             }
+            // example of singleQueryParamValueOnly "www.example.com?{arg}"
             val queryParam =
                 queryParams.firstOrNull() ?: paramName.apply { isSingleQueryParamValueOnly = true }
             val matcher = FILL_IN_PATTERN.matcher(queryParam)

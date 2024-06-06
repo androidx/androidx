@@ -397,11 +397,12 @@ public abstract class NavType<T>(
                     return bundle[key] as IntArray?
                 }
 
-                override fun parseValue(value: String): IntArray? =
-                    if (value == "null") null else intArrayOf(IntType.parseValue(value))
+                override fun parseValue(value: String): IntArray {
+                    return intArrayOf(IntType.parseValue(value))
+                }
 
-                override fun parseValue(value: String, previousValue: IntArray?): IntArray? {
-                    return previousValue?.plus(IntType.parseValue(value)) ?: parseValue(value)
+                override fun parseValue(value: String, previousValue: IntArray?): IntArray {
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: IntArray?, other: IntArray?): Boolean {
@@ -436,11 +437,12 @@ public abstract class NavType<T>(
                     return (bundle[key] as IntArray?)?.toList()
                 }
 
-                override fun parseValue(value: String): List<Int>? =
-                    if (value == "null") null else listOf(IntType.parseValue(value))
+                override fun parseValue(value: String): List<Int> {
+                    return listOf(IntType.parseValue(value))
+                }
 
                 override fun parseValue(value: String, previousValue: List<Int>?): List<Int>? {
-                    return previousValue?.plus(IntType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: List<Int>?, other: List<Int>?): Boolean {
@@ -514,13 +516,12 @@ public abstract class NavType<T>(
                     return bundle[key] as LongArray?
                 }
 
-                override fun parseValue(value: String): LongArray? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): LongArray {
                     return longArrayOf(LongType.parseValue(value))
                 }
 
                 override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
-                    return previousValue?.plus(LongType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: LongArray?, other: LongArray?): Boolean {
@@ -555,13 +556,12 @@ public abstract class NavType<T>(
                     return (bundle[key] as LongArray?)?.toList()
                 }
 
-                override fun parseValue(value: String): List<Long>? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): List<Long> {
                     return listOf(LongType.parseValue(value))
                 }
 
                 override fun parseValue(value: String, previousValue: List<Long>?): List<Long>? {
-                    return previousValue?.plus(LongType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: List<Long>?, other: List<Long>?): Boolean {
@@ -623,13 +623,12 @@ public abstract class NavType<T>(
                     return bundle[key] as FloatArray?
                 }
 
-                override fun parseValue(value: String): FloatArray? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): FloatArray {
                     return floatArrayOf(FloatType.parseValue(value))
                 }
 
                 override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
-                    return previousValue?.plus(FloatType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: FloatArray?, other: FloatArray?): Boolean {
@@ -664,13 +663,12 @@ public abstract class NavType<T>(
                     return (bundle[key] as FloatArray?)?.toList()
                 }
 
-                override fun parseValue(value: String): List<Float>? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): List<Float> {
                     return listOf(FloatType.parseValue(value))
                 }
 
                 override fun parseValue(value: String, previousValue: List<Float>?): List<Float>? {
-                    return previousValue?.plus(FloatType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: List<Float>?, other: List<Float>?): Boolean {
@@ -740,8 +738,7 @@ public abstract class NavType<T>(
                     return bundle[key] as BooleanArray?
                 }
 
-                override fun parseValue(value: String): BooleanArray? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): BooleanArray {
                     return booleanArrayOf(BoolType.parseValue(value))
                 }
 
@@ -749,7 +746,7 @@ public abstract class NavType<T>(
                     value: String,
                     previousValue: BooleanArray?
                 ): BooleanArray? {
-                    return previousValue?.plus(BoolType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: BooleanArray?, other: BooleanArray?): Boolean {
@@ -784,8 +781,7 @@ public abstract class NavType<T>(
                     return (bundle[key] as BooleanArray?)?.toList()
                 }
 
-                override fun parseValue(value: String): List<Boolean>? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): List<Boolean> {
                     return listOf(BoolType.parseValue(value))
                 }
 
@@ -793,7 +789,7 @@ public abstract class NavType<T>(
                     value: String,
                     previousValue: List<Boolean>?
                 ): List<Boolean>? {
-                    return previousValue?.plus(BoolType.parseValue(value)) ?: parseValue(value)
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: List<Boolean>?, other: List<Boolean>?): Boolean {
@@ -871,8 +867,7 @@ public abstract class NavType<T>(
                     return bundle[key] as Array<String>?
                 }
 
-                override fun parseValue(value: String): Array<String>? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): Array<String> {
                     return arrayOf(value)
                 }
 
@@ -880,12 +875,7 @@ public abstract class NavType<T>(
                     value: String,
                     previousValue: Array<String>?
                 ): Array<String>? {
-                    val newValue = parseValue(value)
-                    return when {
-                        newValue == null -> previousValue
-                        previousValue == null -> newValue
-                        else -> previousValue.plus(newValue)
-                    }
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: Array<String>?, other: Array<String>?) =
@@ -917,8 +907,7 @@ public abstract class NavType<T>(
                     return (bundle[key] as Array<String>?)?.toList()
                 }
 
-                override fun parseValue(value: String): List<String>? {
-                    if (value == "null") return null
+                override fun parseValue(value: String): List<String> {
                     return listOf(value)
                 }
 
@@ -926,12 +915,7 @@ public abstract class NavType<T>(
                     value: String,
                     previousValue: List<String>?
                 ): List<String>? {
-                    val newValue = parseValue(value)
-                    return when {
-                        newValue == null -> previousValue
-                        previousValue == null -> newValue
-                        else -> previousValue.plus(newValue)
-                    }
+                    return previousValue?.plus(parseValue(value)) ?: parseValue(value)
                 }
 
                 override fun valueEquals(value: List<String>?, other: List<String>?): Boolean {

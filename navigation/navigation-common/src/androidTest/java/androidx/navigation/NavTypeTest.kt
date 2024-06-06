@@ -245,56 +245,6 @@ class NavTypeTest {
     }
 
     @Test
-    fun putAndGetNullFromBundle() {
-        val key = "key"
-        val bundle = Bundle()
-
-        NavType.IntArrayType.put(bundle, key, null)
-        assertThat(NavType.IntArrayType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.IntListType.put(bundle, key, null)
-        assertThat(NavType.IntListType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.LongArrayType.put(bundle, key, null)
-        assertThat(NavType.LongArrayType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.LongListType.put(bundle, key, null)
-        assertThat(NavType.LongListType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.FloatArrayType.put(bundle, key, null)
-        assertThat(NavType.FloatArrayType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.FloatListType.put(bundle, key, null)
-        assertThat(NavType.FloatListType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.BoolArrayType.put(bundle, key, null)
-        assertThat(NavType.BoolArrayType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.BoolListType.put(bundle, key, null)
-        assertThat(NavType.BoolListType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.StringType.put(bundle, key, null)
-        assertThat(NavType.StringType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.StringArrayType.put(bundle, key, null)
-        assertThat(NavType.StringArrayType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-
-        NavType.StringListType.put(bundle, key, null)
-        assertThat(NavType.StringListType[bundle, key]).isEqualTo(null)
-        bundle.clear()
-    }
-
-    @Test
     fun parseValueWithHex() {
         assertThat(NavType.IntType.parseValue(referenceHex)).isEqualTo(reference)
 
@@ -306,81 +256,6 @@ class NavTypeTest {
         assertThat(enumNavType.parseValue(enString)).isEqualTo(en)
 
         assertThat(enumNavType.parseValue(enStringCasing)).isEqualTo(en)
-    }
-
-    @Test
-    fun parseNull() {
-        assertThat(NavType.IntArrayType.parseValue("null")).isNull()
-        assertThat(NavType.IntListType.parseValue("null")).isNull()
-
-        assertThat(NavType.LongArrayType.parseValue("null")).isNull()
-        assertThat(NavType.LongListType.parseValue("null")).isNull()
-
-        assertThat(NavType.FloatArrayType.parseValue("null")).isNull()
-        assertThat(NavType.FloatListType.parseValue("null")).isNull()
-
-        assertThat(NavType.BoolArrayType.parseValue("null")).isNull()
-        assertThat(NavType.BoolListType.parseValue("null")).isNull()
-
-        assertThat(NavType.StringType.parseValue("null")).isNull()
-        assertThat(NavType.StringArrayType.parseValue("null")).isNull()
-        assertThat(NavType.StringListType.parseValue("null")).isNull()
-    }
-
-    @Test
-    fun parseNullConsecutive() {
-        val stringArray = NavType.StringArrayType.parseValue("null")
-        assertThat(stringArray).isNull()
-        assertThat(NavType.StringArrayType.parseValue("null", stringArray)).isNull()
-        assertThat(NavType.StringArrayType.parseValue("test", stringArray))
-            .isEqualTo(arrayOf("test"))
-
-        val stringList = NavType.StringListType.parseValue("null")
-        assertThat(stringList).isNull()
-        assertThat(NavType.StringListType.parseValue("null", stringList)).isNull()
-        assertThat(NavType.StringListType.parseValue("test", stringList)).isEqualTo(listOf("test"))
-
-        val intArray = NavType.IntArrayType.parseValue("null")
-        assertThat(intArray).isNull()
-        assertThat(NavType.IntArrayType.parseValue("null", intArray)).isNull()
-        assertThat(NavType.IntArrayType.parseValue("1", intArray)).isEqualTo(intArrayOf(1))
-
-        val intList = NavType.IntListType.parseValue("null")
-        assertThat(stringList).isNull()
-        assertThat(NavType.IntListType.parseValue("null", intList)).isNull()
-        assertThat(NavType.IntListType.parseValue("1", intList)).isEqualTo(listOf(1))
-
-        val boolArray = NavType.BoolArrayType.parseValue("null")
-        assertThat(intArray).isNull()
-        assertThat(NavType.BoolArrayType.parseValue("null", boolArray)).isNull()
-        assertThat(NavType.BoolArrayType.parseValue("true", boolArray))
-            .isEqualTo(booleanArrayOf(true))
-
-        val boolList = NavType.BoolListType.parseValue("null")
-        assertThat(stringList).isNull()
-        assertThat(NavType.BoolListType.parseValue("null", boolList)).isNull()
-        assertThat(NavType.BoolListType.parseValue("true", boolList)).isEqualTo(listOf(true))
-
-        val floatArray = NavType.FloatArrayType.parseValue("null")
-        assertThat(floatArray).isNull()
-        assertThat(NavType.FloatArrayType.parseValue("null", floatArray)).isNull()
-        assertThat(NavType.FloatArrayType.parseValue("1.0F", floatArray))
-            .isEqualTo(floatArrayOf(1.0F))
-
-        val floatList = NavType.FloatListType.parseValue("null")
-        assertThat(floatArray).isNull()
-        assertThat(NavType.FloatListType.parseValue("null", floatList)).isNull()
-        assertThat(NavType.FloatListType.parseValue("1.0F", floatList)).isEqualTo(listOf(1.0F))
-
-        val longArray = NavType.LongArrayType.parseValue("null")
-        assertThat(longArray).isNull()
-        assertThat(NavType.LongArrayType.parseValue("null", longArray)).isNull()
-        assertThat(NavType.LongArrayType.parseValue("1L", longArray)).isEqualTo(longArrayOf(1L))
-
-        val longList = NavType.LongListType.parseValue("null")
-        assertThat(longList).isNull()
-        assertThat(NavType.LongListType.parseValue("null", longList)).isNull()
-        assertThat(NavType.LongListType.parseValue("1L", longList)).isEqualTo(listOf(1L))
     }
 
     @Test

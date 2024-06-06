@@ -58,11 +58,7 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (value == "null") {
-            builder.addNull(value)
-        } else {
-            builder.addArg(value)
-        }
+        builder.addArg(value)
     }
 
     /** Essentially called for every single argument. */
@@ -77,15 +73,11 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun encodeValue(value: Any) {
-        if (value == "null") {
-            builder.addNull(value)
-        } else {
-            builder.addArg(value)
-        }
+        builder.addArg(value)
     }
 
     /** Called for primitive / non-primitives of null value */
     override fun encodeNull() {
-        builder.addNull(null)
+        builder.addArg(null)
     }
 }
