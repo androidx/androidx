@@ -23,125 +23,6 @@ import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 
-// TODO("Delete entire class when RouteFilled has also migrated to the new RouteBuilder")
-/** Builds navigation routes from a destination class or instance. */
-internal sealed class OldRouteBuilder<T> private constructor() {
-    /**
-     * Builds a route filled with argument values
-     *
-     * @param serializer The serializer for destination instance that you need to build the route
-     *   for.
-     * @param typeMap A map of argument name to the NavArgument of all serializable fields in this
-     *   destination instance
-     */
-    class Filled<T>(serializer: KSerializer<T>, private val typeMap: Map<String, NavType<Any?>>) :
-        OldRouteBuilder<T>() {
-
-        private val builder = Builder(serializer, typeMap)
-        private var elementIndex = -1
-
-        /** Set index of the argument that is currently getting encoded */
-        fun setElementIndex(idx: Int) {
-            elementIndex = idx
-        }
-
-        /** Adds argument value to the url */
-        fun addArg(value: Any?) {
-            builder.apply(elementIndex) { name, type, paramType ->
-                val parsedValue =
-                    if (type is CollectionNavType) {
-                        type.serializeAsValues(value)
-                    } else {
-                        listOf(type.serializeAsValue(value))
-                    }
-                when (paramType) {
-                    ParamType.PATH -> {
-                        // path arguments should be a single string value of primitive types
-                        require(parsedValue.size == 1) {
-                            "Expected one value for argument $name, found ${parsedValue.size}" +
-                                "values instead."
-                        }
-                        addPath(parsedValue.first())
-                    }
-                    ParamType.QUERY -> parsedValue.forEach { addQuery(name, it) }
-                }
-            }
-        }
-
-        fun build(): String = builder.build()
-    }
-
-    enum class ParamType {
-        PATH,
-        QUERY
-    }
-
-    /** Internal builder that generates the final url output */
-    private class Builder<T> {
-        private val serializer: KSerializer<T>
-        private val typeMap: Map<String, NavType<Any?>>
-        private val path: String
-        private var pathArgs = ""
-        private var queryArgs = ""
-
-        constructor(serializer: KSerializer<T>, typeMap: Map<String, NavType<Any?>>) {
-            this.serializer = serializer
-            this.typeMap = typeMap
-            path = serializer.descriptor.serialName
-        }
-
-        constructor(path: String, serializer: KSerializer<T>, typeMap: Map<String, NavType<Any?>>) {
-            this.serializer = serializer
-            this.typeMap = typeMap
-            this.path = path
-        }
-
-        /** Returns final route */
-        fun build() = path + pathArgs + queryArgs
-
-        /** Append string to the route's (url) path */
-        fun addPath(path: String) {
-            pathArgs += "/$path"
-        }
-
-        /** Append string to the route's (url) query parameter */
-        fun addQuery(name: String, value: String) {
-            val symbol = if (queryArgs.isEmpty()) "?" else "&"
-            queryArgs += "$symbol$name=$value"
-        }
-
-        fun apply(
-            index: Int,
-            block: Builder<T>.(name: String, type: NavType<Any?>, paramType: ParamType) -> Unit
-        ) {
-            val descriptor = serializer.descriptor
-            val elementName = descriptor.getElementName(index)
-            val type = typeMap[elementName]
-            checkNotNull(type) {
-                "Cannot find NavType for argument $elementName. Please provide NavType through" +
-                    "typeMap."
-            }
-            val paramType = computeParamType(index, type)
-            this.block(elementName, type, paramType)
-        }
-
-        /**
-         * Given the descriptor of [T], computes the [ParamType] of the element (argument) at
-         * [index].
-         *
-         * Query args if either conditions met:
-         * 1. has default value
-         * 2. is of [CollectionNavType]
-         */
-        private fun computeParamType(index: Int, type: NavType<Any?>) =
-            if (type is CollectionNavType || serializer.descriptor.isElementOptional(index)) {
-                ParamType.QUERY
-            } else {
-                ParamType.PATH
-            }
-    }
-}
-
 /** Builds navigation routes from a destination class or instance. */
 internal class RouteBuilder<T> {
     private val serializer: KSerializer<T>
@@ -191,6 +72,20 @@ internal class RouteBuilder<T> {
         when (paramType) {
             ParamType.PATH -> addPath("{$name}")
             ParamType.QUERY -> addQuery(name, "{$name}")
+        }
+    }
+
+    fun appendArg(index: Int, name: String, type: NavType<Any?>, value: List<String>) {
+        val paramType = computeParamType(index, type)
+        when (paramType) {
+            ParamType.PATH -> {
+                // path arguments should be a single string value of primitive types
+                require(value.size == 1) {
+                    "Expected one value for argument $name, found ${value.size}" + "values instead."
+                }
+                addPath(value.first())
+            }
+            ParamType.QUERY -> value.forEach { addQuery(name, it) }
         }
     }
 
