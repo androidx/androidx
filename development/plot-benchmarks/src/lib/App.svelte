@@ -15,7 +15,7 @@
     })
   );
 
-  function onFilesChanged(event) {
+  function onFilesChanged(event: CustomEvent) {
     const detail: FileMetadata[] = event.detail;
     if (detail) {
       const enabled = detail.filter((metadata) => metadata.enabled === true);
