@@ -67,6 +67,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.materialcore.BoundsLimiter
+import androidx.wear.compose.materialcore.isLeftyModeEnabled
 import androidx.wear.compose.materialcore.isRoundDevice
 import kotlin.math.PI
 import kotlin.math.asin
