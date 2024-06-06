@@ -17,10 +17,10 @@
 package androidx.compose.foundation.copyPasteAndroidTests
 
 import androidx.compose.foundation.assertThat
+import androidx.compose.foundation.containsExactly
 import androidx.compose.foundation.isEqualTo
 import androidx.compose.foundation.hasSize
 import androidx.compose.foundation.isNull
-import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -71,16 +71,14 @@ class HoverableTest {
     }
 
     @Test
-    fun hoverableText_testInspectorValue() = runSkikoComposeUiTest {
+    fun hoverableTest_testInspectorValue() = runSkikoComposeUiTest {
         setContent {
             val interactionSource = remember { MutableInteractionSource() }
             val modifier = Modifier.hoverable(interactionSource) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("hoverable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactlyInOrder(
-                    "interactionSource",
-                )
+                .containsExactly("interactionSource", "enabled")
         }
     }
 
