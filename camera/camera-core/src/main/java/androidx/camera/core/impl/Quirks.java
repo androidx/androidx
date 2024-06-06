@@ -104,4 +104,19 @@ public class Quirks {
     public void addQuirkForTesting(@NonNull Quirk quirk) {
         mQuirks.add(quirk);
     }
+
+    /**
+     * Converts a Quirks into a human-readable string representation.
+     *
+     * @param quirks The Quirks to convert.
+     * @return A pipe-separated string containing the simple class names of each Quirk.
+     */
+    @NonNull
+    public static String toString(@NonNull Quirks quirks) {
+        List<String> quirkNames = new ArrayList<>();
+        for (Quirk quirk : quirks.mQuirks) {
+            quirkNames.add(quirk.getClass().getSimpleName());
+        }
+        return String.join(" | ", quirkNames);
+    }
 }
