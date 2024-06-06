@@ -94,8 +94,6 @@ class OpenCloseCameraStressTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        // Skips CameraPipe part now and will open this when camera-pipe-integration can support
-        assumeTrue(implName != CameraPipeConfig::class.simpleName)
         // Configures the test target config
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
