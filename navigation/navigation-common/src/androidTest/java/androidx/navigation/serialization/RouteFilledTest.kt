@@ -262,7 +262,7 @@ class RouteFilledTest {
 
         val clazz = TestClass()
         assertThatRouteFilledFrom(clazz, listOf(intArrayArgument("array")))
-            .isEqualTo("$PATH_SERIAL_NAME?array=null")
+            .isEqualTo("$PATH_SERIAL_NAME")
     }
 
     @Test
@@ -632,7 +632,7 @@ class RouteFilledTest {
                 nullable = true
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
     }
 
     @Test
@@ -647,7 +647,7 @@ class RouteFilledTest {
                 nullable = true
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test

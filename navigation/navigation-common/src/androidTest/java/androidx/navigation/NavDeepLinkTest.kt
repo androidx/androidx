@@ -1892,7 +1892,7 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
         assertThat(matchArgs).isNotNull()
         assertThat(matchArgs!!.containsKey(argName)).isTrue()
-        assertThat(navArg.type[matchArgs, argName]).isNull()
+        assertThat(matchArgs.getStringArray(argName)?.toList()).isEmpty()
     }
 
     @Test
@@ -1911,7 +1911,7 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
         assertThat(matchArgs).isNotNull()
         assertThat(matchArgs!!.containsKey(argName)).isTrue()
-        assertThat(navArg.type[matchArgs, argName]).isNull()
+        assertThat(matchArgs.getIntArray(argName)?.toList()).isEmpty()
     }
 
     @Test
@@ -1930,7 +1930,7 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
         assertThat(matchArgs).isNotNull()
         assertThat(matchArgs!!.containsKey(argName)).isTrue()
-        assertThat(navArg.type[matchArgs, argName]).isNull()
+        assertThat(matchArgs.getBooleanArray(argName)?.toList()).isEmpty()
     }
 
     @Test
@@ -1949,7 +1949,7 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
         assertThat(matchArgs).isNotNull()
         assertThat(matchArgs!!.containsKey(argName)).isTrue()
-        assertThat(navArg.type[matchArgs, argName]).isNull()
+        assertThat(matchArgs.getLongArray(argName)?.toList()).isEmpty()
     }
 
     @Test
@@ -1968,7 +1968,7 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
         assertThat(matchArgs).isNotNull()
         assertThat(matchArgs!!.containsKey(argName)).isTrue()
-        assertThat(navArg.type[matchArgs, argName]).isNull()
+        assertThat(matchArgs.getFloatArray(argName)?.toList()).isEmpty()
     }
 
     @Test

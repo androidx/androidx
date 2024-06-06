@@ -3901,13 +3901,52 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
         val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullStringListUseDefaultNull() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>? = null)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
         assertThat(route!!.arg).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullStringListUseDefaultList() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>? = listOf("one"))
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).containsExactly("one")
     }
 
     @UiThreadTest
     @Test
     fun testNavigateWithObjectNullIntList() {
         @Serializable @SerialName("test") class TestClass(val arg: List<Int>?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullIntListUseDefault() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<Int>? = null)
 
         val navController = createNavController()
         navController.graph =
