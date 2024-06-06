@@ -16,6 +16,8 @@
 
 package androidx.navigation
 
+import android.net.Uri
+
 /**
  * A [NavType] for [Collection] such as arrays, lists, maps.
  *
@@ -37,8 +39,10 @@ public abstract class CollectionNavType<T>(
      * Each element in the collection should be converted to an individual String element of the
      * returned list.
      *
+     * Note: Elements should be encoded with [Uri.encode]
+     *
      * @param value a value of this NavType
-     * @return List containing serialized String representation of [value]
+     * @return List containing encoded and serialized String representation of [value]
      */
     public abstract fun serializeAsValues(value: T): List<String>
 
