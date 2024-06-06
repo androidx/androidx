@@ -222,35 +222,40 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     /**
      * Vendor API level 6 includes the following methods:
-     * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
      * - [ActivityEmbeddingComponent.clearEmbeddedActivityWindowInfoCallback]
-     * - [ActivityEmbeddingComponent.getActivityStackToken]
      * - [ActivityEmbeddingComponent.getEmbeddedActivityWindowInfo]
-     * - [ActivityEmbeddingComponent.getParentContainerInfo]
-     * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
-     * - [ActivityEmbeddingComponent.setEmbeddedActivityWindowInfoCallback]
-     * - [ActivityEmbeddingComponent.updateActivityStackAttributes]
-     * - [ActivityStack.getTag] and following classes:
-     * - [ParentContainerInfo]
+     * - [ActivityEmbeddingComponent.setEmbeddedActivityWindowInfoCallback] and following classes:
      * - [EmbeddedActivityWindowInfo]
-     * - [ActivityStackAttributes]
-     * - [ActivityStackAttributes.Builder]
-     * - [ActivityStackAttributesCalculatorParams]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel6(): Boolean =
         hasValidVendorApiLevel5() &&
-            isActivityStackGetTagValid() &&
+            isMethodGetEmbeddedActivityWindowInfoValid() &&
+            isMethodSetEmbeddedActivityWindowInfoCallbackValid() &&
+            isMethodClearEmbeddedActivityWindowInfoCallbackValid() &&
+            isClassEmbeddedActivityWindowInfoValid()
+
+    /**
+     * Overlay features includes the following methods:
+     * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.getActivityStackToken]
+     * - [ActivityEmbeddingComponent.getParentContainerInfo]
+     * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.updateActivityStackAttributes]
+     * - [ActivityStack.getTag] and following classes:
+     * - [ParentContainerInfo]
+     * - [ActivityStackAttributes]
+     * - [ActivityStackAttributes.Builder]
+     * - [ActivityStackAttributesCalculatorParams]
+     */
+    private fun isOverlayFeatureValid(): Boolean =
+        isActivityStackGetTagValid() &&
             isMethodGetActivityStackTokenValid() &&
+            isClassParentContainerInfoValid() &&
             isMethodGetParentContainerInfoValid() &&
             isMethodSetActivityStackAttributesCalculatorValid() &&
             isMethodClearActivityStackAttributesCalculatorValid() &&
             isMethodUpdateActivityStackAttributesValid() &&
-            isMethodGetEmbeddedActivityWindowInfoValid() &&
-            isMethodSetEmbeddedActivityWindowInfoCallbackValid() &&
-            isMethodClearEmbeddedActivityWindowInfoCallbackValid() &&
-            isClassParentContainerInfoValid() &&
-            isClassEmbeddedActivityWindowInfoValid() &&
             isClassActivityStackAttributesValid() &&
             isClassActivityStackAttributesBuilderValid() &&
             isClassActivityStackAttributesCalculatorParamsValid()
@@ -814,6 +819,62 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
 
     /** Vendor API level 6 validation methods */
+    private fun isMethodGetEmbeddedActivityWindowInfoValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#getEmbeddedActivityWindowInfo is not valid"
+        ) {
+            val getEmbeddedActivityWindowInfoMethod =
+                activityEmbeddingComponentClass.getMethod(
+                    "getEmbeddedActivityWindowInfo",
+                    Activity::class.java
+                )
+            getEmbeddedActivityWindowInfoMethod.isPublic &&
+                getEmbeddedActivityWindowInfoMethod.doesReturn(
+                    EmbeddedActivityWindowInfo::class.java
+                )
+        }
+
+    private fun isMethodSetEmbeddedActivityWindowInfoCallbackValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#setEmbeddedActivityWindowInfoCallback is not valid"
+        ) {
+            val setEmbeddedActivityWindowInfoCallbackMethod =
+                activityEmbeddingComponentClass.getMethod(
+                    "setEmbeddedActivityWindowInfoCallback",
+                    Executor::class.java,
+                    Consumer::class.java
+                )
+            setEmbeddedActivityWindowInfoCallbackMethod.isPublic
+        }
+
+    private fun isMethodClearEmbeddedActivityWindowInfoCallbackValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#clearEmbeddedActivityWindowInfoCallback is not valid"
+        ) {
+            val clearEmbeddedActivityWindowInfoCallbackMethod =
+                activityEmbeddingComponentClass.getMethod("clearEmbeddedActivityWindowInfoCallback")
+            clearEmbeddedActivityWindowInfoCallbackMethod.isPublic
+        }
+
+    private fun isClassEmbeddedActivityWindowInfoValid(): Boolean =
+        validateReflection("Class EmbeddedActivityWindowInfo is not valid") {
+            val embeddedActivityWindowInfoClass = EmbeddedActivityWindowInfo::class.java
+            val getActivityMethod = embeddedActivityWindowInfoClass.getMethod("getActivity")
+            val isEmbeddedMethod = embeddedActivityWindowInfoClass.getMethod("isEmbedded")
+            val getTaskBoundsMethod = embeddedActivityWindowInfoClass.getMethod("getTaskBounds")
+            val getActivityStackBoundsMethod =
+                embeddedActivityWindowInfoClass.getMethod("getActivityStackBounds")
+            getActivityMethod.isPublic &&
+                getActivityMethod.doesReturn(Activity::class.java) &&
+                isEmbeddedMethod.isPublic &&
+                isEmbeddedMethod.doesReturn(Boolean::class.java) &&
+                getTaskBoundsMethod.isPublic &&
+                getTaskBoundsMethod.doesReturn(Rect::class.java) &&
+                getActivityStackBoundsMethod.isPublic &&
+                getActivityStackBoundsMethod.doesReturn(Rect::class.java)
+        }
+
+    /** Overlay features validation methods */
     private fun isActivityStackGetTagValid(): Boolean =
         validateReflection("ActivityStack#getTag is not valid") {
             val activityStackClass = ActivityStack::class.java
@@ -831,6 +892,22 @@ internal class SafeActivityEmbeddingComponentProvider(
                 )
             getActivityStackTokenMethod.isPublic &&
                 getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
+        }
+
+    @Suppress("newApi") // Suppress lint check for WindowMetrics
+    private fun isClassParentContainerInfoValid(): Boolean =
+        validateReflection("ParentContainerInfo is not valid") {
+            val parentContainerInfoClass = ParentContainerInfo::class.java
+            val getWindowMetricsMethod = parentContainerInfoClass.getMethod("getWindowMetrics")
+            val getConfigurationMethod = parentContainerInfoClass.getMethod("getConfiguration")
+            val getWindowLayoutInfoMethod =
+                parentContainerInfoClass.getMethod("getWindowLayoutInfo")
+            getWindowMetricsMethod.isPublic &&
+                getWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
+                getConfigurationMethod.isPublic &&
+                getConfigurationMethod.doesReturn(Configuration::class.java) &&
+                getWindowLayoutInfoMethod.isPublic &&
+                getWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java)
         }
 
     private fun isMethodGetParentContainerInfoValid(): Boolean =
@@ -870,77 +947,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                     ActivityStackAttributes::class.java
                 )
             updateActivityStackAttributesMethod.isPublic
-        }
-
-    private fun isMethodGetEmbeddedActivityWindowInfoValid(): Boolean =
-        validateReflection(
-            "ActivityEmbeddingComponent#getEmbeddedActivityWindowInfo is not valid"
-        ) {
-            val getEmbeddedActivityWindowInfoMethod =
-                activityEmbeddingComponentClass.getMethod(
-                    "getEmbeddedActivityWindowInfo",
-                    Activity::class.java
-                )
-            getEmbeddedActivityWindowInfoMethod.isPublic &&
-                getEmbeddedActivityWindowInfoMethod.doesReturn(
-                    EmbeddedActivityWindowInfo::class.java
-                )
-        }
-
-    private fun isMethodSetEmbeddedActivityWindowInfoCallbackValid(): Boolean =
-        validateReflection(
-            "ActivityEmbeddingComponent#setEmbeddedActivityWindowInfoCallback is not valid"
-        ) {
-            val setEmbeddedActivityWindowInfoCallbackMethod =
-                activityEmbeddingComponentClass.getMethod(
-                    "setEmbeddedActivityWindowInfoCallback",
-                    Executor::class.java,
-                    Consumer::class.java
-                )
-            setEmbeddedActivityWindowInfoCallbackMethod.isPublic
-        }
-
-    private fun isMethodClearEmbeddedActivityWindowInfoCallbackValid(): Boolean =
-        validateReflection(
-            "ActivityEmbeddingComponent#clearEmbeddedActivityWindowInfoCallback is not valid"
-        ) {
-            val clearEmbeddedActivityWindowInfoCallbackMethod =
-                activityEmbeddingComponentClass.getMethod("clearEmbeddedActivityWindowInfoCallback")
-            clearEmbeddedActivityWindowInfoCallbackMethod.isPublic
-        }
-
-    @Suppress("newApi") // Suppress lint check for WindowMetrics
-    private fun isClassParentContainerInfoValid(): Boolean =
-        validateReflection("ParentContainerInfo is not valid") {
-            val parentContainerInfoClass = ParentContainerInfo::class.java
-            val getWindowMetricsMethod = parentContainerInfoClass.getMethod("getWindowMetrics")
-            val getConfigurationMethod = parentContainerInfoClass.getMethod("getConfiguration")
-            val getWindowLayoutInfoMethod =
-                parentContainerInfoClass.getMethod("getWindowLayoutInfo")
-            getWindowMetricsMethod.isPublic &&
-                getWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
-                getConfigurationMethod.isPublic &&
-                getConfigurationMethod.doesReturn(Configuration::class.java) &&
-                getWindowLayoutInfoMethod.isPublic &&
-                getWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java)
-        }
-
-    private fun isClassEmbeddedActivityWindowInfoValid(): Boolean =
-        validateReflection("Class EmbeddedActivityWindowInfo is not valid") {
-            val embeddedActivityWindowInfoClass = EmbeddedActivityWindowInfo::class.java
-            val getActivityMethod = embeddedActivityWindowInfoClass.getMethod("getActivity")
-            val isEmbeddedMethod = embeddedActivityWindowInfoClass.getMethod("isEmbedded")
-            val getTaskBoundsMethod = embeddedActivityWindowInfoClass.getMethod("getTaskBounds")
-            val getActivityStackBoundsMethod =
-                embeddedActivityWindowInfoClass.getMethod("getActivityStackBounds")
-            getActivityMethod.isPublic &&
-                getActivityMethod.doesReturn(Activity::class.java) &&
-                isEmbeddedMethod.isPublic &&
-                isEmbeddedMethod.doesReturn(Boolean::class.java) &&
-                getTaskBoundsMethod.isPublic &&
-                getTaskBoundsMethod.doesReturn(Rect::class.java) &&
-                getActivityStackBoundsMethod.isPublic &&
-                getActivityStackBoundsMethod.doesReturn(Rect::class.java)
         }
 
     private fun isClassActivityStackAttributesValid(): Boolean =
