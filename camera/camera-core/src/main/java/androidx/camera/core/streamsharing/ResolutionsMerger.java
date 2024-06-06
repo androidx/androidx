@@ -334,6 +334,10 @@ public class ResolutionsMerger {
             // not supporting 4:3 and 16:9 resolutions or a strict ResolutionSelector settings),
             // add resolutions that are neither 4:3 nor 16:9 to prevent binding failures.
             // Resolutions with larger FOV will be added first.
+            Logger.w(TAG, "Failed to find a parent resolution that does not result in "
+                    + "double-cropping, this might due to camera not supporting 4:3 and 16:9"
+                    + "resolutions or a strict ResolutionSelector settings. Starting resolution "
+                    + "selection process with resolutions that might have a smaller FOV.");
             result.addAll(selectOtherAspectRatioParentResolutionsWithFovPriority(
                     candidateParentResolutions, true));
         }
@@ -462,6 +466,7 @@ public class ResolutionsMerger {
         }
 
         List<Size> childSizes = mSizeSorter.getSortedSupportedOutputSizes(childConfig);
+        childSizes = filterOutChildSizesThatWillNeverBeSelected(childSizes);
         mChildSizesCache.put(childConfig, childSizes);
 
         return childSizes;
@@ -707,6 +712,46 @@ public class ResolutionsMerger {
             if (isAnyChildSizeCanBeCroppedOutWithoutUpscalingParent(childSizes, parentSize)) {
                 result.add(parentSize);
             }
+        }
+
+        return result;
+    }
+
+    /**
+     * Filters out child sizes that will never be selected.
+     *
+     * <p>A child size will never be selected if there is another same aspect-ratio child size
+     *  before it and has smaller size.
+     */
+    private static List<Size> filterOutChildSizesThatWillNeverBeSelected(
+            @NonNull List<Size> childSizes) {
+        Map<Rational, Size> smallestSizeMap = new HashMap<>();
+        List<Size> result = new ArrayList<>();
+        for (Size size : childSizes) {
+            // Check if a same aspect-ratio size already seen.
+            Rational keyRatio = null;
+            for (Rational seenRatio : smallestSizeMap.keySet()) {
+                if (hasMatchingAspectRatio(size, seenRatio)) {
+                    keyRatio = seenRatio;
+                    break;
+                }
+            }
+
+            if (keyRatio != null) {
+                // Filter out child size if it is not smaller than previous same aspect-ratio size.
+                Size smallestSize = Objects.requireNonNull(smallestSizeMap.get(keyRatio));
+                if (size.getHeight() > smallestSize.getHeight()
+                        || size.getWidth() > smallestSize.getWidth()
+                        || (size.getWidth() == smallestSize.getWidth()
+                        && size.getHeight() == smallestSize.getHeight())) {
+                    continue;
+                }
+            } else {
+                keyRatio = toRational(size);
+            }
+
+            result.add(size);
+            smallestSizeMap.put(keyRatio, size);
         }
 
         return result;
