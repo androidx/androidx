@@ -193,6 +193,7 @@ import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.MotionEventCompat.AXIS_SCROLL
@@ -445,6 +446,7 @@ internal class AndroidComposeView(
     private var postponedDirtyLayers: MutableList<OwnedLayer>? = null
 
     private var isDrawingContent = false
+    private var isPendingInteropViewLayoutChangeDispatch = false
 
     private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
@@ -802,6 +804,19 @@ internal class AndroidComposeView(
             rect.right = right.fastRoundToInt()
             rect.bottom = bottom.fastRoundToInt()
         } ?: super.getFocusedRect(rect)
+    }
+
+    /**
+     * Avoid Android 8 crash by not traversing assist structure. Autofill assistStructure will be
+     * dispatched via `dispatchProvideAutofillStructure`, not this method. See b/251152083 for more
+     * details.
+     */
+    override fun dispatchProvideStructure(structure: ViewStructure) {
+        if (SDK_INT == 26 || SDK_INT == 27) {
+            AndroidComposeViewAssistHelperMethodsO.setClassName(structure)
+        } else {
+            super.dispatchProvideStructure(structure)
+        }
     }
 
     private val scrollCapture = if (SDK_INT >= 31) ScrollCapture() else null
@@ -1260,6 +1275,7 @@ internal class AndroidComposeView(
                     requestLayout()
                 }
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                dispatchPendingInteropLayoutCallbacks()
             }
         }
     }
@@ -1272,7 +1288,15 @@ internal class AndroidComposeView(
             // it allows us to not traverse the hierarchy twice.
             if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                dispatchPendingInteropLayoutCallbacks()
             }
+        }
+    }
+
+    private fun dispatchPendingInteropLayoutCallbacks() {
+        if (isPendingInteropViewLayoutChangeDispatch) {
+            viewTreeObserver.dispatchOnGlobalLayout()
+            isPendingInteropViewLayoutChangeDispatch = false
         }
     }
 
@@ -1496,6 +1520,10 @@ internal class AndroidComposeView(
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
         contentCaptureManager.onLayoutChange(layoutNode)
+    }
+
+    override fun onInteropViewLayoutChange(view: InteropView) {
+        isPendingInteropViewLayoutChangeDispatch = true
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
@@ -2415,6 +2443,15 @@ private object AndroidComposeViewVerificationHelperMethodsO {
         view.focusable = focusable
         // not to add the default focus highlight to the whole compose view
         view.defaultFocusHighlightEnabled = defaultFocusHighlightEnabled
+    }
+}
+
+@RequiresApi(M)
+private object AndroidComposeViewAssistHelperMethodsO {
+    @RequiresApi(M)
+    @DoNotInline
+    fun setClassName(structure: ViewStructure) {
+        structure.setClassName(javaClass.name)
     }
 }
 

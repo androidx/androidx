@@ -364,6 +364,8 @@ internal open class AndroidViewHolder(
                 // The global position of this LayoutNode can change with it being replaced. For
                 // these cases, we need to inform the View.
                 layoutAccordingTo(layoutNode)
+                @OptIn(InternalComposeUiApi::class)
+                owner.onInteropViewLayoutChange(this)
             }
         layoutNode.compositeKeyHash = compositeKeyHash
         layoutNode.modifier = modifier.then(coreModifier)

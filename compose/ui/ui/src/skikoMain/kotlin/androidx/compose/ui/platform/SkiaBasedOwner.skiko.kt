@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 
 private typealias Command = () -> Unit
@@ -390,6 +391,10 @@ internal class SkiaBasedOwner(
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
         accessibilityController?.onLayoutChange(layoutNode)
+    }
+
+    override fun onInteropViewLayoutChange(view: InteropView) {
+        // Do nothing. We don't have interop views.
     }
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {

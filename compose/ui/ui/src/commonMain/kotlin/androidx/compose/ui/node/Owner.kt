@@ -20,6 +20,7 @@ package androidx.compose.ui.node
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -238,12 +240,20 @@ internal interface Owner : PositionCalculator {
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out.
      * If [sendPointerUpdate] is `true` then a simulated PointerEvent may be sent to update pointer
      * input handlers.
+     *
+     * This method can dispatch ViewTreeObserver events during its execution. Do not call it during
+     * a view's onLayout as an associated listener may invoke side effects that may requestLayout
+     * during layout, potentially putting the view hierarchy into an invalid state.
      */
     fun measureAndLayout(sendPointerUpdate: Boolean = true)
 
     /**
      * Measures and lays out only the passed [layoutNode]. It will be remeasured with the passed
      * [constraints].
+     *
+     * This method can dispatch ViewTreeObserver events during its execution. Do not call it during
+     * a view's onLayout as an associated listener may invoke side effects that may requestLayout
+     * during layout, potentially putting the view hierarchy into an invalid state.
      */
     fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints)
 
@@ -274,8 +284,16 @@ internal interface Owner : PositionCalculator {
     fun onLayoutChange(layoutNode: LayoutNode)
 
     /**
+     * The position and/or size of an interop view (typically, an android.view.View) has changed. On
+     * Android, this schedules view tree layout observer callback to be invoked for the underlying
+     * platform view hierarchy.
+     */
+    @InternalComposeUiApi fun onInteropViewLayoutChange(view: InteropView)
+
+    /**
      * The [FocusDirection] represented by the specified keyEvent.
      */
+
     fun getFocusDirection(keyEvent: KeyEvent): FocusDirection?
 
     val measureIteration: Long

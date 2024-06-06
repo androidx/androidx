@@ -22,6 +22,7 @@ import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -3286,7 +3288,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
         }
     }
 
-@OptIn(ExperimentalComposeUiApi::class, InternalCoreApi::class)
+@OptIn(ExperimentalComposeUiApi::class, InternalCoreApi::class, InternalComposeUiApi::class)
 private class TestOwner : Owner {
     val onEndListeners = mutableListOf<() -> Unit>()
     var position: IntOffset = IntOffset.Zero
@@ -3433,6 +3435,8 @@ private class TestOwner : Owner {
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
     }
+
+    override fun onInteropViewLayoutChange(view: InteropView) {}
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
         TODO("Not yet implemented")
