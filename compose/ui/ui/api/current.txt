@@ -176,9 +176,9 @@ package androidx.compose.ui {
   }
 
   @androidx.compose.runtime.Stable public interface MotionDurationScale extends kotlin.coroutines.CoroutineContext.Element {
-    method public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!> getKey();
+    method public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> getKey();
     method public float getScaleFactor();
-    property public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!> key;
+    property public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> key;
     property public abstract float scaleFactor;
     field public static final androidx.compose.ui.MotionDurationScale.Key Key;
   }
@@ -2553,11 +2553,11 @@ package androidx.compose.ui.modifier {
 
   public final class ModifierLocalModifierNodeKt {
     method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf();
-    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!> key1, androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!> key2, androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>... keys);
-    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>... keys);
+    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?> key1, androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?> key2, androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>... keys);
+    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>... keys);
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<T> key);
-    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>,?> entry1, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>,?> entry2, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>,?>... entries);
-    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object!>,?>... entries);
+    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>,?> entry1, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>,?> entry2, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>,?>... entries);
+    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<? extends java.lang.Object?>,?>... entries);
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<T>,? extends T> entry);
   }
 
@@ -2924,9 +2924,9 @@ package androidx.compose.ui.platform {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {
-    method public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!> getKey();
+    method public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> getKey();
     method public suspend <R> Object? onInfiniteOperation(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    property public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!> key;
+    property public default kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object?> key;
     field public static final androidx.compose.ui.platform.InfiniteAnimationPolicy.Key Key;
   }
 
@@ -2991,7 +2991,7 @@ package androidx.compose.ui.platform {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public fun interface PlatformTextInputInterceptor {
-    method public suspend Object? interceptStartInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, androidx.compose.ui.platform.PlatformTextInputSession nextHandler, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public suspend Object? interceptStartInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, androidx.compose.ui.platform.PlatformTextInputSession nextHandler, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
   }
 
   public fun interface PlatformTextInputMethodRequest {
@@ -3003,12 +3003,12 @@ package androidx.compose.ui.platform {
 
   public final class PlatformTextInputModifierNodeKt {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi public static void InterceptPlatformTextInput(androidx.compose.ui.platform.PlatformTextInputInterceptor interceptor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method public static suspend Object? establishTextInputSession(androidx.compose.ui.platform.PlatformTextInputModifierNode, kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.PlatformTextInputSessionScope,? super kotlin.coroutines.Continuation<? extends java.lang.Object!>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public static suspend Object? establishTextInputSession(androidx.compose.ui.platform.PlatformTextInputModifierNode, kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.PlatformTextInputSessionScope,? super kotlin.coroutines.Continuation<? extends java.lang.Object?>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
   }
 
   public interface PlatformTextInputSession {
     method public android.view.View getView();
-    method public suspend Object? startInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public suspend Object? startInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     property public abstract android.view.View view;
   }
 
@@ -3364,7 +3364,7 @@ package androidx.compose.ui.semantics {
     field public static final androidx.compose.ui.semantics.SemanticsActions INSTANCE;
   }
 
-  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object!>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.compose.ui.semantics.SemanticsPropertyReceiver {
+  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.compose.ui.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
     method public operator <T> boolean contains(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
     method public androidx.compose.ui.semantics.SemanticsConfiguration copy();
@@ -3373,7 +3373,7 @@ package androidx.compose.ui.semantics {
     method public <T> T? getOrElseNullable(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T?> defaultValue);
     method public boolean isClearingSemantics();
     method public boolean isMergingSemanticsOfDescendants();
-    method public java.util.Iterator<java.util.Map.Entry<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object!>,java.lang.Object?>> iterator();
+    method public java.util.Iterator<java.util.Map.Entry<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?>> iterator();
     method public <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
     method public void setClearingSemantics(boolean);
     method public void setMergingSemanticsOfDescendants(boolean);
@@ -3620,9 +3620,9 @@ package androidx.compose.ui.semantics {
   public final class SemanticsPropertyKey<T> {
     ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T?,? super T,? extends T?> mergePolicy);
     method public String getName();
-    method public operator T getValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object!> property);
+    method public operator T getValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method public T? merge(T? parentValue, T childValue);
-    method public operator void setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object!> property, T value);
+    method public operator void setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
     property public final String name;
   }
 

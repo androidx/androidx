@@ -154,8 +154,8 @@ package androidx.tv.material3 {
   }
 
   public static final class CarouselState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.tv.material3.CarouselState,? extends java.lang.Object!> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.CarouselState,? extends java.lang.Object!> Saver;
+    method public androidx.compose.runtime.saveable.Saver<androidx.tv.material3.CarouselState,? extends java.lang.Object?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.tv.material3.CarouselState,? extends java.lang.Object?> Saver;
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {

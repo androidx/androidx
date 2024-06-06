@@ -371,7 +371,7 @@ package androidx.room {
   }
 
   public interface TransactionScope<T> extends androidx.room.PooledConnection {
-    method public suspend Object? rollback(T result, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public suspend Object? rollback(T result, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method public suspend <R> Object? withNestedTransaction(kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 

@@ -158,7 +158,7 @@ package androidx.compose.animation.core {
     method public static androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D> copy(androidx.compose.animation.core.AnimationState<java.lang.Float,androidx.compose.animation.core.AnimationVector1D>, optional float value, optional float velocity, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.AnimationState<T,V> copy(androidx.compose.animation.core.AnimationState<T,V>, optional T value, optional V? velocityVector, optional long lastFrameTimeNanos, optional long finishedTimeNanos, optional boolean isRunning);
     method public static <T, V extends androidx.compose.animation.core.AnimationVector> V createZeroVectorFrom(androidx.compose.animation.core.TwoWayConverter<T,V>, T value);
-    method public static boolean isFinished(androidx.compose.animation.core.AnimationState<? extends java.lang.Object!,? extends java.lang.Object!>);
+    method public static boolean isFinished(androidx.compose.animation.core.AnimationState<? extends java.lang.Object?,? extends java.lang.Object?>);
   }
 
   public abstract sealed class AnimationVector {
@@ -448,9 +448,9 @@ package androidx.compose.animation.core {
   }
 
   public final class InfiniteTransition {
-    method public java.util.List<androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState<? extends java.lang.Object!,? extends java.lang.Object!>> getAnimations();
+    method public java.util.List<androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState<? extends java.lang.Object?,? extends java.lang.Object?>> getAnimations();
     method public String getLabel();
-    property public final java.util.List<androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState<? extends java.lang.Object!,? extends java.lang.Object!>> animations;
+    property public final java.util.List<androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState<? extends java.lang.Object?,? extends java.lang.Object?>> animations;
     property public final String label;
   }
 
@@ -648,16 +648,16 @@ package androidx.compose.animation.core {
   }
 
   @androidx.compose.runtime.Stable public final class Transition<S> {
-    method public java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<? extends java.lang.Object!,? extends java.lang.Object!>> getAnimations();
+    method public java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<? extends java.lang.Object?,? extends java.lang.Object?>> getAnimations();
     method public S getCurrentState();
     method @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public boolean getHasInitialValueAnimations();
     method public String? getLabel();
     method public androidx.compose.animation.core.Transition.Segment<S> getSegment();
     method public S getTargetState();
     method public long getTotalDurationNanos();
-    method public java.util.List<androidx.compose.animation.core.Transition<? extends java.lang.Object!>> getTransitions();
+    method public java.util.List<androidx.compose.animation.core.Transition<? extends java.lang.Object?>> getTransitions();
     method public boolean isRunning();
-    property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<? extends java.lang.Object!,? extends java.lang.Object!>> animations;
+    property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<? extends java.lang.Object?,? extends java.lang.Object?>> animations;
     property public final S currentState;
     property @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public final boolean hasInitialValueAnimations;
     property public final boolean isRunning;
@@ -665,7 +665,7 @@ package androidx.compose.animation.core {
     property public final androidx.compose.animation.core.Transition.Segment<S> segment;
     property public final S targetState;
     property public final long totalDurationNanos;
-    property public final java.util.List<androidx.compose.animation.core.Transition<? extends java.lang.Object!>> transitions;
+    property public final java.util.List<androidx.compose.animation.core.Transition<? extends java.lang.Object?>> transitions;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface Transition.Segment<S> {

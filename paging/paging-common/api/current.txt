@@ -200,7 +200,7 @@ package androidx.paging {
     method @Deprecated public abstract void detach();
     method @Deprecated public T? get(int index);
     method @Deprecated public final androidx.paging.PagedList.Config getConfig();
-    method @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object!,T> getDataSource();
+    method @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object?,T> getDataSource();
     method @Deprecated public abstract Object? getLastKey();
     method @Deprecated public final int getLoadedCount();
     method @Deprecated public final int getPositionOffset();
@@ -213,7 +213,7 @@ package androidx.paging {
     method @Deprecated public void retry();
     method @Deprecated public final java.util.List<T> snapshot();
     property @Deprecated public final androidx.paging.PagedList.Config config;
-    property @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object!,T> dataSource;
+    property @Deprecated public final androidx.paging.DataSource<? extends java.lang.Object?,T> dataSource;
     property @Deprecated public abstract boolean isDetached;
     property @Deprecated public boolean isImmutable;
     property @Deprecated public abstract Object? lastKey;
