@@ -90,9 +90,6 @@ internal sealed class RouteBuilder<T> private constructor() {
 
         /** Adds argument value to the url */
         fun addArg(value: Any?) {
-            require(!(value == null || value == "null")) {
-                "Expected non-null value but got $value"
-            }
             builder.apply(elementIndex) { name, type, paramType ->
                 val parsedValue =
                     if (type is CollectionNavType) {
@@ -110,17 +107,6 @@ internal sealed class RouteBuilder<T> private constructor() {
                         addPath(parsedValue.first())
                     }
                     ParamType.QUERY -> parsedValue.forEach { addQuery(name, it) }
-                }
-            }
-        }
-
-        /** Adds null value to the url */
-        fun addNull(value: Any?) {
-            require(value == null || value == "null") { "Expected null value but got $value" }
-            builder.apply(elementIndex) { name, _, paramType ->
-                when (paramType) {
-                    ParamType.PATH -> addPath("null")
-                    ParamType.QUERY -> addQuery(name, "null")
                 }
             }
         }

@@ -262,7 +262,7 @@ class RouteFilledTest {
 
         val clazz = TestClass()
         assertThatRouteFilledFrom(clazz, listOf(intArrayArgument("array")))
-            .isEqualTo("$PATH_SERIAL_NAME?array=null")
+            .isEqualTo("$PATH_SERIAL_NAME")
     }
 
     @Test
@@ -632,7 +632,7 @@ class RouteFilledTest {
                 nullable = true
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
     }
 
     @Test
@@ -647,7 +647,71 @@ class RouteFilledTest {
                 nullable = true
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
+    }
+
+    @Test
+    fun emptyStringList() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val list: List<String>)
+
+        val clazz = TestClass(emptyList())
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.StringListType
+                nullable = false
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+    }
+
+    @Test
+    fun emptyIntList() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val list: List<Int>)
+
+        val clazz = TestClass(emptyList())
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.IntListType
+                nullable = false
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+    }
+
+    @Test
+    fun defaultEmptyStringList() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val list: List<String> = emptyList())
+
+        val clazz = TestClass()
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.StringListType
+                nullable = false
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+    }
+
+    @Test
+    fun defaultEmptyIntList() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val list: List<Int> = emptyList())
+
+        val clazz = TestClass()
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.IntListType
+                nullable = false
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
     }
 }
 

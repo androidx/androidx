@@ -19,6 +19,7 @@ package androidx.navigation.test
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType.Companion.BoolType
 import androidx.navigation.NavType.Companion.FloatType
+import androidx.navigation.NavType.Companion.IntListType
 import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.NavType.Companion.LongType
 import androidx.navigation.NavType.Companion.ReferenceType
@@ -106,4 +107,29 @@ fun stringArrayArgument(defaultValue: Array<String>?) =
 
 // region StringListType
 fun stringListArgument() = NavArgument.Builder().setType(StringListType).setIsNullable(true).build()
+
+// endregion
+
+// region StringListType
+fun stringListArgument(defaultValue: List<String>) =
+    NavArgument.Builder()
+        .setType(StringListType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
+
+// endregion
+
+// region IntListType
+fun intListArgument() = NavArgument.Builder().setType(IntListType).setIsNullable(true).build()
+
+// endregion
+
+// region IntListType
+fun intListArgument(defaultValue: List<Int>) =
+    NavArgument.Builder()
+        .setType(IntListType)
+        .setIsNullable(true)
+        .setDefaultValue(defaultValue)
+        .build()
 // endregion
