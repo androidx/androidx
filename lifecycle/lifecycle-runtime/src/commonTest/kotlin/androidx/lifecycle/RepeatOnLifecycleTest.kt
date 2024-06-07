@@ -17,6 +17,7 @@
 package androidx.lifecycle
 
 import androidx.kruth.assertThat
+import androidx.testutils.lifecycle.FakeLifecycleOwner
 import kotlin.test.Test
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler

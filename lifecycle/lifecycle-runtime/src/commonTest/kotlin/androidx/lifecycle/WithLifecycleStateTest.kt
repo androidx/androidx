@@ -17,6 +17,7 @@
 package androidx.lifecycle
 
 import androidx.kruth.assertWithMessage
+import androidx.testutils.lifecycle.FakeLifecycleOwner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -24,7 +24,7 @@ import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreat
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.testutils.LifecycleOwnerUtils.waitUntilState
+import androidx.testutils.lifecycle.LifecycleOwnerUtils.waitUntilState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
