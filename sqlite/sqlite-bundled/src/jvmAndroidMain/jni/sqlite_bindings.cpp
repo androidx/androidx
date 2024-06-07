@@ -41,6 +41,20 @@ static bool throwIfInvalidColumn(JNIEnv *env, sqlite3_stmt *stmt, int index) {
     return false;
 }
 
+static bool throwOutOfMemoryError(JNIEnv *env) {
+    jclass exceptionClass = env->FindClass("java/lang/OutOfMemoryError");
+    int throwResult = env->ThrowNew(exceptionClass, nullptr);
+    return throwResult == 0;
+}
+
+static bool throwIfOutOfMemory(JNIEnv *env, sqlite3_stmt *stmt) {
+    int lastRc = sqlite3_errcode(sqlite3_db_handle(stmt));
+    if (lastRc == SQLITE_NOMEM) {
+        return throwOutOfMemoryError(env);
+    }
+    return false;
+}
+
 extern "C" JNIEXPORT jint JNICALL
 Java_androidx_sqlite_driver_bundled_BundledSQLiteDriverKt_nativeThreadSafeMode(
         JNIEnv* env,
@@ -196,8 +210,9 @@ Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetBlob(
     if (throwIfNoRow(env, stmt)) return nullptr;
     if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     const void *blob = sqlite3_column_blob(stmt, index);
+    if (blob == nullptr && throwIfOutOfMemory(env, stmt)) return nullptr;
     int size = sqlite3_column_bytes(stmt, index);
-    // TODO(b/304297717): Use sqlite3_errcode() to check for out-of-memory
+    if (size == 0 && throwIfOutOfMemory(env, stmt)) return nullptr;
     jbyteArray byteArray = env->NewByteArray(size);
     if (size > 0) {
         env->SetByteArrayRegion(byteArray, 0, size, static_cast<const jbyte*>(blob));
@@ -240,12 +255,10 @@ Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetText(
     if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     // Java / jstring represents a string in UTF-16 encoding.
     const jchar *text = static_cast<const jchar*>(sqlite3_column_text16(stmt, index));
-    if (text) {
-        int length = sqlite3_column_bytes16(stmt, index) / sizeof(jchar);
-        return env->NewString(text, length);
-    }
-    // TODO: Use sqlite3_errcode() to check for out-of-memory
-    return nullptr;
+    if (text == nullptr && throwIfOutOfMemory(env, stmt)) return nullptr;
+    size_t length = sqlite3_column_bytes16(stmt, index) / sizeof(jchar);
+    if (length == 0 && throwIfOutOfMemory(env, stmt)) return nullptr;
+    return env->NewString(text, length);
 }
 
 extern "C" JNIEXPORT jint JNICALL
@@ -266,8 +279,9 @@ Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetColumnName
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
     if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     const char *name = sqlite3_column_name(stmt, index);
-    if (name == NULL) {
-        // TODO: throw out-of-memory exception
+    if (name == nullptr) {
+        throwOutOfMemoryError(env);
+        return nullptr;
     }
     return env->NewStringUTF(name);
 }
