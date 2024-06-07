@@ -216,7 +216,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_mouseWheel() {
         var total = 0f
@@ -251,7 +250,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_mouseWheel_badMotionEvent() {
         var total = 0f
@@ -389,7 +387,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_reverse_mouseWheel() {
         var total = 0f
@@ -472,7 +469,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_mouseWheel() {
         var total = 0f
@@ -506,7 +502,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_mouseWheel_badMotionEvent() {
         var total = 0f
@@ -643,7 +638,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_reversed_mouseWheel() {
         var total = 0f
@@ -953,7 +947,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_nestedScroll_childPartialConsumptionForMouseWheel() {
         var innerDrag = 0f

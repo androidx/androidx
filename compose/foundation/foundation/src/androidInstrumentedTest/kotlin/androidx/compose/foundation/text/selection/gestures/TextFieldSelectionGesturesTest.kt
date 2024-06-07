@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.selection.gestures.util.collapsed
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -34,7 +33,6 @@ import androidx.compose.ui.text.TextRange
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalTestApi::class)
 internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGesturesTest() {
 
     override val pointerAreaTag = "testTag"

@@ -18,10 +18,8 @@ package androidx.compose.ui.test
 
 import android.view.MotionEvent
 
-@ExperimentalTestApi
 @JvmInline
 actual value class MouseButton(val buttonId: Int) {
-    @ExperimentalTestApi
     actual companion object {
         /** The left mouse button */
         actual val Primary = MouseButton(MotionEvent.BUTTON_PRIMARY)

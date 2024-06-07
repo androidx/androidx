@@ -408,7 +408,6 @@ class SelectableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun selectableTest_interactionSource_hover() {
         val interactionSource = MutableInteractionSource()

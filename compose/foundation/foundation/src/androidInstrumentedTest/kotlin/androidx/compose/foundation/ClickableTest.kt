@@ -1061,7 +1061,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover() {
         val interactionSource = MutableInteractionSource()
@@ -1105,7 +1104,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover_and_press() {
         val interactionSource = MutableInteractionSource()
@@ -1442,7 +1440,6 @@ class ClickableTest {
      * 3. Mouse exit
      * 4. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicClickableModifier_addsAbovePointerInputWithKeyMouseEvents_correctEvents() {
         // This is part of a dynamic modifier
@@ -1503,7 +1500,6 @@ class ClickableTest {
      * 3. Mouse exit
      * 4. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicClickableModifier_addsAbovePointerInputWithUnitKeyMouseEvents_correctEvents() {
         // This is part of a dynamic modifier
@@ -1788,7 +1784,6 @@ class ClickableTest {
      * 3. Mouse exit
      * 4. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAboveClickableWithKeyMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
@@ -1844,7 +1839,6 @@ class ClickableTest {
      * 3. Mouse exit
      * 4. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAboveClickableWithUnitKeyMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
@@ -1906,7 +1900,6 @@ class ClickableTest {
      * 7. Mouse exit
      * 8. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAbovePointerInputWithUnitKeyMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -1984,7 +1977,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAboveClickableIncompleteMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
@@ -2043,7 +2035,6 @@ class ClickableTest {
      * 7. Mouse exit
      * 8. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsBelowPointerInputWithUnitKeyMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2131,7 +2122,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2202,7 +2192,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_addsBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2267,7 +2256,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_togglesBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2351,7 +2339,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBoxGesture_togglesBelowWithUnitKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2610,7 +2597,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBoxGesture_togglesBelowOffWithKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2672,7 +2658,6 @@ class ClickableTest {
      * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
      * 2. Assert
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBoxGesture_togglesBelowOffUnitKeyIncompleteMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2751,7 +2736,6 @@ class ClickableTest {
      * 8. Assert
      */
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAbovePointerInputWithUnitKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2853,7 +2837,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsAbovePointerInputWithKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -2956,7 +2939,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsBelowPointerInputWithUnitKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3058,7 +3040,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputModifier_addsBelowPointerInputWithKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3161,7 +3142,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_addsBelowPointerInputUnitKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3261,7 +3241,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_addsBelowPointerInputKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3362,7 +3341,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_addsAbovePointerInputUnitKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3462,7 +3440,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun dynamicInputNestedBox_addsAbovePointerInputKeyHoverEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
@@ -3565,7 +3542,6 @@ class ClickableTest {
 
     // !!!!! HOVER EVENTS ONLY WITH DYNAMIC MODIFIER INPUT TESTS SECTION (END) !!!!!
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @LargeTest
     fun noHover_whenDisabled() {

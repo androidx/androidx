@@ -38,7 +38,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -1180,7 +1179,6 @@ class NestedScrollModifierTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @MediumTest
     @Test
     fun testPreScrollConsumption_verticalScrollMouse_postScrollAvailableIsZero() {
@@ -1251,7 +1249,6 @@ class NestedScrollModifierTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @MediumTest
     @Test
     fun testNoPreScrollConsumption_verticalScrollMouse_postScrollAvailableNotZero() {
@@ -1450,7 +1447,6 @@ class NestedScrollModifierTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @MediumTest
     @Test
     fun testFlingCallbacks_verticalScrollMouse_shouldNotTriggerCallbacks() {

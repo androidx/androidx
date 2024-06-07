@@ -69,7 +69,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 class ClickTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
@@ -337,6 +336,7 @@ class ClickTest {
     // Rather than checking the events sent on, for this more complex mouse gesture we
     // check if the events actually lead to the expected outcome.
     @Test
+    @OptIn(ExperimentalTestApi::class)
     fun dragAndDropTest() = runComposeUiTest {
         val sizeDp = 50.dp
         val sizePx = with(density) { sizeDp.toPx() }

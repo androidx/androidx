@@ -74,7 +74,6 @@ private const val DefaultMouseGestureDurationMillis: Long = 300L
  * @see InjectionScope
  */
 @Suppress("NotCloseable")
-@ExperimentalTestApi
 interface MouseInjectionScope : InjectionScope {
     /**
      * Returns the current position of the mouse. The position is returned in the local coordinate
@@ -241,7 +240,6 @@ interface MouseInjectionScope : InjectionScope {
     fun scroll(delta: Float, scrollWheel: ScrollWheel = ScrollWheel.Vertical)
 }
 
-@ExperimentalTestApi
 internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
     MouseInjectionScope, InjectionScope by baseScope {
     private val inputDispatcher
@@ -293,14 +291,6 @@ internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectio
     }
 }
 
-@Deprecated(
-    message = "Replaced by an overload that takes a button parameter",
-    replaceWith = ReplaceWith("click(position)"),
-    level = DeprecationLevel.HIDDEN
-)
-@ExperimentalTestApi
-fun MouseInjectionScope.click(position: Offset = center) = click(position)
-
 /**
  * Use [button] to click on [position], or on the current mouse position if [position] is
  * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system, where
@@ -313,7 +303,6 @@ fun MouseInjectionScope.click(position: Offset = center) = click(position)
  *   current mouse position.
  * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.click(
     position: Offset = center,
     button: MouseButton = MouseButton.Primary
@@ -337,21 +326,12 @@ fun MouseInjectionScope.click(
  *   the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks on the
  *   current mouse position.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.rightClick(position: Offset = center) =
     click(position, MouseButton.Secondary)
 
 // The average of min and max is a safe default
 private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
     get() = (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2
-
-@Deprecated(
-    message = "Replaced by an overload that takes a button parameter",
-    replaceWith = ReplaceWith("doubleClick(position)"),
-    level = DeprecationLevel.HIDDEN
-)
-@ExperimentalTestApi
-fun MouseInjectionScope.doubleClick(position: Offset = center) = doubleClick(position)
 
 /**
  * Use [button] to double-click on [position], or on the current mouse position if [position] is
@@ -364,7 +344,6 @@ fun MouseInjectionScope.doubleClick(position: Offset = center) = doubleClick(pos
  *   current mouse position.
  * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.doubleClick(
     position: Offset = center,
     button: MouseButton = MouseButton.Primary
@@ -373,14 +352,6 @@ fun MouseInjectionScope.doubleClick(
     advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
     click(position, button)
 }
-
-@Deprecated(
-    message = "Replaced by an overload that takes a button parameter",
-    replaceWith = ReplaceWith("tripleClick(position)"),
-    level = DeprecationLevel.HIDDEN
-)
-@ExperimentalTestApi
-fun MouseInjectionScope.tripleClick(position: Offset = center) = tripleClick(position)
 
 /**
  * Use [button] to triple-click on [position], or on the current mouse position if [position] is
@@ -393,7 +364,6 @@ fun MouseInjectionScope.tripleClick(position: Offset = center) = tripleClick(pos
  *   current mouse position.
  * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.tripleClick(
     position: Offset = center,
     button: MouseButton = MouseButton.Primary
@@ -404,14 +374,6 @@ fun MouseInjectionScope.tripleClick(
     advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
     click(position, button)
 }
-
-@Deprecated(
-    message = "Replaced by an overload that takes a button parameter",
-    replaceWith = ReplaceWith("longClick(position)"),
-    level = DeprecationLevel.HIDDEN
-)
-@ExperimentalTestApi
-fun MouseInjectionScope.longClick(position: Offset = center) = longClick(position)
 
 /**
  * Use [button] to long-click on [position], or on the current mouse position if [position] is
@@ -424,7 +386,6 @@ fun MouseInjectionScope.longClick(position: Offset = center) = longClick(positio
  *   current mouse position.
  * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.longClick(
     position: Offset = center,
     button: MouseButton = MouseButton.Primary
@@ -451,7 +412,6 @@ fun MouseInjectionScope.longClick(
  * @param position The position where to move the mouse to, in the node's local coordinate system
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.animateTo(
     position: Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
@@ -474,7 +434,6 @@ fun MouseInjectionScope.animateTo(
  *   right and 100 pixels upwards.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.animateBy(
     delta: Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
@@ -496,7 +455,6 @@ fun MouseInjectionScope.animateBy(
  *   the node's local coordinate system.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.animateAlong(
     curve: (Long) -> Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
@@ -522,18 +480,6 @@ fun MouseInjectionScope.animateAlong(
     }
 }
 
-@Deprecated(
-    message = "Replaced by an overload that takes a button parameter",
-    replaceWith = ReplaceWith("dragAndDrop(start, end, durationMillis = durationMillis)"),
-    level = DeprecationLevel.HIDDEN
-)
-@ExperimentalTestApi
-fun MouseInjectionScope.dragAndDrop(
-    start: Offset,
-    end: Offset,
-    durationMillis: Long = DefaultMouseGestureDurationMillis
-) = dragAndDrop(start, end, durationMillis = durationMillis)
-
 /**
  * Use [button] to drag and drop something from [start] to [end] in [durationMillis] milliseconds.
  * The mouse position is [updated][MouseInjectionScope.updatePointerTo] to the start position before
@@ -547,7 +493,6 @@ fun MouseInjectionScope.dragAndDrop(
  * @param button The button to drag with. Uses the [primary][MouseButton.Primary] by default.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.dragAndDrop(
     start: Offset,
     end: Offset,
@@ -577,7 +522,6 @@ fun MouseInjectionScope.dragAndDrop(
  * @param scrollWheel Which scroll wheel will be rotated. By default [ScrollWheel.Vertical].
  * @see MouseInjectionScope.scroll
  */
-@ExperimentalTestApi
 fun MouseInjectionScope.smoothScroll(
     scrollAmount: Float,
     durationMillis: Long = DefaultMouseGestureDurationMillis,

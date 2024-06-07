@@ -94,7 +94,6 @@ internal class DesktopInputDispatcher(testContext: TestContext, val root: SkiaRo
         TODO("Not yet implemented")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
         TODO("Not yet implemented")
     }

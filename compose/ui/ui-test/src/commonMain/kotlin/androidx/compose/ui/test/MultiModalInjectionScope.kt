@@ -52,7 +52,7 @@ sealed interface MultiModalInjectionScope : InjectionScope {
     fun touch(block: TouchInjectionScope.() -> Unit)
 
     /** Injects all mouse events sent by the given [block] */
-    @ExperimentalTestApi fun mouse(block: MouseInjectionScope.() -> Unit)
+    fun mouse(block: MouseInjectionScope.() -> Unit)
 
     /** Injects all key events sent by the given [block] */
     @ExperimentalTestApi fun key(block: KeyInjectionScope.() -> Unit)
@@ -148,7 +148,7 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
 
     private val touchScope: TouchInjectionScope = TouchInjectionScopeImpl(this)
 
-    @ExperimentalTestApi private val mouseScope: MouseInjectionScope = MouseInjectionScopeImpl(this)
+    private val mouseScope: MouseInjectionScope = MouseInjectionScopeImpl(this)
 
     @ExperimentalTestApi private val keyScope: KeyInjectionScope = KeyInjectionScopeImpl(this)
 
@@ -159,7 +159,6 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
         block.invoke(touchScope)
     }
 
-    @ExperimentalTestApi
     override fun mouse(block: MouseInjectionScope.() -> Unit) {
         block.invoke(mouseScope)
     }

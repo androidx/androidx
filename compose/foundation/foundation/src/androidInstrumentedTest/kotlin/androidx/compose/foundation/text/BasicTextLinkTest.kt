@@ -55,7 +55,6 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -437,7 +436,6 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHover_hoveredStyleUsed() {
@@ -464,7 +462,6 @@ class BasicTextLinkTest {
             .assertDoesNotContainColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_withinOtherStyle_onHover_hoveredStyleUsed() {
@@ -494,7 +491,6 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHover_hoveredStyle_mergedIntoNormal() {
@@ -602,7 +598,6 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onFocus_onHovered_onHoveredStyleUsed() {
@@ -630,7 +625,6 @@ class BasicTextLinkTest {
             .assertDoesNotContainColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHovered_onFocus_onHoveredStyleUsed() {
@@ -658,7 +652,6 @@ class BasicTextLinkTest {
             .assertDoesNotContainColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_hoveredAndFocused_mergedStyle() {
@@ -727,7 +720,6 @@ class BasicTextLinkTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @OptIn(ExperimentalTestApi::class)
     fun link_onPressed_whenHoveredAndFocused_pressedStyleUsed() {
         val textWithLink = buildAnnotatedString {
             withLink(
@@ -911,7 +903,6 @@ class BasicTextLinkTest {
     private fun SemanticsNodeInteractionsProvider.onFirstText(): SemanticsNodeInteraction =
         onAllNodesWithText("text", substring = true)[0]
 
-    @OptIn(ExperimentalTestApi::class)
     private fun SemanticsNodeInteraction.performMouseInputOnFirstLink(
         predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
         block: MouseInjectionScope.(offsetInLink: Offset) -> Unit
