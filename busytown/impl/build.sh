@@ -42,6 +42,7 @@ fi
 
 # record the build start time
 BUILD_START_MARKER="$OUT_DIR/build.sh.start"
+rm -f "$BUILD_START_MARKER"
 touch $BUILD_START_MARKER
 # record the build number
 echo "$BUILD_NUMBER" >> "$OUT_DIR/build_number.log"
