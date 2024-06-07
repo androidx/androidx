@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.ColorSpaces.ColorSpacesArray
 import androidx.compose.ui.graphics.colorspace.ColorSpaces.SrgbTransferParameters
+import androidx.compose.ui.graphics.colorspace.ColorSpaces.getColorSpace
 import androidx.compose.ui.graphics.colorspace.Connector
 import androidx.compose.ui.graphics.colorspace.Illuminant
 import androidx.compose.ui.graphics.colorspace.RenderIntent
@@ -776,6 +777,30 @@ class ColorSpaceTest {
         assertEquals(ColorSpaces.Oklab, connector1.source)
         assertEquals(ColorSpaces.Srgb, connector1.destination)
         assertEquals(RenderIntent.Perceptual, connector1.renderIntent)
+    }
+
+    @Test
+    fun testGetColorSpace() {
+        assertEquals(ColorSpaces.Srgb, getColorSpace(0))
+        assertEquals(ColorSpaces.LinearSrgb, getColorSpace(1))
+        assertEquals(ColorSpaces.ExtendedSrgb, getColorSpace(2))
+        assertEquals(ColorSpaces.LinearExtendedSrgb, getColorSpace(3))
+        assertEquals(ColorSpaces.Bt709, getColorSpace(4))
+        assertEquals(ColorSpaces.Bt2020, getColorSpace(5))
+        assertEquals(ColorSpaces.DciP3, getColorSpace(6))
+        assertEquals(ColorSpaces.DisplayP3, getColorSpace(7))
+        assertEquals(ColorSpaces.Ntsc1953, getColorSpace(8))
+        assertEquals(ColorSpaces.SmpteC, getColorSpace(9))
+        assertEquals(ColorSpaces.AdobeRgb, getColorSpace(10))
+        assertEquals(ColorSpaces.ProPhotoRgb, getColorSpace(11))
+        assertEquals(ColorSpaces.Aces, getColorSpace(12))
+        assertEquals(ColorSpaces.Acescg, getColorSpace(13))
+        assertEquals(ColorSpaces.CieXyz, getColorSpace(14))
+        assertEquals(ColorSpaces.CieLab, getColorSpace(15))
+        assertEquals(ColorSpaces.Unspecified, getColorSpace(16))
+        assertEquals(ColorSpaces.Bt2020Hlg, getColorSpace(17))
+        assertEquals(ColorSpaces.Bt2020Pq, getColorSpace(18))
+        assertEquals(ColorSpaces.Oklab, getColorSpace(19))
     }
 
     companion object {
