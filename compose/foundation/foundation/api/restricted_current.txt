@@ -972,6 +972,7 @@ package androidx.compose.foundation.lazy.grid {
     method public long getOffset();
     method public int getRow();
     method public long getSize();
+    method public int getSpan();
     property public abstract int column;
     property public abstract Object? contentType;
     property public abstract int index;
@@ -979,6 +980,7 @@ package androidx.compose.foundation.lazy.grid {
     property public abstract long offset;
     property public abstract int row;
     property public abstract long size;
+    property public abstract int span;
     field public static final androidx.compose.foundation.lazy.grid.LazyGridItemInfo.Companion Companion;
     field public static final int UnknownColumn = -1; // 0xffffffff
     field public static final int UnknownRow = -1; // 0xffffffff
