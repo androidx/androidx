@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue#fromByteArray(byte[]):
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue.fromByteArray(byte[])
+InvalidNullConversion: androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue#fromByteArray(byte[], int, int):
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue.fromByteArray(byte[],int,int)
+InvalidNullConversion: androidx.wear.protolayout.expression.PlatformDataValues#getAll():
+    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.PlatformDataValues.getAll()
