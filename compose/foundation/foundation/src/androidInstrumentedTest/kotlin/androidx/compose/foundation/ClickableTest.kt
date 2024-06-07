@@ -4011,7 +4011,7 @@ class ClickableTest {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("clickable").performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag("clickable").performKeyInput { pressKey(Key.Backspace) }
         rule.runOnIdle { assertThat(interactions).isEmpty() }
     }
 
