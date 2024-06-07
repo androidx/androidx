@@ -43,11 +43,11 @@ private constructor(private val lines: List<String>, rowIndex: Int = 0, columnIn
     }
 
     fun parseSymbol(
-        pattern: String,
+        pattern: Regex,
         peek: Boolean = false,
         skipInlineWhitespace: Boolean = true
     ): String? {
-        val match = Regex(pattern).find(currentLine)
+        val match = pattern.find(currentLine)
         return match?.value?.also {
             if (!peek) {
                 val offset = it.length + currentLine.indexOf(it)
@@ -60,9 +60,9 @@ private constructor(private val lines: List<String>, rowIndex: Int = 0, columnIn
     }
 
     fun parseValidIdentifier(peek: Boolean = false): String? =
-        parseSymbol("^[a-zA-Z_][a-zA-Z0-9_]+", peek)
+        parseSymbol(validIdentifierRegex, peek)
 
-    fun parseWord(peek: Boolean = false): String? = parseSymbol("[a-zA-Z]+", peek)
+    fun parseWord(peek: Boolean = false): String? = parseSymbol(wordRegex, peek)
 
     fun copy() = Cursor(lines, rowIndex, columnIndex)
 
@@ -80,3 +80,6 @@ private constructor(private val lines: List<String>, rowIndex: Int = 0, columnIn
         }
     }
 }
+
+private val validIdentifierRegex = Regex("^[a-zA-Z_][a-zA-Z0-9_]+")
+private val wordRegex = Regex("[a-zA-Z]+")
