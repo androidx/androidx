@@ -89,7 +89,6 @@ import kotlinx.coroutines.launch
  * Example of dual pickers, where clicking switches which one is editable and which is read-only:
  *
  * @sample androidx.wear.compose.material.samples.DualPicker
- *
  * @param state The state of the component
  * @param contentDescription Text used by accessibility services to describe what the selected
  *   option represents. This text should be localized, such as by using
@@ -180,7 +179,6 @@ fun Picker(
  * Example of dual pickers, where clicking switches which one is editable and which is read-only:
  *
  * @sample androidx.wear.compose.material.samples.DualPicker
- *
  * @param state The state of the component
  * @param contentDescription Text used by accessibility services to describe what the selected
  *   option represents. This text should be localized, such as by using
@@ -395,7 +393,6 @@ public fun Picker(
  * Example of dual pickers, where clicking switches which one is editable and which is read-only:
  *
  * @sample androidx.wear.compose.material.samples.DualPicker
- *
  * @param state The state of the component
  * @param contentDescription Text used by accessibility services to describe what the selected
  *   option represents. This text should be localized, such as by using
@@ -476,7 +473,6 @@ public fun Picker(
  * Example of dual pickers, where clicking switches which one is editable and which is read-only:
  *
  * @sample androidx.wear.compose.material.samples.DualPicker
- *
  * @param state The state of the component
  * @param modifier Modifier to be applied to the Picker
  * @param readOnly Determines whether the Picker should display other available options for this
@@ -649,7 +645,6 @@ constructor(
      * Instantly scroll to an item.
      *
      * @sample androidx.wear.compose.material.samples.OptionChangePicker
-     *
      * @param index The index of the option to scroll to.
      */
     public suspend fun scrollToOption(index: Int) {
@@ -668,7 +663,6 @@ constructor(
      * If the distance between possible targets is the same, picker will be scrolled backwards.
      *
      * @sample androidx.wear.compose.material.samples.AnimateOptionChangePicker
-     *
      * @param index The index of the option to scroll to.
      */
     public suspend fun animateScrollToOption(index: Int) {

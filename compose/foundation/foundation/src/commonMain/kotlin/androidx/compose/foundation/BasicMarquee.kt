@@ -116,11 +116,8 @@ object MarqueeDefaults {
  * your own by placing modifiers before this one.
  *
  * @sample androidx.compose.foundation.samples.BasicMarqueeSample
- *
  * @sample androidx.compose.foundation.samples.BasicMarqueeWithFadedEdgesSample
- *
  * @sample androidx.compose.foundation.samples.BasicFocusableMarqueeSample
- *
  * @param iterations The number of times to repeat the animation. `Int.MAX_VALUE` will repeat
  *   forever, and 0 will disable animation.
  * @param animationMode Whether the marquee should start animating [Immediately] or only

@@ -61,7 +61,6 @@ import androidx.compose.ui.unit.dp
  * @param modifier the [Modifier] to be applied to this icon
  * @param tint tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no tint
  *   is applied.
- *
  * @sample androidx.compose.material3.common.samples.IconSample
  */
 @Composable

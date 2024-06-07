@@ -72,7 +72,6 @@ public object LocalActivityResultRegistryOwner {
  * [ActivityResultLauncher]. Attempting to do so will result in an [IllegalStateException].
  *
  * @sample androidx.activity.compose.samples.RememberLauncherForActivityResult
- *
  * @param contract the contract, specifying conversions to/from [Intent]s
  * @param onResult the callback to be called on the main thread when activity result is available
  * @return the launcher that can be used to start the activity.

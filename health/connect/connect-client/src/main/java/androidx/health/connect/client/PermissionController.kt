@@ -31,7 +31,6 @@ interface PermissionController {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
-     *
      * @sample androidx.health.connect.client.samples.GetPermissions
      */
     suspend fun getGrantedPermissions(): Set<String>
@@ -52,9 +51,7 @@ interface PermissionController {
          *
          * @param providerPackageName Optional provider package name to request health permissions
          *   from.
-         *
          * @sample androidx.health.connect.client.samples.RequestPermission
-         *
          * @see androidx.activity.ComponentActivity.registerForActivityResult
          */
         @JvmStatic

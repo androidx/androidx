@@ -29,7 +29,6 @@ import androidx.compose.ui.internal.checkPrecondition
  * corresponding layout node.
  *
  * @sample androidx.compose.ui.samples.CompositionLocalConsumingModifierSample
- *
  * @see Modifier.Node
  * @see CompositionLocal
  */

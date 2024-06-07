@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * Draws [shape] with a solid [color] behind the content.
  *
  * @sample androidx.compose.foundation.samples.DrawBackgroundColor
- *
  * @param color color to paint background with
  * @param shape desired shape of the background
  */
@@ -67,7 +66,6 @@ fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
  * Draws [shape] with [brush] behind the content.
  *
  * @sample androidx.compose.foundation.samples.DrawBackgroundShapedBrush
- *
  * @param brush brush to paint background with
  * @param shape desired shape of the background
  * @param alpha Opacity to be applied to the [brush], with `0` being completely transparent and `1`

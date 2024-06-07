@@ -35,7 +35,6 @@ private const val REPLACEMENT_CHAR = "\uFFFD"
  * [id], and it will use the [InlineTextContent.children] to replace this range of text.
  *
  * @sample androidx.compose.foundation.samples.InlineTextContentSample
- *
  * @param id The id used to look up the [InlineTextContent], it is referred by the inlineContent
  *   parameter of [BasicText] to replace the [alternateText] to the corresponding composable.
  * @param alternateText The text to be replaced by the inline content. It's displayed when the
@@ -65,7 +64,6 @@ fun AnnotatedString.Builder.appendInlineContent(
  * through [androidx.compose.ui.layout.Layout].
  *
  * @sample androidx.compose.foundation.samples.InlineTextContentSample
- *
  * @see BasicText
  * @see Placeholder
  */

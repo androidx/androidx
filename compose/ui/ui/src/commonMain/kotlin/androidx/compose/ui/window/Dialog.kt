@@ -57,7 +57,6 @@ expect class DialogProperties(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.DialogSample
- *
  * @param onDismissRequest Executes when the user tries to dismiss the dialog.
  * @param properties [DialogProperties] for further customization of this dialog's behavior.
  * @param content The content to be displayed inside the dialog.

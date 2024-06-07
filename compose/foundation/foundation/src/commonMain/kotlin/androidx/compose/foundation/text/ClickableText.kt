@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
  * For other gestures, e.g. long press, dragging, follow sample code.
  *
  * @sample androidx.compose.foundation.samples.LongClickableText
- *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
@@ -115,7 +114,6 @@ fun ClickableText(
  * For other gestures, e.g. long press, dragging, follow sample code.
  *
  * @sample androidx.compose.foundation.samples.LongClickableText
- *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.

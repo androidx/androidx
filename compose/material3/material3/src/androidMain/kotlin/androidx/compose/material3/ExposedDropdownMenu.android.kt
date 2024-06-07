@@ -122,7 +122,6 @@ import kotlin.math.roundToInt
  * An example of an editable Exposed Dropdown Menu:
  *
  * @sample androidx.compose.material3.samples.EditableExposedDropdownMenuSample
- *
  * @param expanded whether the menu is expanded or not
  * @param onExpandedChange called when the exposed dropdown menu is clicked and the expansion state
  *   changes.

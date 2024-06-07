@@ -61,7 +61,6 @@ import androidx.compose.ui.util.fastForEach
  * Example usage with custom intrinsic measurements:
  *
  * @sample androidx.compose.ui.samples.LayoutWithProvidedIntrinsicsUsage
- *
  * @param content The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
  * @param measurePolicy The policy defining the measurement and positioning of the layout.
@@ -109,7 +108,6 @@ inline fun Layout(
  * Example usage with custom intrinsic measurements:
  *
  * @sample androidx.compose.ui.samples.LayoutWithProvidedIntrinsicsUsage
- *
  * @param modifier Modifiers to be applied to the layout.
  * @param measurePolicy The policy defining the measurement and positioning of the layout.
  * @see Layout
@@ -151,7 +149,6 @@ inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.LayoutWithMultipleContentsUsage
- *
  * @param contents The list of children composable contents to be laid out.
  * @param modifier Modifiers to be applied to the layout.
  * @param measurePolicy The policy defining the measurement and positioning of the layout.

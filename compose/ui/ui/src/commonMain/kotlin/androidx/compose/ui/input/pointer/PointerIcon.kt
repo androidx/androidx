@@ -72,7 +72,6 @@ internal interface PointerIconService {
  * icon using this modifier.
  *
  * @sample androidx.compose.ui.samples.PointerIconSample
- *
  * @param icon The icon to set
  * @param overrideDescendants when false (by default) descendants are able to set their own pointer
  *   icon. If true, no descendants under this parent are eligible to change the icon (it will be set

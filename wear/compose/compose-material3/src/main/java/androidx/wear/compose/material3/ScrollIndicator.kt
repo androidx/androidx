@@ -93,7 +93,6 @@ import kotlinx.coroutines.launch
  * Example of a sample ScrollIndicator with Column:
  *
  * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
- *
  * @param state The scrollState to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component - usually set to
  *   `Modifier.align(Alignment.CenterEnd)`.
@@ -144,7 +143,6 @@ fun ScrollIndicator(
  * Example of a sample ScrollIndicator with LazyColumn:
  *
  * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithSLCSample
- *
  * @param state the [ScalingLazyListState] to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of ScrollIndicator if true
@@ -189,7 +187,6 @@ fun ScrollIndicator(
  * Example of a sample ScrollIndicator with LazyColumn:
  *
  * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithLCSample
- *
  * @param state the [LazyListState] to use as the basis for the ScrollIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of ScrollIndicator if true

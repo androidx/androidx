@@ -72,7 +72,6 @@ import kotlin.math.max
  * Combined Checkbox with Text sample:
  *
  * @sample androidx.compose.material3.samples.CheckboxWithTextSample
- *
  * @param checked whether this checkbox is checked or unchecked
  * @param onCheckedChange called when this checkbox is clicked. If `null`, then this checkbox will
  *   not be interactable, unless something else handles its input events and updates its state.
@@ -125,7 +124,6 @@ fun Checkbox(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/indeterminate-checkbox.png)
  *
  * @sample androidx.compose.material3.samples.TriStateCheckboxSample
- *
  * @param state whether this checkbox is checked, unchecked, or in an indeterminate state
  * @param onClick called when this checkbox is clicked. If `null`, then this checkbox will not be
  *   interactable, unless something else handles its input events and updates its [state].

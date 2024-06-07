@@ -59,7 +59,6 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  * Checkbox sample:
  *
  * @sample androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
- *
  * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
  *   description for accessibility.
  * @param colors [CheckboxColors] from which the box and checkmark colors will be obtained.
@@ -97,7 +96,6 @@ fun ToggleControlScope.Checkbox(
  * Switch samples:
  *
  * @sample androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
- *
  * @param modifier Modifier to be applied to the switch. This can be used to provide a content
  *   description for accessibility.
  * @param colors [SwitchColors] from which the colors of the thumb and track will be obtained.

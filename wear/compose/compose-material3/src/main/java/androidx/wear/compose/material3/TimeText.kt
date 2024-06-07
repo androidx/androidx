@@ -93,7 +93,6 @@ import java.util.Locale
  * An example of a [TimeText] with an icon along with the clock:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
- *
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.
@@ -170,7 +169,6 @@ sealed class TimeTextScope {
      * An example of a [TimeText] with an icon along with the clock:
      *
      * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
-     *
      * @param content Slot for the [composable] to be displayed.
      */
     abstract fun composable(content: @Composable () -> Unit)

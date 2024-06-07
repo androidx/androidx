@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.first
  * from the composition.
  *
  * @param label A label for differentiating this animation from others in android studio.
- *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
 @Composable
@@ -57,7 +56,6 @@ fun rememberInfiniteTransition(label: String = "InfiniteTransition"): InfiniteTr
  * from the composition.
  *
  * @param label A label for differentiating this animation from others in android studio.
- *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
 class InfiniteTransition internal constructor(val label: String) {
@@ -235,7 +233,6 @@ class InfiniteTransition internal constructor(val label: String) {
  * A [label] for differentiating this animation from others in android studio.
  *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionAnimateValueSample
- *
  * @see [InfiniteTransition.animateFloat]
  * @see [androidx.compose.animation.animateColor]
  */
@@ -287,7 +284,6 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
  * A [label] for differentiating this animation from others in android studio.
  *
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
- *
  * @see [InfiniteTransition.animateValue]
  * @see [androidx.compose.animation.animateColor]
  */

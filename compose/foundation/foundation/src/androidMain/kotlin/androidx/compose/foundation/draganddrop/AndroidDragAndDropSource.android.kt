@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * Learn how to use [Modifier.dragAndDropSource]:
  *
  * @sample androidx.compose.foundation.samples.TextDragAndDropSourceSample
- *
  * @param block A lambda with a [DragAndDropSourceScope] as a receiver which provides a
  *   [PointerInputScope] to detect the drag gesture, after which a drag and drop gesture can be
  *   started with [DragAndDropSourceScope.startTransfer].

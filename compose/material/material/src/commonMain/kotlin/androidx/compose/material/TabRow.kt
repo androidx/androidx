@@ -112,7 +112,6 @@ import kotlinx.coroutines.launch
  * We can now just pass this indicator directly to TabRow:
  *
  * @sample androidx.compose.material.samples.FancyIndicatorContainerTabs
- *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier optional [Modifier] for this TabRow
  * @param backgroundColor The background color for the TabRow. Use [Color.Transparent] to have no

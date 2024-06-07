@@ -37,11 +37,10 @@ import java.io.IOException
  * @throws SecurityException For requests with unpermitted access.
  * @throws IOException For any disk I/O issues.
  * @throws IllegalStateException If service is not available.
+ * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
  * @see HealthConnectClient.deleteRecords
  *
  * Example usage to delete written steps data by its unique identifier:
- *
- * @sample androidx.health.connect.client.samples.DeleteByUniqueIdentifier
  */
 suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
     recordIdsList: List<String>,
@@ -65,11 +64,10 @@ suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
  * @throws SecurityException For requests with unpermitted access.
  * @throws IOException For any disk I/O issues.
  * @throws IllegalStateException If service is not available.
+ * @sample androidx.health.connect.client.samples.DeleteByTimeRange
  * @see HealthConnectClient.deleteRecords
  *
  * Example usage to delete written steps data in a time range:
- *
- * @sample androidx.health.connect.client.samples.DeleteByTimeRange
  */
 suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
     timeRangeFilter: TimeRangeFilter,

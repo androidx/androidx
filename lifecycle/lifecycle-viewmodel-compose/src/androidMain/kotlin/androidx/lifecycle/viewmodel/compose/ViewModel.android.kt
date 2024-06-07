@@ -98,7 +98,6 @@ public fun <VM : ViewModel> viewModel(
  *   null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @param extras The default extras used to create the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [VM] type.
- *
  * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModel
  */
 @Suppress("MissingJvmstatic")

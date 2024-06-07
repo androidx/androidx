@@ -69,7 +69,6 @@ public value class AnchorType internal constructor(internal val ratio: Float) {
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.SimpleCurvedWorld
- *
  * @param modifier The modifier to be applied to the CurvedRow.
  * @param anchor The angle at which children are laid out relative to, in degrees. An angle of 0
  *   corresponds to the right (3 o'clock on a watch), 90 degrees is bottom (6 o'clock), and so on.

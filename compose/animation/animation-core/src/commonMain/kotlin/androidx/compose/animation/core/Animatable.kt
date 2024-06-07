@@ -37,7 +37,6 @@ import kotlinx.coroutines.CancellationException
  * animation will be canceled via a [CancellationException].
  *
  * @sample androidx.compose.animation.core.samples.AnimatableAnimateToGenericsType
- *
  * @param initialValue initial value of the animatable value holder
  * @param typeConverter A two-way converter that converts the given type [T] from and to
  *   [AnimationVector]
@@ -423,7 +422,6 @@ class Animatable<T, V : AnimationVector>(
  * will be cancelled.
  *
  * @sample androidx.compose.animation.core.samples.AnimatableFadeIn
- *
  * @param initialValue initial value of the animatable value holder
  * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  *   [Spring.DefaultDisplacementThreshold] by default.

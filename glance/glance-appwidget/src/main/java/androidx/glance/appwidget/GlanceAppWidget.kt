@@ -77,7 +77,6 @@ abstract class GlanceAppWidget(
      * Worker for this widget is not currently running.
      *
      * @sample androidx.glance.appwidget.samples.provideGlanceSample
-     *
      * @sample androidx.glance.appwidget.samples.provideGlancePeriodicWorkSample
      */
     abstract suspend fun provideGlance(

@@ -92,7 +92,6 @@ fun interface InputTransformation {
  * the options from this transformation.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationChainingSample
- *
  * @param next The [InputTransformation] that will be ran after this one.
  */
 @Stable
@@ -109,7 +108,6 @@ fun InputTransformation.then(next: InputTransformation): InputTransformation =
  * [InputTransformation] directly.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueChooseSample
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueReplaceSample
  */
 @Stable

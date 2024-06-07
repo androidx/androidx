@@ -105,7 +105,6 @@ internal constructor(
      * composable function) will cause the function to restart when the text field's value changes.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTextDerivedStateSample
-     *
      * @see edit
      */
     internal var value: TextFieldCharSequence by
@@ -121,7 +120,6 @@ internal constructor(
      * }`.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTextValuesSample
-     *
      * @see edit
      * @see snapshotFlow
      */
@@ -166,7 +164,6 @@ internal constructor(
      * [IllegalStateException].
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldStateEditSample
-     *
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
      */

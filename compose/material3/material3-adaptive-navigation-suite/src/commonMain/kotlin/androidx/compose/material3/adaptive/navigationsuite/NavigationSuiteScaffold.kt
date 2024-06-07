@@ -70,10 +70,8 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * Example default usage:
  *
  * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
- * Example custom configuration usage:
- *
+ *   Example custom configuration usage:
  * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
- *
  * @param navigationSuiteItems the navigation items to be displayed
  * @param modifier the [Modifier] to be applied to the navigation suite scaffold
  * @param layoutType the current [NavigationSuiteType]. Defaults to
@@ -137,7 +135,6 @@ fun NavigationSuiteScaffold(
  * the use of [NavigationSuiteScaffold]. Example usage:
  *
  * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomNavigationRail
- *
  * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
  * @param layoutType the current [NavigationSuiteType]. Defaults to
  *   [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]

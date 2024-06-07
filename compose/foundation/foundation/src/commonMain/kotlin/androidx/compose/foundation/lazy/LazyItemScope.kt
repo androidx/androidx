@@ -83,7 +83,6 @@ interface LazyItemScope {
      * modifier to enable animations.
      *
      * @sample androidx.compose.foundation.samples.AnimateItemSample
-     *
      * @param fadeInSpec an animation specs to use for animating the item appearance. When null is
      *   provided the item will be appearing without animations.
      * @param placementSpec an animation specs that will be used to animate the item placement.

@@ -45,7 +45,6 @@ import kotlin.math.roundToInt
  * Example of a [Stepper] with range semantics:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
- *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated

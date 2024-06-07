@@ -312,9 +312,8 @@ public abstract class PagingDataPresenter<T : Any>(
      * Invalidation due repository-layer signals, such as DB-updates, should instead use
      * [PagingSource.invalidate].
      *
-     * @see PagingSource.invalidate
-     *
      * @sample androidx.paging.samples.refreshSample
+     * @see PagingSource.invalidate
      */
     public fun refresh() {
         log(DEBUG) { "Refresh signal received" }
@@ -407,9 +406,8 @@ public abstract class PagingDataPresenter<T : Any>(
      * [PagingData] yet, and thus has no state to emit.
      *
      * @param listener [LoadStates] listener to receive updates.
-     * @see removeLoadStateListener
-     *
      * @sample androidx.paging.samples.addLoadStateListenerSample
+     * @see removeLoadStateListener
      */
     public fun addLoadStateListener(listener: (@JvmSuppressWildcards CombinedLoadStates) -> Unit) {
         combinedLoadStatesCollection.addListener(listener)

@@ -142,7 +142,6 @@ class SnackbarHostState {
  * of the [SnackbarHost] to the [Scaffold]:
  *
  * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
- *
  * @param hostState state of this component to read and show [Snackbar]s accordingly
  * @param modifier optional modifier for this component
  * @param snackbar the instance of the [Snackbar] to be shown at the appropriate time with

@@ -51,7 +51,6 @@ import kotlinx.coroutines.withContext
  * mock data.
  *
  * @sample androidx.paging.compose.samples.PagingPreview
- *
  * @param T the type of value used by [PagingData].
  */
 public class LazyPagingItems<T : Any>
@@ -184,7 +183,6 @@ private val InitialLoadStates =
  * [LazyListScope.items] in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
- *
  * @param context the [CoroutineContext] to perform the collection of [PagingData] and
  *   [CombinedLoadStates].
  */

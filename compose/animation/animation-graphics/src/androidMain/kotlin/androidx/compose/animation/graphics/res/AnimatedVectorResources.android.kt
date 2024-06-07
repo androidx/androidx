@@ -33,7 +33,6 @@ import org.xmlpull.v1.XmlPullParserException
  *
  * @param id the resource identifier
  * @return an animated vector drawable resource.
- *
  * @sample androidx.compose.animation.graphics.samples.AnimatedVectorSample
  */
 @ExperimentalAnimationGraphicsApi

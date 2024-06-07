@@ -26,7 +26,6 @@ interface FocusManager {
      *
      * @param force: Whether we should forcefully clear focus regardless of whether we have any
      *   components that have Captured focus.
-     *
      * @sample androidx.compose.ui.samples.ClearFocusSample
      */
     fun clearFocus(force: Boolean = false)
@@ -38,7 +37,6 @@ interface FocusManager {
      * [Modifier.focusProperties()][focusProperties].
      *
      * @return true if focus was moved successfully. false if the focused item is unchanged.
-     *
      * @sample androidx.compose.ui.samples.MoveFocusSample
      */
     fun moveFocus(focusDirection: FocusDirection): Boolean

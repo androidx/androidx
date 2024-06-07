@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.NoInspectorInfo
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
@@ -66,7 +65,6 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
@@ -97,7 +95,6 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
@@ -130,7 +127,6 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
@@ -164,7 +160,6 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a

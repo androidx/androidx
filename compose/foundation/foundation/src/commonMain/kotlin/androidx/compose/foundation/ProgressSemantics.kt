@@ -29,7 +29,6 @@ import androidx.compose.ui.semantics.semantics
  * coerced into this range.
  *
  * @sample androidx.compose.foundation.samples.DeterminateProgressSemanticsSample
- *
  * @param value current value of the ProgressIndicator/Slider. If outside of [valueRange] provided,
  *   value will be coerced to this range. Must not be NaN.
  * @param valueRange range of values that value can take. Passed [value] will be coerced to this

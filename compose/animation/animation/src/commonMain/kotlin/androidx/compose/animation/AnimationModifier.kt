@@ -61,7 +61,6 @@ import kotlinx.coroutines.launch
  * y dimensions).
  *
  * @sample androidx.compose.animation.samples.AnimateContent
- *
  * @param animationSpec a finite animation that will be used to animate size change, [spring] by
  *   default
  * @param finishedListener an optional listener to be called when the content change animation is
@@ -94,7 +93,6 @@ fun Modifier.animateContentSize(
  * y dimensions).
  *
  * @sample androidx.compose.animation.samples.AnimateContent
- *
  * @param animationSpec a finite animation that will be used to animate size change, [spring] by
  *   default
  * @param alignment sets the alignment of the content during the animation. [Alignment.TopStart] by

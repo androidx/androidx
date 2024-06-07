@@ -165,7 +165,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * calculator as the sample linked below shows.
      *
      * @sample androidx.window.samples.embedding.splitAttributesCalculatorSample
-     *
      * @param calculator the function to calculate [SplitAttributes] based on the
      *   [SplitAttributesCalculatorParams]. It will replace the previously set if it exists.
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less

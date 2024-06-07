@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.OffsetModifier
- *
  * @see absoluteOffset
  */
 @Stable
@@ -73,7 +72,6 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetModifier
- *
  * @see offset
  */
 @Stable
@@ -107,7 +105,6 @@ fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.OffsetPxModifier
- *
  * @see [absoluteOffset]
  */
 fun Modifier.offset(offset: Density.() -> IntOffset) =
@@ -137,7 +134,6 @@ fun Modifier.offset(offset: Density.() -> IntOffset) =
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetPxModifier
- *
  * @see offset
  */
 fun Modifier.absoluteOffset(offset: Density.() -> IntOffset) =

@@ -39,7 +39,6 @@ import org.jetbrains.skiko.currentSystemTheme
  * theme:
  *
  * @sample androidx.compose.foundation.samples.DarkThemeSample
- *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
 @Composable

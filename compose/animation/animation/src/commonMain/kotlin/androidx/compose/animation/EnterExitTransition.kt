@@ -100,7 +100,6 @@ sealed class EnterTransition {
      * expand, then slide.
      *
      * @sample androidx.compose.animation.samples.FullyLoadedTransition
-     *
      * @param enter another [EnterTransition] to be combined
      */
     @Stable
@@ -192,7 +191,6 @@ sealed class ExitTransition {
      * expand, then slide.
      *
      * @sample androidx.compose.animation.samples.FullyLoadedTransition
-     *
      * @param exit another [ExitTransition] to be combined.
      */
     @Stable
@@ -289,7 +287,6 @@ internal infix fun ExitTransition.withEffect(effect: TransitionEffect): ExitTran
  * [spring] is used by default.
  *
  * @sample androidx.compose.animation.samples.FadeTransition
- *
  * @param animationSpec the [FiniteAnimationSpec] for this animation, [spring] by default
  * @param initialAlpha the starting alpha of the enter transition, 0f by default
  */
@@ -308,7 +305,6 @@ fun fadeIn(
  * default.
  *
  * @sample androidx.compose.animation.samples.FadeTransition
- *
  * @param animationSpec the [FiniteAnimationSpec] for this animation, [spring] by default
  * @param targetAlpha the target alpha of the exit transition, 0f by default
  */
@@ -334,7 +330,6 @@ fun fadeOut(
  * allows the offset to be defined proportional to the full size, or as an absolute value.
  *
  * @sample androidx.compose.animation.samples.SlideInOutSample
- *
  * @param animationSpec the animation used for the slide-in, [spring] by default.
  * @param initialOffset a lambda that takes the full size of the content and returns the initial
  *   offset for the slide-in
@@ -365,7 +360,6 @@ fun slideIn(
  * allows the offset to be defined proportional to the full size, or as an absolute value.
  *
  * @sample androidx.compose.animation.samples.SlideInOutSample
- *
  * @param animationSpec the animation used for the slide-out, [spring] by default.
  * @param targetOffset a lambda that takes the full size of the content and returns the target
  *   offset for the slide-out
@@ -396,7 +390,6 @@ fun slideOut(
  * layout size change while scaling. For example:
  *
  * @sample androidx.compose.animation.samples.ScaledEnterExit
- *
  * @param animationSpec the animation used for the scale-out, [spring] by default.
  * @param initialScale the initial scale for the enter transition, 0 by default.
  * @param transformOrigin the pivot point in terms of fraction of the overall size. By default it's
@@ -427,7 +420,6 @@ fun scaleIn(
  * coordinated layout size change animation. For example:
  *
  * @sample androidx.compose.animation.samples.ScaledEnterExit
- *
  * @param animationSpec the animation used for the slide-out, [spring] by default.
  * @param targetScale the target scale for the exit transition, 0 by default.
  * @param transformOrigin the pivot point in terms of fraction of the overall size. By default it's
@@ -464,7 +456,6 @@ fun scaleOut(
  * For expanding only horizontally or vertically, consider [expandHorizontally], [expandVertically].
  *
  * @sample androidx.compose.animation.samples.ExpandInShrinkOutSample
- *
  * @param animationSpec the animation used for the expanding animation, [spring] by default.
  * @param expandFrom the starting point of the expanding bounds, [Alignment.BottomEnd] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -505,7 +496,6 @@ fun expandIn(
  * For shrinking only horizontally or vertically, consider [shrinkHorizontally], [shrinkVertically].
  *
  * @sample androidx.compose.animation.samples.ExpandInShrinkOutSample
- *
  * @param animationSpec the animation used for the shrinking animation, [spring] by default.
  * @param shrinkTowards the ending point of the shrinking bounds, [Alignment.BottomEnd] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -544,7 +534,6 @@ fun shrinkOut(
  * clip is set to true, which only shows content in the animated bounds.
  *
  * @sample androidx.compose.animation.samples.HorizontalTransitionSample
- *
  * @param animationSpec the animation used for the expanding animation, [spring] by default.
  * @param expandFrom the starting point of the expanding bounds, [Alignment.End] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -583,7 +572,6 @@ fun expandHorizontally(
  * clip is set to true, which only shows content in the animated bounds.
  *
  * @sample androidx.compose.animation.samples.ExpandShrinkVerticallySample
- *
  * @param animationSpec the animation used for the expanding animation, [spring] by default.
  * @param expandFrom the starting point of the expanding bounds, [Alignment.Bottom] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -622,7 +610,6 @@ fun expandVertically(
  * clip is set to true, which only shows content in the animated bounds.
  *
  * @sample androidx.compose.animation.samples.HorizontalTransitionSample
- *
  * @param animationSpec the animation used for the shrinking animation, [spring] by default.
  * @param shrinkTowards the ending point of the shrinking bounds, [Alignment.End] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -662,7 +649,6 @@ fun shrinkHorizontally(
  * clip is set to true, which only shows content in the animated bounds.
  *
  * @sample androidx.compose.animation.samples.ExpandShrinkVerticallySample
- *
  * @param animationSpec the animation used for the shrinking animation, [spring] by default.
  * @param shrinkTowards the ending point of the shrinking bounds, [Alignment.Bottom] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
@@ -697,7 +683,6 @@ fun shrinkVertically(
  * of its width, and slide towards the right.
  *
  * @sample androidx.compose.animation.samples.SlideTransition
- *
  * @param animationSpec the animation used for the slide-in, [spring] by default.
  * @param initialOffsetX a lambda that takes the full width of the content in pixels and returns the
  *   initial offset for the slide-in, by default it returns `-fullWidth/2`
@@ -728,7 +713,6 @@ fun slideInHorizontally(
  * of its Height, and slide down.
  *
  * @sample androidx.compose.animation.samples.FullyLoadedTransition
- *
  * @param animationSpec the animation used for the slide-in, [spring] by default.
  * @param initialOffsetY a lambda that takes the full Height of the content and returns the initial
  *   offset for the slide-in, by default it returns `-fullHeight/2`
@@ -759,7 +743,6 @@ fun slideInVertically(
  * its width.
  *
  * @sample androidx.compose.animation.samples.SlideTransition
- *
  * @param animationSpec the animation used for the slide-out, [spring] by default.
  * @param targetOffsetX a lambda that takes the full width of the content and returns the initial
  *   offset for the slide-in, by default it returns `fullWidth/2`

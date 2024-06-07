@@ -46,7 +46,6 @@ import kotlin.reflect.KClass
  *   null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @param extras The default extras used to create the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [VM] type.
- *
  * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModel
  */
 @Suppress("MissingJvmstatic")
@@ -84,7 +83,6 @@ public inline fun <reified VM : ViewModel> viewModel(
  *   null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @param extras The default extras used to create the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [VM] type.
- *
  * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModel
  */
 @Suppress("MissingJvmstatic")
@@ -120,7 +118,6 @@ public fun <VM : ViewModel> viewModel(
  * @param key The key to use to identify the [ViewModel].
  * @param initializer lambda used to create an instance of the ViewModel class
  * @return A [ViewModel] that is an instance of the given [VM] type.
- *
  * @sample androidx.lifecycle.viewmodel.compose.samples.CreationExtrasViewModelInitializer
  */
 @Composable

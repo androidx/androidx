@@ -24,7 +24,6 @@ import androidx.annotation.IntRange
  * dimensional coordinates of the corresponding [ImageBitmap] this was obtained from
  *
  * @sample androidx.compose.ui.graphics.samples.ImageBitmapReadPixelsSample
- *
  * @param buffer IntArray where pixel information is stored as an ARGB value packed into an Int
  * @param bufferOffset first index in the buffer where pixel information for the [ImageBitmap] is
  *   stored

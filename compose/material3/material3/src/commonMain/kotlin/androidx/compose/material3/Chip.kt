@@ -92,7 +92,6 @@ import androidx.compose.ui.util.fastFirstOrNull
  * Example of a flat AssistChip:
  *
  * @sample androidx.compose.material3.samples.AssistChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -169,7 +168,6 @@ fun AssistChip(
  * Example of a flat AssistChip:
  *
  * @sample androidx.compose.material3.samples.AssistChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -256,7 +254,6 @@ fun AssistChip(
  * Example of an elevated AssistChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.ElevatedAssistChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -332,7 +329,6 @@ fun ElevatedAssistChip(
  * Example of an elevated AssistChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.ElevatedAssistChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -424,7 +420,6 @@ fun ElevatedAssistChip(
  * Example of a FilterChip with both a leading icon and a selected icon:
  *
  * @sample androidx.compose.material3.samples.FilterChipWithLeadingIconSample
- *
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
@@ -508,7 +503,6 @@ fun FilterChip(
  * Example of an elevated FilterChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.ElevatedFilterChipSample
- *
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
@@ -600,7 +594,6 @@ fun ElevatedFilterChip(
  * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
  *
  * @sample androidx.compose.material3.samples.ChipGroupReflowSample
- *
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
@@ -708,7 +701,6 @@ fun InputChip(
  * Example of a flat SuggestionChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.SuggestionChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -782,7 +774,6 @@ fun SuggestionChip(
  * Example of a flat SuggestionChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.SuggestionChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -866,7 +857,6 @@ fun SuggestionChip(
  * Example of an elevated SuggestionChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.ElevatedSuggestionChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip
@@ -939,7 +929,6 @@ fun ElevatedSuggestionChip(
  * Example of an elevated SuggestionChip with a trailing icon:
  *
  * @sample androidx.compose.material3.samples.ElevatedSuggestionChipSample
- *
  * @param onClick called when this chip is clicked
  * @param label text label for this chip
  * @param modifier the [Modifier] to be applied to this chip

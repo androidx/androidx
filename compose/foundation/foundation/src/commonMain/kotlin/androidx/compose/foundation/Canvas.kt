@@ -32,7 +32,6 @@ import androidx.compose.ui.semantics.semantics
  * this child, only exact sizes must be specified.
  *
  * @sample androidx.compose.foundation.samples.CanvasSample
- *
  * @param modifier mandatory modifier to specify size strategy for this composable
  * @param onDraw lambda that will be called to perform drawing. Note that this lambda will be called
  *   during draw stage, you have no access to composition scope, meaning that [Composable] function
@@ -48,7 +47,6 @@ fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) = Spacer(modifier.d
  * this child, only exact sizes must be specified.
  *
  * @sample androidx.compose.foundation.samples.CanvasPieChartSample
- *
  * @param modifier mandatory modifier to specify size strategy for this composable
  * @param contentDescription text used by accessibility services to describe what this canvas
  *   represents. This should be provided unless the canvas is used for decorative purposes or as

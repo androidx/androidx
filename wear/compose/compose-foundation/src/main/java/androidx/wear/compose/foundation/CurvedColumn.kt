@@ -36,7 +36,6 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
- *
  * @param modifier The [CurvedModifier] to apply to this curved column.
  * @param radialDirection Order to lay out components, outside in or inside out. The default is to
  *   inherit from the containing [curvedColumn] or [CurvedLayout]

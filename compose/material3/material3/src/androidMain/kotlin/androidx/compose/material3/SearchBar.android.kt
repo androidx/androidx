@@ -143,7 +143,6 @@ import kotlinx.coroutines.delay
  * An example looks like:
  *
  * @sample androidx.compose.material3.samples.SearchBarSample
- *
  * @param inputField the input field of this search bar that allows entering a query, typically a
  *   [SearchBarDefaults.InputField].
  * @param expanded whether this search bar is expanded and showing search results.
@@ -261,7 +260,6 @@ fun SearchBar(
  * An example looks like:
  *
  * @sample androidx.compose.material3.samples.DockedSearchBarSample
- *
  * @param inputField the input field of this search bar that allows entering a query, typically a
  *   [SearchBarDefaults.InputField].
  * @param expanded whether this search bar is expanded and showing search results.

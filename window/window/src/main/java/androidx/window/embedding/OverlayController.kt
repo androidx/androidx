@@ -70,7 +70,6 @@ internal constructor(private val backend: EmbeddingBackend) {
      *   [OverlayAttributesCalculatorParams]. It will replace the previously set if it exists.
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
      *   than 6.
-     *
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
     @RequiresWindowSdkExtension(6)

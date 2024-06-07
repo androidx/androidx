@@ -142,7 +142,6 @@ internal interface PlatformFontLoader {
  * Defines a font to be used while rendering text with resource ID.
  *
  * @sample androidx.compose.ui.text.samples.CustomFontFamilySample
- *
  * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
  * @param weight The weight of the font. The system uses this to match a font to a font request that
  *   is given in a [androidx.compose.ui.text.TextStyle].

@@ -91,9 +91,7 @@ import androidx.savedstate.SavedStateRegistryOwner
  * that participates in nested scroll. For more information on how to enable nested scroll interop:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewSample
- *
  * @param factory The block creating the [View] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param update A callback to be invoked after the layout is inflated and upon recomposition to
@@ -176,13 +174,9 @@ fun <T : View> AndroidView(
  * that participates in nested scroll. For more information on how to enable nested scroll interop:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewSample
- *
  * @sample androidx.compose.ui.samples.ReusableAndroidViewInLazyColumnSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewWithReleaseSample
- *
  * @param factory The block creating the [View] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the

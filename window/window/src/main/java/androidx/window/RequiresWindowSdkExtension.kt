@@ -27,7 +27,6 @@ import androidx.annotation.IntRange
  * exceptions or unexpected results.
  *
  * @param version the minimum required [WindowSdkExtensions] version of the denoted target
- *
  * @sample androidx.window.samples.annotateRequiresWindowSdkExtension
  */
 @MustBeDocumented

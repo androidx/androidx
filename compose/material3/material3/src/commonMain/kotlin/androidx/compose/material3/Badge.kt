@@ -60,7 +60,6 @@ import kotlin.math.roundToInt
  * A simple icon with badge example looks like:
  *
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
- *
  * @param badge the badge to be displayed - typically a [Badge]
  * @param modifier the [Modifier] to be applied to this BadgedBox
  * @param content the anchor to which this badge will be positioned

@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.IntSize
  * [Layout]s in the [content] will have the same parent as they would without [LookaheadScope].
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
- *
  * @param content The child composable to be laid out.
  * @see ApproachLayoutModifierNode
  * @see approachLayout
@@ -96,9 +95,8 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
  * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent the
  * system from potentially skipping approach pass when possible.
  *
- * @see ApproachLayoutModifierNode
- *
  * @sample androidx.compose.ui.samples.approachLayoutSample
+ * @see ApproachLayoutModifierNode
  */
 fun Modifier.approachLayout(
     isMeasurementApproachInProgress: (lookaheadSize: IntSize) -> Boolean,

@@ -42,15 +42,10 @@ import kotlin.reflect.KProperty
  *
  * @param value the initial value for the [MutableState]
  * @param policy a policy to controls how changes are handled in mutable snapshots.
- *
  * @sample androidx.compose.runtime.samples.SimpleStateSample
- *
  * @sample androidx.compose.runtime.samples.DestructuredStateSample
- *
  * @sample androidx.compose.runtime.samples.observeUserSample
- *
  * @sample androidx.compose.runtime.samples.stateSample
- *
  * @see State
  * @see MutableState
  * @see SnapshotMutationPolicy
@@ -224,7 +219,6 @@ internal open class SnapshotMutableStateImpl<T>(
  * Create a instance of [MutableList]<T> that is observable and can be snapshot.
  *
  * @sample androidx.compose.runtime.samples.stateListSample
- *
  * @see mutableStateOf
  * @see mutableListOf
  * @see MutableList
@@ -253,7 +247,6 @@ fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.ad
  * Create a instance of [MutableMap]<K, V> that is observable and can be snapshot.
  *
  * @sample androidx.compose.runtime.samples.stateMapSample
- *
  * @see mutableStateOf
  * @see mutableMapOf
  * @see MutableMap
@@ -285,7 +278,6 @@ fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
  * Create a instance of [MutableSet]<T> that is observable and can be snapshot.
  *
  * @sample androidx.compose.runtime.samples.stateListSample
- *
  * @see mutableStateOf
  * @see mutableSetOf
  * @see MutableSet

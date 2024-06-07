@@ -43,7 +43,6 @@ public fun CurvedModifier.background(
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedBackground
- *
  * @param colorStops Colors and their offset in the gradient area. Note that the offsets should be
  *   in ascending order. 0 means the outer curve and 1 means the inner curve of the curved element.
  * @param cap How to start and end the background.
@@ -83,7 +82,6 @@ public fun CurvedModifier.radialGradientBackground(
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedBackground
- *
  * @param colorStops Colors and their offset in the gradient area. Note that the offsets should be
  *   in ascending order. 0 means where the curved element starts laying out, 1 means the end
  * @param cap How to start and end the background.

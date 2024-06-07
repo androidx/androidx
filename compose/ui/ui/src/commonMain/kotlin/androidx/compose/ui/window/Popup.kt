@@ -113,7 +113,6 @@ internal class AlignmentOffsetPositionProvider(val alignment: Alignment, val off
  * visible as long as it is part of the composition hierarchy.
  *
  * @sample androidx.compose.ui.samples.PopupSample
- *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  *   Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
@@ -137,7 +136,6 @@ expect fun Popup(
  * The popup is positioned using a custom [popupPositionProvider].
  *
  * @sample androidx.compose.ui.samples.PopupSample
- *
  * @param popupPositionProvider Provides the screen position of the popup.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
