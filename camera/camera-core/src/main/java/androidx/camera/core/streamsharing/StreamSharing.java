@@ -61,6 +61,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.processing.util.OutConfig;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -255,7 +256,7 @@ public class StreamSharing extends UseCase {
 
         // Transform the input based on virtual camera configuration.
         boolean isViewportSet = getViewPortCropRect() != null;
-        Map<UseCase, SurfaceProcessorNode.OutConfig> outConfigMap =
+        Map<UseCase, OutConfig> outConfigMap =
                 mVirtualCameraAdapter.getChildrenOutConfigs(mSharingInputEdge,
                         getTargetRotationInternal(), isViewportSet);
         SurfaceProcessorNode.Out out = mSharingNode.transform(
@@ -264,7 +265,7 @@ public class StreamSharing extends UseCase {
 
         // Pass the output edges to virtual camera to connect children.
         Map<UseCase, SurfaceEdge> outputEdges = new HashMap<>();
-        for (Map.Entry<UseCase, SurfaceProcessorNode.OutConfig> entry : outConfigMap.entrySet()) {
+        for (Map.Entry<UseCase, OutConfig> entry : outConfigMap.entrySet()) {
             outputEdges.put(entry.getKey(), out.get(entry.getValue()));
         }
         mVirtualCameraAdapter.setChildrenEdges(outputEdges);
@@ -332,7 +333,7 @@ public class StreamSharing extends UseCase {
                 getEffect().createSurfaceProcessorInternal());
         int rotationAppliedByEffect = getRotationAppliedByEffect();
         Rect cropRectAppliedByEffect = getCropRectAppliedByEffect(cameraEdge);
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
+        OutConfig outConfig = OutConfig.of(
                 cameraEdge.getTargets(),
                 cameraEdge.getFormat(),
                 cropRectAppliedByEffect,

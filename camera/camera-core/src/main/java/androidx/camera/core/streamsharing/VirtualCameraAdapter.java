@@ -61,7 +61,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.processing.SurfaceEdge;
-import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig;
+import androidx.camera.core.processing.util.OutConfig;
 
 import java.util.HashMap;
 import java.util.HashSet;
