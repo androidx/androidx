@@ -34,68 +34,79 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.SelectableButton
+import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SelectableButtonDemo() {
+fun RadioButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
+    var selectedIconRadioIndex by remember { mutableIntStateOf(0) }
+    var selectedMultiLineRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().selectableGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item { ListHeader { Text("Selectable Button") } }
+        item { ListHeader { Text("Radio Button") } }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
                 selected = selectedRadioIndex == 0,
                 onSelected = { selectedRadioIndex = 0 }
             )
         }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
                 selected = selectedRadioIndex == 1,
                 onSelected = { selectedRadioIndex = 1 }
             )
         }
-        item { ListHeader { Text("Disabled Selectable Button") } }
-        item { DemoSelectableButton(enabled = false, selected = true) }
-        item { DemoSelectableButton(enabled = false, selected = false) }
+        item { ListHeader { Text("Disabled Radio Button") } }
+        item { DemoRadioButton(enabled = false, selected = true) }
+        item { DemoRadioButton(enabled = false, selected = false) }
         item { ListHeader { Text("Icon") } }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
-                selected = true,
+                selected = selectedIconRadioIndex == 0,
+                onSelected = { selectedIconRadioIndex = 0 }
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item {
-            DemoSelectableButton(enabled = true, selected = true, secondary = "Secondary label") {
+            DemoRadioButton(
+                enabled = true,
+                selected = selectedIconRadioIndex == 1,
+                onSelected = { selectedIconRadioIndex = 1 },
+                secondary = "Secondary label"
+            ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
-                selected = true,
+                selected = selectedMultiLineRadioIndex == 0,
+                onSelected = { selectedMultiLineRadioIndex = 0 },
                 primary = "8:15AM",
                 secondary = "Monday"
             )
         }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
-                selected = true,
+                selected = selectedMultiLineRadioIndex == 1,
+                onSelected = { selectedMultiLineRadioIndex = 1 },
                 primary = "Primary Label with 3 lines of very long content max"
             )
         }
         item {
-            DemoSelectableButton(
+            DemoRadioButton(
                 enabled = true,
-                selected = true,
+                selected = selectedMultiLineRadioIndex == 2,
+                onSelected = { selectedMultiLineRadioIndex = 2 },
                 primary = "Primary Label with 3 lines of very long content max",
                 secondary = "Secondary label with 2 lines"
             )
@@ -104,7 +115,7 @@ fun SelectableButtonDemo() {
 }
 
 @Composable
-private fun DemoSelectableButton(
+private fun DemoRadioButton(
     enabled: Boolean,
     selected: Boolean,
     onSelected: () -> Unit = {},
@@ -112,7 +123,7 @@ private fun DemoSelectableButton(
     secondary: String? = null,
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
-    SelectableButton(
+    RadioButton(
         modifier = Modifier.fillMaxWidth(),
         icon = content,
         label = {

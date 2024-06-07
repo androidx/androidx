@@ -23,8 +23,8 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.SelectableButton
-import androidx.wear.compose.material3.SplitSelectableButton
+import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
 import org.junit.Rule
 import org.junit.Test
@@ -32,44 +32,42 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class SelectableButtonBenchmark {
+class RadioButtonBenchmark {
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
-    private val selectableButtonTestCaseFactory = {
-        SelectableButtonTestCase(SelectableButtonType.SelectableButton)
-    }
+    private val radioButtonTestCaseFactory = { RadioButtonTestCase(RadioButtonType.RadioButton) }
 
-    private val splitSelectableButtonTestCaseFactory = {
-        SelectableButtonTestCase(SelectableButtonType.SplitSelectableButton)
-    }
-
-    @Test
-    fun selectable_button_first_pixel() {
-        benchmarkRule.benchmarkToFirstPixel(selectableButtonTestCaseFactory)
+    private val splitRadioButtonTestCaseFactory = {
+        RadioButtonTestCase(RadioButtonType.SplitRadioButton)
     }
 
     @Test
-    fun split_selectable_button_first_pixel() {
-        benchmarkRule.benchmarkToFirstPixel(splitSelectableButtonTestCaseFactory)
+    fun radio_button_first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(radioButtonTestCaseFactory)
+    }
+
+    @Test
+    fun split_radio_button_first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(splitRadioButtonTestCaseFactory)
     }
 }
 
-internal class SelectableButtonTestCase(private val type: SelectableButtonType) :
-    LayeredComposeTestCase() {
+internal class RadioButtonTestCase(private val type: RadioButtonType) : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        if (type == SelectableButtonType.SelectableButton) {
-            SelectableButton(selected = true, onSelect = { /* do something*/ }) {
-                Text(text = "SelectableButton")
+        if (type == RadioButtonType.RadioButton) {
+            RadioButton(selected = true, onSelect = { /* do something*/ }) {
+                Text(text = "RadioButton")
             }
         } else {
-            SplitSelectableButton(
+            SplitRadioButton(
                 selected = true,
                 onSelectionClick = { /* do something */ },
-                onContainerClick = { /* do something */ }
+                onContainerClick = { /* do something */ },
+                selectionContentDescription = ""
             ) {
-                Text(text = "SplitSelectableButton")
+                Text(text = "SplitRadioButton")
             }
         }
     }
@@ -80,7 +78,7 @@ internal class SelectableButtonTestCase(private val type: SelectableButtonType) 
     }
 }
 
-enum class SelectableButtonType {
-    SelectableButton,
-    SplitSelectableButton
+enum class RadioButtonType {
+    RadioButton,
+    SplitRadioButton
 }
