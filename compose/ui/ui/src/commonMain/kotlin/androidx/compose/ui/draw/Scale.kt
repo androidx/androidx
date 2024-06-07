@@ -49,10 +49,9 @@ fun Modifier.scale(scaleX: Float, scaleY: Float) =
  * Usage of this API renders this composable into a separate graphics layer
  *
  * @param scale Multiplier to scale content along the horizontal and vertical axis
+ * @sample androidx.compose.ui.samples.ScaleUniformSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.ScaleUniformSample
  */
 @Stable fun Modifier.scale(scale: Float) = scale(scale, scale)

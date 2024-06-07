@@ -25,9 +25,7 @@ import androidx.compose.ui.util.lerp
  *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
  * @constructor
- *
  * @sample androidx.compose.ui.text.samples.BaselineShiftSample
- *
  * @sample androidx.compose.ui.text.samples.BaselineShiftAnnotatedStringSample
  */
 @Immutable

@@ -66,7 +66,6 @@ import kotlinx.coroutines.delay
  * Example of an [Alert] with an icon, title, body text and buttons:
  *
  * @sample androidx.wear.compose.material.samples.AlertWithButtons
- *
  * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
  *   text.
  * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No). Clicking the
@@ -145,7 +144,6 @@ public fun Alert(
  * Example of an [Alert] with an icon, title, body text and buttons:
  *
  * @sample androidx.wear.compose.material.samples.AlertWithButtons
- *
  * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
  *   text.
  * @param negativeButton A slot for a [Button] indicating negative sentiment (e.g. No). Clicking the
@@ -269,7 +267,6 @@ internal fun AlertWithMaterialSlc(
  * Example of an [Alert] with an icon, title, message text and chips:
  *
  * @sample androidx.wear.compose.material.samples.AlertWithChips
- *
  * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
  *   text.
  * @param modifier Modifier to be applied to the dialog.
@@ -335,7 +332,6 @@ public fun Alert(
  * Example of an [Alert] with an icon, title, message text and chips:
  *
  * @sample androidx.wear.compose.material.samples.AlertWithChips
- *
  * @param title A slot for displaying the title of the dialog, expected to be one or two lines of
  *   text.
  * @param modifier Modifier to be applied to the dialog.
@@ -444,7 +440,6 @@ internal fun AlertWithMaterialSlc(
  * Example of a [Confirmation] with animation:
  *
  * @sample androidx.wear.compose.material.samples.ConfirmationWithAnimation
- *
  * @param onTimeout Event invoked when the dialog has been shown for [durationMillis].
  * @param modifier Modifier to be applied to the dialog.
  * @param icon An optional slot for displaying an icon or image.
@@ -519,7 +514,6 @@ public fun Confirmation(
  * Example of a [Confirmation] with animation:
  *
  * @sample androidx.wear.compose.material.samples.ConfirmationWithAnimation
- *
  * @param onTimeout Event invoked when the dialog has been shown for [durationMillis].
  * @param modifier Modifier to be applied to the dialog.
  * @param icon An optional slot for displaying an icon or image.

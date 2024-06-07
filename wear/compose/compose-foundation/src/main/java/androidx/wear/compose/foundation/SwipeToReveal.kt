@@ -369,7 +369,6 @@ public fun rememberRevealState(
  * Example of SwipeToReveal used with Expandables
  *
  * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
- *
  * @param primaryAction The primary action that will be triggered in the event of a completed swipe.
  *   We also strongly recommend to trigger the action when it is clicked.
  * @param modifier Optional [Modifier] for this component.

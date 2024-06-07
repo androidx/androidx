@@ -189,7 +189,6 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLi
  * example [TouchInjectionScope.click] or [MouseInjectionScope.moveTo].
  *
  * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
- *
  * @sample androidx.compose.ui.test.samples.hoverAnyFirstLinkInText
  */
 fun SemanticsNodeInteraction.getPartialBoundsOfLinks(

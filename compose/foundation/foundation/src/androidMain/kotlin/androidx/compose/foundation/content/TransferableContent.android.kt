@@ -61,7 +61,6 @@ internal constructor(val linkUri: Uri?, val extras: Bundle) {
  * easily separate remaining parts from incoming [TransferableContent].
  *
  * @sample androidx.compose.foundation.samples.ReceiveContentBasicSample
- *
  * @param predicate Decides whether to consume or leave the given item out. Return true to indicate
  *   that this particular item was processed here, it shouldn't be passed further down the content
  *   receiver chain. Return false to keep it in the returned [TransferableContent].

@@ -42,7 +42,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * overriding only the parts of the theme definition that need to change.
  *
  * @sample androidx.compose.material3.samples.MaterialThemeSample
- *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system

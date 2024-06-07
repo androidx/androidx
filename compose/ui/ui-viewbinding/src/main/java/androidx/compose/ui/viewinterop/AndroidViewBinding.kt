@@ -65,7 +65,6 @@ import androidx.viewbinding.ViewBinding
  * improvements.
  *
  * @sample androidx.compose.ui.samples.AndroidViewBindingSample
- *
  * @param factory The block creating the [ViewBinding] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param update The callback to be invoked after the layout is inflated and upon recomposition to
@@ -126,7 +125,6 @@ fun <T : ViewBinding> AndroidViewBinding(
  * by calling the [factory].
  *
  * @sample androidx.compose.ui.samples.AndroidViewBindingReusableSample
- *
  * @param factory The block creating the [ViewBinding] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the

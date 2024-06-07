@@ -120,7 +120,6 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
  * If you are implementing dragging in a single orientation, consider using [draggable].
  *
  * @sample androidx.compose.foundation.samples.Draggable2DSample
- *
  * @param state [Draggable2DState] state of the draggable2D. Defines how drag events will be
  *   interpreted by the user land logic.
  * @param enabled whether or not drag is enabled

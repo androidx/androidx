@@ -89,7 +89,6 @@ import kotlinx.coroutines.launch
  * Example of scrolling with snap:
  *
  * @sample androidx.wear.compose.foundation.samples.RotarySnapSample
- *
  * @param behavior Specified [RotaryScrollableBehavior] for rotary handling with snap or fling.
  * @param focusRequester Used to request the focus for rotary input. Each composable with this
  *   modifier should have a separate focusRequester, and only one of them at a time can be active.

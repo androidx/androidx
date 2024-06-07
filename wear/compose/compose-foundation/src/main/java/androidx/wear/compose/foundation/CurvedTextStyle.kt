@@ -42,7 +42,6 @@ internal val DefaultCurvedTextStyles =
  * Styling configuration for a curved text.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
- *
  * @param background The background color for the text.
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This may be
@@ -66,7 +65,6 @@ class CurvedTextStyle(
      * Styling configuration for a curved text.
      *
      * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
-     *
      * @param background The background color for the text.
      * @param color The text color.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This

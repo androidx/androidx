@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.IntSize
  * children.
  *
  * @sample androidx.compose.ui.samples.LayoutModifierSample
- *
  * @see androidx.compose.ui.layout.Layout
  */
 @JvmDefaultWithCompatibility
@@ -240,7 +239,6 @@ private object MeasuringIntrinsics {
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.ConvenienceLayoutModifierSample
- *
  * @see androidx.compose.ui.layout.LayoutModifier
  */
 fun Modifier.layout(measure: MeasureScope.(Measurable, Constraints) -> MeasureResult) =

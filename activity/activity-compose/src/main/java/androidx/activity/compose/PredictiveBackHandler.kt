@@ -63,7 +63,6 @@ import kotlinx.coroutines.launch
  * an enabled BackHandler.
  *
  * @sample androidx.activity.compose.samples.PredictiveBack
- *
  * @param enabled if this BackHandler should be enabled, true by default
  * @param onBack the action invoked by back gesture
  */

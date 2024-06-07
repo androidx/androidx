@@ -434,7 +434,6 @@ fun rememberBottomDrawerState(
  * navigation.
  *
  * @sample androidx.compose.material.samples.ModalDrawerSample
- *
  * @param drawerContent composable that represents content inside the drawer
  * @param modifier optional modifier for the drawer
  * @param drawerState state of the drawer
@@ -561,7 +560,6 @@ fun ModalDrawer(
  * See [ModalDrawer] for a layout that introduces a classic from-the-side drawer.
  *
  * @sample androidx.compose.material.samples.BottomDrawerSample
- *
  * @param drawerContent composable that represents content inside the drawer
  * @param modifier optional [Modifier] for the entire component
  * @param drawerState state of the drawer

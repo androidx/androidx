@@ -52,7 +52,6 @@ import kotlin.math.max
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
- *
  * @param alignmentLine the alignment line relative to which the padding is defined
  * @param before the distance between the container's top edge and the horizontal alignment line, or
  *   the container's start edge and the vertical alignment line
@@ -97,7 +96,6 @@ fun Modifier.paddingFrom(
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
- *
  * @param alignmentLine the alignment line relative to which the padding is defined
  * @param before the distance between the container's top edge and the horizontal alignment line, or
  *   the container's start edge and the vertical alignment line
@@ -138,7 +136,6 @@ fun Modifier.paddingFrom(
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleDp
- *
  * @see paddingFrom
  */
 @Stable
@@ -171,7 +168,6 @@ fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspe
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleTextUnit
- *
  * @see paddingFrom
  */
 @Stable

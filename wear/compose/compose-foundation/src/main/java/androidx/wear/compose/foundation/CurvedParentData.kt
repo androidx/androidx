@@ -37,7 +37,6 @@ public fun CurvedModifier.parentDataModifier(modifyParentData: (Any?) -> Any?) =
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedWeight
- *
  * @param weight The proportional size to give to this element, as related to the total of all
  *   weighted siblings. Must be positive.
  */

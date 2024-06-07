@@ -79,7 +79,6 @@ import kotlin.math.roundToInt
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
- *
  * @param value Current value of the Slider. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated.
@@ -242,7 +241,6 @@ fun InlineSlider(
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
- *
  * @param value Current value of the Slider. If outside of [valueProgression] provided, value will
  *   be coerced to this range.
  * @param onValueChange Lambda in which value should be updated.

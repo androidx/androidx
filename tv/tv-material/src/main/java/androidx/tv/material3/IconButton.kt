@@ -42,7 +42,6 @@ import androidx.compose.ui.semantics.semantics
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * @sample androidx.tv.material3.samples.IconButtonSample
- *
  * @param onClick called when this button is clicked.
  * @param modifier the [Modifier] to be applied to this button.
  * @param onLongClick called when this button is long clicked (long-pressed).
@@ -109,7 +108,6 @@ fun IconButton(
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * @sample androidx.tv.material3.samples.OutlinedIconButtonSample
- *
  * @param onClick called when this button is clicked.
  * @param modifier the [Modifier] to be applied to this button.
  * @param onLongClick called when this card is long clicked (long-pressed).

@@ -35,11 +35,8 @@ import androidx.compose.ui.unit.Dp
  * [ModalNavigationDrawer]
  *
  * @sample androidx.tv.material3.samples.SampleNavigationDrawer
- *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
- *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
- *
  * @param selected defines whether this composable is selected or not
  * @param onClick called when this composable is clicked
  * @param leadingContent the leading content of the list item

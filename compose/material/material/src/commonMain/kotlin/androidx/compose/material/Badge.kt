@@ -50,7 +50,6 @@ import androidx.compose.ui.util.fastFirst
  * A simple icon with badge example looks like:
  *
  * @sample androidx.compose.material.samples.BottomNavigationItemWithBadge
- *
  * @param badge the badge to be displayed - typically a [Badge]
  * @param modifier optional [Modifier] for this item
  * @param content the anchor to which this badge will be positioned

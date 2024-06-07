@@ -50,7 +50,6 @@ interface Saver<Original, Saveable : Any> {
  * You can pass the implementations of this class as a parameter for [rememberSaveable].
  *
  * @sample androidx.compose.runtime.saveable.samples.CustomSaverSample
- *
  * @param save Defines how to convert the value into a saveable one. If null is returned the value
  *   will not be saved.
  * @param restore Defines how to convert the restored value back to the original Class. If null is

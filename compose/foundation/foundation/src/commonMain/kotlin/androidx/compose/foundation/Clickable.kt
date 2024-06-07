@@ -91,7 +91,6 @@ import kotlinx.coroutines.launch
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services
  * @param onClickLabel semantic / accessibility label for the [onClick] action
@@ -164,7 +163,6 @@ fun Modifier.clickable(
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
  *   [MutableInteractionSource] will be created if needed.
@@ -225,7 +223,6 @@ fun Modifier.clickable(
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param enabled Controls the enabled state. When `false`, [onClick], [onLongClick] or
  *   [onDoubleClick] won't be invoked
  * @param onClickLabel semantic / accessibility label for the [onClick] action
@@ -318,7 +315,6 @@ fun Modifier.combinedClickable(
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  *   [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
  *   [MutableInteractionSource] will be created if needed.

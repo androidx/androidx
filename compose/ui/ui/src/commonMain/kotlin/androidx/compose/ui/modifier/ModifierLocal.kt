@@ -84,7 +84,6 @@ class ProvidableModifierLocal<T>(defaultFactory: () -> T) : ModifierLocal<T>(def
  * Sample 2: Modifier sending a message to a modifier on a parent layout node.
  *
  * @sample androidx.compose.ui.samples.ModifierLocalChildParentCommunicationInterLayoutNodeSample
- *
  * @see ProvidableModifierLocal
  * @see ModifierLocal
  * @see modifierLocalProvider

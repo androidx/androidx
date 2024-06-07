@@ -49,7 +49,6 @@ private val defaultAnimation = spring<Float>()
  * from the tree. See [Animatable] for cancelable animations.
  *
  * @sample androidx.compose.animation.core.samples.AlphaAnimationSample
- *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. [spring]
  *   will be used by default.
@@ -97,7 +96,6 @@ fun animateFloatAsState(
  * from the tree. See [Animatable] for cancelable animations.
  *
  * @sample androidx.compose.animation.core.samples.DpAnimationSample
- *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
  *   animation will be used by default.
@@ -178,7 +176,6 @@ private val sizeDefaultSpring = spring(visibilityThreshold = Size.VisibilityThre
  * from the tree. See [Animatable] for cancelable animations.
  *
  * @sample androidx.compose.animation.core.samples.AnimateOffsetSample
- *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
  *   animation will be used by default.
@@ -297,7 +294,6 @@ private val intDefaultSpring = spring(visibilityThreshold = Int.VisibilityThresh
  * function from the tree. See [Animatable] for cancelable animations.
  *
  * @sample androidx.compose.animation.core.samples.AnimateOffsetSample
- *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics
  *   animation will be used by default.
@@ -376,7 +372,7 @@ private val intSizeDefaultSpring = spring(visibilityThreshold = IntSize.Visibili
  *
  * @sample androidx.compose.animation.core.samples.ArbitraryValueTypeTransitionSample
  *
- *     data class MySize(val width: Dp, val height: Dp)
+ *   data class MySize(val width: Dp, val height: Dp)
  *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time. Physics

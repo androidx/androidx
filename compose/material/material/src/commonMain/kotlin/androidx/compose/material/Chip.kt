@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
  * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
  *
  * @sample androidx.compose.material.samples.ChipGroupReflowSample
- *
  * @param onClick called when the chip is clicked.
  * @param modifier Modifier to be applied to the chip
  * @param enabled When disabled, chip will not respond to user input. It will also appear visually
@@ -159,7 +158,6 @@ fun Chip(
  * [ChipDefaults.outlinedFilterChipColors] and [ChipDefaults.outlinedBorder]
  *
  * @sample androidx.compose.material.samples.OutlinedFilterChipSample
- *
  * @param selected boolean state for this chip: either it is selected or not
  * @param onClick will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip

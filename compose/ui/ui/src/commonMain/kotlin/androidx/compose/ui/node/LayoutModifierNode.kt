@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.IntSize
  * [androidx.compose.ui.layout.LayoutModifier]
  *
  * @sample androidx.compose.ui.samples.LayoutModifierNodeSample
- *
  * @see androidx.compose.ui.layout.Layout
  */
 interface LayoutModifierNode : DelegatableNode {

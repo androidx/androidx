@@ -91,7 +91,6 @@ import java.util.Locale
  * An example of a [TimeText] animating a message that is added or removed
  *
  * @sample androidx.wear.compose.material.samples.TimeTextAnimation
- *
  * @param modifier Current modifier.
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle Optional textStyle for the time text itself

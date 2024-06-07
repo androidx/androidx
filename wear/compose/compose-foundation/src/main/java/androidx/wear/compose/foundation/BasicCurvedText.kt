@@ -60,7 +60,6 @@ import kotlin.math.sqrt
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
- *
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
@@ -93,7 +92,6 @@ public fun CurvedScope.basicCurvedText(
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
- *
  * @param text The text to display
  * @param style A style to use.
  * @param modifier The [CurvedModifier] to apply to this curved text.

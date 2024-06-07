@@ -48,7 +48,6 @@ import androidx.compose.ui.graphics.Color
  * class="external" target="_blank">Material Standard Card</a>.
  *
  * @sample androidx.tv.material3.samples.StandardCardContainerSample
- *
  * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.
  * @param modifier the [Modifier] to be applied to this CardContainer.
@@ -109,7 +108,6 @@ fun StandardCardContainer(
  * class="external" target="_blank">Material Wide Standard Card</a>.
  *
  * @sample androidx.tv.material3.samples.WideCardContainerSample
- *
  * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.
  * @param modifier the [Modifier] to be applied to this CardContainer.

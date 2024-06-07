@@ -73,7 +73,6 @@ import kotlinx.coroutines.launch
  * Please refer to the sample to learn how to use this API.
  *
  * @sample androidx.compose.foundation.samples.PagerWithStateSample
- *
  * @param initialPage The pager that should be shown first.
  * @param initialPageOffsetFraction The offset of the initial page as a fraction of the page size.
  *   This should vary between -0.5 and 0.5 and indicates how to offset the initial page from the
@@ -98,7 +97,6 @@ fun rememberPagerState(
  * Please refer to the sample to learn how to use this API.
  *
  * @sample androidx.compose.foundation.samples.PagerWithStateSample
- *
  * @param currentPage The pager that should be shown first.
  * @param currentPageOffsetFraction The offset of the initial page as a fraction of the page size.
  *   This should vary between -0.5 and 0.5 and indicates how to offset the initial page from the
@@ -466,7 +464,6 @@ internal constructor(
      * Please refer to the sample to learn how to use this API.
      *
      * @sample androidx.compose.foundation.samples.ScrollToPageSample
-     *
      * @param page The destination page to scroll to
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.
@@ -493,7 +490,6 @@ internal constructor(
      * Please refer to the sample to learn how to use this API.
      *
      * @sample androidx.compose.foundation.samples.PagerCustomAnimateScrollToPage
-     *
      * @param page The destination page to scroll to
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.
@@ -567,7 +563,6 @@ internal constructor(
      * Please refer to the sample to learn how to use this API.
      *
      * @sample androidx.compose.foundation.samples.AnimateScrollPageSample
-     *
      * @param page The destination page to scroll to
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.

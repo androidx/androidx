@@ -65,7 +65,6 @@ fun <T : Any> PagingData<T>.filterAsync(predicate: (T) -> Single<Boolean>): Pagi
  * between pages are only computed once both pages are loaded.
  *
  * @sample androidx.paging.samples.insertSeparatorsRxSample
- *
  * @sample androidx.paging.samples.insertSeparatorsUiModelRxSample
  */
 @JvmName("insertSeparators")

@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.Dp
  * Card sample:
  *
  * @sample androidx.compose.material3.samples.CardSample
- *
  * @param modifier the [Modifier] to be applied to this card
  * @param shape defines the shape of this card's container, border (when [border] is not null), and
  *   shadow (when using [elevation])
@@ -114,7 +113,6 @@ fun Card(
  * Clickable card sample:
  *
  * @sample androidx.compose.material3.samples.ClickableCardSample
- *
  * @param onClick called when this card is clicked
  * @param modifier the [Modifier] to be applied to this card
  * @param enabled controls the enabled state of this card. When `false`, this component will not
@@ -180,7 +178,6 @@ fun Card(
  * Elevated card sample:
  *
  * @sample androidx.compose.material3.samples.ElevatedCardSample
- *
  * @param modifier the [Modifier] to be applied to this card
  * @param shape defines the shape of this card's container and shadow (when using [elevation])
  * @param colors [CardColors] that will be used to resolve the color(s) used for this card in
@@ -223,7 +220,6 @@ fun ElevatedCard(
  * Clickable elevated card sample:
  *
  * @sample androidx.compose.material3.samples.ClickableElevatedCardSample
- *
  * @param onClick called when this card is clicked
  * @param modifier the [Modifier] to be applied to this card
  * @param enabled controls the enabled state of this card. When `false`, this component will not
@@ -280,7 +276,6 @@ fun ElevatedCard(
  * Outlined card sample:
  *
  * @sample androidx.compose.material3.samples.OutlinedCardSample
- *
  * @param modifier the [Modifier] to be applied to this card
  * @param shape defines the shape of this card's container, border (when [border] is not null), and
  *   shadow (when using [elevation])
@@ -325,7 +320,6 @@ fun OutlinedCard(
  * Clickable outlined card sample:
  *
  * @sample androidx.compose.material3.samples.ClickableOutlinedCardSample
- *
  * @param onClick called when this card is clicked
  * @param modifier the [Modifier] to be applied to this card
  * @param enabled controls the enabled state of this card. When `false`, this component will not

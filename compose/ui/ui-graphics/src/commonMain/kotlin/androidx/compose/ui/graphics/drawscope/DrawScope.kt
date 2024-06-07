@@ -237,7 +237,6 @@ inline fun DrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawContext
  * applied. After this call is complete, the transformation before this call was made is restored
  *
  * @sample androidx.compose.ui.graphics.samples.DrawScopeBatchedTransformSample
- *
  * @param transformBlock Callback invoked to issue transformations to be made before the drawing
  *   operations are issued
  * @param drawBlock Callback invoked to issue drawing operations after the transformations are
@@ -281,7 +280,6 @@ inline fun DrawScope.draw(
  * as a receiver
  *
  * @sample androidx.compose.ui.graphics.samples.DrawScopeRetargetingSample
- *
  * @param density [Density] used to assist in conversions of density independent pixels to raw
  *   pixels to draw
  * @param layoutDirection [LayoutDirection] of the layout being drawn in.
@@ -691,7 +689,6 @@ interface DrawScope : Density {
      * @param style Whether or not the oval is stroked or filled in
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
-     *
      * @sample androidx.compose.ui.graphics.samples.DrawScopeOvalBrushSample
      */
     fun drawOval(
@@ -717,7 +714,6 @@ interface DrawScope : Density {
      * @param style Whether or not the oval is stroked or filled in
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
-     *
      * @sample androidx.compose.ui.graphics.samples.DrawScopeOvalColorSample
      */
     fun drawOval(

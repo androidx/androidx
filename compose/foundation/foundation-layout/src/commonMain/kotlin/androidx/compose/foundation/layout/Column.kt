@@ -69,7 +69,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleColumn
- *
  * @param modifier The modifier to be applied to the Column.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalAlignment The horizontal alignment of the layout's children.
@@ -301,7 +300,6 @@ interface ColumnScope {
      * @param weight The proportional height to give to this element, as related to the total of all
      *   weighted siblings. Must be positive.
      * @param fill When `true`, the element will occupy the whole height allocated.
-     *
      * @sample androidx.compose.foundation.layout.samples.SimpleColumn
      */
     @Stable

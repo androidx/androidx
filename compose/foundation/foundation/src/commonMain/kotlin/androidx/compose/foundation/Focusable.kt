@@ -61,7 +61,6 @@ import kotlinx.coroutines.launch
  * Add this modifier to the element to make it focusable within its bounds.
  *
  * @sample androidx.compose.foundation.samples.FocusableSample
- *
  * @param enabled Controls the enabled state. When `false`, element won't participate in the focus
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  *   [FocusInteraction.Focus] when this element is being focused.

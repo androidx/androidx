@@ -64,7 +64,6 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
  * Example of [TextButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.TextButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -141,7 +140,6 @@ fun TextButton(
  * Example of a large text toggle button:
  *
  * @sample androidx.wear.compose.material3.samples.LargeTextToggleButtonSample
- *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
@@ -214,7 +212,6 @@ object TextButtonDefaults {
      * Example of [TextButton] with [filledTextButtonColors]:
      *
      * @sample androidx.wear.compose.material3.samples.FilledTextButtonSample
-     *
      * @param containerColor The background color of this text button when enabled
      * @param contentColor The content color of this text button when enabled
      * @param disabledContainerColor the background color of this text button when not enabled
@@ -250,7 +247,6 @@ object TextButtonDefaults {
      * Example of [TextButton] with [filledTonalTextButtonColors]:
      *
      * @sample androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
-     *
      * @param containerColor The background color of this text button when enabled
      * @param contentColor The content color of this text button when enabled
      * @param disabledContainerColor the background color of this text button when not enabled
@@ -287,7 +283,6 @@ object TextButtonDefaults {
      * [ButtonDefaults.outlinedButtonBorder]:
      *
      * @sample androidx.wear.compose.material3.samples.OutlinedTextButtonSample
-     *
      * @param contentColor The content color of this text button when enabled
      * @param disabledContentColor The content color of this text button when not enabled
      */

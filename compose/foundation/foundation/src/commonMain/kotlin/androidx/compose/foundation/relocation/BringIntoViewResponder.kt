@@ -52,7 +52,6 @@ import kotlinx.coroutines.launch
  * Here is a sample where a part of a composable is brought into view:
  *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
- *
  * @see BringIntoViewRequester
  *
  * Note: this API is experimental while we optimise the performance and find the right API shape for
@@ -99,7 +98,6 @@ interface BringIntoViewResponder {
  * mechanism works.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @see BringIntoViewRequester
  *
  * Note: this API is experimental while we optimise the performance and find the right API shape for

@@ -32,11 +32,10 @@ import androidx.recyclerview.widget.RecyclerView
  * [PagingDataAdapter.withLoadStateHeaderAndFooter], or use
  * [ConcatAdapter][androidx.recyclerview.widget.ConcatAdapter] directly to concatenate Adapters.
  *
+ * @sample androidx.paging.samples.loadStateAdapterSample
  * @see PagingDataAdapter.withLoadStateHeaderAndFooter
  * @see PagingDataAdapter.withLoadStateHeader
  * @see PagingDataAdapter.withLoadStateFooter
- *
- * @sample androidx.paging.samples.loadStateAdapterSample
  */
 abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH>() {
     /**

@@ -81,7 +81,6 @@ import kotlin.math.max
  * An example of editable Exposed Dropdown Menu:
  *
  * @sample androidx.compose.material.samples.EditableExposedDropdownMenuSample
- *
  * @param expanded Whether Dropdown Menu should be expanded or not.
  * @param onExpandedChange Executes when the user clicks on the ExposedDropdownMenuBox.
  * @param modifier The modifier to apply to this layout

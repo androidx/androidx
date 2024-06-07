@@ -50,10 +50,8 @@ import kotlin.math.roundToInt
  * @param minSpan The distance in pixels between touches that must be reached for a gesture to be
  *   interpreted as zooming.
  * @param listener The listener to receive the callback.
- *
- * @sample androidx.camera.viewfinder.core.samples.onTouchEventSample
- *
  * @constructor Creates a ZoomGestureDetector for detecting zooming gesture.
+ * @sample androidx.camera.viewfinder.core.samples.onTouchEventSample
  */
 class ZoomGestureDetector
 @SuppressLint("ExecutorRegistration")

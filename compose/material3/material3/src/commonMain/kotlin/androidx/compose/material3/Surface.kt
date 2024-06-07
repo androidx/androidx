@@ -74,7 +74,6 @@ import androidx.compose.ui.unit.dp
  * Surface sample:
  *
  * @sample androidx.compose.material3.samples.SurfaceSample
- *
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param shape Defines the surface's shape as well its shadow.
  * @param color The background color. Use [Color.Transparent] to have no color.
@@ -166,7 +165,6 @@ fun Surface(
  * Clickable surface sample:
  *
  * @sample androidx.compose.material3.samples.ClickableSurfaceSample
- *
  * @param onClick callback to be called when the surface is clicked
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param enabled Controls the enabled state of the surface. When `false`, this surface will not be
@@ -267,7 +265,6 @@ fun Surface(
  * Selectable surface sample:
  *
  * @sample androidx.compose.material3.samples.SelectableSurfaceSample
- *
  * @param selected whether or not this Surface is selected
  * @param onClick callback to be called when the surface is clicked
  * @param modifier Modifier to be applied to the layout corresponding to the surface
@@ -371,7 +368,6 @@ fun Surface(
  * Toggleable surface sample:
  *
  * @sample androidx.compose.material3.samples.ToggleableSurfaceSample
- *
  * @param checked whether or not this Surface is toggled on or off
  * @param onCheckedChange callback to be invoked when the toggleable Surface is clicked
  * @param modifier Modifier to be applied to the layout corresponding to the surface

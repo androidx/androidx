@@ -74,7 +74,6 @@ interface OverscrollEffect {
      * correctly reset after any animations, when the gesture has stopped.
      *
      * @sample androidx.compose.foundation.samples.OverscrollWithDraggable_After
-     *
      * @param delta total scroll delta available
      * @param source the source of the delta
      * @param performScroll the scroll action that the overscroll is applied to. The [Offset]
@@ -108,7 +107,6 @@ interface OverscrollEffect {
      * the velocity provided by onDragStopped.
      *
      * @sample androidx.compose.foundation.samples.OverscrollWithDraggable_After
-     *
      * @param velocity total [Velocity] available
      * @param performFling the [Velocity] consuming lambda that the overscroll is applied to. The
      *   [Velocity] parameter represents how much [Velocity] is available, and the return value is
@@ -142,7 +140,6 @@ interface OverscrollEffect {
  * to render the visual part of an OverscrollEffect as a modifier.
  *
  * @sample androidx.compose.foundation.samples.OverscrollSample
- *
  * @param overscrollEffect the [OverscrollEffect] to render
  */
 @ExperimentalFoundationApi

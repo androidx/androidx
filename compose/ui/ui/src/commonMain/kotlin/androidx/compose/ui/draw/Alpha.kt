@@ -30,11 +30,10 @@ import androidx.compose.ui.graphics.graphicsLayer
  * modifier is configured on, and contents outside of these bounds are omitted.
  *
  * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
+ * @sample androidx.compose.ui.samples.AlphaSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.AlphaSample
  */
 @Stable
 fun Modifier.alpha(

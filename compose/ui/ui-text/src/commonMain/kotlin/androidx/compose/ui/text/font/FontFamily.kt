@@ -155,7 +155,6 @@ sealed class SystemFontFamily : FontFamily(true)
  * Defines a font family with list of [Font].
  *
  * @sample androidx.compose.ui.text.samples.FontFamilySansSerifSample
- *
  * @sample androidx.compose.ui.text.samples.CustomFontFamilySample
  */
 @Immutable

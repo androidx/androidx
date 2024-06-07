@@ -85,7 +85,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activityStacks The set of [ActivityStack] to be finished.
      * @throws UnsupportedOperationException if extension version is less than 5.
-     *
      * @sample androidx.window.samples.embedding.expandPrimaryContainer
      */
     @RequiresWindowSdkExtension(5)

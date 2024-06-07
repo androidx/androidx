@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * it.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 @ExperimentalFoundationApi
@@ -53,9 +52,7 @@ sealed interface BringIntoViewRequester {
      *   don't specify the coordinates, the coordinates of the
      *   [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
      *   [BringIntoViewRequester] will be used.
-     *
      * @sample androidx.compose.foundation.samples.BringIntoViewSample
-     *
      * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
      */
     suspend fun bringIntoView(rect: Rect? = null)
@@ -92,7 +89,6 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
  * using this modifier is brought into the bounds of all its parents.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @param bringIntoViewRequester An instance of [BringIntoViewRequester]. This hoisted object can be
  *   used to send [scrollIntoView][BringIntoViewRequester.scrollIntoView] requests to parents of the
  *   current composable.

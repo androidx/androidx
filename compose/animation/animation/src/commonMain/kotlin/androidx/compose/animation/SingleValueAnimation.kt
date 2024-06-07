@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.Dp
  * from the tree. See [Animatable][androidx.compose.animation.Animatable] for cancelable animations.
  *
  * @sample androidx.compose.animation.samples.ColorAnimationSample
- *
  * @param targetValue Target value of the animation
  * @param animationSpec The animation that will be used to change the value through time, [spring]
  *   by default
@@ -103,7 +102,6 @@ private val colorDefaultSpring = spring<Color>()
  * types. See [androidx.compose.animation.core.Animatable] for other variants.
  *
  * @sample androidx.compose.animation.samples.AnimatableColor
- *
  * @param initialValue initial value of the [Animatable]
  */
 fun Animatable(initialValue: Color): Animatable<Color, AnimationVector4D> =

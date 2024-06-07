@@ -53,7 +53,6 @@ class CompositionSignal(
          * Returns a [CompositionSignal] with given atoms.
          *
          * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
-         *
          * @param atoms The [CompositionSignal.Atom] instances that define the [CompositionSignal].
          */
         @JvmStatic
@@ -164,7 +163,6 @@ class CompositionSignal(
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
          *
          * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
-         *
          * @param duration The duration the vibrator should be turned off.
          */
         @RequiresApi(Build.VERSION_CODES.O)
@@ -175,7 +173,6 @@ class CompositionSignal(
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
          *
          * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
-         *
          * @param durationMillis The duration the vibrator should be turned off, in milliseconds.
          */
         @JvmStatic fun off(durationMillis: Long) = OffAtom(durationMillis.milliseconds)
@@ -377,7 +374,6 @@ class CompositionSignal(
          * Returns a [PrimitiveAtom] with same effect type and new [amplitudeScale].
          *
          * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
-         *
          * @param newAmplitudeScale The amplitude scale for the new [PrimitiveAtom]
          * @return A new [PrimitiveAtom] with the same effect type and the new amplitude scale.
          */

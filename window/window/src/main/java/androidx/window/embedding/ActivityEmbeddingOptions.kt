@@ -40,9 +40,7 @@ import androidx.window.WindowSdkExtensions
  * Below samples are use cases to specify the launching [ActivityStack].
  *
  * @sample androidx.window.samples.embedding.launchingOnPrimaryActivityStack
- *
  * @sample androidx.window.samples.embedding.launchingOnOverlayActivityStack
- *
  * @param context The [android.content.Context] that is going to be used for launching activity with
  *   this [Bundle], which is usually be the [android.app.Activity] of the app that hosts the task.
  * @param activityStack The target [ActivityStack] for launching.
@@ -85,7 +83,6 @@ fun Bundle.setLaunchingActivityStack(context: Context, activityStack: ActivitySt
  * different task.
  *
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
- *
  * @param activity The [Activity] that is going to be used for launching activity with this
  *   [ActivityOptions], which is usually be the [Activity] of the app that hosts the task.
  * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]

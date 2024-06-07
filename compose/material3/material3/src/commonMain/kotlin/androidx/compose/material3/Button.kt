@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
  * like "Save", "Join now", or "Confirm".
  *
  * @sample androidx.compose.material3.samples.ButtonSample
- *
  * @sample androidx.compose.material3.samples.ButtonWithIconSample
  *
  * Choose the best button for an action based on the amount of emphasis it needs. The more important

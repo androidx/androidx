@@ -117,7 +117,6 @@ class SnackbarHostState {
      * All of this allows for granular control over the snackbar queue from within:
      *
      * @sample androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
-     *
      * @param visuals [SnackbarVisuals] that are used to create a Snackbar
      * @return [SnackbarResult.ActionPerformed] if option action has been clicked or
      *   [SnackbarResult.Dismissed] if snackbar has been dismissed via timeout or by the user
@@ -208,7 +207,6 @@ class SnackbarHostState {
  * of the [SnackbarHost] to the [Scaffold]:
  *
  * @sample androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
- *
  * @param hostState state of this component to read and show [Snackbar]s accordingly
  * @param modifier the [Modifier] to be applied to this component
  * @param snackbar the instance of the [Snackbar] to be shown at the appropriate time with

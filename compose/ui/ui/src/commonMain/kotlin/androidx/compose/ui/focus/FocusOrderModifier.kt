@@ -143,7 +143,6 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
  *   the current focus to the [next][FocusOrder.next] item, or wants to move focus
  *   [left][FocusOrder.left], [right][FocusOrder.right], [up][FocusOrder.up] or
  *   [down][FocusOrder.down].
- *
  * @sample androidx.compose.ui.samples.CustomFocusOrderSample
  */
 @Deprecated(

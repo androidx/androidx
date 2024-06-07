@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
  * Example usage:
  *
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
- *
  * @param modifier The modifier for the list header
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content

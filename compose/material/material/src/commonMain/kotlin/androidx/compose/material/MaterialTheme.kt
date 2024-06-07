@@ -50,7 +50,6 @@ import androidx.compose.runtime.remember
  * overriding only the parts of the theme definition that need to change.
  *
  * @sample androidx.compose.material.samples.MaterialThemeSample
- *
  * @param colors A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of shapes to be used by the components in this hierarchy

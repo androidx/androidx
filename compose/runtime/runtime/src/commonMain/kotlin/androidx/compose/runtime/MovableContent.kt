@@ -29,7 +29,6 @@ package androidx.compose.runtime
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -52,7 +51,6 @@ fun movableContentOf(content: @Composable () -> Unit): @Composable () -> Unit {
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -75,7 +73,6 @@ fun <P> movableContentOf(content: @Composable (P) -> Unit): @Composable (P) -> U
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -98,7 +95,6 @@ fun <P1, P2> movableContentOf(content: @Composable (P1, P2) -> Unit): @Composabl
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -126,7 +122,6 @@ fun <P1, P2, P3> movableContentOf(
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -156,7 +151,6 @@ fun <P1, P2, P3, P4> movableContentOf(
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -179,7 +173,6 @@ fun <R> movableContentWithReceiverOf(content: @Composable R.() -> Unit): @Compos
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -204,7 +197,6 @@ fun <R, P> movableContentWithReceiverOf(
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */
@@ -230,7 +222,6 @@ fun <R, P1, P2> movableContentWithReceiverOf(
  * such as,
  *
  * @sample androidx.compose.runtime.samples.MovableContentMultiColumnSample
- *
  * @param content The composable lambda to convert into a state tracking lambda.
  * @return A tracking composable lambda
  */

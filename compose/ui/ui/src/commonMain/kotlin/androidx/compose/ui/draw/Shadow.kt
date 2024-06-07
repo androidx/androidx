@@ -45,11 +45,10 @@ import androidx.compose.ui.unit.dp
  * @param elevation The elevation for the shadow in pixels
  * @param shape Defines a shape of the physical object
  * @param clip When active, the content drawing clips to the shape.
+ * @sample androidx.compose.ui.samples.ShadowSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.ShadowSample
  */
 @Deprecated(
     "Replace with shadow which accepts ambientColor and spotColor parameters",
@@ -93,11 +92,10 @@ fun Modifier.shadow(
  * @param clip When active, the content drawing clips to the shape.
  * @param ambientColor Color of the ambient shadow drawn when [elevation] > 0f
  * @param spotColor Color of the spot shadow that is drawn when [elevation] > 0f
+ * @sample androidx.compose.ui.samples.ShadowSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.ShadowSample
  */
 @Stable
 fun Modifier.shadow(

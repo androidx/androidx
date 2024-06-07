@@ -35,7 +35,6 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
  * size for DisplayLarge:
  *
  * @sample androidx.wear.compose.material3.samples.FixedFontSize
- *
  * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text on the
  *   screen, reserved for short, important text or numerals.
  * @property displayMedium DisplayMedium is the second largest headline. Displays are the largest

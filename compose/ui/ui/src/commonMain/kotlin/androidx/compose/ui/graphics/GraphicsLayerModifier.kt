@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.Constraints
  * block will only cause the layer properties update without triggering recomposition and relayout.
  *
  * @sample androidx.compose.ui.samples.ChangeOpacity
- *
  * @param scaleX see [GraphicsLayerScope.scaleX]
  * @param scaleY see [GraphicsLayerScope.scaleY]
  * @param alpha see [GraphicsLayerScope.alpha]
@@ -137,7 +136,6 @@ fun Modifier.graphicsLayer(
  * block will only cause the layer properties update without triggering recomposition and relayout.
  *
  * @sample androidx.compose.ui.samples.ChangeOpacity
- *
  * @param scaleX see [GraphicsLayerScope.scaleX]
  * @param scaleY see [GraphicsLayerScope.scaleY]
  * @param alpha see [GraphicsLayerScope.alpha]
@@ -226,7 +224,6 @@ fun Modifier.graphicsLayer(
  * block will only cause the layer properties update without triggering recomposition and relayout.
  *
  * @sample androidx.compose.ui.samples.ChangeOpacity
- *
  * @param scaleX see [GraphicsLayerScope.scaleX]
  * @param scaleY see [GraphicsLayerScope.scaleY]
  * @param alpha see [GraphicsLayerScope.alpha]
@@ -326,9 +323,7 @@ fun Modifier.graphicsLayer(
  * block will only cause the layer properties update without triggering recomposition and relayout.
  *
  * @sample androidx.compose.ui.samples.ChangeOpacity
- *
  * @sample androidx.compose.ui.samples.CompositingStrategyModulateAlpha
- *
  * @param scaleX see [GraphicsLayerScope.scaleX]
  * @param scaleY see [GraphicsLayerScope.scaleY]
  * @param alpha see [GraphicsLayerScope.alpha]
@@ -483,7 +478,6 @@ private data class GraphicsLayerElement(
  * cause the layer properties update without triggering recomposition and relayout.
  *
  * @sample androidx.compose.ui.samples.AnimateFadeIn
- *
  * @param block block on [GraphicsLayerScope] where you define the layer properties.
  */
 @Stable

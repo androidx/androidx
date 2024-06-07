@@ -401,11 +401,8 @@ internal constructor(
      * @param layoutDirection [LayoutDirection] of the layout being drawn in.
      * @param size [Size] of the [GraphicsLayer]
      * @param block lambda that is called to issue drawing commands on this [DrawScope]
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
     actual fun record(
@@ -723,7 +720,6 @@ internal constructor(
      * [shadowElevation] is non-zero a shadow is produced using this [Outline].
      *
      * @param path Path to be used as the Outline for the [GraphicsLayer]
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutlineSample
      */
     actual fun setPathOutline(path: Path) {
@@ -742,7 +738,6 @@ internal constructor(
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
      * @param cornerRadius The corner radius of the rounded rect outline
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
@@ -768,7 +763,6 @@ internal constructor(
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     actual fun setRectOutline(topLeft: Offset, size: Size) {

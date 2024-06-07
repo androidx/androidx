@@ -85,7 +85,6 @@ internal constructor(
      * this value at any given time, even those made after reading this property.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
-     *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     @ExperimentalFoundationApi
@@ -424,7 +423,6 @@ fun TextFieldBuffer.selectAll() {
  * [forEachChangeReversed].
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
- *
  * @see forEachChangeReversed
  */
 @ExperimentalFoundationApi
@@ -445,7 +443,6 @@ inline fun ChangeList.forEachChange(block: (range: TextRange, originalRange: Tex
  * safely, such changes will not be visited.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
- *
  * @see forEachChange
  */
 @ExperimentalFoundationApi

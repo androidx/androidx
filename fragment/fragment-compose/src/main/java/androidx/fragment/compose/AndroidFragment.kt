@@ -39,7 +39,6 @@ import androidx.fragment.app.commitNow
  * added to the fragment manager and invoke the [onUpdate] callback with the new instance.
  *
  * @sample androidx.fragment.compose.samples.BasicAndroidFragment
- *
  * @param modifier the modifier to be applied to the layout
  * @param fragmentState the savedState of the fragment
  * @param arguments args to be passed to the fragment
@@ -63,7 +62,6 @@ inline fun <reified T : Fragment> AndroidFragment(
  * added to the fragment manager and invoke the [onUpdate] callback with the new instance.
  *
  * @sample androidx.fragment.compose.samples.BasicAndroidFragment
- *
  * @param clazz fragment class to be created
  * @param modifier the modifier to be applied to the layout
  * @param fragmentState the savedState of the fragment

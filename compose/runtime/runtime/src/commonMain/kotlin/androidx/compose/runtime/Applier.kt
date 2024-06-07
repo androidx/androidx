@@ -26,7 +26,6 @@ import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
  * maintain a tree of a novel type.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @see AbstractApplier
  * @see Composition
  * @see Composer
@@ -181,7 +180,6 @@ interface Applier<N> {
  * An abstract [Applier] implementation.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @see Applier
  * @see Composition
  * @see Composer

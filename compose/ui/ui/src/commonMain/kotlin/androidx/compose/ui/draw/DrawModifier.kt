@@ -125,9 +125,7 @@ internal class DrawBackgroundModifier(var onDraw: DrawScope.() -> Unit) :
  * calls without having to re-allocate.
  *
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierSample
- *
  * @sample androidx.compose.ui.samples.DrawWithCacheModifierStateParameterSample
- *
  * @sample androidx.compose.ui.samples.DrawWithCacheContentSample
  */
 fun Modifier.drawWithCache(onBuildDrawCache: CacheDrawScope.() -> DrawResult) =

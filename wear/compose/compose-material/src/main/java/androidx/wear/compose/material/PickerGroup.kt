@@ -66,7 +66,6 @@ import kotlinx.coroutines.coroutineScope
  * Example of an auto centering picker group where the total width exceeds screen's width
  *
  * @sample androidx.wear.compose.material.samples.AutoCenteringPickerGroup
- *
  * @param pickers List of [Picker]s represented using [PickerGroupItem] in the same order of display
  *   from left to right.
  * @param modifier Modifier to be applied to the PickerGroup

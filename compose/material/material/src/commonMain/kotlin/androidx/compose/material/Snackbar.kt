@@ -66,7 +66,6 @@ import kotlin.math.max
  * of the [SnackbarHost] to the [Scaffold]:
  *
  * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
- *
  * @param modifier modifiers for the Snackbar layout
  * @param action action / button component to add as an action to the snackbar. Consider using
  *   [SnackbarDefaults.primaryActionColor] as the color for the action, if you do not have a
@@ -143,7 +142,6 @@ fun Snackbar(
  * of the [SnackbarHost] to the [Scaffold]:
  *
  * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
- *
  * @param snackbarData data about the current snackbar showing via [SnackbarHostState]
  * @param modifier modifiers for the Snackbar layout
  * @param actionOnNewLine whether or not action should be put on the separate line. Recommended for

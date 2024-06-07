@@ -68,7 +68,6 @@ import kotlin.math.max
  * You can combine this component with a checkbox or switch as in the following examples:
  *
  * @sample androidx.compose.material.samples.ClickableListItems
- *
  * @param modifier Modifier to be applied to the list item
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item

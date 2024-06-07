@@ -37,7 +37,6 @@ import androidx.compose.ui.util.fastForEach
  * [Crossfade] allows to switch between two layouts with a crossfade animation.
  *
  * @sample androidx.compose.animation.samples.CrossfadeSample
- *
  * @param targetState is a key representing your target layout state. Every time you change a key
  *   the animation will be triggered. The [content] called with the old key will be faded out while
  *   the [content] called with the new key will be faded in.

@@ -58,9 +58,7 @@ import androidx.compose.ui.zIndex
  * Example:
  *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
- *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
- *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  *   is [DrawerValue.Open] or [DrawerValue.Closed]. Drawer-entries can be animated when the drawer
  *   moves from Closed to Open state and vice-versa. For, e.g., the entry could show only an icon in
@@ -128,7 +126,6 @@ fun ModalNavigationDrawer(
  * Example:
  *
  * @sample androidx.tv.material3.samples.SampleNavigationDrawer
- *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  *   is [DrawerValue.Open] or [DrawerValue.Closed]. Drawer-entries can be animated when the drawer
  *   moves from Closed to Open state and vice-versa. For, e.g., the entry could show only an icon in

@@ -53,7 +53,6 @@ import androidx.compose.runtime.structuralEqualityPolicy
  * overload with which has `stateSaver` param.
  *
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithMutableStateAndCustomSaver
- *
  * @param inputs A set of inputs such that, when any of them have changed, will cause the state to
  *   reset and [init] to be rerun
  * @param saver The [Saver] object which defines how the state is saved and restored.
@@ -105,7 +104,6 @@ fun <T : Any> rememberSaveable(
  * so you have to provide a custom saver object.
  *
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithMutableStateAndCustomSaver
- *
  * @param inputs A set of inputs such that, when any of them have changed, will cause the state to
  *   reset and [init] to be rerun
  * @param stateSaver The [Saver] object which defines how the value inside the MutableState is saved

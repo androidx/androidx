@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.TextUnit
  * Styling configuration for a `Text`.
  *
  * @sample androidx.compose.ui.text.samples.TextStyleSample
- *
  * @param platformStyle Platform specific [TextStyle] parameters.
  * @see AnnotatedString
  * @see SpanStyle
@@ -192,7 +191,6 @@ internal constructor(
      * Styling configuration for a `Text`.
      *
      * @sample androidx.compose.ui.text.samples.TextStyleSample
-     *
      * @param color The text color.
      * @param fontSize The size of glyphs to use when painting the text. This may be
      *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
@@ -354,7 +352,6 @@ internal constructor(
      * Styling configuration for a `Text`.
      *
      * @sample androidx.compose.ui.text.samples.TextStyleSample
-     *
      * @param color The text color.
      * @param fontSize The size of glyphs to use when painting the text. This may be
      *   [TextUnit.Unspecified] for inheriting from another [TextStyle].
@@ -452,7 +449,6 @@ internal constructor(
      * Styling configuration for a `Text`.
      *
      * @sample androidx.compose.ui.text.samples.TextStyleBrushSample
-     *
      * @param brush The brush to use when painting the text. If brush is given as null, it will be
      *   treated as unspecified. It is equivalent to calling the alternative color constructor with
      *   [Color.Unspecified]

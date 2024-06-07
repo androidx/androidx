@@ -31,9 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * [layout direction][DeviceConfigurationOverride.Companion.LayoutDirection].
  *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontScaleSample
- *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideForcedSizeSample
- *
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
  */
 @Composable
