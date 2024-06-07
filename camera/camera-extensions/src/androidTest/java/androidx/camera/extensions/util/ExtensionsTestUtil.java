@@ -77,10 +77,18 @@ public class ExtensionsTestUtil {
     public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
     public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
 
+    private static boolean isAdvancedExtender() {
+        ExtensionVersionImpl extensionVersion = new ExtensionVersionImpl();
+        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_2)
+                && extensionVersion.isAdvancedExtenderImplemented()) {
+            return true;
+        }
+        return false;
+    }
+
     // Check if the OEM implementation class for the given mode exists or not.
     private static boolean doesOEMImplementationExistForMode(int extensionMode) {
-        ExtensionVersionImpl extensionVersion = new ExtensionVersionImpl();
-        if (extensionVersion.isAdvancedExtenderImplemented()) {
+        if (isAdvancedExtender()) {
             try {
                 switch (extensionMode) {
                     case HDR:

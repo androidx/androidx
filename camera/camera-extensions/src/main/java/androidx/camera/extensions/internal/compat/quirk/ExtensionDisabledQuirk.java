@@ -40,7 +40,7 @@ import androidx.camera.extensions.internal.Version;
 public class ExtensionDisabledQuirk implements Quirk {
 
     static boolean load() {
-        return isPixel5() || isMoto();
+        return isPixel5() || isMoto() || isRealme();
     }
 
     /**
@@ -53,6 +53,11 @@ public class ExtensionDisabledQuirk implements Quirk {
         } else if (isMoto() && ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_1)) {
             // 2. Disables Motorola extensions capability for version 1.1 and older.
             return true;
+        } else if (isRealme() && ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_1)) {
+            // 2. Disables RealMe extensions capability for version 1.1 and older. RealMe devices'
+            // implementation only set the specific effect mode and have one critical bug that the
+            // the output image's timestamp doesn't match the timestamp in onCaptureStarted.
+            return true;
         }
 
         return false;
@@ -64,6 +69,10 @@ public class ExtensionDisabledQuirk implements Quirk {
 
     private static boolean isMoto() {
         return "motorola".equalsIgnoreCase(Build.BRAND);
+    }
+
+    private static boolean isRealme() {
+        return "realme".equalsIgnoreCase(Build.BRAND);
     }
 
     private static boolean isAdvancedExtenderSupported() {
