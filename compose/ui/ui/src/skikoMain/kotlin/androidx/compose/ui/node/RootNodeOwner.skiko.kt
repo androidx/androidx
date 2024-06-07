@@ -127,11 +127,12 @@ internal class RootNodeOwner(
         }
     val owner: Owner = OwnerImpl(layoutDirection, coroutineContext)
     val semanticsOwner = SemanticsOwner(owner.root)
-    var size by mutableStateOf(size)
+    var size: IntSize? = size
+        set(value) {
+            field = value
+            onRootConstrainsChanged(value?.toConstraints())
+        }
     var density by mutableStateOf(density)
-
-    private val constraints
-        get() = size?.toConstraints() ?: Constraints()
 
     private var _layoutDirection by mutableStateOf(layoutDirection)
     var layoutDirection: LayoutDirection
@@ -152,6 +153,7 @@ internal class RootNodeOwner(
         snapshotObserver.startObserving()
         owner.root.attach(owner)
         platformContext.rootForTestListener?.onRootForTestCreated(rootForTest)
+        onRootConstrainsChanged(size?.toConstraints())
     }
 
     fun dispose() {
@@ -207,6 +209,13 @@ internal class RootNodeOwner(
 
     fun setRootModifier(modifier: Modifier) {
         owner.root.modifier = rootModifier then modifier
+    }
+
+    private fun onRootConstrainsChanged(constraints: Constraints?) {
+        measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(constraints)
+        if (measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
+            snapshotInvalidationTracker.requestMeasureAndLayout()
+        }
     }
 
     @OptIn(InternalCoreApi::class)
@@ -313,22 +322,32 @@ internal class RootNodeOwner(
         }
 
         override fun measureAndLayout(sendPointerUpdate: Boolean) {
-            measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(constraints)
-            val rootNodeResized = measureAndLayoutDelegate.measureAndLayout {
-                if (sendPointerUpdate) {
-                    inputHandler.onPointerUpdate()
+            // only run the logic when we have something pending
+            if (measureAndLayoutDelegate.hasPendingMeasureOrLayout ||
+                measureAndLayoutDelegate.hasPendingOnPositionedCallbacks
+            ) {
+                trace("RootNodeOwner:measureAndLayout") {
+                    val resend = if (sendPointerUpdate) inputHandler::onPointerUpdate else null
+                    val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
+                    if (rootNodeResized) {
+                        snapshotInvalidationTracker.requestDraw()
+                    }
+                    measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                 }
             }
-            if (rootNodeResized) {
-                snapshotInvalidationTracker.requestDraw()
-            }
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         }
 
         override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
-            measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
-            inputHandler.onPointerUpdate()
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+            trace("RootNodeOwner:measureAndLayout") {
+                measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
+                inputHandler.onPointerUpdate()
+                // only dispatch the callbacks if we don't have other nodes to process as otherwise
+                // we will have one more measureAndLayout() pass anyway in the same frame.
+                // it allows us to not traverse the hierarchy twice.
+                if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
+                    measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                }
+            }
         }
 
         override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
@@ -562,12 +581,23 @@ internal const val LargeDimension = ConstraintsMinNonFocusMask - 1
  * and pass constraint large enough instead
  */
 private fun MeasureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(
-    constraints: Constraints
+    constraints: Constraints?
 ) {
-    val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else LargeDimension
-    val maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight else LargeDimension
     updateRootConstraints(
-        Constraints(constraints.minWidth, maxWidth, constraints.minHeight, maxHeight)
+        constraints = Constraints(
+            minWidth = constraints?.minWidth ?: 0,
+            maxWidth = if (constraints != null && constraints.hasBoundedWidth) {
+                constraints.maxWidth
+            } else {
+                LargeDimension
+            },
+            minHeight = constraints?.minHeight ?: 0,
+            maxHeight = if (constraints != null && constraints.hasBoundedHeight) {
+                constraints.maxHeight
+            } else {
+                LargeDimension
+            }
+        )
     )
 }
 
