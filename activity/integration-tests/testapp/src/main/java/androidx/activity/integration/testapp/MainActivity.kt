@@ -136,6 +136,14 @@ class MainActivity : ComponentActivity() {
                         PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
                     )
                 }
+                button("Pick 9 visual media max (w/ photo picker)") {
+                    pickMultipleVisualMedia.launch(
+                        PickVisualMediaRequest(
+                            mediaType = PickVisualMedia.ImageAndVideo,
+                            maxItems = 9
+                        )
+                    )
+                }
                 button("Create document") { createDocument.launch("Temp") }
                 button("Open documents") { openDocuments.launch(arrayOf("*/*")) }
                 button("Start IntentSender") {

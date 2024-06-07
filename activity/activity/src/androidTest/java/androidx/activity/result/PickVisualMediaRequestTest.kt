@@ -16,11 +16,16 @@
 
 package androidx.activity.result
 
+import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,5 +50,63 @@ class PickVisualMediaRequestTest {
         val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
 
         assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.VideoOnly)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_maxItems() {
+        val request =
+            PickVisualMediaRequest(
+                mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly,
+                maxItems = 5
+            )
+
+        assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        assertThat(request.maxItems).isEqualTo(5)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU, codeName = "Tiramisu")
+    fun testPickMultipleVisualMediaRequest_maxItems() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val defaultMaxItems = ActivityResultContracts.PickMultipleVisualMedia.getMaxItems()
+
+        // test boundary (maxItems should be greater than 1)
+        assertThrows(IllegalArgumentException::class.java) {
+            ActivityResultContracts.PickMultipleVisualMedia(maxItems = 1)
+        }
+
+        // test boundary (maxItems should be less than the defaultMaxItems)
+        var request =
+            ActivityResultContracts.PickMultipleVisualMedia(maxItems = 1 + defaultMaxItems)
+        assertThrows(IllegalArgumentException::class.java) {
+            request.createIntent(
+                context,
+                input = PickVisualMediaRequest(maxItems = 1 + defaultMaxItems)
+            )
+        }
+
+        // test default
+        request = ActivityResultContracts.PickMultipleVisualMedia()
+        var intent = request.createIntent(context, input = PickVisualMediaRequest())
+
+        assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_MAX)).isTrue()
+        assertThat(intent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, /* defaultValue= */ 0))
+            .isEqualTo(/* expected= */ defaultMaxItems)
+
+        // test given maxItems in PickMultipleVisualMedia
+        request = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 9)
+        intent = request.createIntent(context, input = PickVisualMediaRequest())
+
+        assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_MAX)).isTrue()
+        assertThat(intent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, /* defaultValue= */ 0))
+            .isEqualTo(/* expected= */ 9)
+
+        // test max selection limit updated to minimum of PickMultipleVisualMedia.maxItems and the
+        // input PickVisualMediaRequest.maxItems
+        intent = request.createIntent(context, input = PickVisualMediaRequest(maxItems = 7))
+
+        assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_MAX)).isTrue()
+        assertThat(intent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, /* defaultValue= */ 0))
+            .isEqualTo(/* expected= */ 7)
     }
 }
