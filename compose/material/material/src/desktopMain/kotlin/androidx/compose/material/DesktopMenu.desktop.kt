@@ -74,7 +74,6 @@ import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
  * Example usage:
  *
  * @sample androidx.compose.material.samples.MenuSample
- *
  * @param expanded Whether the menu is currently open and visible to the user
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds
@@ -144,7 +143,6 @@ fun DropdownMenu(
  * Example usage with a [ScrollState] to control the menu items scroll position:
  *
  * @sample androidx.compose.material.samples.MenuWithScrollStateSample
- *
  * @param expanded Whether the menu is currently open and visible to the user
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds
@@ -243,7 +241,6 @@ fun DropdownMenu(
  * Example usage with a [ScrollState] to control the menu items scroll position:
  *
  * @sample androidx.compose.material.samples.MenuWithScrollStateSample
- *
  * @param state The open/closed state of the menu
  * @param onDismissRequest Called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds

@@ -43,7 +43,6 @@ import androidx.lifecycle.LifecycleOwner
  * in response to state changes.
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleEventEffectSample
- *
  * @param event The [Lifecycle.Event] to listen for
  * @param lifecycleOwner The lifecycle owner to attach an observer
  * @param onEvent The effect to be launched when we receive an [event] callback

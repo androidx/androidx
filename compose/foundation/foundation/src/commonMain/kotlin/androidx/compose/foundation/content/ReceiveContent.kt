@@ -46,10 +46,9 @@ import androidx.compose.ui.platform.InspectorInfo
  * @param receiveContentListener Listener to respond to the receive event. This interface also
  *   includes a set of callbacks for certain Drag-and-Drop state changes. Please checkout
  *   [ReceiveContentListener] docs for an explanation of each callback.
+ * @sample androidx.compose.foundation.samples.ReceiveContentFullSample
  * @see TransferableContent
  * @see hasMediaType
- *
- * @sample androidx.compose.foundation.samples.ReceiveContentFullSample
  */
 @Suppress("ExecutorRegistration")
 @ExperimentalFoundationApi

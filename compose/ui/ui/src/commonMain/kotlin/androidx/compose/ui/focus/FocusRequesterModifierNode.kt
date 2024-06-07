@@ -59,7 +59,6 @@ fun FocusRequesterModifierNode.requestFocus(): Boolean {
  *
  * @return true if the focus was successfully captured by one of the [focus][focusTarget] modifiers
  *   associated with this [FocusRequester]. False otherwise.
- *
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.captureFocus(): Boolean {
@@ -80,7 +79,6 @@ fun FocusRequesterModifierNode.captureFocus(): Boolean {
  *
  * @return true if the captured focus was successfully released. i.e. At the end of this operation,
  *   one of the components associated with this [focusRequester] freed focus.
- *
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.freeFocus(): Boolean {

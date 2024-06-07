@@ -132,7 +132,6 @@ fun FloatingActionButton(
  * example to fill the whole available width you can do:
  *
  * @sample androidx.compose.material.samples.FluidExtendedFab
- *
  * @param text Text label displayed inside this FAB
  * @param onClick callback invoked when this FAB is clicked
  * @param modifier [Modifier] to be applied to this FAB

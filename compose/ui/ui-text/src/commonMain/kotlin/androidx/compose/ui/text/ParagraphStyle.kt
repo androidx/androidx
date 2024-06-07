@@ -41,9 +41,7 @@ private val DefaultLineHeight = TextUnit.Unspecified
  * was added.
  *
  * @sample androidx.compose.ui.text.samples.ParagraphStyleSample
- *
  * @sample androidx.compose.ui.text.samples.ParagraphStyleAnnotatedStringsSample
- *
  * @param textAlign The alignment of the text within the lines of the paragraph.
  * @param textDirection The algorithm to be used to resolve the final text direction: Left To Right
  *   or Right To Left.

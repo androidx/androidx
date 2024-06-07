@@ -74,7 +74,6 @@ public object LocalOnBackPressedDispatcherOwner {
  * an enabled BackHandler.
  *
  * @sample androidx.activity.compose.samples.BackHandler
- *
  * @param enabled if this BackHandler should be enabled
  * @param onBack the action invoked by pressing the system back
  */

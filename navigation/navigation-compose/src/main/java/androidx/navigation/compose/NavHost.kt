@@ -69,7 +69,6 @@ import kotlin.reflect.KType
  * contents of the builder cannot be changed.
  *
  * @sample androidx.navigation.compose.samples.NavScaffold
- *
  * @param navController the navController for this host
  * @param startDestination the route for the start destination
  * @param modifier The modifier to be applied to the layout.

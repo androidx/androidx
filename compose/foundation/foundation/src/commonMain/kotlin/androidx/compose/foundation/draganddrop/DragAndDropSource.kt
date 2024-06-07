@@ -50,7 +50,6 @@ interface DragAndDropSourceScope : PointerInputScope {
  * Learn how to use [Modifier.dragAndDropSource] while providing a custom drag shadow:
  *
  * @sample androidx.compose.foundation.samples.DragAndDropSourceWithColoredDragShadowSample
- *
  * @param drawDragDecoration provides the visual representation of the item dragged during the drag
  *   and drop gesture.
  * @param block A lambda with a [DragAndDropSourceScope] as a receiver which provides a

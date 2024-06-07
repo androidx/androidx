@@ -121,9 +121,7 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
      * would automatically update all the accent colors.
      *
      * @sample androidx.compose.runtime.samples.compositionLocalProvidedComputed
-     *
      * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
-     *
      * @see CompositionLocal
      * @see CompositionLocalContext
      * @see ProvidableCompositionLocal
@@ -291,9 +289,7 @@ fun <T> staticCompositionLocalOf(defaultFactory: () -> T): ProvidableComposition
  * colors.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalComputedByDefault
- *
  * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
- *
  * @param defaultComputation the default computation to use when this [CompositionLocal] is not
  *   provided.
  * @see CompositionLocal
@@ -329,7 +325,6 @@ interface CompositionLocalAccessorScope {
      * [ProvidableCompositionLocal.providesComputed] infix operator.
      *
      * @sample androidx.compose.runtime.samples.compositionLocalProvidedComputed
-     *
      * @see ProvidableCompositionLocal
      * @see ProvidableCompositionLocal.providesComputed
      * @see ProvidableCompositionLocal.provides
@@ -357,7 +352,6 @@ internal constructor(internal val compositionLocals: PersistentCompositionLocalM
  * indirectly in the [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
- *
  * @see CompositionLocal
  * @see compositionLocalOf
  * @see staticCompositionLocalOf
@@ -378,7 +372,6 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
  * indirectly in the [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
- *
  * @see CompositionLocal
  * @see compositionLocalOf
  * @see staticCompositionLocalOf
@@ -399,7 +392,6 @@ fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () ->
  * [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
- *
  * @see CompositionLocal
  * @see compositionLocalOf
  * @see staticCompositionLocalOf

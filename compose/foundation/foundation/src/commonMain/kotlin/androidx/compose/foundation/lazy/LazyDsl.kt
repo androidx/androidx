@@ -98,7 +98,6 @@ interface LazyListScope {
      * will remain pinned until the next header will take its place.
      *
      * @sample androidx.compose.foundation.samples.StickyHeaderSample
-     *
      * @param key a stable and unique key representing the item. Using the same key for multiple
      *   items in the list is not allowed. Type of the key should be saveable via Bundle on Android.
      *   If null is passed the position in the list will represent the key. When you specify the key
@@ -273,7 +272,6 @@ inline fun <T> LazyListScope.itemsIndexed(
  * items.
  *
  * @sample androidx.compose.foundation.samples.LazyRowSample
- *
  * @param modifier the modifier to apply to this layout
  * @param state the state object to be used to control or observe the list's state
  * @param contentPadding a padding around the whole content. This will add padding for the content
@@ -328,7 +326,6 @@ fun LazyRow(
  * items.
  *
  * @sample androidx.compose.foundation.samples.LazyColumnSample
- *
  * @param modifier the modifier to apply to this layout.
  * @param state the state object to be used to control or observe the list's state.
  * @param contentPadding a padding around the whole content. This will add padding for the. content

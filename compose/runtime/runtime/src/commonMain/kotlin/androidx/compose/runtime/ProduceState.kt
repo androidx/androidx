@@ -69,7 +69,6 @@ private class ProduceStateScopeImpl<T>(
  * data, for example:
  *
  * @sample androidx.compose.runtime.samples.ProduceState
- *
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
@@ -96,7 +95,6 @@ fun <T> produceState(initialValue: T, producer: suspend ProduceStateScope<T>.() 
  * data, for example:
  *
  * @sample androidx.compose.runtime.samples.ProduceState
- *
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
@@ -127,7 +125,6 @@ fun <T> produceState(
  * data, for example:
  *
  * @sample androidx.compose.runtime.samples.ProduceState
- *
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
@@ -159,7 +156,6 @@ fun <T> produceState(
  * data, for example:
  *
  * @sample androidx.compose.runtime.samples.ProduceState
- *
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable
@@ -192,7 +188,6 @@ fun <T> produceState(
  * data, for example:
  *
  * @sample androidx.compose.runtime.samples.ProduceState
- *
  * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
  */
 @Composable

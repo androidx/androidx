@@ -48,11 +48,8 @@ import androidx.compose.ui.unit.dp
  * Guidelines for Aspect ratios</a> for cards
  *
  * @sample androidx.tv.material3.samples.HorizontalImageAspectRatioCardSample
- *
  * @sample androidx.tv.material3.samples.VerticalImageAspectRatioCardSample
- *
  * @sample androidx.tv.material3.samples.SquareImageAspectRatioCardSample
- *
  * @param onClick called when this card is clicked.
  * @param modifier the [Modifier] to be applied to this card.
  * @param onLongClick called when this card is long clicked (long-pressed).
@@ -117,7 +114,6 @@ fun Card(
  * This Card handles click events, calling its [onClick] lambda.
  *
  * @sample androidx.tv.material3.samples.ClassicCardSample
- *
  * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.
@@ -194,7 +190,6 @@ fun ClassicCard(
  * This Card handles click events, calling its [onClick] lambda.
  *
  * @sample androidx.tv.material3.samples.CompactCardSample
- *
  * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.
@@ -281,7 +276,6 @@ fun CompactCard(
  * class="external" target="_blank">Material Wide Classic Card</a>.
  *
  * @sample androidx.tv.material3.samples.WideClassicCardSample
- *
  * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.

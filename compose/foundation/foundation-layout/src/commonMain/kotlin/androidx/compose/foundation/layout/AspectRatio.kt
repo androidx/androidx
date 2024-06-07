@@ -49,7 +49,6 @@ import androidx.compose.ui.util.fastRoundToInt
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleAspectRatio
- *
  * @param ratio the desired width/height positive ratio
  */
 @Stable

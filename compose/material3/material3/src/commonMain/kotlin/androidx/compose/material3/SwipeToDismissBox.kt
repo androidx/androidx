@@ -202,7 +202,6 @@ fun rememberSwipeToDismissBoxState(
  * A composable that can be dismissed by swiping left or right.
  *
  * @sample androidx.compose.material3.samples.SwipeToDismissListItems
- *
  * @param state The state of this component.
  * @param backgroundContent A composable that is stacked behind the [content] and is exposed when
  *   the content is swiped. You can/should use the [state] to have different backgrounds on each

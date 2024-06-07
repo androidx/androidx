@@ -77,7 +77,6 @@ import kotlinx.coroutines.launch
  * A simple DateRangePicker looks like:
  *
  * @sample androidx.compose.material3.samples.DateRangePickerSample
- *
  * @param state state of the date range picker. See [rememberDateRangePickerState].
  * @param modifier the [Modifier] to be applied to this date range picker
  * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display

@@ -39,7 +39,6 @@ import kotlin.math.roundToInt
  * Example of performing a click via touch input followed by drag and drop via mouse input:
  *
  * @sample androidx.compose.ui.test.samples.multiModalInputClickDragDrop
- *
  * @see InjectionScope
  * @see TouchInjectionScope
  * @see MouseInjectionScope

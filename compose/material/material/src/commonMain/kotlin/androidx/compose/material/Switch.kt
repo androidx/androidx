@@ -76,7 +76,6 @@ import kotlinx.coroutines.flow.collectLatest
  * image](https://developer.android.com/images/reference/androidx/compose/material/switches.png)
  *
  * @sample androidx.compose.material.samples.SwitchSample
- *
  * @param checked whether or not this component is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked, therefore the change
  *   of checked state is requested. If null, then this is passive and relies entirely on a

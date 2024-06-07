@@ -27,7 +27,6 @@ import androidx.compose.ui.util.unpackInt1
  * Actual implementation of [Key] for Android.
  *
  * @param keyCode an integer code representing the key pressed.
- *
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
 @JvmInline

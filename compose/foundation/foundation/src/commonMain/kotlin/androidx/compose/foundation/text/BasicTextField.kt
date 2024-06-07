@@ -157,11 +157,8 @@ private object BasicTextFieldDefaults {
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  *   If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  *   scroll behavior. In other cases the text field becomes vertically scrollable.
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  */
 // This takes a composable lambda, but it is not primarily a container.

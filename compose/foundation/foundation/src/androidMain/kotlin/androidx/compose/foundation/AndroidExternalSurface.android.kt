@@ -62,10 +62,9 @@ interface SurfaceScope {
  * scope that also provides access to a [SurfaceScope] environment which can itself be used to
  * handle other [Surface] lifecycle events.
  *
+ * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  * @see SurfaceScope
  * @see AndroidExternalSurfaceScope
- *
- * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
 interface SurfaceCoroutineScope : SurfaceScope, CoroutineScope
 
@@ -264,7 +263,6 @@ value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
  * @param onInit Lambda invoked on first composition. This lambda can be used to declare a
  *   [AndroidExternalSurfaceScope.onSurface] callback that will be invoked when a surface is
  *   available.
- *
  * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
 @Composable
@@ -424,7 +422,6 @@ private fun rememberAndroidEmbeddedExternalSurfaceState(): AndroidEmbeddedExtern
  * @param onInit Lambda invoked on first composition. This lambda can be used to declare a
  *   [AndroidExternalSurfaceScope.onSurface] callback that will be invoked when a surface is
  *   available.
- *
  * @sample androidx.compose.foundation.samples.AndroidEmbeddedExternalSurfaceColors
  */
 @Composable

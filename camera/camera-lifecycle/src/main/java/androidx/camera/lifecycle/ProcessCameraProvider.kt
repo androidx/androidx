@@ -624,7 +624,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * preview [UseCase], this function could be used with [bindToLifecycle].
          *
          * @sample androidx.camera.lifecycle.samples.bindConcurrentCameraSample
-         *
          * @return List of combinations of [CameraInfo].
          */
         get() {

@@ -104,7 +104,6 @@ import kotlinx.coroutines.launch
  * Scaling behavior can be implemented like this
  *
  * @sample androidx.compose.material3.samples.PullToRefreshScalingSample
- *
  * @param isRefreshing whether a refresh is occurring
  * @param onRefresh callback invoked when the user gesture crosses the threshold, thereby requesting
  *   a refresh.

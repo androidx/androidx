@@ -76,7 +76,6 @@ import kotlin.math.roundToLong
  * Example of performing an L-shaped gesture:
  *
  * @sample androidx.compose.ui.test.samples.touchInputLShapedGesture
- *
  * @see InjectionScope
  */
 @JvmDefaultWithCompatibility
@@ -240,7 +239,6 @@ interface TouchInjectionScope : InjectionScope {
      * events quicker than can be dispatched and batches them together.
      *
      * @sample androidx.compose.ui.test.samples.touchInputMultiTouchWithHistory
-     *
      * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
      *   the time the actual event is sent. For example, -10L means 10ms earlier.
      * @param historicalCoordinates Coordinates of each historical event, in the same coordinate

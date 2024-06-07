@@ -66,7 +66,6 @@ import kotlin.math.min
  * Example:
  *
  * @sample androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
- *
  * @param modifier Modifier to be applied to the CircularProgressIndicator
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
  *   represents completion. Values outside of this range are coerced into the range 0..1.
@@ -129,7 +128,6 @@ public fun CircularProgressIndicator(
  * Example of indeterminate progress indicator:
  *
  * @sample androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
- *
  * @param modifier Modifier to be applied to the CircularProgressIndicator
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180

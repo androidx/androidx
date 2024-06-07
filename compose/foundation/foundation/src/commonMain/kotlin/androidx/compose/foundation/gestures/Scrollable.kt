@@ -96,7 +96,6 @@ import kotlinx.coroutines.withContext
  * draggable, consider using [draggable].
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
- *
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
  *   interpreted by the user land logic and contains useful information about on-going events.
  * @param orientation orientation of the scrolling
@@ -143,7 +142,6 @@ fun Modifier.scrollable(
  * look-and-feel.
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
- *
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
  *   interpreted by the user land logic and contains useful information about on-going events.
  * @param orientation orientation of the scrolling

@@ -82,9 +82,7 @@ fun <T : Any> PagingData<T>.filterAsync(
  * @param generator [AsyncFunction] used to generate separator between two [AdjacentItems] or the
  *   header or footer if either [AdjacentItems.before] or [AdjacentItems.after] is `null`.
  * @param executor [Executor] to run the [AsyncFunction] in.
- *
  * @sample androidx.paging.samples.insertSeparatorsFutureSample
- *
  * @sample androidx.paging.samples.insertSeparatorsUiModelFutureSample
  */
 @JvmName("insertSeparators")

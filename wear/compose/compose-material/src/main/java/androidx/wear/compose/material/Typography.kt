@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
  * size for Display1:
  *
  * @sample androidx.wear.compose.material.samples.FixedFontSize
- *
  * @property display1 Display1 is the largest headline. Displays are the largest text on the screen,
  *   reserved for short, important text or numerals.
  * @property display2 Display2 is the second largest headline. Displays are the largest text on the

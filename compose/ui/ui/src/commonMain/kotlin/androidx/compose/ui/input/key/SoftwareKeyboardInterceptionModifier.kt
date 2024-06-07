@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.InspectorInfo
  *   hardware keyboard. While implementing this callback, return true to stop propagation of this
  *   event. If you return false, the key event will be sent to this
  *   [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
- *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
 @ExperimentalComposeUiApi
@@ -58,7 +57,6 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
  *   will be sent to this [SoftKeyboardInterceptionModifierNode]'s child. If none of the children
  *   consume the event, it will be sent back up to the root [KeyInputModifierNode] using the
  *   onKeyEvent callback, and ultimately to the software keyboard.
- *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
 @ExperimentalComposeUiApi

@@ -81,7 +81,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * See example of using Texts inside the Row:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
- *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalAlignment The vertical alignment of the layout's children.
@@ -342,7 +341,6 @@ interface RowScope {
      * Example usage:
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
-     *
      * @see alignByBaseline
      */
     @Stable fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine): Modifier
@@ -356,7 +354,6 @@ interface RowScope {
      * Example usage:
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
-     *
      * @see alignBy
      */
     @Stable fun Modifier.alignByBaseline(): Modifier

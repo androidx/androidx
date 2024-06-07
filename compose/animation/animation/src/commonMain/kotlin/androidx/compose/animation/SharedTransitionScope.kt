@@ -449,7 +449,6 @@ interface SharedTransitionScope : LookaheadScope {
      * layout to accommodate the animated size of the shared elements.
      *
      * @sample androidx.compose.animation.samples.SharedElementInAnimatedContentSample
-     *
      * @see [sharedBounds]
      */
     @OptIn(ExperimentalAnimationApi::class)
@@ -530,7 +529,6 @@ interface SharedTransitionScope : LookaheadScope {
      * complex example with nested shared bounds/elements.
      *
      * @sample androidx.compose.animation.samples.NestedSharedBoundsSample
-     *
      * @see [sharedBounds]
      */
     @OptIn(ExperimentalAnimationApi::class)

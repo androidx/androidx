@@ -41,7 +41,6 @@ import kotlinx.coroutines.withContext
  * usage.
  *
  * @sample androidx.compose.runtime.samples.StateFlowSample
- *
  * @param context [CoroutineContext] to use for collecting.
  */
 @Suppress("StateFlowValueCalledInComposition")
@@ -55,7 +54,6 @@ fun <T> StateFlow<T>.collectAsState(context: CoroutineContext = EmptyCoroutineCo
  * recomposition of every [State.value] usage.
  *
  * @sample androidx.compose.runtime.samples.FlowWithInitialSample
- *
  * @param initial the value of the state will have until the first flow value is emitted.
  * @param context [CoroutineContext] to use for collecting.
  */

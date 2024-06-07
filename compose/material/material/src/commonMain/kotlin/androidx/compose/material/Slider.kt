@@ -126,7 +126,6 @@ import kotlinx.coroutines.launch
  * of steps between min and max values:
  *
  * @sample androidx.compose.material.samples.StepsSliderSample
- *
  * @param value current value of the Slider. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange lambda in which value should be updated
@@ -278,7 +277,6 @@ fun Slider(
  * of steps between min and max values:
  *
  * @sample androidx.compose.material.samples.StepRangeSliderSample
- *
  * @param value current values of the RangeSlider. If either value is outside of [valueRange]
  *   provided, it will be coerced to this range.
  * @param onValueChange lambda in which values should be updated

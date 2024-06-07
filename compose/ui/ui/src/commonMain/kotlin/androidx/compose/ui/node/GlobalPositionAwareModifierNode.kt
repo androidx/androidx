@@ -30,9 +30,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
  * Usage example:
  *
  * @sample androidx.compose.ui.samples.OnGloballyPositioned
- *
  * @sample androidx.compose.ui.samples.GlobalPositionAwareModifierNodeSample
- *
  * @see LayoutCoordinates
  */
 interface GlobalPositionAwareModifierNode : DelegatableNode {

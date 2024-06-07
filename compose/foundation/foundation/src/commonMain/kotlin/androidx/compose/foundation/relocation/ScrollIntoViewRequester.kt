@@ -36,9 +36,7 @@ import androidx.compose.ui.unit.toSize
  *   specify the coordinates, the coordinates of the
  *   [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
  *   [BringIntoViewRequester] will be used.
- *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 // TODO(b/333421581) Make public.

@@ -81,9 +81,7 @@ internal fun FocusTargetNode.pinFocusedChild(): PinnedHandle? {
  * @param onRestoreFailed callback provides a lambda that is invoked if focus restoration fails.
  *   This lambda can be used to return a custom fallback item by providing a [FocusRequester]
  *   attached to that item. This can be used to customize the initially focused item.
- *
  * @sample androidx.compose.ui.samples.FocusRestorerSample
- *
  * @sample androidx.compose.ui.samples.FocusRestorerCustomFallbackSample
  */
 @ExperimentalComposeUiApi

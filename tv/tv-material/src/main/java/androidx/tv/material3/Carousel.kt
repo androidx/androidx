@@ -91,9 +91,7 @@ import kotlinx.coroutines.yield
  * Examples:
  *
  * @sample androidx.tv.material3.samples.SimpleCarousel
- *
  * @sample androidx.tv.material3.samples.CarouselIndicatorWithRectangleShape
- *
  * @param modifier Modifier applied to the Carousel.
  * @param itemCount total number of items present in the carousel.
  * @param carouselState state associated with this carousel.

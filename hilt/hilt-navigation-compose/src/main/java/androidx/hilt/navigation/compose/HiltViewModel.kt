@@ -39,7 +39,6 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * fragment or an activity.
  *
  * @sample androidx.hilt.navigation.compose.samples.NavComposable
- *
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
@@ -64,7 +63,6 @@ inline fun <reified VM : ViewModel> hiltViewModel(
  * fragment or an activity.
  *
  * @sample androidx.hilt.navigation.compose.samples.NavComposable
- *
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable

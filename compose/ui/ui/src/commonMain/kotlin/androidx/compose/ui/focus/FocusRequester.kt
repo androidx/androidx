@@ -46,7 +46,6 @@ private const val InvalidFocusRequesterInvocation =
  * focus.
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
- *
  * @see androidx.compose.ui.focus.focusRequester
  */
 @Stable
@@ -91,7 +90,6 @@ class FocusRequester {
      *
      * @return true if the focus was successfully captured by one of the [focus][focusTarget]
      *   modifiers associated with this [FocusRequester]. False otherwise.
-     *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     fun captureFocus(): Boolean {
@@ -115,7 +113,6 @@ class FocusRequester {
      *
      * @return true if the captured focus was successfully released. i.e. At the end of this
      *   operation, one of the components associated with this [focusRequester] freed focus.
-     *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     fun freeFocus(): Boolean {
@@ -135,7 +132,6 @@ class FocusRequester {
      *
      * @return true if the focus target associated with this [FocusRequester] has a focused child
      *   and we successfully saved a reference to it.
-     *
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
     @ExperimentalComposeUiApi
@@ -152,7 +148,6 @@ class FocusRequester {
      *
      * @return true if we successfully restored focus to one of the children of the [focusTarget]
      *   associated with this [FocusRequester]
-     *
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
     @ExperimentalComposeUiApi

@@ -72,7 +72,6 @@ internal val MagnifierPositionInRoot = SemanticsPropertyKey<() -> Offset>("Magni
  * since the magnifier widget does not support constraining to the bounds of composables.
  *
  * @sample androidx.compose.foundation.samples.MagnifierSample
- *
  * @param sourceCenter The offset of the center of the magnified content. Measured in pixels from
  *   the top-left of the layout node this modifier is applied to. This offset is passed to
  *   [Magnifier.show].

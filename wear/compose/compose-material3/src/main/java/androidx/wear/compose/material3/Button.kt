@@ -93,7 +93,6 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * Example of a [Button] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -177,7 +176,6 @@ fun Button(
  * Example of a [FilledTonalButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -260,7 +258,6 @@ fun FilledTonalButton(
  * Example of a [OutlinedButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -343,7 +340,6 @@ fun OutlinedButton(
  * Example of a [ChildButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.ChildButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -424,7 +420,6 @@ fun ChildButton(
  * Example of a [Button] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -524,7 +519,6 @@ fun Button(
  * Example of a [FilledTonalButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.FilledTonalButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -618,7 +612,6 @@ fun FilledTonalButton(
  * Example of an [OutlinedButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.OutlinedButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -712,7 +705,6 @@ fun OutlinedButton(
  * Example of a [ChildButton] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ChildButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -829,7 +821,6 @@ fun ChildButton(
  * Example of a [CompactButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.CompactButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is

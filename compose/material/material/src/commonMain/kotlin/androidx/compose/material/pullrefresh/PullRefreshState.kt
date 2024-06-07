@@ -45,7 +45,6 @@ import kotlinx.coroutines.launch
  * Changes to [refreshing] will result in [PullRefreshState] being updated.
  *
  * @sample androidx.compose.material.samples.PullRefreshSample
- *
  * @param refreshing A boolean representing whether a refresh is currently occurring.
  * @param onRefresh The function to be called to trigger a refresh.
  * @param refreshThreshold The threshold below which, if a release occurs, [onRefresh] will be

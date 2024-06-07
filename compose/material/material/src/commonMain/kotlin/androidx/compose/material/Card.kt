@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
  * that accepts `onClick` as a parameter.
  *
  * @sample androidx.compose.material.samples.CardSample
- *
  * @param modifier Modifier to be applied to the layout of the card.
  * @param shape Defines the card's shape as well its shadow. A shadow is only displayed if the
  *   [elevation] is greater than zero.
@@ -81,7 +80,6 @@ fun Card(
  * consider using another overload.
  *
  * @sample androidx.compose.material.samples.ClickableCardSample
- *
  * @param onClick callback to be called when the card is clicked
  * @param modifier Modifier to be applied to the layout of the card.
  * @param enabled Controls the enabled state of the card. When `false`, this card will not be

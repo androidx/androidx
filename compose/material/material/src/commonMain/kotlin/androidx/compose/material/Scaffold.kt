@@ -131,7 +131,6 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
  * [ScaffoldState.snackbarHostState] when created
  *
  * @sample androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
- *
  * @param contentWindowInsets window insets to be passed to [content] slot via [PaddingValues]
  *   params. Scaffold will take the insets into account from the top/bottom only if the [topBar]/
  *   [bottomBar] are not present, as the scaffold expect [topBar]/[bottomBar] to handle insets
@@ -264,7 +263,6 @@ fun Scaffold(
  * [ScaffoldState.snackbarHostState] when created
  *
  * @sample androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
- *
  * @param modifier optional Modifier for the root of the [Scaffold]
  * @param scaffoldState state of this scaffold widget. It contains the state of the screen, e.g.
  *   variables to provide manual control over the drawer behavior, sizes of components, etc

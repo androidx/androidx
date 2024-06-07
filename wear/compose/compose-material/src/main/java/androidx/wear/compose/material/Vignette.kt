@@ -78,7 +78,6 @@ public value class VignettePosition constructor(private val key: Int) {
  * top/bottom vignette images can be turned on/off can be found at
  *
  * @sample androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
- *
  * @param vignettePosition whether to draw top and/or bottom images for this [Vignette]
  * @param modifier optional Modifier for the root of the [Vignette]
  */

@@ -57,9 +57,7 @@ import kotlinx.coroutines.withContext
  * Please refer to the sample to learn how to use this API.
  *
  * @sample androidx.compose.foundation.samples.SnapFlingBehaviorSimpleSample
- *
  * @sample androidx.compose.foundation.samples.SnapFlingBehaviorCustomizedSample
- *
  * @param snapLayoutInfoProvider The information about the layout being snapped.
  * @param decayAnimationSpec The animation spec used to approach the target offset when the fling
  *   velocity is large enough. Large enough means large enough to naturally decay.

@@ -302,7 +302,6 @@ fun rememberDrawerState(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/navigation-drawer.png)
  *
  * @sample androidx.compose.material3.samples.ModalNavigationDrawerSample
- *
  * @param drawerContent content inside this drawer
  * @param modifier the [Modifier] to be applied to this drawer
  * @param drawerState state of the drawer
@@ -421,7 +420,6 @@ fun ModalNavigationDrawer(
  * visible navigation menu icon to open and close the drawer.
  *
  * @sample androidx.compose.material3.samples.DismissibleNavigationDrawerSample
- *
  * @param drawerContent content inside this drawer
  * @param modifier the [Modifier] to be applied to this drawer
  * @param drawerState state of the drawer
@@ -519,7 +517,6 @@ fun DismissibleNavigationDrawer(
  * destinations. On mobile screens, use [ModalNavigationDrawer] instead.
  *
  * @sample androidx.compose.material3.samples.PermanentNavigationDrawerSample
- *
  * @param drawerContent content inside this drawer
  * @param modifier the [Modifier] to be applied to this drawer
  * @param content content of the rest of the UI
@@ -901,7 +898,6 @@ object DrawerDefaults {
  * [PermanentNavigationDrawer] or [DismissibleNavigationDrawer].
  *
  * @sample androidx.compose.material3.samples.ModalNavigationDrawerSample
- *
  * @param label text label for this item
  * @param selected whether this item is selected
  * @param onClick called when this item is clicked

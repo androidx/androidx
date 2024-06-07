@@ -21,7 +21,6 @@ package androidx.compose.ui.input.key
  *
  * @param keyCode a Long value representing the key pressed. Note: This keycode can be used to
  *   uniquely identify a hardware key. It is different from the native keycode.
- *
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
 @kotlin.jvm.JvmInline

@@ -277,7 +277,6 @@ fun SemanticsNodeInteraction.performScrollToNode(
  * Example of performing a click:
  *
  * @sample androidx.compose.ui.test.samples.gestureClick
- *
  * @param block A lambda with [GestureScope] as receiver that describes the gesture by sending all
  *   touch events.
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
@@ -339,7 +338,6 @@ fun SemanticsNodeInteraction.performGesture(
  * Example of performing a click-and-drag:
  *
  * @sample androidx.compose.ui.test.samples.touchInputClickAndDrag
- *
  * @param block A lambda with [TouchInjectionScope] as receiver that describes the gesture by
  *   sending all touch events.
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
@@ -389,7 +387,6 @@ fun SemanticsNodeInteraction.performTouchInput(
  * Example of scrolling the mouse wheel while the mouse button is pressed:
  *
  * @sample androidx.compose.ui.test.samples.mouseInputScrollWhileDown
- *
  * @param block A lambda with [MouseInjectionScope] as receiver that describes the gesture by
  *   sending all mouse events.
  * @return The [SemanticsNodeInteraction] that is the receiver of this method

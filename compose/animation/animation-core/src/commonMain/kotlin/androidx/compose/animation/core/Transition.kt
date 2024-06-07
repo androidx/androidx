@@ -75,7 +75,6 @@ import kotlinx.coroutines.sync.withLock
  * enters composition.) 2) can be recreated to intentionally trigger a re-start of the transition.
  *
  * @sample androidx.compose.animation.core.samples.GestureAnimationSample
- *
  * @return a [Transition] object, to which animations can be added.
  * @see Transition
  * @see Transition.animateFloat
@@ -152,7 +151,6 @@ private class PreventExhaustiveWhenTransitionState : TransitionState<Any?>() {
  * [rememberTransition]. Both [currentState] and [targetState] are backed by a [State] object.
  *
  * @sample androidx.compose.animation.core.samples.InitialStateSample
- *
  * @see rememberTransition
  */
 class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
@@ -424,7 +422,6 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * to [targetState] without any further seeking allowed.
      *
      * @sample androidx.compose.animation.core.samples.SnapToSample
-     *
      * @see animateTo
      */
     suspend fun snapTo(targetState: S) {
@@ -472,7 +469,6 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * Instead, it instantly moves all values to those at the new [targetState].
      *
      * @sample androidx.compose.animation.core.samples.SeekToSample
-     *
      * @see animateTo
      */
     suspend fun seekTo(
@@ -867,7 +863,6 @@ fun <T> updateTransition(
  * values).
  *
  * @sample androidx.compose.animation.core.samples.GestureAnimationSample
- *
  * @see rememberTransition
  * @see Transition.animateFloat
  * @see Transition.animateValue

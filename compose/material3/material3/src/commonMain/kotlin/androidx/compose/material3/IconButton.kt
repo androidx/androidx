@@ -60,11 +60,8 @@ import androidx.compose.ui.semantics.semantics
  *
  * Simple Usage
  *
- * @sample androidx.compose.material3.samples.IconButtonSample
- * IconButton with a color tint
- *
+ * @sample androidx.compose.material3.samples.IconButtonSample IconButton with a color tint
  * @sample androidx.compose.material3.samples.TintedIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -127,7 +124,6 @@ fun IconButton(
  * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.IconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -195,7 +191,6 @@ fun IconToggleButton(
  * Filled icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -262,7 +257,6 @@ fun FilledIconButton(
  * Filled tonal icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledTonalIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -325,7 +319,6 @@ fun FilledTonalIconButton(
  * Toggleable filled icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -396,7 +389,6 @@ fun FilledIconToggleButton(
  * Toggleable filled tonal icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -466,7 +458,6 @@ fun FilledTonalIconToggleButton(
  * button has an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.OutlinedIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -528,7 +519,6 @@ fun OutlinedIconButton(
  * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.OutlinedIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button

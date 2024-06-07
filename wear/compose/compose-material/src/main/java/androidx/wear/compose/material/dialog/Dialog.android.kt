@@ -67,7 +67,6 @@ import androidx.wear.compose.material.VignettePosition
  * Example of content using [Dialog] to trigger a confirmation dialog using [Confirmation]:
  *
  * @sample androidx.wear.compose.material.samples.ConfirmationDialogSample
- *
  * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger an
  *   'intro' animation and display the [Dialog]. Subsequently, setting to false triggers an 'outro'
  *   animation, then [Dialog] calls [onDismissRequest] and hides itself.
@@ -111,7 +110,6 @@ public fun Dialog(
  * Example of content using [Dialog] to trigger a confirmation dialog using [Confirmation]:
  *
  * @sample androidx.wear.compose.material.samples.ConfirmationDialogSample
- *
  * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger an
  *   'intro' animation and display the [Dialog]. Subsequently, setting to false triggers an 'outro'
  *   animation, then [Dialog] calls [onDismissRequest] and hides itself.

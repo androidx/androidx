@@ -29,7 +29,6 @@ import androidx.compose.ui.util.fastCoerceIn
  * on the given [PullRefreshState].
  *
  * @sample androidx.compose.material.samples.PullRefreshIndicatorTransformSample
- *
  * @param state The [PullRefreshState] which determines the position of the indicator.
  * @param scale A boolean controlling whether the indicator's size scales with pull progress or not.
  */

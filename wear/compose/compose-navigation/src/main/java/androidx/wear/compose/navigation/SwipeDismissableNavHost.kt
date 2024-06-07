@@ -88,7 +88,6 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
  * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
  *
  * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
- *
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
  * @param modifier The modifier to be applied to the layout
@@ -139,7 +138,6 @@ public fun SwipeDismissableNavHost(
  * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
  *
  * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
- *
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
  * @param modifier [Modifier] to be applied to the layout
@@ -337,7 +335,6 @@ public fun SwipeDismissableNavHost(
  * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
  *
  * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
- *
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
  * @param modifier The modifier to be applied to the layout
@@ -391,7 +388,6 @@ public fun SwipeDismissableNavHost(
  * Example of a [SwipeDismissableNavHost] for which a destination has a named argument:
  *
  * @sample androidx.wear.compose.navigation.samples.NavHostWithNamedArgument
- *
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
  * @param modifier [Modifier] to be applied to the layout

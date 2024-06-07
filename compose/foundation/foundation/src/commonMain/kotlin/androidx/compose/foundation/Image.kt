@@ -56,7 +56,6 @@ import androidx.compose.ui.semantics.semantics
  * overload that consumes a [Painter] parameter shown in this sample
  *
  * @sample androidx.compose.foundation.samples.BitmapPainterSubsectionSample
- *
  * @param bitmap The [ImageBitmap] to draw
  * @param contentDescription text used by accessibility services to describe what this image
  *   represents. This should always be provided unless this image is used for decorative purposes,
@@ -126,7 +125,6 @@ fun Image(
  * overload that consumes a [Painter] parameter shown in this sample
  *
  * @sample androidx.compose.foundation.samples.BitmapPainterSubsectionSample
- *
  * @param bitmap The [ImageBitmap] to draw
  * @param contentDescription text used by accessibility services to describe what this image
  *   represents. This should always be provided unless this image is used for decorative purposes,
@@ -223,7 +221,6 @@ fun Image(
  * fill the bounds like [ColorPainter]
  *
  * @sample androidx.compose.foundation.samples.BitmapPainterSample
- *
  * @param painter to draw
  * @param contentDescription text used by accessibility services to describe what this image
  *   represents. This should always be provided unless this image is used for decorative purposes,

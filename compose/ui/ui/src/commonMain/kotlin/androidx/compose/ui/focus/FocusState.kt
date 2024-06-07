@@ -27,7 +27,6 @@ interface FocusState {
      * Whether the component is focused or not.
      *
      * @sample androidx.compose.ui.samples.FocusableSample
-     *
      * @return true if the component is focused, false otherwise.
      */
     val isFocused: Boolean
@@ -49,7 +48,6 @@ interface FocusState {
      * by calling [focusRequester.freeFocus()][freeFocus].
      *
      * @return true if focus is captured, false otherwise.
-     *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     val isCaptured: Boolean

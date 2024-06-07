@@ -31,7 +31,6 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedBoxSample
- *
  * @param modifier The [CurvedModifier] to apply to this curved row.
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
  *   than the CurvedBox, either closer to the center [CurvedAlignment.Radial.Inner], apart from the

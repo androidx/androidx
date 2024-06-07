@@ -382,7 +382,6 @@ actual class GraphicsLayer {
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
      * @param cornerRadius The corner radius of the rounded rect outline
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
@@ -397,7 +396,6 @@ actual class GraphicsLayer {
      * [shadowElevation] is non-zero a shadow is produced using this [Outline].
      *
      * @param path Path to be used as the Outline for the [GraphicsLayer]
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutlineSample
      */
     actual fun setPathOutline(path: Path) {
@@ -422,7 +420,6 @@ actual class GraphicsLayer {
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
-     *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     actual fun setRectOutline(topLeft: Offset, size: Size) {

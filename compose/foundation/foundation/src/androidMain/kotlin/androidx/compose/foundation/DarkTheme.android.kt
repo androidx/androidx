@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalConfiguration
  * theme:
  *
  * @sample androidx.compose.foundation.samples.DarkThemeSample
- *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
 @Composable

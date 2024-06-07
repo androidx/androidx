@@ -46,7 +46,6 @@ import kotlin.math.min
  * [HorizontalAlignmentLine] instances instead.
  *
  * @sample androidx.compose.ui.samples.AlignmentLineSample
- *
  * @see VerticalAlignmentLine
  * @see HorizontalAlignmentLine
  */

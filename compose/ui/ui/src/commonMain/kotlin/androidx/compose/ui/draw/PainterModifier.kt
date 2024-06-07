@@ -54,7 +54,6 @@ import kotlin.math.max
  * @param contentScale strategy for scaling [painter] if its size does not match the content size
  * @param alpha opacity of [painter]
  * @param colorFilter optional [ColorFilter] to apply to [painter]
- *
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
 fun Modifier.paint(
@@ -84,7 +83,6 @@ fun Modifier.paint(
  * @param contentScale strategy for scaling [painter] if its size does not match the content size
  * @param alpha opacity of [painter]
  * @param colorFilter optional [ColorFilter] to apply to [painter]
- *
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
 private data class PainterElement(

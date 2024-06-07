@@ -65,7 +65,6 @@ import kotlin.math.max
  * Usage with a "Hero" icon:
  *
  * @sample androidx.compose.material3.samples.AlertDialogWithIconSample
- *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
  *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param confirmButton button which is meant to confirm a proposed action, thus resolving what
@@ -129,7 +128,6 @@ expect fun AlertDialog(
  * Basic alert dialog usage with custom content:
  *
  * @sample androidx.compose.material3.samples.BasicAlertDialogSample
- *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
  *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param modifier the [Modifier] to be applied to this dialog's content.
@@ -181,7 +179,6 @@ fun BasicAlertDialog(
  * Basic alert dialog usage with custom content:
  *
  * @sample androidx.compose.material3.samples.BasicAlertDialogSample
- *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
  *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param modifier the [Modifier] to be applied to this dialog's content.

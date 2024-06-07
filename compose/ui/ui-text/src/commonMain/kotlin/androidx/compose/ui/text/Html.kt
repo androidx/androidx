@@ -43,7 +43,6 @@ package androidx.compose.ui.text
  * Example of displaying styled string from resources
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringFromHtml
- *
  * @see LinkAnnotation
  */
 expect fun AnnotatedString.Companion.fromHtml(
