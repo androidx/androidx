@@ -468,7 +468,7 @@ fun TouchInjectionScope.swipe(
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
-    @OptIn(ExperimentalTestApi::class) multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
+    multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
 }
 
 /**
@@ -480,15 +480,11 @@ fun TouchInjectionScope.swipe(
  * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of the
  * node. The default duration is 200 milliseconds.
  *
- * Will stay experimental until support has been added to start and end each pointer at different
- * times.
- *
  * @param curves The functions that define the position of the gesture over time
  * @param durationMillis The duration of the gesture
  * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
  *   sampled
  */
-@ExperimentalTestApi
 fun TouchInjectionScope.multiTouchSwipe(
     curves: List<(Long) -> Offset>,
     durationMillis: Long = 200,
@@ -580,7 +576,6 @@ fun TouchInjectionScope.pinch(
     durationMillis: Long = 400
 ) {
     val durationFloat = durationMillis.toFloat()
-    @OptIn(ExperimentalTestApi::class)
     multiTouchSwipe(
         listOf(
             { lerp(start0, end0, it / durationFloat) },

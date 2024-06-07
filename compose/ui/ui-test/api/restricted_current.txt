@@ -568,7 +568,7 @@ package androidx.compose.ui.test {
     method public static void click(androidx.compose.ui.test.TouchInjectionScope, optional long position);
     method public static void doubleClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long delayMillis);
     method public static void longClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long durationMillis);
-    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method public static void pinch(androidx.compose.ui.test.TouchInjectionScope, long start0, long end0, long start1, long end1, optional long durationMillis);
     method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, optional long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, long start, long end, optional long durationMillis);
