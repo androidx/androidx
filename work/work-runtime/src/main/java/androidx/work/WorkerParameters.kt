@@ -28,8 +28,8 @@ import androidx.work.impl.utils.ARGUMENT_SERVICE_PACKAGE_NAME
  * @return `true` if and only if the instance of [WorkerParameters] corresponds to a [WorkRequest]
  *   that runs in a remote process.
  */
-fun WorkerParameters.forRemoteWorkRequest(): Boolean {
-    return inputData.forRemoteWorkRequest()
+fun WorkerParameters.isRemoteWorkRequest(): Boolean {
+    return inputData.isRemoteWorkRequest()
 }
 
 /**
@@ -58,7 +58,7 @@ fun WorkerParameters.usingRemoteService(componentName: ComponentName): WorkerPar
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Data.forRemoteWorkRequest(): Boolean {
+fun Data.isRemoteWorkRequest(): Boolean {
     return hasKey<String>(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME)
 }
 
