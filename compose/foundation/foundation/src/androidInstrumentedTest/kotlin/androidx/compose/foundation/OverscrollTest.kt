@@ -68,7 +68,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -1188,7 +1187,8 @@ class OverscrollTest {
                         .drawBehind { drawCount++ }
             )
         }
-        rule.runOnIdle { assertEquals(1, drawCount) }
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCount == 1 }
     }
 
     @OptIn(ExperimentalTestApi::class)
