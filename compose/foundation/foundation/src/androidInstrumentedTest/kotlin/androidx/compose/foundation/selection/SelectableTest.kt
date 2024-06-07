@@ -866,7 +866,7 @@ class SelectableTest {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("selectable").performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag("selectable").performKeyInput { pressKey(Key.Backspace) }
         rule.runOnIdle { assertThat(interactions).isEmpty() }
     }
 

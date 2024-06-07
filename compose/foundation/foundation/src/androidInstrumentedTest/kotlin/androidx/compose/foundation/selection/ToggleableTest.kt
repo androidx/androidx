@@ -1079,7 +1079,7 @@ class ToggleableTest {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("toggleable").performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag("toggleable").performKeyInput { pressKey(Key.Backspace) }
         rule.runOnIdle { assertThat(interactions).isEmpty() }
     }
 
