@@ -38,7 +38,6 @@ import com.google.common.util.concurrent.ListenableFuture
  * A worker which can delegate to an instance of RemoteListenableWorker but importantly only
  * constructs an instance of the RemoteListenableWorker in the remote process.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class RemoteListenableDelegatingWorker(
     private val context: Context,
     private val workerParameters: WorkerParameters

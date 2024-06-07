@@ -634,6 +634,11 @@ package androidx.work {
     method @RequiresApi(24) public java.util.List<android.net.Uri!> getTriggeredContentUris();
   }
 
+  public final class WorkerParametersExtensions {
+    method public static boolean forRemoteWorkRequest(androidx.work.WorkerParameters);
+    method public static androidx.work.WorkerParameters usingRemoteService(androidx.work.WorkerParameters, android.content.ComponentName componentName);
+  }
+
 }
 
 package androidx.work.multiprocess {
