@@ -18,7 +18,6 @@ package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.animateAlong
 import androidx.compose.ui.test.animateTo
@@ -30,7 +29,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputClick() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
@@ -39,7 +37,6 @@ fun mouseInputClick() {
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputAnimateTo() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
@@ -53,7 +50,6 @@ fun mouseInputAnimateTo() {
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputAnimateAlong() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
@@ -69,7 +65,6 @@ fun mouseInputAnimateAlong() {
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputScrollWhileDown() {
     composeTestRule
@@ -89,7 +84,6 @@ fun mouseInputScrollWhileDown() {
         }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputSmoothScroll() {
     composeTestRule.onNodeWithTag("horizontalScrollable").performMouseInput {

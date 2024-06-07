@@ -34,7 +34,6 @@ import android.view.MotionEvent.BUTTON_TERTIARY
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.AndroidInputDispatcher
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.RobolectricMinSdk
@@ -53,7 +52,6 @@ import org.robolectric.annotation.Config
 /** Tests if [AndroidInputDispatcher.enqueueMousePress] and friends work. */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
-@OptIn(ExperimentalTestApi::class)
 class MouseEventsTest : InputDispatcherTest() {
     companion object {
         // Positions

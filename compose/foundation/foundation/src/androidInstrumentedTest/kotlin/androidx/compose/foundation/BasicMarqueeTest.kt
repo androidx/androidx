@@ -125,8 +125,6 @@ class BasicMarqueeTest {
         }
     }
 
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun animates_whenAnimationsDisabledBySystem() {
         motionDurationScale.scaleFactor = 0f

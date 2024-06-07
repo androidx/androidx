@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.test.AndroidInputDispatcher
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.RobolectricMinSdk
@@ -43,7 +42,6 @@ import org.robolectric.annotation.Config
  */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
-@OptIn(ExperimentalTestApi::class)
 class KeyAndMouseEventsTest : InputDispatcherTest() {
 
     companion object {

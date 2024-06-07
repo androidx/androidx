@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -276,7 +275,6 @@ class LazyNestedScrollingTest {
         rule.runOnIdle { Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun mouseScrollInLazyRow_nestedLazyRowInLazyColumn_scrollsVertically() = runBlocking {
         val items = (1..50).toList()

@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -1191,7 +1190,6 @@ class OverscrollTest {
         rule.waitUntil { drawCount == 1 }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @ExperimentalFoundationApi
     @MediumTest
     @Test

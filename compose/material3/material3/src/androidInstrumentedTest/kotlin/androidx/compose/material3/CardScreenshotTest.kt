@@ -31,7 +31,6 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -305,7 +304,6 @@ class CardScreenshotTest {
         assertPressed("outlinedCard_pressed")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun filledCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -324,7 +322,6 @@ class CardScreenshotTest {
         assertAgainstGolden("filledCard_hover")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun elevatedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -343,7 +340,6 @@ class CardScreenshotTest {
         assertAgainstGolden("elevatedCard_hover")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun outlinedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -52,7 +51,6 @@ import org.junit.runner.RunWith
 class BasicTooltipTest {
     @get:Rule val rule = createComposeRule()
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun tooltip_handleDefaultGestures_enabled() {
         lateinit var state: BasicTooltipState
@@ -103,7 +101,6 @@ class BasicTooltipTest {
         Truth.assertThat(state.isVisible).isFalse()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun tooltip_handleDefaultGestures_disabled() {
         lateinit var state: BasicTooltipState

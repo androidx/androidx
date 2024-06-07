@@ -73,7 +73,6 @@ import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.Ref
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
@@ -787,7 +786,6 @@ class AndroidViewCompatTest {
         rule.runOnIdle { assertFalse(view!!.isLayoutRequested) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverEventsAreDispatched() {
         val view = createCaptureEventsView()
