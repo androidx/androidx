@@ -36,6 +36,7 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.isCollection
 import androidx.room.compiler.processing.util.javaElementUtils
+import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -233,12 +234,22 @@ class XTypeTest {
             element.getField("badField").let { field ->
                 assertThat(field.type.isError()).isTrue()
                 assertThat(field.type.asTypeName().java).isEqualTo(errorJTypeName)
-                assertThat(field.type.asTypeName().kotlin).isEqualTo(errorKTypeName)
+                if (it.isKsp && it.kspProcessingEnv.isKsp2) {
+                    assertThat(field.type.asTypeName().kotlin)
+                        .isEqualTo(errorKTypeName.copy(nullable = true))
+                } else {
+                    assertThat(field.type.asTypeName().kotlin).isEqualTo(errorKTypeName)
+                }
             }
             element.getDeclaredMethodByJvmName("badMethod").let { method ->
                 assertThat(method.returnType.isError()).isTrue()
                 assertThat(method.returnType.asTypeName().java).isEqualTo(errorJTypeName)
-                assertThat(method.returnType.asTypeName().kotlin).isEqualTo(errorKTypeName)
+                if (it.isKsp && it.kspProcessingEnv.isKsp2) {
+                    assertThat(method.returnType.asTypeName().kotlin)
+                        .isEqualTo(errorKTypeName.copy(nullable = true))
+                } else {
+                    assertThat(method.returnType.asTypeName().kotlin).isEqualTo(errorKTypeName)
+                }
             }
             it.assertCompilationResult { compilationDidFail() }
         }
