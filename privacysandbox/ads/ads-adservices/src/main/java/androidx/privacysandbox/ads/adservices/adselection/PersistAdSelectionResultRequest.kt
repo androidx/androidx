@@ -66,6 +66,7 @@ public constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 10)
     internal fun convertToAdServices():
         android.adservices.adselection.PersistAdSelectionResultRequest {
+        @Suppress("DEPRECATION")
         return android.adservices.adselection.PersistAdSelectionResultRequest.Builder()
             .setAdSelectionId(adSelectionId)
             .setSeller(seller?.convertToAdServices())

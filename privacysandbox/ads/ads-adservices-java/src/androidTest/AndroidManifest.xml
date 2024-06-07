@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_PROTECTED_SIGNALS" />
     <uses-sdk tools:overrideLibrary="androidx.javascriptengine" />
     <application>
         <property android:name="android.adservices.AD_SERVICES_CONFIG"
