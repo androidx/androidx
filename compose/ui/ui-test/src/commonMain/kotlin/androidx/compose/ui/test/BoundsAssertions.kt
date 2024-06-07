@@ -18,7 +18,13 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
@@ -26,6 +32,7 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.unit.width
+import androidx.compose.ui.util.fastMap
 import kotlin.math.abs
 
 /**
@@ -169,6 +176,57 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLi
             pos.toDp()
         }
     }
+}
+
+/**
+ * For every link matching the [predicate] returns a rectangle that is inside the bounds of this
+ * link. The bounds are in the text node's coordinate system.
+ *
+ * **Note** Each such bounds will be inside the overall link bounds but may not represent its entire
+ * bounds.
+ *
+ * You may pass an offset within the rectangle to injection methods to operate them on the link, for
+ * example [TouchInjectionScope.click] or [MouseInjectionScope.moveTo].
+ *
+ * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
+ *
+ * @sample androidx.compose.ui.test.samples.hoverAnyFirstLinkInText
+ */
+fun SemanticsNodeInteraction.getPartialBoundsOfLinks(
+    predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
+): List<Rect> = withDensity {
+    val errorMessage = "Failed to retrieve bounds of the link."
+    val node = fetchSemanticsNode(errorMessage)
+
+    val texts = node.config.getOrNull(SemanticsProperties.Text)
+    if (texts.isNullOrEmpty())
+        throw AssertionError("$errorMessage\n Reason: No text found on node.")
+
+    if (!(node.config.contains(SemanticsActions.GetTextLayoutResult)))
+        throw AssertionError(
+            "$errorMessage\n Reason: Node doesn't have GetTextLayoutResult action."
+        )
+    // This will contain only one element almost always. The only time when it could have more than
+    // one is if a developer overrides the getTextLayoutResult semantics and adds multiple elements
+    // into the list.
+    val textLayoutResults = mutableListOf<TextLayoutResult>()
+    node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(textLayoutResults)
+
+    val matchedTextLayoutResults = textLayoutResults.filter { texts.contains(it.layoutInput.text) }
+    if (matchedTextLayoutResults.isEmpty()) {
+        throw AssertionError(
+            "$errorMessage\n Reason: No matching TextLayoutResult found for the node's text."
+        )
+    }
+
+    val allBoundsOfLinks = mutableListOf<Rect>()
+    for (textLayoutResult in matchedTextLayoutResults) {
+        val text = textLayoutResult.layoutInput.text
+        val links = text.getLinkAnnotations(0, text.length).filter(predicate)
+        val boundsOfLinks = links.fastMap { textLayoutResult.getBoundingBox(it.start) }
+        allBoundsOfLinks.addAll(boundsOfLinks)
+    }
+    return@withDensity allBoundsOfLinks
 }
 
 private fun <R> SemanticsNodeInteraction.withDensity(operation: Density.(SemanticsNode) -> R): R {
