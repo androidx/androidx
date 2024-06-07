@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle
+package androidx.testutils.lifecycle
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 public class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner {
-    private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(this)
+
+    private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(owner = this)
 
     init {
-        initialState?.let { setState(it) }
+        if (initialState != null) {
+            setState(initialState)
+        }
     }
 
     override val lifecycle: Lifecycle
@@ -52,9 +57,5 @@ public class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : Lifecyc
 
     public fun resume() {
         runBlocking(Dispatchers.Main) { setState(Lifecycle.State.RESUMED) }
-    }
-
-    private suspend fun getObserverCount(): Int {
-        return withContext(Dispatchers.Main) { registry.observerCount }
     }
 }
