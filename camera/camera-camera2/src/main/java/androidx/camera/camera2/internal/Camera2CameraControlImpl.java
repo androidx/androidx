@@ -76,7 +76,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -129,6 +128,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     ZslControl mZslControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final Camera2CapturePipeline mCamera2CapturePipeline;
+    private final VideoUsageControl mVideoUsageControl;
     @GuardedBy("mLock")
     private int mUseCount = 0;
 
@@ -148,8 +148,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @NonNull
     private volatile ListenableFuture<Void> mFlashModeChangeSessionUpdateFuture =
             Futures.immediateFuture(null);
-
-    private final AtomicInteger mVideoUsage = new AtomicInteger(0);
 
     //******************** Should only be accessed by executor *****************************//
     private int mTemplate = DEFAULT_TEMPLATE;
@@ -189,6 +187,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mCameraCharacteristics = cameraCharacteristics;
         mControlUpdateCallback = controlUpdateCallback;
         mExecutor = executor;
+        mVideoUsageControl = new VideoUsageControl(executor);
         mSessionCallback = new CameraControlSessionCallback(mExecutor);
         mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
@@ -309,6 +308,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      *
      * <p>Most operations during inactive state do nothing. Some states are reset to default
      * once it is changed to inactive state.
+     *
+     * <p>This method should be executed by {@link #mExecutor} only.
      */
     @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
@@ -323,7 +324,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             // Since the camera is no longer active, there should not be any recording ongoing with
             // this camera. If something like persistent recording wants to resume recording with
             // this camera again, it should update recording status again when being attached.
-            mVideoUsage.set(0);
+            mVideoUsageControl.resetDirectly(); // already in mExecutor i.e. camera thread
         }
     }
 
@@ -841,25 +842,18 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @Override
     public void incrementVideoUsage() {
-        int currentVal = mVideoUsage.incrementAndGet();
-        Logger.d(TAG, "incrementVideoUsage: mVideoUsage = " + currentVal);
+        mVideoUsageControl.incrementUsage();
     }
 
     @Override
     public void decrementVideoUsage() {
-        int currentVal = mVideoUsage.decrementAndGet();
-        if (currentVal < 0) {
-            Logger.w(TAG, "decrementVideoUsage: mVideoUsage = " + currentVal
-                    + ", which is less than 0!");
-        } else {
-            Logger.d(TAG, "decrementVideoUsage: mVideoUsage = " + currentVal);
-        }
+        mVideoUsageControl.decrementUsage();
     }
 
     @Override
     public boolean isInVideoUsage() {
-        int currentVal = mVideoUsage.get();
-        Logger.d(TAG, "isInVideoUsage: mVideoUsage = " + currentVal);
+        int currentVal = mVideoUsageControl.getUsage();
+        Logger.d(TAG, "isInVideoUsage: mVideoUsageControl value = " + currentVal);
         return currentVal > 0;
     }
 
