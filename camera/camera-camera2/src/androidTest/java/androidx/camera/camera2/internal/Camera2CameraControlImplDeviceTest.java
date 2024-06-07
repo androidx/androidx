@@ -1041,6 +1041,36 @@ public final class Camera2CameraControlImplDeviceTest {
         executor.assertExecutorIsCalled(5000);
     }
 
+    @Test
+    public void canUseVideoUsage() {
+        // No recording initially.
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isFalse();
+
+        // Case 1: Single video usage.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isTrue();
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isFalse();
+
+        // Case 2: Multiple video usages.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isTrue();
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        // There should still be a video usage remaining two were set as true before
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isTrue();
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isFalse();
+
+        // Case 3: video usage clearing when inactive.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        mCamera2CameraControlImpl.setActive(false);
+        assertThat(mCamera2CameraControlImpl.isInVideoUsage()).isFalse();
+    }
+
     private static class TestCameraCaptureCallback extends CameraCaptureCallback {
         private CountDownLatch mLatchForOnCaptureCompleted;
 
