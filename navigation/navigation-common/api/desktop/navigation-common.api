@@ -132,7 +132,9 @@ public class androidx/navigation/NavDestination {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getArguments ()Ljava/util/Map;
 	public fun getDisplayName ()Ljava/lang/String;
+	public static final fun getDisplayName (I)Ljava/lang/String;
 	public static final fun getHierarchy (Landroidx/navigation/NavDestination;)Lkotlin/sequences/Sequence;
+	public final fun getId ()I
 	public final fun getLabel ()Ljava/lang/CharSequence;
 	public final fun getNavigatorName ()Ljava/lang/String;
 	public final fun getParent ()Landroidx/navigation/NavGraph;
@@ -142,6 +144,7 @@ public class androidx/navigation/NavDestination {
 	public fun hashCode ()I
 	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun removeArgument (Ljava/lang/String;)V
+	public final fun setId (I)V
 	public final fun setLabel (Ljava/lang/CharSequence;)V
 	public final fun setParent (Landroidx/navigation/NavGraph;)V
 	public final fun setRoute (Ljava/lang/String;)V
@@ -149,6 +152,8 @@ public class androidx/navigation/NavDestination {
 }
 
 public final class androidx/navigation/NavDestination$Companion {
+	public final fun createRoute (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getDisplayName (I)Ljava/lang/String;
 	public final fun getHierarchy (Landroidx/navigation/NavDestination;)Lkotlin/sequences/Sequence;
 	public final fun hasRoute (Landroidx/navigation/NavDestination;Lkotlin/reflect/KClass;)Z
 }
@@ -172,6 +177,7 @@ public class androidx/navigation/NavDestinationBuilder {
 	public final fun deepLink (Ljava/lang/String;)V
 	public final fun deepLink (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public final fun deepLink (Lkotlin/jvm/functions/Function1;)V
+	public final fun getId ()I
 	public final fun getLabel ()Ljava/lang/CharSequence;
 	protected final fun getNavigator ()Landroidx/navigation/Navigator;
 	public final fun getRoute ()Ljava/lang/String;
@@ -191,21 +197,26 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 	public final fun addDestinations ([Landroidx/navigation/NavDestination;)V
 	public final fun clear ()V
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun findChildNode (I)Landroidx/navigation/NavDestination;
+	public final fun findNode (I)Landroidx/navigation/NavDestination;
+	public final fun findNode (IZ)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/Object;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;Z)Landroidx/navigation/NavDestination;
 	public static final fun findStartDestination (Landroidx/navigation/NavGraph;)Landroidx/navigation/NavDestination;
 	public fun getDisplayName ()Ljava/lang/String;
-	public final fun getNodes ()Ljava/util/Map;
+	public final fun getNodes ()Landroidx/collection/SparseArrayCompat;
+	public final fun getStartDestDisplayName ()Ljava/lang/String;
+	public final fun getStartDestinationId ()I
 	public final fun getStartDestinationRoute ()Ljava/lang/String;
 	public fun hashCode ()I
 	public final fun iterator ()Ljava/util/Iterator;
 	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun remove (Landroidx/navigation/NavDestination;)V
+	public final fun setStartDestination (I)V
 	public final fun setStartDestination (Ljava/lang/Object;)V
 	public final fun setStartDestination (Ljava/lang/String;)V
 	public final fun setStartDestination (Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function1;)V
-	public final fun setStartDestinationRoute (Ljava/lang/String;)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -253,6 +264,7 @@ public class androidx/navigation/NavGraphNavigator : androidx/navigation/Navigat
 
 public final class androidx/navigation/NavOptions {
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPopUpToId ()I
 	public final fun getPopUpToRoute ()Ljava/lang/String;
 	public final fun getPopUpToRouteClass ()Lkotlin/reflect/KClass;
 	public final fun getPopUpToRouteObject ()Ljava/lang/Object;
@@ -283,6 +295,7 @@ public final class androidx/navigation/NavOptions$Builder {
 public final class androidx/navigation/NavOptionsBuilder {
 	public fun <init> ()V
 	public final fun getLaunchSingleTop ()Z
+	public final fun getPopUpToId ()I
 	public final fun getPopUpToRoute ()Ljava/lang/String;
 	public final fun getPopUpToRouteClass ()Lkotlin/reflect/KClass;
 	public final fun getPopUpToRouteObject ()Ljava/lang/Object;
@@ -420,8 +433,6 @@ public final class androidx/navigation/serialization/RouteDeserializerKt {
 }
 
 public final class androidx/navigation/serialization/RouteSerializerKt {
-	public static final fun generateRoutePattern (Lkotlinx/serialization/KSerializer;Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
-	public static synthetic fun generateRoutePattern$default (Lkotlinx/serialization/KSerializer;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 	public static final fun generateRouteWithArgs (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/String;
 }
 

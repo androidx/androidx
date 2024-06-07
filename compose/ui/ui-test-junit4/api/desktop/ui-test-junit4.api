@@ -2,6 +2,10 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeContentTe
 	public abstract fun setContent (Lkotlin/jvm/functions/Function2;)V
 }
 
+public final class androidx/compose/ui/test/junit4/ComposeContentTestRule$DefaultImpls {
+	public static fun waitUntil (Landroidx/compose/ui/test/junit4/ComposeContentTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
+}
+
 public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule : androidx/compose/ui/test/SemanticsNodeInteractionsProvider, org/junit/rules/TestRule {
 	public abstract fun awaitIdle (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun getDensity ()Landroidx/compose/ui/unit/Density;
@@ -12,7 +16,9 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule 
 	public abstract fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
 	public abstract fun waitForIdle ()V
 	public abstract fun waitUntil (JLkotlin/jvm/functions/Function0;)V
+	public fun waitUntil (Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
 	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public abstract fun waitUntilAtLeastOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
 	public static synthetic fun waitUntilAtLeastOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
 	public abstract fun waitUntilDoesNotExist (Landroidx/compose/ui/test/SemanticsMatcher;J)V
@@ -24,7 +30,9 @@ public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule 
 }
 
 public final class androidx/compose/ui/test/junit4/ComposeTestRule$DefaultImpls {
+	public static fun waitUntil (Landroidx/compose/ui/test/junit4/ComposeTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
 	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Ljava/lang/String;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public static synthetic fun waitUntilAtLeastOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
 	public static synthetic fun waitUntilDoesNotExist$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
 	public static synthetic fun waitUntilExactlyOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
@@ -51,6 +59,7 @@ public final class androidx/compose/ui/test/junit4/DesktopComposeTestRule : andr
 	public fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
 	public fun waitForIdle ()V
 	public fun waitUntil (JLkotlin/jvm/functions/Function0;)V
+	public fun waitUntil (Ljava/lang/String;JLkotlin/jvm/functions/Function0;)V
 	public fun waitUntilAtLeastOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
 	public fun waitUntilDoesNotExist (Landroidx/compose/ui/test/SemanticsMatcher;J)V
 	public fun waitUntilExactlyOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
