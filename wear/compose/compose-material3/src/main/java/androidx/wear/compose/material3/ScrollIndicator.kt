@@ -81,8 +81,9 @@ import kotlinx.coroutines.launch
  * implementing [Modifier.verticalScroll] provides a [ScrollState].
  *
  * To comply with Wear Material Design guidelines, this composable should be aligned to the center
- * end of the screen using `Alignment.CenterEnd`. It will appear on the right in Ltr orientation and
- * on the left in Rtl orientation.
+ * end of the screen using `Alignment.CenterEnd`, such as by setting `modifier =
+ * Modifier.align(Alignment.CenterEnd)`. This way, the [ScrollIndicator] will appear on the right in
+ * Ltr orientation and on the left in Rtl orientation.
  *
  * It detects if the screen is round or square and draws itself as a curve or line.
  *
@@ -94,7 +95,8 @@ import kotlinx.coroutines.launch
  * @sample androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
  *
  * @param state The scrollState to use as the basis for the ScrollIndicatorState.
- * @param modifier The modifier to be applied to the component
+ * @param modifier The modifier to be applied to the component - usually set to
+ *   `Modifier.align(Alignment.CenterEnd)`.
  * @param reverseDirection Reverses direction of ScrollIndicator if true
  * @param positionAnimationSpec [AnimationSpec] for position animation. The Position animation is
  *   used for animating changes between state.positionFraction and state.sizeFraction of
@@ -128,7 +130,7 @@ fun ScrollIndicator(
  * Creates an [ScrollIndicator] based on the values in a [ScalingLazyListState] object that a
  * [ScalingLazyColumn] uses.
  *
- * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
+ * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
  *
  * To comply with Wear Material Design guidelines, this composable should be aligned to the center
  * end of the screen using `Alignment.CenterEnd`. It will appear on the right in Ltr orientation and
@@ -258,7 +260,7 @@ internal interface ScrollIndicatorState {
 /**
  * An indicator on one side of the screen to show the current [ScrollIndicatorState].
  *
- * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
+ * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
  *
  * This composable should only be used to fill the whole screen as Wear Material Design language
  * requires the placement of the position indicator to be right center of the screen as the

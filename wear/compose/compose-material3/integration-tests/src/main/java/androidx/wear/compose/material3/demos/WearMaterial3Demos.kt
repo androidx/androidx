@@ -20,7 +20,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.integration.demos.common.Material3DemoCategory
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
@@ -32,10 +32,10 @@ import androidx.wear.compose.material3.samples.StepperWithIntegerSample
 import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
 
 val WearMaterial3Demos =
-    DemoCategory(
+    Material3DemoCategory(
         "Material 3",
         listOf(
-            DemoCategory(
+            Material3DemoCategory(
                 "Button",
                 listOf(
                     ComposableDemo("Button") { ButtonDemo() },
@@ -48,7 +48,7 @@ val WearMaterial3Demos =
                 )
             ),
             ComposableDemo("List Header") { Centralize { ListHeaderDemo() } },
-            DemoCategory("Time Text", TimeTextDemos),
+            Material3DemoCategory("Time Text", TimeTextDemos),
             ComposableDemo("Card") { CardDemo() },
             ComposableDemo("Text Button") { TextButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
@@ -61,10 +61,10 @@ val WearMaterial3Demos =
             ComposableDemo("Split Selectable Button") { SplitSelectableButtonDemo() },
             ComposableDemo("Toggle Button") { ToggleButtonDemo() },
             ComposableDemo("Split Toggle Button") { SplitToggleButtonDemo() },
-            DemoCategory(
+            Material3DemoCategory(
                 "Stepper",
                 listOf(
-                    DemoCategory(
+                    Material3DemoCategory(
                         "Samples",
                         listOf(
                             ComposableDemo("Stepper") { Centralize { StepperSample() } },
@@ -78,11 +78,11 @@ val WearMaterial3Demos =
                     )
                 )
             ),
-            DemoCategory("Slider", SliderDemos),
-            DemoCategory("Progress Indicator", ProgressIndicatorDemos),
-            DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
+            Material3DemoCategory("Slider", SliderDemos),
+            Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),
+            Material3DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
             ComposableDemo(title = "Fixed Font Size") { Centralize { FixedFontSize() } },
-            DemoCategory(
+            Material3DemoCategory(
                 title = "Swipe To Dismiss",
                 listOf(
                     ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
@@ -90,7 +90,7 @@ val WearMaterial3Demos =
                     ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
                 )
             ),
-            DemoCategory(
+            Material3DemoCategory(
                 title = "Horizontal Page Indicator",
                 listOf(
                     ComposableDemo("Simple HorizontalPageIndicator") {

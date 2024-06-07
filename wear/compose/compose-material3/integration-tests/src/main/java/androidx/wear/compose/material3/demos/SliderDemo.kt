@@ -37,7 +37,6 @@ import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
@@ -50,34 +49,20 @@ import androidx.wear.compose.material3.samples.InlineSliderWithIntegerSample
 
 val SliderDemos =
     listOf(
-        DemoCategory(
-            "Samples",
-            listOf(
-                ComposableDemo("Inline slider") {
-                    Centralize(Modifier.padding(horizontal = 10.dp)) { InlineSliderSample() }
-                },
-                ComposableDemo("Segmented inline slider") {
-                    Centralize(Modifier.padding(horizontal = 10.dp)) {
-                        InlineSliderSegmentedSample()
-                    }
-                },
-                ComposableDemo("Integer inline slider") {
-                    Centralize(Modifier.padding(horizontal = 10.dp)) {
-                        InlineSliderWithIntegerSample()
-                    }
-                },
-            )
-        ),
-        DemoCategory(
-            "Demos",
-            listOf(
-                ComposableDemo("Inline slider") { InlineSliderDemo() },
-                ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
-                ComposableDemo("Inline slider segmented") { InlineSliderDemo(segmented = true) },
-                ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
-                ComposableDemo("Inline slider with integers") { InlineSliderWithIntegersDemo() },
-            )
-        )
+        ComposableDemo("Inline slider") {
+            Centralize(Modifier.padding(horizontal = 10.dp)) { InlineSliderSample() }
+        },
+        ComposableDemo("Segmented inline slider") {
+            Centralize(Modifier.padding(horizontal = 10.dp)) { InlineSliderSegmentedSample() }
+        },
+        ComposableDemo("Integer inline slider") {
+            Centralize(Modifier.padding(horizontal = 10.dp)) { InlineSliderWithIntegerSample() }
+        },
+        ComposableDemo("Inline slider Demo") { InlineSliderDemo() },
+        ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+        ComposableDemo("Inline slider segmented") { InlineSliderDemo(segmented = true) },
+        ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
+        ComposableDemo("Inline slider with integers") { InlineSliderWithIntegersDemo() },
     )
 
 @OptIn(ExperimentalWearMaterial3Api::class)
