@@ -635,7 +635,7 @@ package androidx.work {
   }
 
   public final class WorkerParametersExtensions {
-    method public static boolean forRemoteWorkRequest(androidx.work.WorkerParameters);
+    method public static boolean isRemoteWorkRequest(androidx.work.WorkerParameters);
     method public static androidx.work.WorkerParameters usingRemoteService(androidx.work.WorkerParameters, android.content.ComponentName componentName);
   }
 
