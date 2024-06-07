@@ -247,7 +247,7 @@ private class MultiLayerComposeSceneImpl(
     }
 
     override fun processKeyEvent(keyEvent: KeyEvent): Boolean =
-        focusedOwner.onKeyEvent(keyEvent)
+        focusedLayer?.onKeyEvent(keyEvent) ?: mainOwner.onKeyEvent(keyEvent)
 
     override fun measureAndLayout() {
         forEachOwner { it.measureAndLayout() }
@@ -550,7 +550,9 @@ private class MultiLayerComposeSceneImpl(
                     )
                 }
             } ?: Modifier
-        private var keyInput: Modifier by mutableStateOf(Modifier)
+
+        private var onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null
+        private var onKeyEvent: ((KeyEvent) -> Boolean)? = null
 
         init {
             attachLayer(this)
@@ -569,14 +571,14 @@ private class MultiLayerComposeSceneImpl(
             onPreviewKeyEvent: ((KeyEvent) -> Boolean)?,
             onKeyEvent: ((KeyEvent) -> Boolean)?,
         ) {
-            keyInput = if (onPreviewKeyEvent != null || onKeyEvent != null) {
-                Modifier.then(KeyInputElement(
-                    onKeyEvent = onKeyEvent,
-                    onPreKeyEvent = onPreviewKeyEvent
-                ))
-            } else {
-                Modifier
-            }
+            this.onPreviewKeyEvent = onPreviewKeyEvent
+            this.onKeyEvent = onKeyEvent
+        }
+
+        fun onKeyEvent(keyEvent: KeyEvent): Boolean {
+            return onPreviewKeyEvent?.invoke(keyEvent) == true ||
+                owner.onKeyEvent(keyEvent) ||
+                onKeyEvent?.invoke(keyEvent) == true
         }
 
         override fun setOutsidePointerEventListener(
@@ -599,7 +601,7 @@ private class MultiLayerComposeSceneImpl(
                     null
                 }
             ) {
-                owner.setRootModifier(background then keyInput)
+                owner.setRootModifier(background)
                 content()
             }
         }

@@ -134,16 +134,6 @@ internal class RootNodeOwner(
     private val rootSemanticsNode = EmptySemanticsModifier()
     private val rootModifier = EmptySemanticsElement(rootSemanticsNode)
         .then(focusOwner.modifier)
-        .onKeyEvent {
-            // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
-            //  that this common logic can be used by all owners.
-            val focusDirection = owner.getFocusDirection(it)
-            if (focusDirection == null || it.type != KeyEventType.KeyDown) return@onKeyEvent false
-
-            platformContext.inputModeManager.requestInputMode(InputMode.Keyboard)
-            // Consume the key event if we moved focus.
-            focusOwner.moveFocus(focusDirection)
-        }
         .semantics {
             // This makes the reported role of the root node "PANEL", which is ignored by VoiceOver
             // (which is what we want).
@@ -247,7 +237,18 @@ internal class RootNodeOwner(
     }
 
     fun onKeyEvent(keyEvent: KeyEvent): Boolean {
-        return focusOwner.dispatchKeyEvent(keyEvent)
+        return focusOwner.dispatchKeyEvent(keyEvent) || handleFocusKeys(keyEvent)
+    }
+
+    private fun handleFocusKeys(keyEvent: KeyEvent): Boolean {
+        // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
+        //  that this common logic can be used by all owners.
+        val focusDirection = owner.getFocusDirection(keyEvent)
+        if (focusDirection == null || keyEvent.type != KeyEventType.KeyDown) return false
+
+        platformContext.inputModeManager.requestInputMode(InputMode.Keyboard)
+        // Consume the key event if we moved focus.
+        return focusOwner.moveFocus(focusDirection)
     }
 
     /**
