@@ -171,7 +171,7 @@ class LazyListPrefetchStrategyTest(val config: Config) :
 
     @Test
     fun itemComposed_whenPrefetchedFromCallback() {
-        val strategy = PrefetchNextLargestIndexStrategy()
+        val strategy = PrefetchNextLargestIndexStrategy(scheduler)
 
         composeList(prefetchStrategy = strategy)
 
@@ -251,7 +251,9 @@ class LazyListPrefetchStrategyTest(val config: Config) :
      * LazyListPrefetchStrategy that always prefetches the next largest index off screen no matter
      * the scroll direction.
      */
-    private class PrefetchNextLargestIndexStrategy : LazyListPrefetchStrategy {
+    private class PrefetchNextLargestIndexStrategy(
+        override val prefetchScheduler: PrefetchScheduler?
+    ) : LazyListPrefetchStrategy {
 
         private var handle: LazyLayoutPrefetchState.PrefetchHandle? = null
         private var prefetchIndex: Int = -1
