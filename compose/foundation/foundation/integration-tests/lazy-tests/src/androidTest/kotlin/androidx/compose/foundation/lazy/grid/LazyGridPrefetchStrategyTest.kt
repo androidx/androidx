@@ -183,7 +183,7 @@ class LazyGridPrefetchStrategyTest(val config: Config) :
 
     @Test
     fun itemComposed_whenPrefetchedFromCallback() {
-        val strategy = PrefetchNextLargestLineIndexStrategy()
+        val strategy = PrefetchNextLargestLineIndexStrategy(scheduler)
 
         composeGrid(prefetchStrategy = strategy)
 
@@ -265,7 +265,9 @@ class LazyGridPrefetchStrategyTest(val config: Config) :
      * LazyGridPrefetchStrategy that always prefetches the largest index line off screen no matter
      * the scroll direction.
      */
-    private class PrefetchNextLargestLineIndexStrategy : LazyGridPrefetchStrategy {
+    private class PrefetchNextLargestLineIndexStrategy(
+        override val prefetchScheduler: PrefetchScheduler?
+    ) : LazyGridPrefetchStrategy {
 
         private val handles = mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
         private var prefetchIndex: Int = -1
