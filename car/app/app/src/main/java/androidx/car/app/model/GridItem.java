@@ -251,8 +251,8 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}.
          *
-         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
-         * string.
+         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_ONLY} in Car API 7 and
+         * below, and {@link CarTextConstraints.TEXT_AND_ICON} in Car API 8 and above.
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
@@ -263,7 +263,7 @@ public final class GridItem implements Item {
                 return this;
             }
             CarText titleText = CarText.create(title);
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
@@ -271,8 +271,8 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}, with support for multiple length variants.
          *
-         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
-         * string.
+         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_ONLY} in Car API 7 and
+         * below, and {@link CarTextConstraints.TEXT_AND_ICON} in Car API 8 and above.
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
@@ -282,7 +282,7 @@ public final class GridItem implements Item {
                 mTitle = null;
                 return this;
             }
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(title);
             mTitle = title;
             return this;
         }
@@ -290,10 +290,9 @@ public final class GridItem implements Item {
         /**
          * Sets a secondary text string to the grid item that is displayed below the title.
          *
-         * <p>The text can be customized with {@link ForegroundCarColorSpan},
-         * {@link androidx.car.app.model.DistanceSpan}, and
-         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
-         * by the host.
+         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS} in Car API
+         * 7 and below, and {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
+         * above.
          *
          * <h2>Text Wrapping</h2>
          *
@@ -305,7 +304,7 @@ public final class GridItem implements Item {
         @NonNull
         public Builder setText(@NonNull CharSequence text) {
             mText = CarText.create(requireNonNull(text));
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(mText);
             return this;
         }
 
@@ -313,10 +312,9 @@ public final class GridItem implements Item {
          * Sets a secondary text string to the grid item that is displayed below the title, with
          * support for multiple length variants.
          *
-         * <p>The text can be customized with {@link ForegroundCarColorSpan},
-         * {@link androidx.car.app.model.DistanceSpan}, and
-         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
-         * by the host.
+         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS} in Car API
+         * 7 and below, and {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
+         * above.
          *
          * <h2>Text Wrapping</h2>
          *
@@ -328,7 +326,7 @@ public final class GridItem implements Item {
         @NonNull
         public Builder setText(@NonNull CarText text) {
             mText = requireNonNull(text);
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(mText);
             return this;
         }
 
