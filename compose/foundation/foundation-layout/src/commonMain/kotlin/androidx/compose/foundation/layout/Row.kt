@@ -339,11 +339,11 @@ interface RowScope {
      * that if only one element in a [Row] has the [alignBy] modifier specified the element will be
      * positioned as if it had [Alignment.Top] align.
      *
-     * @see alignByBaseline
-     *
      * Example usage:
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
+     *
+     * @see alignByBaseline
      */
     @Stable fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine): Modifier
 
@@ -353,11 +353,11 @@ interface RowScope {
      * both modifiers will not work together if specified for the same layout. [alignByBaseline] is
      * a particular case of [alignBy]. See [alignBy] for more details.
      *
-     * @see alignBy
-     *
      * Example usage:
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
+     *
+     * @see alignBy
      */
     @Stable fun Modifier.alignByBaseline(): Modifier
 
