@@ -20,6 +20,7 @@ import android.graphics.ColorSpace.get
 import android.os.Build
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.ColorSpaceVerificationHelper.composeColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.Rgb
@@ -35,6 +36,28 @@ fun ColorSpace.toAndroidColorSpace(): android.graphics.ColorSpace =
 @RequiresApi(Build.VERSION_CODES.O)
 fun android.graphics.ColorSpace.toComposeColorSpace() =
     with(ColorSpaceVerificationHelper) { composeColorSpace() }
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object ColorSpaceVerificationHelperV34 {
+
+    @DoNotInline
+    @JvmStatic
+    fun obtainAndroidColorSpace(colorSpace: ColorSpace): android.graphics.ColorSpace? =
+        when (colorSpace) {
+            ColorSpaces.Bt2020Hlg -> get(android.graphics.ColorSpace.Named.BT2020_HLG)
+            ColorSpaces.Bt2020Pq -> get(android.graphics.ColorSpace.Named.BT2020_PQ)
+            else -> null
+        }
+
+    @DoNotInline
+    @JvmStatic
+    fun obtainComposeColorSpaceFromId(id: Int): ColorSpace =
+        when (id) {
+            android.graphics.ColorSpace.Named.BT2020_HLG.ordinal -> ColorSpaces.Bt2020Hlg
+            android.graphics.ColorSpace.Named.BT2020_PQ.ordinal -> ColorSpaces.Bt2020Pq
+            else -> ColorSpaces.Unspecified
+        }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object ColorSpaceVerificationHelper {
@@ -62,6 +85,13 @@ private object ColorSpaceVerificationHelper {
             ColorSpaces.ProPhotoRgb -> get(android.graphics.ColorSpace.Named.PRO_PHOTO_RGB)
             ColorSpaces.SmpteC -> get(android.graphics.ColorSpace.Named.SMPTE_C)
             else -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    val v34ColorSpace =
+                        ColorSpaceVerificationHelperV34.obtainAndroidColorSpace(this)
+                    if (v34ColorSpace != null) {
+                        return v34ColorSpace
+                    }
+                }
                 if (this is Rgb) {
                     val whitePointArray = this.whitePoint.toXyz()
                     val transferParams = this.transferParameters
@@ -127,6 +157,13 @@ private object ColorSpaceVerificationHelper {
             android.graphics.ColorSpace.Named.PRO_PHOTO_RGB.ordinal -> ColorSpaces.ProPhotoRgb
             android.graphics.ColorSpace.Named.SMPTE_C.ordinal -> ColorSpaces.SmpteC
             else -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    val v34ColorSpace =
+                        ColorSpaceVerificationHelperV34.obtainComposeColorSpaceFromId(this.id)
+                    if (v34ColorSpace != ColorSpaces.Unspecified) {
+                        return v34ColorSpace
+                    }
+                }
                 if (this is android.graphics.ColorSpace.Rgb) {
                     val transferParams = this.transferParameters
                     val whitePoint =
