@@ -42,7 +42,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class SelectableButtonScreenshotTest {
+class RadioButtonScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
@@ -51,14 +51,14 @@ class SelectableButtonScreenshotTest {
 
     @Test
     fun radio_button_selected() = verifyScreenshot {
-        sampleSelectableButton(
+        sampleRadioButton(
             selected = true,
         )
     }
 
     @Test
     fun radio_button_unselected() = verifyScreenshot {
-        sampleSelectableButton(
+        sampleRadioButton(
             selected = false,
         )
     }
@@ -66,7 +66,7 @@ class SelectableButtonScreenshotTest {
     @Test
     fun radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSelectableButton(
+            sampleRadioButton(
                 selected = true,
             )
         }
@@ -74,14 +74,14 @@ class SelectableButtonScreenshotTest {
     @Test
     fun radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSelectableButton(
+            sampleRadioButton(
                 selected = false,
             )
         }
 
     @Test
     fun disabled_radio_button_selected() = verifyScreenshot {
-        sampleSelectableButton(
+        sampleRadioButton(
             selected = true,
             enabled = false,
         )
@@ -89,7 +89,7 @@ class SelectableButtonScreenshotTest {
 
     @Test
     fun disabled_radio_button_unselected() = verifyScreenshot {
-        sampleSelectableButton(
+        sampleRadioButton(
             selected = false,
             enabled = false,
         )
@@ -98,7 +98,7 @@ class SelectableButtonScreenshotTest {
     @Test
     fun disabled_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSelectableButton(
+            sampleRadioButton(
                 selected = true,
                 enabled = false,
             )
@@ -107,7 +107,7 @@ class SelectableButtonScreenshotTest {
     @Test
     fun disabled_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSelectableButton(
+            sampleRadioButton(
                 selected = false,
                 enabled = false,
             )
@@ -115,14 +115,14 @@ class SelectableButtonScreenshotTest {
 
     @Test
     fun split_radio_button_selected() = verifyScreenshot {
-        sampleSplitSelectableButton(
+        sampleSplitRadioButton(
             selected = true,
         )
     }
 
     @Test
     fun split_radio_button_unselected() = verifyScreenshot {
-        sampleSplitSelectableButton(
+        sampleSplitRadioButton(
             selected = false,
         )
     }
@@ -130,7 +130,7 @@ class SelectableButtonScreenshotTest {
     @Test
     fun split_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitSelectableButton(
+            sampleSplitRadioButton(
                 selected = true,
             )
         }
@@ -138,14 +138,14 @@ class SelectableButtonScreenshotTest {
     @Test
     fun split_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitSelectableButton(
+            sampleSplitRadioButton(
                 selected = false,
             )
         }
 
     @Test
     fun disabled_split_radio_button_selected() = verifyScreenshot {
-        sampleSplitSelectableButton(
+        sampleSplitRadioButton(
             selected = true,
             enabled = false,
         )
@@ -153,7 +153,7 @@ class SelectableButtonScreenshotTest {
 
     @Test
     fun disabled_split_radio_button_unselected() = verifyScreenshot {
-        sampleSplitSelectableButton(
+        sampleSplitRadioButton(
             selected = false,
             enabled = false,
         )
@@ -162,7 +162,7 @@ class SelectableButtonScreenshotTest {
     @Test
     fun disabled_split_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitSelectableButton(
+            sampleSplitRadioButton(
                 selected = true,
                 enabled = false,
             )
@@ -171,44 +171,41 @@ class SelectableButtonScreenshotTest {
     @Test
     fun disabled_split_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitSelectableButton(
+            sampleSplitRadioButton(
                 selected = false,
                 enabled = false,
             )
         }
 
     @Composable
-    private fun sampleSelectableButton(
+    private fun sampleRadioButton(
         enabled: Boolean = true,
         selected: Boolean = true,
-        selectionControl: @Composable SelectionControlScope.() -> Unit = { RadioButton() },
     ) {
-        SelectableButton(
+        RadioButton(
             icon = { TestIcon() },
             label = { Text("RadioButton") },
             secondaryLabel = { Text("Secondary label") },
             selected = selected,
             enabled = enabled,
-            selectionControl = selectionControl,
             onSelect = {},
             modifier = Modifier.testTag(TEST_TAG),
         )
     }
 
     @Composable
-    private fun sampleSplitSelectableButton(
+    private fun sampleSplitRadioButton(
         selected: Boolean = true,
         enabled: Boolean = true,
-        selectionControl: @Composable SelectionControlScope.() -> Unit = { RadioButton() }
     ) {
-        SplitSelectableButton(
+        SplitRadioButton(
             label = { Text("SplitRadioButton") },
             secondaryLabel = { Text("Secondary label") },
             selected = selected,
             enabled = enabled,
-            selectionControl = { selectionControl() },
             onSelectionClick = {},
             onContainerClick = {},
+            selectionContentDescription = null,
             modifier = Modifier.testTag(TEST_TAG),
         )
     }
