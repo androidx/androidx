@@ -49,16 +49,16 @@ import kotlin.math.max
  * modified layout will satisfy the min constraint and the content will be positioned to satisfy the
  * [before] requirement if specified, or the [after] requirement otherwise.
  *
+ * Example usage:
+ *
+ * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
+ *
  * @param alignmentLine the alignment line relative to which the padding is defined
  * @param before the distance between the container's top edge and the horizontal alignment line, or
  *   the container's start edge and the vertical alignment line
  * @param after the distance between the container's bottom edge and the horizontal alignment line,
  *   or the container's end edge and the vertical alignment line
  * @see paddingFromBaseline
- *
- * Example usage:
- *
- * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
  */
 @Stable
 fun Modifier.paddingFrom(
@@ -94,16 +94,16 @@ fun Modifier.paddingFrom(
  * modified layout will satisfy the min constraint and the content will be positioned to satisfy the
  * [before] requirement if specified, or the [after] requirement otherwise.
  *
+ * Example usage:
+ *
+ * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
+ *
  * @param alignmentLine the alignment line relative to which the padding is defined
  * @param before the distance between the container's top edge and the horizontal alignment line, or
  *   the container's start edge and the vertical alignment line
  * @param after the distance between the container's bottom edge and the horizontal alignment line,
  *   or the container's end edge and the vertical alignment line
  * @see paddingFromBaseline
- *
- * Example usage:
- *
- * @sample androidx.compose.foundation.layout.samples.PaddingFromSample
  */
 @Stable
 fun Modifier.paddingFrom(
@@ -135,11 +135,11 @@ fun Modifier.paddingFrom(
  * constraint, the modified layout will satisfy the min constraint and the content will be
  * positioned to satisfy the [top] requirement if specified, or the [bottom] requirement otherwise.
  *
- * @see paddingFrom
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleDp
+ *
+ * @see paddingFrom
  */
 @Stable
 fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspecified) =
@@ -168,11 +168,11 @@ fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspe
  * constraint, the modified layout will satisfy the min constraint and the content will be
  * positioned to satisfy the [top] requirement if specified, or the [bottom] requirement otherwise.
  *
- * @see paddingFrom
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleTextUnit
+ *
+ * @see paddingFrom
  */
 @Stable
 fun Modifier.paddingFromBaseline(
