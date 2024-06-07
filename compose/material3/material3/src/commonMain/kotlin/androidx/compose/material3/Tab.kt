@@ -112,13 +112,13 @@ fun Tab(
             }
         }
     Tab(
-        selected,
-        onClick,
-        modifier,
-        enabled,
-        selectedContentColor,
-        unselectedContentColor,
-        interactionSource
+        modifier = modifier.badgeBounds(),
+        selected = selected,
+        onClick = onClick,
+        enabled = enabled,
+        selectedContentColor = selectedContentColor,
+        unselectedContentColor = unselectedContentColor,
+        interactionSource = interactionSource
     ) {
         TabBaselineLayout(icon = icon, text = styledText)
     }
