@@ -354,6 +354,9 @@ public final class Recorder implements VideoOutput {
     static long sRetrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS;
 
     private final MutableStateObservable<StreamInfo> mStreamInfo;
+
+    private final MutableStateObservable<Boolean> mIsRecording;
+
     // Used only by getExecutor()
     private final Executor mUserProvidedExecutor;
     // May be equivalent to mUserProvidedExecutor or an internal executor if the user did not
@@ -508,6 +511,7 @@ public final class Recorder implements VideoOutput {
         mVideoCapabilitiesSource = videoCapabilitiesSource;
         mStreamInfo = MutableStateObservable.withInitialState(
                 StreamInfo.of(mStreamId, internalStateToStreamState(mState)));
+        mIsRecording = MutableStateObservable.withInitialState(false);
         mVideoEncoderFactory = videoEncoderFactory;
         mAudioEncoderFactory = audioEncoderFactory;
         mVideoEncoderSession =
@@ -544,6 +548,13 @@ public final class Recorder implements VideoOutput {
     @NonNull
     public Observable<StreamInfo> getStreamInfo() {
         return mStreamInfo;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    @NonNull
+    public Observable<Boolean> isSourceStreamRequired() {
+        return mIsRecording;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -2449,6 +2460,7 @@ public final class Recorder implements VideoOutput {
                         + "finalize.");
             }
 
+            mActiveRecordingRecord.getRecordingState().removeObservers();
             mActiveRecordingRecord = null;
             switch (mState) {
                 case RESETTING:
@@ -2661,6 +2673,18 @@ public final class Recorder implements VideoOutput {
         }
         // Swap the pending recording to the active recording and start it
         RecordingRecord recordingToStart = mActiveRecordingRecord = mPendingRecordingRecord;
+        mActiveRecordingRecord.getRecordingState().addObserver(CameraXExecutors.directExecutor(),
+                new Observable.Observer<Boolean>() {
+                    @Override
+                    public void onNewData(@Nullable Boolean value) {
+                        mIsRecording.setState(value);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable t) {
+                        mIsRecording.setError(t);
+                    }
+                });
         mPendingRecordingRecord = null;
         // Start recording if start() has been called before video encoder is setup.
         if (startRecordingPaused) {
@@ -2938,6 +2962,10 @@ public final class Recorder implements VideoOutput {
         private final AtomicBoolean mMuted = new AtomicBoolean(false);
 
         @NonNull
+        private final MutableStateObservable<Boolean> mRecordingState =
+                MutableStateObservable.withInitialState(false);
+
+        @NonNull
         static RecordingRecord from(@NonNull PendingRecording pendingRecording, long recordingId) {
             return new AutoValue_Recorder_RecordingRecord(
                     pendingRecording.getOutputOptions(),
@@ -3188,6 +3216,7 @@ public final class Recorder implements VideoOutput {
                 }
             }
             Logger.d(TAG, message);
+            updateRecordingState(event);
             if (getCallbackExecutor() != null && getEventListener() != null) {
                 try {
                     getCallbackExecutor().execute(() -> getEventListener().accept(event));
@@ -3195,6 +3224,23 @@ public final class Recorder implements VideoOutput {
                     Logger.e(TAG, "The callback executor is invalid.", e);
                 }
             }
+        }
+
+        private void updateRecordingState(@NonNull VideoRecordEvent event) {
+            if (event instanceof VideoRecordEvent.Start
+                    || event instanceof VideoRecordEvent.Resume) {
+                mRecordingState.setState(true);
+            } else if (event instanceof VideoRecordEvent.Pause
+                    || event instanceof VideoRecordEvent.Finalize) {
+                mRecordingState.setState(false);
+            }
+        }
+
+        // Provides only true/false i.e. whether recording or not right now. More states can be
+        // added later if ever required.
+        @NonNull
+        StateObservable<Boolean> getRecordingState() {
+            return mRecordingState;
         }
 
         /**

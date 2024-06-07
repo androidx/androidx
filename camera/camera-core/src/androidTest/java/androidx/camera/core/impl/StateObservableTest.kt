@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl
 
+import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.testing.impl.asFlow
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -115,7 +117,7 @@ public class StateObservableTest {
     }
 
     @Test
-    public fun canObserveToRetrieveState_whenSetAfterObserve(): Unit = runBlocking {
+    fun canObserveToRetrieveState_whenSetAfterObserve(): Unit = runBlocking {
         val observable = MutableStateObservable.withInitialState(INITIAL_STATE)
 
         // Add the observer
@@ -189,5 +191,76 @@ public class StateObservableTest {
 
         // Ensure receiveJob completes
         receiveJob.join()
+    }
+
+    @Test
+    fun doesNotObserveNewState_whenSetAfterRemove(): Unit = runBlocking {
+        val observable = MutableStateObservable.withInitialState(INITIAL_STATE)
+
+        // Add the observer to remove later
+        val deferredCompletingObserver1 = observable.addObserver(MAGIC_STATE)
+
+        // Add another observer to know if state was notified
+        val deferredCompletingObserver2 = observable.addObserver(MAGIC_STATE)
+
+        // Remove first observer
+        observable.removeObserver(deferredCompletingObserver1.observer)
+
+        // Post the state
+        observable.setState(MAGIC_STATE)
+
+        // Wait for second observer to ensure observers were notified
+        assertThat(deferredCompletingObserver2.deferred.await()).isEqualTo(MAGIC_STATE)
+
+        // Check removed observer is not notified after waiting a small time
+        assertThat(withTimeoutOrNull(100) { deferredCompletingObserver1.deferred.await() }).isNull()
+    }
+
+    @Test
+    fun doesNotObserveNewState_whenSetAfterRemovingAll(): Unit = runBlocking {
+        val observable = MutableStateObservable.withInitialState(INITIAL_STATE)
+
+        // Add the first observer to remove later
+        val deferredCompletingObserver1 = observable.addObserver(MAGIC_STATE)
+
+        // Remove first observer
+        observable.removeObservers()
+
+        // Add the observer to know if state was notified
+        val deferredCompletingObserver2 = observable.addObserver(MAGIC_STATE)
+
+        // Post the state
+        observable.setState(MAGIC_STATE)
+
+        // Wait for second observer to ensure observers were notified
+        assertThat(deferredCompletingObserver2.deferred.await()).isEqualTo(MAGIC_STATE)
+
+        // Check the removed observer is not notified after waiting a small time
+        assertThat(withTimeoutOrNull(100) { deferredCompletingObserver1.deferred.await() }).isNull()
+    }
+
+    data class DeferredCompletingObserver<T>(
+        val observer: Observer<T>,
+        val deferred: CompletableDeferred<T>
+    )
+
+    private fun <T> Observable<T>.addObserver(targetState: T): DeferredCompletingObserver<T> {
+        val deferred = CompletableDeferred<T>()
+        val observer =
+            object : Observer<T> {
+                override fun onNewData(state: T?) {
+                    if (state == targetState) {
+                        deferred.complete(targetState)
+                    }
+                }
+
+                override fun onError(t: Throwable) {
+                    deferred.completeExceptionally(t)
+                }
+            }
+
+        addObserver(Dispatchers.IO.asExecutor(), observer)
+
+        return DeferredCompletingObserver(observer, deferred)
     }
 }

@@ -130,6 +130,20 @@ public interface VideoOutput {
     }
 
     /**
+     * Returns an observable to know if the streaming from a video frame producer is required.
+     *
+     * <p> This should be true for cases like when user is starting a video recording or streaming
+     * and false when user has decided to stop the recording/streaming. The video frame producer
+     * will use this information to do know whether it's now safe to do operations which may disrupt
+     * video quality/consistency (e.g. AE precapture).
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @NonNull
+    default Observable<Boolean> isSourceStreamRequired() {
+        return ConstantObservable.withValue(false);
+    }
+
+    /**
      * Called when the state of the video frame producer is changed.
      */
     @RestrictTo(Scope.LIBRARY)
