@@ -41,7 +41,7 @@ import androidx.compose.ui.util.fastMapNotNull
 import androidx.compose.ui.util.fastMaxBy
 
 /**
- * <a href="https://material.io/design/layout/understanding-layout.html" class="external"
+ * <a href="https://m3.material.io/foundations/layout/understanding-layout/" class="external"
  * target="_blank">Material Design layout</a>.
  *
  * Scaffold implements the basic material design visual layout structure.
