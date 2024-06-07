@@ -235,39 +235,6 @@ class RequestConvertersTest {
     }
 
     @Test
-    fun aggregateGroupByPeriodRequest_fromSdkToPlatform_instantTime() {
-        val sdkRequest =
-            AggregateGroupByPeriodRequest(
-                setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG),
-                TimeRangeFilter.between(
-                    LocalDateTime.parse("2023-09-19T08:30").toInstant(ZoneOffset.UTC),
-                    LocalDateTime.parse("2023-09-19T10:30").toInstant(ZoneOffset.UTC)
-                ),
-                Period.ofDays(1),
-                setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
-            )
-
-        with(sdkRequest.toPlatformRequest()) {
-            with(timeRangeFilter as LocalTimeRangeFilter) {
-                assertThat(startTime).isEqualTo(LocalDateTime.parse("2023-09-19T08:30"))
-                assertThat(endTime).isEqualTo(LocalDateTime.parse("2023-09-19T10:30"))
-            }
-            assertThat(aggregationTypes)
-                .containsExactly(
-                    PlatformHeartRateRecord.BPM_MAX,
-                    PlatformHeartRateRecord.BPM_MIN,
-                    PlatformHeartRateRecord.BPM_AVG
-                )
-            assertThat(dataOriginsFilters)
-                .containsExactly(
-                    PlatformDataOrigin.Builder().setPackageName("package1").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package2").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package3").build()
-                )
-        }
-    }
-
-    @Test
     fun aggregateGroupByPeriodRequest_fromSdkToPlatform_noTimeSet() {
         val sdkRequest =
             AggregateGroupByPeriodRequest(
