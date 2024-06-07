@@ -43,6 +43,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartIntentSend
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import kotlin.math.min
 
 /** A collection of some standard activity call contracts, as provided by android. */
 class ActivityResultContracts private constructor() {
@@ -793,7 +794,7 @@ class ActivityResultContracts private constructor() {
     /**
      * An [ActivityResultContract] to use the
      * [Photo Picker](https://developer.android.com/training/data-storage/shared/photopicker) to
-     * select a single image, video, or other type of visual media.
+     * select multiple images, videos, or other types of visual media.
      *
      * This contract always prefers the system framework provided Photo Picker available via
      * [MediaStore.ACTION_PICK_IMAGES] when it is available, but will also provide a fallback on
@@ -811,7 +812,8 @@ class ActivityResultContracts private constructor() {
      *   devices. This Intent does not allow limiting the max items the user selects.
      *
      * The constructor accepts one parameter [maxItems] to limit the number of selectable items when
-     * using the photo picker to return.
+     * using the photo picker to return. When launching the activity, the minimum of [maxItems] and
+     * input [PickVisualMediaRequest.maxItems] is set as the limit.
      *
      * The input is a [PickVisualMediaRequest].
      *
@@ -835,18 +837,27 @@ class ActivityResultContracts private constructor() {
             return if (PickVisualMedia.isSystemPickerAvailable()) {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                     type = PickVisualMedia.getVisualMimeType(input.mediaType)
-                    require(maxItems <= MediaStore.getPickImagesMaxLimit()) {
-                        "Max items must be less or equals MediaStore.getPickImagesMaxLimit()"
+                    val currentMaxItems = min(maxItems, input.maxItems)
+
+                    require(
+                        currentMaxItems > 1 && currentMaxItems <= MediaStore.getPickImagesMaxLimit()
+                    ) {
+                        "Max items must be greater than 1 and lesser than or equal to " +
+                            "MediaStore.getPickImagesMaxLimit()"
                     }
 
-                    putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
+                    putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, currentMaxItems)
                 }
             } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
                 val fallbackPicker = checkNotNull(getSystemFallbackPicker(context)).activityInfo
                 Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES).apply {
                     setClassName(fallbackPicker.applicationInfo.packageName, fallbackPicker.name)
                     type = PickVisualMedia.getVisualMimeType(input.mediaType)
-                    putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX, maxItems)
+
+                    val currentMaxItems = min(maxItems, input.maxItems)
+                    require(currentMaxItems > 1) { "Max items must be greater than 1" }
+
+                    putExtra(EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX, currentMaxItems)
                 }
             } else if (PickVisualMedia.isGmsPickerAvailable(context)) {
                 val gmsPicker = checkNotNull(getGmsPicker(context)).activityInfo
