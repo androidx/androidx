@@ -70,7 +70,6 @@ private const val DefaultMouseGestureDurationMillis: Long = 300L
  * Example of scrolling the mouse wheel while the mouse button is pressed:
  *
  * @sample androidx.compose.ui.test.samples.mouseInputScrollWhileDown
- *
  * @see InjectionScope
  */
 @Suppress("NotCloseable")
@@ -232,7 +231,6 @@ interface MouseInjectionScope : InjectionScope {
      * Example of how scroll could be used:
      *
      * @sample androidx.compose.ui.test.samples.mouseInputScrollWhileDown
-     *
      * @param delta The amount of scroll
      * @param scrollWheel Which scroll wheel to rotate. Can be either [ScrollWheel.Vertical] (the
      *   default) or [ScrollWheel.Horizontal].
@@ -408,7 +406,6 @@ fun MouseInjectionScope.longClick(
  * Example of moving the mouse along a line:
  *
  * @sample androidx.compose.ui.test.samples.mouseInputAnimateTo
- *
  * @param position The position where to move the mouse to, in the node's local coordinate system
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
@@ -450,7 +447,6 @@ fun MouseInjectionScope.animateBy(
  * Example of moving the mouse along a curve:
  *
  * @sample androidx.compose.ui.test.samples.mouseInputAnimateAlong
- *
  * @param curve The function that defines the position of the mouse over time for this gesture, in
  *   the node's local coordinate system.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
@@ -516,7 +512,6 @@ fun MouseInjectionScope.dragAndDrop(
  * Example of a horizontal smooth scroll:
  *
  * @sample androidx.compose.ui.test.samples.mouseInputSmoothScroll
- *
  * @param scrollAmount The total delta to scroll the [scrollWheel] by
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  * @param scrollWheel Which scroll wheel will be rotated. By default [ScrollWheel.Vertical].

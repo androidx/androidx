@@ -104,7 +104,6 @@ import kotlin.math.min
  * Example usage with a [ScrollState] to control the menu items scroll position:
  *
  * @sample androidx.compose.material3.samples.MenuWithScrollStateSample
- *
  * @param expanded whether the menu is expanded or not
  * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds
@@ -151,7 +150,6 @@ expect fun DropdownMenu(
  * Example usage:
  *
  * @sample androidx.compose.material3.samples.MenuSample
- *
  * @param text text of the menu item
  * @param onClick called when this menu item is clicked
  * @param modifier the [Modifier] to be applied to this menu item

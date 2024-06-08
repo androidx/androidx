@@ -56,9 +56,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.LinearGradientColorStopSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colorStops Colors and their offset in the gradient area
          * @param start Starting position of the linear gradient. This can be set to [Offset.Zero]
          *   to position at the far left and top of the drawing area
@@ -95,9 +93,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.LinearGradientSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colors Colors to be rendered as part of the gradient
          * @param start Starting position of the linear gradient. This can be set to [Offset.Zero]
          *   to position at the far left and top of the drawing area
@@ -134,9 +130,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.HorizontalGradientSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colors colors Colors to be rendered as part of the gradient
          * @param startX Starting x position of the horizontal gradient. Defaults to 0 which
          *   represents the left of the drawing area
@@ -169,9 +163,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.HorizontalGradientColorStopSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
          *   the vertical gradient
          * @param startX Starting x position of the horizontal gradient. Defaults to 0 which
@@ -207,9 +199,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.VerticalGradientSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colors colors Colors to be rendered as part of the gradient
          * @param startY Starting y position of the vertical gradient. Defaults to 0 which
          *   represents the top of the drawing area
@@ -242,9 +232,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.VerticalGradientColorStopSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
          *   the vertical gradient
          * @param startY Starting y position of the vertical gradient. Defaults to 0 which
@@ -284,9 +272,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.RadialBrushColorStopSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
          *   the radial gradient
          * @param center Center position of the radial gradient circle. If this is set to
@@ -326,9 +312,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.RadialBrushSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colors Colors to be rendered as part of the gradient
          * @param center Center position of the radial gradient circle. If this is set to
          *   [Offset.Unspecified] then the center of the drawing area is used as the center for the
@@ -370,9 +354,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.SweepGradientColorStopSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
          *   the sweep gradient
          * @param center Center position of the sweep gradient circle. If this is set to
@@ -404,9 +386,7 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.SweepGradientSample
-         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
-         *
          * @param colors List of colors to fill the sweep gradient
          * @param center Center position of the sweep gradient circle. If this is set to
          *   [Offset.Unspecified] then the center of the drawing area is used as the center for the

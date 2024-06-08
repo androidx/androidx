@@ -187,7 +187,6 @@ constructor(
      * devices, it will always return [STATUS_UNKNOWN].
      *
      * @sample androidx.wear.remote.interactions.samples.RemoteActivityAvailabilitySample
-     *
      * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
      *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
      */

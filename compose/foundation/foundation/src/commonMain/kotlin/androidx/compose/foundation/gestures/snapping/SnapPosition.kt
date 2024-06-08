@@ -35,7 +35,6 @@ interface SnapPosition {
      * padding)
      *
      * @sample androidx.compose.foundation.samples.SnapFlingBehaviorSnapPosition
-     *
      * @param layoutSize The main axis layout size within which an item can be positioned.
      * @param itemSize The main axis size for the item being positioned within this snapping layout.
      * @param beforeContentPadding The content padding in pixels applied before this Layout's

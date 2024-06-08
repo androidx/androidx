@@ -120,7 +120,6 @@ fun interface PlatformTextInputInterceptor {
  * automatically be closed if the modifier is detached.
  *
  * @sample androidx.compose.ui.samples.platformTextInputModifierNodeSample
- *
  * @param block A suspend function that will be called when the session is started and that must
  *   call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection
  *   with the input method.
@@ -144,7 +143,6 @@ suspend fun PlatformTextInputModifierNode.establishTextInputSession(
  * cancelled and the request will be re-used to pass to the new interceptor.
  *
  * @sample androidx.compose.ui.samples.InterceptPlatformTextInputSample
- *
  * @sample androidx.compose.ui.samples.disableSoftKeyboardSample
  */
 @ExperimentalComposeUiApi

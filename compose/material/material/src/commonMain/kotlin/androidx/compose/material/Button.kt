@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
  * text:
  *
  * @sample androidx.compose.material.samples.ButtonWithIconSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -149,7 +148,6 @@ fun Button(
  * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.OutlinedButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -207,7 +205,6 @@ fun OutlinedButton(
  * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.TextButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be

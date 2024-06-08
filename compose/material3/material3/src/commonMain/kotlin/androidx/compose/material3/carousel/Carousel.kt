@@ -75,7 +75,6 @@ import kotlin.math.roundToInt
  * Example of a multi-browse carousel:
  *
  * @sample androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
- *
  * @param state The state object to be used to control the carousel's state
  * @param preferredItemWidth The width that large, fully visible items would like to be in the
  *   horizontal axis. This width is a target and will likely be adjusted by carousel in order to fit
@@ -155,7 +154,6 @@ fun HorizontalMultiBrowseCarousel(
  * Example of an uncontained carousel:
  *
  * @sample androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
- *
  * @param state The state object to be used to control the carousel's state
  * @param itemWidth The width of items in the carousel
  * @param modifier A modifier instance to be applied to this carousel container

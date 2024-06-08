@@ -147,7 +147,6 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  * If you are implementing scroll/fling behavior, consider using [scrollable].
  *
  * @sample androidx.compose.foundation.samples.DraggableSample
- *
  * @param state [DraggableState] state of the draggable. Defines how drag events will be interpreted
  *   by the user land logic.
  * @param orientation orientation of the drag

@@ -78,9 +78,8 @@ import kotlin.math.max
  *   emitting [Interaction]s for this checkbox. You can use this to change the checkbox's appearance
  *   or preview the checkbox in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
- * @see [TriStateCheckbox] if you require support for an indeterminate state.
- *
  * @sample androidx.tv.material3.samples.CheckboxSample
+ * @see [TriStateCheckbox] if you require support for an indeterminate state.
  */
 @Composable
 fun Checkbox(

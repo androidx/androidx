@@ -229,7 +229,6 @@ public inline fun <reified T : Any> NavGraphBuilder.composable(
  * Construct a nested [NavGraph]
  *
  * @sample androidx.navigation.compose.samples.NavWithArgsInNestedGraph
- *
  * @param startDestination the starting destination's route for this NavGraph
  * @param route the destination's unique route
  * @param arguments list of arguments to associate with destination
@@ -303,7 +302,6 @@ public fun NavGraphBuilder.navigation(
  * Construct a nested [NavGraph]
  *
  * @sample androidx.navigation.compose.samples.SizeTransformNav
- *
  * @param startDestination the starting destination's route for this NavGraph
  * @param route the destination's unique route
  * @param arguments list of arguments to associate with destination
@@ -363,7 +361,6 @@ public fun NavGraphBuilder.navigation(
  * Construct a nested [NavGraph]
  *
  * @sample androidx.navigation.compose.samples.SizeTransformNav
- *
  * @param T the destination's unique route from a KClass
  * @param startDestination the starting destination's route from [KClass] for this NavGraph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
@@ -465,7 +462,6 @@ public fun NavGraphBuilder.navigation(
  * Construct a nested [NavGraph]
  *
  * @sample androidx.navigation.compose.samples.SizeTransformNav
- *
  * @param T the destination's unique route from a KClass
  * @param startDestination the starting destination's route from an Object for this NavGraph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom

@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * app or from other apps:
  *
  * @sample androidx.compose.foundation.samples.TextDragAndDropTargetSample
- *
  * @param shouldStartDragAndDrop Allows the Composable to decide if it wants to receive from a given
  *   drag and drop session by inspecting the [DragAndDropEvent] that started the session.
  * @param target The [DragAndDropTarget] that will receive events for a given drag and drop session.

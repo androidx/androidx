@@ -72,13 +72,9 @@ import androidx.compose.ui.zIndex
  * Examples:
  *
  * @sample androidx.tv.material3.samples.PillIndicatorTabRow
- *
  * @sample androidx.tv.material3.samples.UnderlinedIndicatorTabRow
- *
  * @sample androidx.tv.material3.samples.TabRowWithDebounce
- *
  * @sample androidx.tv.material3.samples.OnClickNavigation
- *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
  * @param containerColor the color used for the background of this tab row

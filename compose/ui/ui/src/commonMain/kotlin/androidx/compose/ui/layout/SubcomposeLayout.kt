@@ -68,7 +68,6 @@ import androidx.compose.ui.util.fastForEach
  *   visible(say 5 of them) and compose next items when the component is scrolled.
  *
  * @sample androidx.compose.ui.samples.SubcomposeLayoutSample
- *
  * @param modifier [Modifier] to apply for the layout.
  * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
  */
@@ -99,7 +98,6 @@ fun SubcomposeLayout(
  *   visible(say 5 of them) and compose next items when the component is scrolled.
  *
  * @sample androidx.compose.ui.samples.SubcomposeLayoutSample
- *
  * @param state the state object to be used by the layout.
  * @param modifier [Modifier] to apply for the layout.
  * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.

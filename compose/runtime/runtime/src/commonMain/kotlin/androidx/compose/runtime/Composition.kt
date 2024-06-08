@@ -315,7 +315,6 @@ val ControlledComposition.recomposeCoroutineContext: CoroutineContext
  * release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param applier The [Applier] instance to be used in the composition.
  * @param parent The parent [CompositionContext].
  * @see Applier
@@ -354,7 +353,6 @@ fun ReusableComposition(applier: Applier<*>, parent: CompositionContext): Reusab
  * release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param applier The [Applier] instance to be used in the composition.
  * @param parent The parent [CompositionContext].
  * @see Applier

@@ -104,7 +104,6 @@ import kotlinx.coroutines.launch
  * For a sample showing Segmented button with only checked icons see:
  *
  * @sample androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
- *
  * @param checked whether this button is checked or not
  * @param onCheckedChange callback to be invoked when the button is clicked. therefore the change of
  *   checked state in requested.
@@ -182,7 +181,6 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * For a sample showing Segmented button with only checked icons see:
  *
  * @sample androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
- *
  * @param selected whether this button is selected or not
  * @param onClick callback to be invoked when the button is clicked. therefore the change of checked
  *   state in requested.
@@ -254,7 +252,6 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
  * is used when the selection only allows one value, for correct semantics.
  *
  * @sample androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
- *
  * @param modifier the [Modifier] to be applied to this row
  * @param space the dimension of the overlap between buttons. Should be equal to the stroke width
  *   used on the items.
@@ -292,7 +289,6 @@ fun SingleChoiceSegmentedButtonRow(
  * semantics.
  *
  * @sample androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
- *
  * @param modifier the [Modifier] to be applied to this row
  * @param space the dimension of the overlap between buttons. Should be equal to the stroke width
  *   used on the items.

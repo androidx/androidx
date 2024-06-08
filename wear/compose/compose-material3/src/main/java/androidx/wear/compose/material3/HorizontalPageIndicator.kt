@@ -81,7 +81,6 @@ import kotlin.math.roundToInt
  * Example usage with HorizontalPager:
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
- *
  * @param pageCount Total number of pages
  * @param currentPage The currently selected page index
  * @param currentPageOffsetFraction The offset fraction of the currently selected page. Represents

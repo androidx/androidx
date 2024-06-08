@@ -31,9 +31,7 @@ import androidx.compose.ui.tryPopulateReflectively
  * necessary to create and maintain an instance of the associated [Modifier.Node] type.
  *
  * @sample androidx.compose.ui.samples.ModifierNodeElementSample
- *
  * @sample androidx.compose.ui.samples.SemanticsModifierNodeSample
- *
  * @see Modifier.Node
  * @see Modifier.Element
  */

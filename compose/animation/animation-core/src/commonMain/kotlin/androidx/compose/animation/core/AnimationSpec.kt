@@ -193,10 +193,9 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
  * @param durationMillis Duration of the animation. [DefaultDurationMillis] by default.
  * @param delayMillis Time the animation waits before starting. 0 by default.
  * @param easing [Easing] applied on the animation curve. [FastOutSlowInEasing] by default.
+ * @sample androidx.compose.animation.core.samples.OffsetArcAnimationSpec
  * @see ArcMode
  * @see keyframes
- *
- * @sample androidx.compose.animation.core.samples.OffsetArcAnimationSpec
  */
 @ExperimentalAnimationSpecApi
 @Immutable
@@ -373,7 +372,6 @@ class RepeatableSpec<T>(
  * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
  *
  * @sample androidx.compose.animation.core.samples.InfiniteProgressIndicator
- *
  * @param animation the [AnimationSpec] to be repeated
  * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
  *   [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
@@ -477,7 +475,6 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
      *
      * @sample androidx.compose.animation.core.samples.floatAtSample
-     *
      * @param timeStamp The time in the during when animation should reach value: [this], with a
      *   minimum value of `0`.
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method.
@@ -495,7 +492,6 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * calling [atFraction]. For example:
      *
      * @sample androidx.compose.animation.core.samples.floatAtFractionSample
-     *
      * @param fraction The fraction when the animation should reach specified value.
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
@@ -509,7 +505,6 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * at 50 using LinearEasing
      *
      * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
-     *
      * @param easing [Easing] to be used for the next interval.
      * @return the same [E] instance so that other implementations can expand on the builder pattern
      */
@@ -554,7 +549,6 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * [KeyframesSpecConfig] can be used to create a [KeyframesSpec].
      *
      * @sample androidx.compose.animation.core.samples.KeyframesBuilderForPosition
-     *
      * @see keyframes
      */
     class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
@@ -597,7 +591,6 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * 0f at 50 with LinearEasing
          *
          * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
-         *
          * @param easing [Easing] to be used for the next interval.
          * @return the same [KeyframeEntity] instance so that other implementations can expand on
          *   the builder pattern
@@ -715,11 +708,9 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
  * - 1f: Modifies only the final velocity to match the starting velocity
  * - 0.5f: Modifies both velocities equally, picking the average between the two
  *
- * @see keyframesWithSpline
- *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
- *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ * @see keyframesWithSpline
  */
 @ExperimentalAnimationSpecApi
 @Immutable
@@ -822,7 +813,6 @@ fun <T> spring(
  * [ArcMode]:
  *
  * @sample androidx.compose.animation.core.samples.OffsetKeyframesWithArcsBuilder
- *
  * @param init Initialization function for the [KeyframesSpec] animation
  * @see KeyframesSpec.KeyframesSpecConfig
  */
@@ -835,13 +825,10 @@ fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): Keyfra
  * Creates a [KeyframesWithSplineSpec] animation, initialized with [init]. For example:
  *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
- *
  * @param init Initialization function for the [KeyframesWithSplineSpec] animation
- * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
- *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
- *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
  */
 @ExperimentalAnimationSpecApi
 fun <T> keyframesWithSpline(
@@ -935,7 +922,6 @@ fun <T> repeatable(
  * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
  *
  * @sample androidx.compose.animation.core.samples.InfiniteProgressIndicator
- *
  * @param animation animation that will be repeated
  * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
  *   [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])

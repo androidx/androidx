@@ -91,7 +91,6 @@ internal fun Modifier.increaseSemanticsBounds(): Modifier {
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.LinearProgressIndicatorSample
- *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
@@ -320,7 +319,6 @@ private fun DrawScope.drawLinearIndicatorBackground(
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.CircularProgressIndicatorSample
- *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator

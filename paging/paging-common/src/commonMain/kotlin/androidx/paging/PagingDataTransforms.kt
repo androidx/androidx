@@ -79,9 +79,7 @@ public fun <T : Any> PagingData<T>.filter(predicate: suspend (T) -> Boolean): Pa
  *   generator, `before` and `after`, will be `null` respectively. In cases where the fully
  *   paginated list is empty, a single separator will be added where both `before` and `after` items
  *   are `null`.
- *
  * @sample androidx.paging.samples.insertSeparatorsSample
- *
  * @sample androidx.paging.samples.insertSeparatorsUiModelSample
  */
 @CheckResult

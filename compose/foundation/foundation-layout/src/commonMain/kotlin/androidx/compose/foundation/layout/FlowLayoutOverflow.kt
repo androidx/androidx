@@ -93,7 +93,6 @@ private constructor(
          * other composable element that indicates the presence of additional items.
          *
          * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesWithSeeMore
-         *
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
@@ -120,7 +119,6 @@ private constructor(
          * the [expandIndicator] or the [collapseIndicator] is rendered.
          *
          * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesDynamicSeeMore
-         *
          * @param minRowsToShowCollapse Specifies the minimum number of rows that should be visible
          *   before showing the collapse option. This parameter is useful when the number of rows is
          *   too small to be reduced further.
@@ -228,7 +226,6 @@ private constructor(
          * other composable element that indicates the presence of additional items.
          *
          * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumnMaxLinesWithSeeMore
-         *
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
@@ -257,7 +254,6 @@ private constructor(
          * the [expandIndicator] or the [collapseIndicator] is rendered.
          *
          * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumnMaxLinesDynamicSeeMore
-         *
          * @param minColumnsToShowCollapse Specifies the minimum number of columns that should be
          *   visible before showing the collapse option. This parameter is useful when the number of
          *   columns is too small to be reduced further.
@@ -397,7 +393,6 @@ private constructor(
          * the [expandIndicator] or the [collapseIndicator] is rendered.
          *
          * @sample androidx.compose.foundation.layout.samples.ContextualFlowRowMaxLineDynamicSeeMore
-         *
          * @param minRowsToShowCollapse Specifies the minimum number of rows that should be visible
          *   before showing the collapse option. This parameter is useful when the number of rows is
          *   too small to be reduced further.
@@ -537,7 +532,6 @@ private constructor(
          * the [expandIndicator] or the [collapseIndicator] is rendered.
          *
          * @sample androidx.compose.foundation.layout.samples.ContextualFlowColMaxLineDynamicSeeMore
-         *
          * @param minColumnsToShowCollapse Specifies the minimum number of columns that should be
          *   visible before showing the collapse option. This parameter is useful when the number of
          *   columns is too small to be reduced further.

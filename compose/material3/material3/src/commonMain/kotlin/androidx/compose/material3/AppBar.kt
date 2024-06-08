@@ -107,14 +107,11 @@ import kotlin.math.roundToInt
  *
  * A simple top app bar looks like:
  *
- * @sample androidx.compose.material3.samples.SimpleTopAppBar
- * A top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with a scrolling content looks like:
- *
+ * @sample androidx.compose.material3.samples.SimpleTopAppBar A top app bar that uses a
+ *   [scrollBehavior] to customize its nested scrolling behavior when working in conjunction with a
+ *   scrolling content looks like:
  * @sample androidx.compose.material3.samples.PinnedTopAppBar
- *
  * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBar
- *
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
  * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
@@ -168,14 +165,11 @@ fun TopAppBar(
  *
  * A simple top app bar looks like:
  *
- * @sample androidx.compose.material3.samples.SimpleTopAppBar
- * A top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with a scrolling content looks like:
- *
+ * @sample androidx.compose.material3.samples.SimpleTopAppBar A top app bar that uses a
+ *   [scrollBehavior] to customize its nested scrolling behavior when working in conjunction with a
+ *   scrolling content looks like:
  * @sample androidx.compose.material3.samples.PinnedTopAppBar
- *
  * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBar
- *
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
  * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
@@ -241,7 +235,6 @@ fun TopAppBar(
  * behavior when working in conjunction with a scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
- *
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
  * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
@@ -299,7 +292,6 @@ fun CenterAlignedTopAppBar(
  * behavior when working in conjunction with a scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
- *
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
  * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
@@ -364,7 +356,6 @@ fun CenterAlignedTopAppBar(
  * working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
- *
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]
@@ -426,7 +417,6 @@ fun MediumTopAppBar(
  * working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
- *
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]
@@ -509,7 +499,6 @@ fun MediumTopAppBar(
  * working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
- *
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]
@@ -571,7 +560,6 @@ fun LargeTopAppBar(
  * working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
- *
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]

@@ -538,7 +538,6 @@ internal fun <T : Any> rememberSwipeableStateFor(
  * For an example of a [swipeable] with three states, see:
  *
  * @sample androidx.compose.material.samples.SwipeableSample
- *
  * @param T The type of the state.
  * @param state The state of the [swipeable].
  * @param anchors Pairs of anchors and states, used to map anchors to states and vice versa.

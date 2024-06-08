@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
  * Sample with custom item spans:
  *
  * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSpanSample
- *
  * @param columns description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.
@@ -134,7 +133,6 @@ private fun rememberColumnSlots(
  * Sample with custom item spans:
  *
  * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSpanSample
- *
  * @param rows description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.

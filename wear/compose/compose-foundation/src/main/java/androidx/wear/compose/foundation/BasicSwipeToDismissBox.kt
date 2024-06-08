@@ -476,7 +476,6 @@ enum class SwipeToDismissValue {
  * Example of a modifier usage with SwipeToDismiss
  *
  * @sample androidx.wear.compose.foundation.samples.EdgeSwipeForSwipeToDismiss
- *
  * @param swipeToDismissBoxState State of [BasicSwipeToDismissBox]. Used to trigger swipe gestures
  *   on SwipeToDismissBox.
  * @param edgeWidth Width of the edge zone in which the swipe will be recognised.

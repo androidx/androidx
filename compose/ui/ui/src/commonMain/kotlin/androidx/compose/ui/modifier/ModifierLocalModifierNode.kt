@@ -113,7 +113,6 @@ internal object EmptyMap : ModifierLocalMap() {
  * [ModifierLocalProvider] interfaces.
  *
  * @sample androidx.compose.ui.samples.JustReadingOrProvidingModifierLocalNodeSample
- *
  * @see modifierLocalOf
  * @see ModifierLocal
  * @see androidx.compose.runtime.CompositionLocal

@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
  * scroll indicator to show the position of the items in the ScalingLazyColumn as.
  *
  * @sample androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
- *
  * @param modifier optional Modifier for the root of the [Scaffold]
  * @param vignette a full screen slot for applying a vignette over the contents of the scaffold. The
  *   vignette is used to blur the screen edges when the main content is scrollable content that

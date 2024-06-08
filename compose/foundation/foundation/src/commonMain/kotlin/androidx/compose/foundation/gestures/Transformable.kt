@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
  * reflect their own state in UI when using this component.
  *
  * @sample androidx.compose.foundation.samples.TransformableSample
- *
  * @param state [TransformableState] of the transformable. Defines how transformation events will be
  *   interpreted by the user land logic, contains useful information about on-going events and
  *   provides animation capabilities.
@@ -78,7 +77,6 @@ fun Modifier.transformable(
  * transformable modifiers to work well within the scrollable container. See example:
  *
  * @sample androidx.compose.foundation.samples.TransformableSampleInsideScroll
- *
  * @param state [TransformableState] of the transformable. Defines how transformation events will be
  *   interpreted by the user land logic, contains useful information about on-going events and
  *   provides animation capabilities.

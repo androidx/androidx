@@ -153,7 +153,6 @@ import kotlinx.coroutines.launch
  * like:
  *
  * @sample androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
- *
  * @param state state of the date picker. See [rememberDatePickerState].
  * @param modifier the [Modifier] to be applied to this date picker
  * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display

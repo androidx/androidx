@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
  * Example of an expandable text:
  *
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
- *
  * @param initiallyExpanded The initial value of the state.
  * @param expandAnimationSpec The [AnimationSpec] to use when showing the extra information.
  * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
@@ -99,7 +98,6 @@ public fun <T> rememberExpandableStateMapping(
  * Example of an expandable list:
  *
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
- *
  * @param state The [ExpandableState] connected to these items.
  * @param count The number of items
  * @param key a factory of stable and unique keys representing the item. Using the same key for
@@ -169,7 +167,6 @@ public fun ScalingLazyListScope.expandableItem(
  * Example of an expandable text:
  *
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
- *
  * @param state The [ExpandableState] to connect this button to.
  * @param key A stable and unique key representing the item. Using the same key for multiple items
  *   in the list is not allowed. Type of the key should be saveable via Bundle on Android. If null

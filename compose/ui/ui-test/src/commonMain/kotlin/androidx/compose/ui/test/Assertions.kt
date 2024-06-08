@@ -342,7 +342,6 @@ fun SemanticsNodeInteractionCollection.assertAll(
  * multiple nodes match, throws an [AssertionError].
  *
  * @sample androidx.compose.ui.test.samples.waitForDisplayed
- *
  * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
  */
 fun SemanticsNodeInteraction.isDisplayed(): Boolean = checkIsDisplayed(assertIsFullyVisible = false)
@@ -353,7 +352,6 @@ fun SemanticsNodeInteraction.isDisplayed(): Boolean = checkIsDisplayed(assertIsF
  * If no matching node is found, returns true. If multiple nodes match, throws an [AssertionError].
  *
  * @sample androidx.compose.ui.test.samples.waitForNotDisplayed
- *
  * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
  */
 fun SemanticsNodeInteraction.isNotDisplayed(): Boolean =

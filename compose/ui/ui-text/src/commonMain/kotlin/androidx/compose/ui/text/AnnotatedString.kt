@@ -61,9 +61,7 @@ internal constructor(
      *   required that [Range]s of paragraphs don't overlap with each other. If there are gaps
      *   between specified paragraph [Range]s, a default paragraph will be created in between.
      * @throws IllegalArgumentException if [paragraphStyles] contains any two overlapping [Range]s.
-     *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringConstructorSample
-     *
      * @see SpanStyle
      * @see ParagraphStyle
      */
@@ -301,7 +299,6 @@ internal constructor(
      * [AnnotatedString]s:
      *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderAppendableSample
-     *
      * @param capacity initial capacity for the internal char buffer
      */
     class Builder(capacity: Int = 16) : Appendable {
@@ -497,9 +494,8 @@ internal constructor(
          * @param annotation the string annotation that is attached
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
-         * @see getStringAnnotations
-         *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
+         * @see getStringAnnotations
          */
         fun addStringAnnotation(tag: String, annotation: String, start: Int, end: Int) {
             annotations.add(MutableRange(annotation, start, end, tag))
@@ -512,9 +508,8 @@ internal constructor(
          *   TTS engine.
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
-         * @see getStringAnnotations
-         *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
+         * @see getStringAnnotations
          */
         @ExperimentalTextApi
         @Suppress("SetterReturnsThis")
@@ -530,9 +525,8 @@ internal constructor(
          * @param urlAnnotation A [UrlAnnotation] object that stores the URL being linked to.
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
-         * @see getStringAnnotations
-         *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
+         * @see getStringAnnotations
          */
         @ExperimentalTextApi
         @Suppress("SetterReturnsThis", "Deprecation")
@@ -586,7 +580,6 @@ internal constructor(
          * Applies the given [SpanStyle] to any appended text until a corresponding [pop] is called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushSample
-         *
          * @param style SpanStyle to be applied
          */
         fun pushStyle(style: SpanStyle): Int {
@@ -602,7 +595,6 @@ internal constructor(
          * called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
-         *
          * @param style ParagraphStyle to be applied
          */
         fun pushStyle(style: ParagraphStyle): Int {
@@ -617,7 +609,6 @@ internal constructor(
          * Attach the given [annotation] to any appended text until a corresponding [pop] is called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushStringAnnotationSample
-         *
          * @param tag the tag used to distinguish annotations
          * @param annotation the string annotation attached on this AnnotatedString
          * @see getStringAnnotations
@@ -636,7 +627,6 @@ internal constructor(
          * called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushStringAnnotationSample
-         *
          * @param ttsAnnotation an object that stores text to speech metadata that intended for the
          *   TTS engine.
          * @see getStringAnnotations
@@ -655,7 +645,6 @@ internal constructor(
          * called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushStringAnnotationSample
-         *
          * @param urlAnnotation A [UrlAnnotation] object that stores the URL being linked to.
          * @see getStringAnnotations
          * @see Range
@@ -993,7 +982,6 @@ internal expect fun AnnotatedString.transform(
  * Pushes [style] to the [AnnotatedString.Builder], executes [block] and then pops the [style].
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderWithStyleSample
- *
  * @param style [SpanStyle] to be applied
  * @param block function to be executed
  * @return result of the [block]
@@ -1013,7 +1001,6 @@ inline fun <R : Any> Builder.withStyle(style: SpanStyle, block: Builder.() -> R)
  * Pushes [style] to the [AnnotatedString.Builder], executes [block] and then pops the [style].
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderWithStyleSample
- *
  * @param style [SpanStyle] to be applied
  * @param block function to be executed
  * @return result of the [block]
@@ -1113,11 +1100,8 @@ inline fun <R : Any> Builder.withAnnotation(
  * @param link A [LinkAnnotation] object representing a clickable part of the text
  * @param block function to be executed
  * @return result of the [block]
- *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
- *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
- *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
  */
 inline fun <R : Any> Builder.withLink(link: LinkAnnotation, block: Builder.() -> R): R {
@@ -1183,7 +1167,6 @@ fun AnnotatedString(text: String, paragraphStyle: ParagraphStyle): AnnotatedStri
  * [builder].
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderLambdaSample
- *
  * @param builder lambda to modify [AnnotatedString.Builder]
  */
 inline fun buildAnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =

@@ -79,7 +79,6 @@ private class MulticastedPagingData<T : Any>(
  * unnecessary code unless it is being collected.
  *
  * @sample androidx.paging.samples.cachedInSample
- *
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
 @CheckResult

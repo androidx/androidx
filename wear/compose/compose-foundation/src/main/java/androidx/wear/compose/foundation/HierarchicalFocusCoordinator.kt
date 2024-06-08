@@ -47,7 +47,6 @@ import kotlinx.coroutines.CoroutineScope
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
- *
  * @param requiresFocus a function that returns true when the [content] is active in the composition
  *   and requires the focus
  * @param content The content of this component.

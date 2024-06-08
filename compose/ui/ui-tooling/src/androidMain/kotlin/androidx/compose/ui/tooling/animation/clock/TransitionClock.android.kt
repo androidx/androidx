@@ -31,13 +31,9 @@ import androidx.compose.ui.tooling.animation.states.TargetState
  * * Transition.AnimatedContent
  *
  * @sample androidx.compose.animation.core.samples.GestureAnimationSample
- *
  * @sample androidx.compose.animation.samples.AnimatedVisibilityLazyColumnSample
- *
  * @sample androidx.compose.animation.samples.CrossfadeSample
- *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
- *
  * @sample androidx.compose.animation.samples.AnimateIncrementDecrementSample
  */
 internal class TransitionClock<T>(override val animation: TransitionBasedAnimation<T>) :

@@ -104,7 +104,6 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * object (i.e. Transition<EnterExitState>) from [AnimatedVisibilityScope].
  *
  * @sample androidx.compose.animation.samples.AnimatedVisibilityWithBooleanVisibleParamNoReceiver
- *
  * @param visible defines whether the content should be visible
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding by
@@ -176,7 +175,6 @@ fun AnimatedVisibility(
  * Here's an example of using [RowScope.AnimatedVisibility] in a [Row]:
  *
  * @sample androidx.compose.animation.samples.AnimatedFloatingActionButton
- *
  * @param visible defines whether the content should be visible
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding
@@ -250,7 +248,6 @@ fun RowScope.AnimatedVisibility(
  * Here's an example of using [ColumnScope.AnimatedVisibility] in a [Column]:
  *
  * @sample androidx.compose.animation.samples.ColumnAnimatedVisibilitySample
- *
  * @param visible defines whether the content should be visible
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding
@@ -290,7 +287,6 @@ fun ColumnScope.AnimatedVisibility(
  * `Transition<EnterExitState>` (i.e. [AnimatedVisibilityScope.transition]):
  *
  * @sample androidx.compose.animation.samples.AnimatedVisibilityWithBooleanVisibleParamNoReceiver
- *
  * @see AnimatedVisibility
  */
 enum class EnterExitState {
@@ -349,7 +345,6 @@ enum class EnterExitState {
  * [ColumnScope.AnimatedVisibility] for details.
  *
  * @sample androidx.compose.animation.samples.AnimatedVisibilityLazyColumnSample
- *
  * @param visibleState defines whether the content should be visible
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding by
@@ -494,7 +489,6 @@ fun RowScope.AnimatedVisibility(
  * tree, and disposed. Both `currentState` and `targetState` will be `false` for [visibleState].
  *
  * @sample androidx.compose.animation.samples.AVColumnScopeWithMutableTransitionState
- *
  * @param visibleState defines whether the content should be visible
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding
@@ -567,7 +561,6 @@ fun ColumnScope.AnimatedVisibility(
  * animate the parent and siblings if they rely on the size of appearing/disappearing content.
  *
  * @sample androidx.compose.animation.samples.AddAnimatedVisibilityToGenericTransitionSample
- *
  * @param visible defines whether the content should be visible based on transition state T
  * @param modifier modifier for the [Layout] created to contain the [content]
  * @param enter EnterTransition(s) used for the appearing animation, fading in while expanding

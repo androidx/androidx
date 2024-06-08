@@ -227,7 +227,6 @@ fun Text(
  * See an example of displaying text with links where links apply the styling from the theme:
  *
  * @sample androidx.compose.material.samples.TextWithLinks
- *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,

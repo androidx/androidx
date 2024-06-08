@@ -73,7 +73,6 @@ import kotlinx.coroutines.launch
  * A simple example of a standard bottom sheet looks like this:
  *
  * @sample androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
- *
  * @param sheetContent the content of the bottom sheet
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param scaffoldState the state of the bottom sheet scaffold

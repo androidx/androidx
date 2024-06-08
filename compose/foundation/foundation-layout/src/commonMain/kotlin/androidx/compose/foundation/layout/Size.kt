@@ -467,7 +467,6 @@ fun Modifier.requiredSizeIn(
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleFillWidthModifier
- *
  * @sample androidx.compose.foundation.layout.samples.FillHalfWidthModifier
  */
 @Stable
@@ -489,7 +488,6 @@ private val FillWholeMaxWidth = FillElement.width(1f)
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleFillHeightModifier
- *
  * @sample androidx.compose.foundation.layout.samples.FillHalfHeightModifier
  */
 @Stable
@@ -514,7 +512,6 @@ private val FillWholeMaxHeight = FillElement.height(1f)
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleFillModifier
- *
  * @sample androidx.compose.foundation.layout.samples.FillHalfSizeModifier
  */
 @Stable

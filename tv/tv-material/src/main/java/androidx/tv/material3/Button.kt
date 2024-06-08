@@ -49,9 +49,7 @@ import androidx.tv.material3.tokens.Elevation
  * Samples:
  *
  * @sample androidx.tv.material3.samples.ButtonSample
- *
  * @sample androidx.tv.material3.samples.LikeButtonSample
- *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param onLongClick called when this button is long clicked (long-pressed).
@@ -124,7 +122,6 @@ fun Button(
  * Samples:
  *
  * @sample androidx.tv.material3.samples.OutlinedButtonSample
- *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param onLongClick called when this button is long clicked (long-pressed).

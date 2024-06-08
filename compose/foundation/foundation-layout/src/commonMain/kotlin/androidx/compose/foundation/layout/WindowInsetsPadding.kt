@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.offset
  * will not be padded again by this modifier.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsPaddingSample
- *
  * @see WindowInsets
  */
 @Stable

@@ -70,7 +70,6 @@ import kotlinx.coroutines.launch
  * Switch can be used with a custom icon via [thumbContent] parameter
  *
  * @sample androidx.compose.material3.samples.SwitchWithThumbIconSample
- *
  * @param checked whether or not this switch is checked
  * @param onCheckedChange called when this switch is clicked. If `null`, then this switch will not
  *   be interactable, unless something else handles its input events and updates its state.

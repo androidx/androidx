@@ -83,13 +83,11 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
  * @param radiusX Radius of the blur along the x axis
  * @param radiusY Radius of the blur along the y axis
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input
+ * @sample androidx.compose.ui.samples.BlurSample
+ * @sample androidx.compose.ui.samples.ImageBlurSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.BlurSample
- *
- * @sample androidx.compose.ui.samples.ImageBlurSample
  */
 @Stable
 fun Modifier.blur(
@@ -136,13 +134,11 @@ fun Modifier.blur(
  *
  * @param radius Radius of the blur along both the x and y axis
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input
+ * @sample androidx.compose.ui.samples.BlurSample
+ * @sample androidx.compose.ui.samples.ImageBlurSample
  * @see graphicsLayer
  *
  * Example usage:
- *
- * @sample androidx.compose.ui.samples.BlurSample
- *
- * @sample androidx.compose.ui.samples.ImageBlurSample
  */
 @Stable
 fun Modifier.blur(

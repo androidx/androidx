@@ -120,7 +120,6 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * content for different states:
  *
  * @sample androidx.compose.animation.samples.AnimateIncrementDecrementSample
- *
  * @see ContentTransform
  * @see AnimatedContentScope
  */
@@ -177,7 +176,6 @@ fun <S> AnimatedContent(
  * different [SizeTransform]. If no size animation is desired, [sizeTransform] can be set to `null`.
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
- *
  * @see SizeTransform
  * @see EnterTransition
  * @see ExitTransition
@@ -329,7 +327,6 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      * [animationSpec] defines the animation that will be used to animate the slide-in.
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
-     *
      * @see AnimatedContent
      * @see slideInHorizontally
      * @see slideInVertically
@@ -357,7 +354,6 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      * [animationSpec] defines the animation that will be used to animate the slide-out.
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
-     *
      * @see AnimatedContent
      * @see slideOutHorizontally
      * @see slideOutVertically
@@ -431,7 +427,6 @@ internal constructor(
      * [animationSpec] defines the animation that will be used to animate the slide-in.
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
-     *
      * @see AnimatedContent
      * @see slideInHorizontally
      * @see slideInVertically
@@ -502,7 +497,6 @@ internal constructor(
      * [animationSpec] defines the animation that will be used to animate the slide-out.
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
-     *
      * @see AnimatedContent
      * @see slideOutHorizontally
      * @see slideOutVertically
@@ -681,7 +675,6 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
  * enter/exit animations will be triggered as the content enters/leaves the container.
  *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
- *
  * @see ContentTransform
  * @see AnimatedContentScope
  */

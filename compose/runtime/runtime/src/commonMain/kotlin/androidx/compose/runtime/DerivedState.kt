@@ -322,7 +322,6 @@ private class DerivedSnapshotState<T>(
  * [SnapshotMutationPolicy] through [derivedStateOf] overload.
  *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
- *
  * @param calculation the calculation to create the value this state object represents.
  */
 @StateFactoryMarker
@@ -339,7 +338,6 @@ fun <T> derivedStateOf(
  * observed context such as a [Composable] function.
  *
  * @sample androidx.compose.runtime.samples.DerivedStateSample
- *
  * @param policy mutation policy to control when changes to the [calculation] result trigger update.
  * @param calculation the calculation to create the value this state object represents.
  */

@@ -31,9 +31,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
  *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- * @see Class3BiometricAuthPrompt.authenticate(AuthPromptHost, AuthPromptCallback)
- *
  * @sample androidx.biometric.samples.auth.class3BiometricAuth
+ * @see Class3BiometricAuthPrompt.authenticate(AuthPromptHost, AuthPromptCallback)
  */
 public suspend fun Class3BiometricAuthPrompt.authenticate(
     host: AuthPromptHost,

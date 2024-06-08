@@ -76,7 +76,6 @@ import kotlin.math.roundToInt
  * visually represented.
  *
  * @sample androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
- *
  * @param pageIndicatorState The state object of a [HorizontalPageIndicator] to be used to observe
  *   the Pager's state.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]

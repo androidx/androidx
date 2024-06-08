@@ -130,7 +130,6 @@ import kotlinx.coroutines.launch
  * We can now just pass this indicator directly to TabRow:
  *
  * @sample androidx.compose.material3.samples.FancyIndicatorContainerTabs
- *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
  * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
@@ -182,7 +181,6 @@ fun PrimaryTabRow(
  * A simple example with text tabs looks like:
  *
  * @sample androidx.compose.material3.samples.SecondaryTextTabs
- *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
  * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
@@ -277,7 +275,6 @@ fun SecondaryTabRow(
  * We can now just pass this indicator directly to TabRow:
  *
  * @sample androidx.compose.material3.samples.FancyIndicatorContainerTabs
- *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
  * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]

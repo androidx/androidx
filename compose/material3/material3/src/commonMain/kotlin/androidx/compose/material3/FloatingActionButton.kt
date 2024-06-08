@@ -75,7 +75,6 @@ import kotlinx.coroutines.launch
  * [ExtendedFloatingActionButton].
  *
  * @sample androidx.compose.material3.samples.FloatingActionButtonSample
- *
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -145,7 +144,6 @@ fun FloatingActionButton(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/small-fab.png)
  *
  * @sample androidx.compose.material3.samples.SmallFloatingActionButtonSample
- *
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -201,7 +199,6 @@ fun SmallFloatingActionButton(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/large-fab.png)
  *
  * @sample androidx.compose.material3.samples.LargeFloatingActionButtonSample
- *
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -260,7 +257,6 @@ fun LargeFloatingActionButton(
  * The other extended floating action button overload supports a text label and icon.
  *
  * @sample androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
- *
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -326,9 +322,7 @@ fun ExtendedFloatingActionButton(
  * behavior, you can provide your own via [Modifier.semantics].
  *
  * @sample androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
- *
  * @sample androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
- *
  * @param text label displayed inside this FAB
  * @param icon optional icon for this FAB, typically an [Icon]
  * @param onClick called when this FAB is clicked

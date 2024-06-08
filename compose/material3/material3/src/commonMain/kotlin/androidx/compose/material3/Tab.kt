@@ -214,7 +214,6 @@ fun LeadingIconTab(
  * A custom tab using this API may look like:
  *
  * @sample androidx.compose.material3.samples.FancyTab
- *
  * @param selected whether this tab is selected or not
  * @param onClick called when this tab is clicked
  * @param modifier the [Modifier] to be applied to this tab

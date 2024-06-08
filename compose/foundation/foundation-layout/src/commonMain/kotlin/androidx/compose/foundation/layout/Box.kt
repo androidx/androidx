@@ -55,7 +55,6 @@ import kotlin.math.max
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleBox
- *
  * @param modifier The modifier to be applied to the layout.
  * @param contentAlignment The default alignment inside the Box.
  * @param propagateMinConstraints Whether the incoming min constraints should be passed to content.
@@ -230,7 +229,6 @@ private fun Placeable.PlacementScope.placeInBox(
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleBox
- *
  * @param modifier The modifier to be applied to the layout.
  */
 @Composable

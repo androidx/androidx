@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.dp
  * Example:
  *
  * @sample androidx.compose.foundation.layout.samples.ContextualFlowRowMaxLineDynamicSeeMore
- *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
@@ -119,7 +118,6 @@ fun ContextualFlowRow(
  * Example:
  *
  * @sample androidx.compose.foundation.layout.samples.ContextualFlowColMaxLineDynamicSeeMore
- *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual column.
@@ -188,7 +186,6 @@ interface ContextualFlowRowScope : FlowRowScope {
      * Example:
      *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
-     *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
     val lineIndex: Int
@@ -204,7 +201,6 @@ interface ContextualFlowRowScope : FlowRowScope {
      * Example:
      *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
-     *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
     val indexInLine: Int
@@ -253,7 +249,6 @@ interface ContextualFlowColumnScope : FlowColumnScope {
      * Example:
      *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
-     *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
     val lineIndex: Int
@@ -269,7 +264,6 @@ interface ContextualFlowColumnScope : FlowColumnScope {
      * Example:
      *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
-     *
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
     val indexInLine: Int

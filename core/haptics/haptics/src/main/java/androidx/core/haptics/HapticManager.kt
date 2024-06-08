@@ -43,7 +43,6 @@ interface HapticManager {
          * vibrator check [Vibrator.hasVibrator] returns true, and returns null otherwise.
          *
          * @sample androidx.core.haptics.samples.PlaySystemStandardClick
-         *
          * @param context Context to load the device vibrator.
          * @return a new instance of HapticManager for the system vibrator, or null if the device
          *   does not have a vibrator motor.
@@ -80,7 +79,6 @@ interface HapticManager {
      * Play a [HapticSignal].
      *
      * @sample androidx.core.haptics.samples.PlayHapticSignal
-     *
      * @param signal The haptic signal to be played.
      * @param attrs The attributes corresponding to the haptic signal. For example, specify
      *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
@@ -96,7 +94,6 @@ interface HapticManager {
      * [HapticSignal] only once using this [deviceProfile] and then reusing it.
      *
      * @sample androidx.core.haptics.samples.PlayResolvableHapticSignal
-     *
      * @param signal The haptic signal to be resolved using this device profile and played.
      * @param attrs The attributes corresponding to the haptic signal. For example, specify
      *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
