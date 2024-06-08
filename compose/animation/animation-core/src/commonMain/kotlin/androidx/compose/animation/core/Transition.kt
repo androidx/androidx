@@ -198,7 +198,8 @@ private val SeekableTransitionStateTotalDurationChanged: (SeekableTransitionStat
     it.onTotalDurationChanged()
 }
 
-private val SeekableStateObserver: SnapshotStateObserver by
+// This observer is also accessed from test. It should be otherwise treated as private.
+internal val SeekableStateObserver: SnapshotStateObserver by
     lazy(LazyThreadSafetyMode.NONE) { SnapshotStateObserver { it() }.apply { start() } }
 
 /**
@@ -807,12 +808,12 @@ fun <T> rememberTransition(
         }
     } else {
         transition.animateTo(transitionState.targetState)
-        DisposableEffect(transition) {
-            onDispose {
-                // Clean up on the way out, to ensure the observers are not stuck in an in-between
-                // state.
-                transition.onDisposed()
-            }
+    }
+    DisposableEffect(transition) {
+        onDispose {
+            // Clean up on the way out, to ensure the observers are not stuck in an in-between
+            // state.
+            transition.onDisposed()
         }
     }
     return transition
