@@ -23,7 +23,6 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -561,7 +560,6 @@ src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't us
      * experimentally-annotated annotations.
      */
     @Test
-    @Ignore("b/313686921")
     fun regressionTestJava313686921() {
         val input =
             arrayOf(
@@ -571,13 +569,10 @@ src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't us
 
         val expected =
             """
-src/sample/optin/RegressionTestJava313686921.java:31: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-        return param;
-               ~~~~~
-src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-        unsafeAnnotatedAnnotationUsageOnMethod("param");
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
+src/sample/optin/RegressionTestJava313686921.java:30: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+    public void unsafeAnnotatedAnnotationUsageOnParam(@AnnotatedJavaAnnotation Object param) {
+                                                                                      ~~~~~
+1 errors, 0 warnings
         """
                 .trimIndent()
 
@@ -589,7 +584,6 @@ src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is
      * experimentally-annotated annotations.
      */
     @Test
-    @Ignore("b/313686921")
     fun regressionTestKotlin313686921() {
         val input =
             arrayOf(
@@ -599,9 +593,9 @@ src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is
 
         val expected =
             """
-src/sample/optin/AnnotatedKotlinAnnotation.kt:22: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-    return param
-           ~~~~~
+src/sample/optin/AnnotatedKotlinAnnotation.kt:21: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+fun unsafeAnnotatedAnnotationUsage(@AnnotatedKotlinAnnotation param: Any): Any {
+                                                              ~~~~~
 1 errors, 0 warnings
         """
                 .trimIndent()
@@ -611,7 +605,6 @@ src/sample/optin/AnnotatedKotlinAnnotation.kt:22: Error: This declaration is opt
 
     /** Regression test for b/344616929 that shows where to put @OptIn: use-site! */
     @Test
-    @Ignore("b/313686921")
     fun regressionTestJava344616929() {
         val input =
             arrayOf(

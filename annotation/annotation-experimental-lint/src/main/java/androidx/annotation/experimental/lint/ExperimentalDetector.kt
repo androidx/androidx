@@ -24,6 +24,7 @@ import com.android.tools.lint.detector.api.AnnotationOrigin
 import com.android.tools.lint.detector.api.AnnotationUsageInfo
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.AnnotationUsageType.ASSIGNMENT_RHS
+import com.android.tools.lint.detector.api.AnnotationUsageType.DEFINITION
 import com.android.tools.lint.detector.api.AnnotationUsageType.FIELD_REFERENCE
 import com.android.tools.lint.detector.api.AnnotationUsageType.METHOD_CALL_PARAMETER
 import com.android.tools.lint.detector.api.Category
@@ -89,6 +90,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         )
 
     override fun applicableSuperClasses(): List<String> = listOf("java.lang.Object")
+
+    override fun isApplicableAnnotationUsage(type: AnnotationUsageType): Boolean {
+        return when (type) {
+            DEFINITION -> true
+            else -> super.isApplicableAnnotationUsage(type)
+        }
+    }
 
     override fun visitClass(
         context: JavaContext,
@@ -427,7 +435,6 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        val annotation = annotationInfo.annotation
         when (annotationInfo.qualifiedName) {
             JAVA_EXPERIMENTAL_ANNOTATION,
             JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
@@ -436,9 +443,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 // annotation that it doesn't understand.
                 checkExperimentalUsage(
                     context,
-                    annotation,
-                    referenced,
-                    usageInfo.usage,
+                    annotationInfo,
+                    usageInfo,
                     listOf(JAVA_USE_EXPERIMENTAL_ANNOTATION, JAVA_OPT_IN_ANNOTATION),
                 )
             }
@@ -451,9 +457,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 if (!isKotlin(usageInfo.usage.lang)) {
                     checkExperimentalUsage(
                         context,
-                        annotation,
-                        referenced,
-                        usageInfo.usage,
+                        annotationInfo,
+                        usageInfo,
                         listOf(
                             KOTLIN_USE_EXPERIMENTAL_ANNOTATION,
                             KOTLIN_OPT_IN_ANNOTATION,
@@ -467,38 +472,40 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * Check whether the given experimental API [annotation] can be referenced from [usage] call
-     * site.
+     * Check whether the given experimental API [annotationInfo] can be referenced from [usageInfo]
+     * call site.
      *
      * @param context the lint scanning context
-     * @param annotation the experimental opt-in annotation detected on the referenced element
-     * @param usage the element whose usage should be checked
+     * @param annotationInfo the experimental opt-in annotation detected on the referenced element
+     * @param usageInfo the element whose usage should be checked
      * @param optInFqNames fully-qualified class name for experimental opt-in annotation
      */
     private fun checkExperimentalUsage(
         context: JavaContext,
-        annotation: UAnnotation,
-        referenced: PsiElement?,
-        usage: UElement,
+        annotationInfo: AnnotationInfo,
+        usageInfo: AnnotationUsageInfo,
         optInFqNames: List<String>
     ) {
+        val annotation = annotationInfo.annotation
         val annotationFqName = (annotation.uastParent as? UClass)?.qualifiedName ?: return
 
         // This method may get called multiple times when there is more than one instance of the
         // annotation in the hierarchy. We don't care which one we're looking at, but we shouldn't
         // report the same usage and annotation pair multiple times.
-        val visitedAnnotations = visitedUsages.getOrPut(usage) { mutableSetOf() }
+        val visitedAnnotations = visitedUsages.getOrPut(usageInfo.usage) { mutableSetOf() }
         if (!visitedAnnotations.add(annotationFqName)) {
             return
         }
 
+        val referenced = usageInfo.referenced
+        val usage = usageInfo.usage
         // Check whether the usage actually considered experimental.
         val decl =
             referenced as? UElement
                 ?: referenced.toUElement()
                 ?: usage.getReferencedElement()
                 ?: return
-        if (!decl.isExperimentalityRequired(context, annotationFqName)) {
+        if (!decl.isExperimentalityRequired(context, annotationFqName, usageInfo.type)) {
             return
         }
 
@@ -547,16 +554,22 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     private fun UElement.isExperimentalityRequired(
         context: JavaContext,
         annotationFqName: String,
+        type: AnnotationUsageType,
     ): Boolean {
+        // Look up annotated annotations only for DEFINITION usage type.
+        val evaluator = context.evaluator.takeIf { type == DEFINITION }
         // Is the element itself experimental?
-        if (isDeclarationAnnotatedWith(annotationFqName)) {
+        if (isDeclarationAnnotatedWith(annotationFqName, evaluator)) {
             return true
         }
 
         // Is a parent of the element experimental? Kotlin's implementation skips this check if
         // the current element is a constructor method, but it's required when we're looking at
         // the syntax tree through UAST. Unclear why.
-        if ((uastParent as? UClass)?.isExperimentalityRequired(context, annotationFqName) == true) {
+        if (
+            (uastParent as? UClass)?.isExperimentalityRequired(context, annotationFqName, type) ==
+                true
+        ) {
             return true
         }
 
@@ -569,7 +582,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // which is landed on the backing field if any
         if (sourcePsi is KtProperty && this is UMethod) {
             val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
-            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
+            if (
+                backingField?.isDeclarationAnnotatedWith(annotationFqName, context.evaluator) ==
+                    true
+            ) {
                 return true
             }
         }
@@ -870,13 +886,23 @@ private fun PsiPackage.isAnnotatedWithOptInOf(
         }
     }
 
-/** Returns whether the element declaration is annotated with the specified annotation */
+/**
+ * Returns whether the element declaration is annotated with the specified annotation or annotated
+ * with annotation that is annotated with the specified annotation
+ */
 private fun UElement.isDeclarationAnnotatedWith(
     annotationFqName: String,
+    evaluator: JavaEvaluator? = null,
 ): Boolean {
     return (this as? UAnnotated)?.uAnnotations?.firstOrNull { uAnnotation ->
         // Directly annotated
-        uAnnotation.qualifiedName == annotationFqName
+        if (uAnnotation.qualifiedName == annotationFqName) return@firstOrNull true
+
+        // Annotated with an annotation that is annotated with the specified annotation
+        val cls = uAnnotation.resolve()
+        if (cls == null || !cls.isAnnotationType) return@firstOrNull false
+        val metaAnnotations = evaluator?.getAnnotations(cls, inHierarchy = false)
+        metaAnnotations?.find { it.qualifiedName == annotationFqName } != null
     } != null
 }
 
