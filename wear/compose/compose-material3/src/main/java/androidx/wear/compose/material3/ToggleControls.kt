@@ -34,13 +34,9 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -51,43 +47,6 @@ import androidx.wear.compose.materialcore.SelectionStage
 import androidx.wear.compose.materialcore.animateSelectionColor
 import androidx.wear.compose.materialcore.animateTick
 import androidx.wear.compose.materialcore.isLayoutDirectionRtl
-
-/**
- * [Checkbox] provides an animated checkbox for use as a toggle control in [ToggleButton] or
- * [SplitToggleButton].
- *
- * Checkbox sample:
- *
- * @sample androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
- * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
- *   description for accessibility.
- * @param colors [CheckboxColors] from which the box and checkmark colors will be obtained.
- */
-@Composable
-fun ToggleControlScope.Checkbox(
-    modifier: Modifier = Modifier,
-    colors: CheckboxColors = CheckboxDefaults.colors(),
-) =
-    androidx.wear.compose.materialcore.Checkbox(
-        checked = isChecked,
-        modifier = modifier,
-        boxColor = { isEnabled, isChecked ->
-            colors.boxColor(enabled = isEnabled, checked = isChecked)
-        },
-        checkmarkColor = { isEnabled, isChecked ->
-            colors.checkmarkColor(enabled = isEnabled, checked = isChecked)
-        },
-        enabled = isEnabled,
-        onCheckedChange = null,
-        interactionSource = null,
-        drawBox = { drawScope, color, progress, isRtl ->
-            drawScope.drawBox(color = color, progress = progress, isRtl = isRtl)
-        },
-        progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
-        width = WIDTH,
-        height = CHECKBOX_HEIGHT,
-        ripple = rippleOrFallbackImplementation()
-    )
 
 /**
  * [Switch] provides an animated switch for use as a toggle control in [ToggleButton] or
@@ -495,41 +454,6 @@ object SwitchDefaults {
         )
 }
 
-private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
-    // Centering vertically.
-    val topCornerPx = (CHECKBOX_HEIGHT - BOX_SIZE).toPx() / 2
-    val strokeWidthPx = BOX_STROKE.toPx()
-    val halfStrokeWidthPx = strokeWidthPx / 2.0f
-    val radiusPx = BOX_RADIUS.toPx()
-    val checkboxSizePx = BOX_SIZE.toPx()
-    // Aligning the box to the end.
-    val startXOffsetPx = if (isRtl) 0f else (WIDTH - CHECKBOX_HEIGHT).toPx()
-
-    // Draw the outline of the box.
-    drawRoundRect(
-        color,
-        topLeft =
-            Offset(
-                topCornerPx + halfStrokeWidthPx + startXOffsetPx,
-                topCornerPx + halfStrokeWidthPx
-            ),
-        size = Size(checkboxSizePx - strokeWidthPx, checkboxSizePx - strokeWidthPx),
-        cornerRadius = CornerRadius(radiusPx - halfStrokeWidthPx),
-        alpha = 1 - progress,
-        style = Stroke(strokeWidthPx)
-    )
-
-    // Fills the box.
-    drawRoundRect(
-        color,
-        topLeft = Offset(topCornerPx + startXOffsetPx, topCornerPx),
-        size = Size(checkboxSizePx, checkboxSizePx),
-        cornerRadius = CornerRadius(radiusPx),
-        alpha = progress,
-        style = Fill
-    )
-}
-
 private fun DrawScope.drawThumbAndTick(
     enabled: Boolean,
     checked: Boolean,
@@ -593,10 +517,6 @@ private fun DrawScope.drawThumbAndTick(
     )
 }
 
-private val BOX_STROKE = 2.dp
-private val BOX_RADIUS = 2.dp
-private val BOX_SIZE = 18.dp
-
 private val THUMB_RADIUS_UNCHECKED = 6.dp
 private val THUMB_RADIUS_CHECKED = 9.dp
 private val SWITCH_HEIGHT = 22.dp
@@ -605,8 +525,6 @@ private val WIDTH = 32.dp
 private val SWITCH_TRACK_WIDTH = 2.dp
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
-    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
-private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SWITCH_PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
     tween(MotionTokens.DurationMedium2, 0, MotionTokens.EasingStandardDecelerate)

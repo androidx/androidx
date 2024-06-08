@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitCheckboxButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Sampled
 @Composable
-fun ToggleButtonWithSwitch() {
+fun CheckboxButtonSample() {
     var checked by remember { mutableStateOf(true) }
-    ToggleButton(
-        label = { Text("Switch", maxLines = 3, overflow = TextOverflow.Ellipsis) },
+    CheckboxButton(
+        label = { Text("Checkbox Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         secondaryLabel = {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
         icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
         enabled = true,
@@ -50,16 +48,17 @@ fun ToggleButtonWithSwitch() {
 
 @Sampled
 @Composable
-fun SplitToggleButtonWithSwitch() {
+fun SplitCheckboxButtonSample() {
     var checked by remember { mutableStateOf(true) }
-    SplitToggleButton(
-        label = { Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis) },
+    SplitCheckboxButton(
+        label = { Text("Split Checkbox Button", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         checked = checked,
-        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
-        onClick = {
+        toggleContentDescription = "Split Checkbox Sample",
+        onContainerClick = {
             /* Do something */
         },
+        containerClickLabel = "click",
         enabled = true,
     )
 }

@@ -281,6 +281,7 @@ public fun SplitToggleChip(
         enabled = enabled,
         checkedInteractionSource = checkedInteractionSource,
         clickInteractionSource = clickInteractionSource,
+        onClickLabel = null,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,

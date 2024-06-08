@@ -51,34 +51,6 @@ class ToggleControlsScreenshotTest {
     @get:Rule val testName = TestName()
 
     @Test
-    fun checkbox_checked_enabled() = verifyScreenshot {
-        with(ToggleControlScope(isChecked = true, isEnabled = true)) {
-            Checkbox(modifier = testBackgroundModifier())
-        }
-    }
-
-    @Test
-    fun checkbox_unchecked_enabled() = verifyScreenshot {
-        with(ToggleControlScope(isChecked = false, isEnabled = true)) {
-            Checkbox(modifier = testBackgroundModifier())
-        }
-    }
-
-    @Test
-    fun checkbox_checked_disabled() = verifyScreenshot {
-        with(ToggleControlScope(isChecked = true, isEnabled = false)) {
-            Checkbox(modifier = testBackgroundModifier())
-        }
-    }
-
-    @Test
-    fun checkbox_unchecked_disabled() = verifyScreenshot {
-        with(ToggleControlScope(isChecked = false, isEnabled = false)) {
-            Checkbox(modifier = testBackgroundModifier())
-        }
-    }
-
-    @Test
     fun switch_checked_enabled() = verifyScreenshot {
         with(ToggleControlScope(isChecked = true, isEnabled = true)) {
             Switch(modifier = testBackgroundModifier())

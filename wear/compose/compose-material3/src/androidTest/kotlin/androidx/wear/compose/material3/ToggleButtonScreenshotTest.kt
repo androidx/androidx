@@ -51,15 +51,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun toggle_button_checked_checkbox() = verifyScreenshot {
-        sampleToggleButton(checked = true, toggleControl = { Checkbox() })
+        sampleCheckboxButton(enabled = true, checked = true)
     }
 
     @Test
     fun toggle_button_unchecked_checkbox() = verifyScreenshot {
-        sampleToggleButton(
-            checked = false,
-            toggleControl = { Checkbox() },
-        )
+        sampleCheckboxButton(enabled = true, checked = false)
     }
 
     @Test
@@ -75,13 +72,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun toggle_button_checked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = true, toggleControl = { Checkbox() })
+            sampleCheckboxButton(enabled = true, checked = true)
         }
 
     @Test
     fun toggle_button_unchecked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = false, toggleControl = { Checkbox() })
+            sampleCheckboxButton(enabled = true, checked = false)
         }
 
     @Test
@@ -98,12 +95,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun disabled_toggle_button_checked_checkbox() = verifyScreenshot {
-        sampleToggleButton(checked = true, enabled = false, toggleControl = { Checkbox() })
+        sampleCheckboxButton(checked = true, enabled = false)
     }
 
     @Test
     fun disabled_toggle_button_unchecked_checkbox() = verifyScreenshot {
-        sampleToggleButton(checked = false, enabled = false, toggleControl = { Checkbox() })
+        sampleCheckboxButton(checked = false, enabled = false)
     }
 
     @Test
@@ -119,13 +116,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun disabled_toggle_button_checked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = true, enabled = false, toggleControl = { Checkbox() })
+            sampleCheckboxButton(checked = true, enabled = false)
         }
 
     @Test
     fun disabled_toggle_button_unchecked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleToggleButton(checked = false, enabled = false, toggleControl = { Checkbox() })
+            sampleCheckboxButton(checked = false, enabled = false)
         }
 
     @Test
@@ -142,12 +139,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun split_toggle_button_checked_checkbox() = verifyScreenshot {
-        sampleSplitToggleButton(checked = true, toggleControl = { Checkbox() })
+        sampleSplitCheckboxButton(checked = true)
     }
 
     @Test
     fun split_toggle_button_unchecked_checkbox() = verifyScreenshot {
-        sampleSplitToggleButton(checked = false, toggleControl = { Checkbox() })
+        sampleSplitCheckboxButton(checked = false)
     }
 
     @Test
@@ -163,13 +160,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun split_toggle_button_checked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = true, toggleControl = { Checkbox() })
+            sampleSplitCheckboxButton(checked = true)
         }
 
     @Test
     fun split_toggle_button_unchecked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = false, toggleControl = { Checkbox() })
+            sampleSplitCheckboxButton(checked = false)
         }
 
     @Test
@@ -186,12 +183,12 @@ class ToggleButtonScreenshotTest {
 
     @Test
     fun disabled_split_toggle_button_checked_checkbox() = verifyScreenshot {
-        sampleSplitToggleButton(checked = true, enabled = false, toggleControl = { Checkbox() })
+        sampleSplitCheckboxButton(checked = true, enabled = false)
     }
 
     @Test
     fun disabled_split_toggle_button_unchecked_checkbox() = verifyScreenshot {
-        sampleSplitToggleButton(checked = false, enabled = false, toggleControl = { Checkbox() })
+        sampleSplitCheckboxButton(checked = false, enabled = false)
     }
 
     @Test
@@ -207,17 +204,13 @@ class ToggleButtonScreenshotTest {
     @Test
     fun disabled_split_toggle_button_checked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(checked = true, enabled = false, toggleControl = { Checkbox() })
+            sampleSplitCheckboxButton(checked = true, enabled = false)
         }
 
     @Test
     fun disabled_split_toggle_button_unchecked_checkbox_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitToggleButton(
-                checked = false,
-                enabled = false,
-                toggleControl = { Checkbox() }
-            )
+            sampleSplitCheckboxButton(checked = false, enabled = false)
         }
 
     @Test
@@ -233,10 +226,43 @@ class ToggleButtonScreenshotTest {
         }
 
     @Composable
+    private fun sampleCheckboxButton(
+        enabled: Boolean = true,
+        checked: Boolean = true,
+    ) {
+        CheckboxButton(
+            icon = { TestIcon() },
+            label = { Text("ToggleButton") },
+            secondaryLabel = { Text("Secondary label") },
+            checked = checked,
+            enabled = enabled,
+            onCheckedChange = {},
+            modifier = Modifier.testTag(TEST_TAG),
+        )
+    }
+
+    @Composable
+    private fun sampleSplitCheckboxButton(
+        checked: Boolean = true,
+        enabled: Boolean = true,
+    ) {
+        SplitCheckboxButton(
+            label = { Text("SplitToggleButton") },
+            secondaryLabel = { Text("Secondary label") },
+            checked = checked,
+            enabled = enabled,
+            onCheckedChange = {},
+            onContainerClick = {},
+            toggleContentDescription = "",
+            modifier = Modifier.testTag(TEST_TAG),
+        )
+    }
+
+    @Composable
     private fun sampleToggleButton(
         enabled: Boolean = true,
         checked: Boolean = true,
-        toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() },
+        toggleControl: @Composable ToggleControlScope.() -> Unit = { Switch() },
     ) {
         ToggleButton(
             icon = { TestIcon() },

@@ -970,6 +970,7 @@ private fun SplitToggleButtonWithDefaults(
     enabled: Boolean = true,
     checkedInteractionSource: MutableInteractionSource? = null,
     clickInteractionSource: MutableInteractionSource? = null,
+    onClickLabel: String? = "click",
     contentPadding: PaddingValues =
         PaddingValues(
             start = CHIP_HORIZONTAL_PADDING,
@@ -993,6 +994,7 @@ private fun SplitToggleButtonWithDefaults(
         enabled = enabled,
         checkedInteractionSource = checkedInteractionSource,
         clickInteractionSource = clickInteractionSource,
+        onClickLabel = onClickLabel,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,
