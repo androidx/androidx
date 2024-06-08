@@ -114,7 +114,11 @@ fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
     name: String,
     workRequest: WorkRequest,
 ): Operation =
-    launchOperation(workTaskExecutor.serialTaskExecutor) {
+    launchOperation(
+        configuration.tracer,
+        "enqueueUniquePeriodic_$name",
+        workTaskExecutor.serialTaskExecutor
+    ) {
         val enqueueNew = {
             val requests = listOf(workRequest)
             val continuation = WorkContinuationImpl(this, name, ExistingWorkPolicy.KEEP, requests)

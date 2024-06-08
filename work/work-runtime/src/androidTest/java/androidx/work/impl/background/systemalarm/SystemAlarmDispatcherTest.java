@@ -54,6 +54,7 @@ import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
 import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Tracer;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
@@ -131,6 +132,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         Scheduler scheduler = mock(Scheduler.class);
+        Tracer tracer = mock(Tracer.class);
+        when(tracer.isEnabled()).thenReturn(true);
         mWorkManager = mock(WorkManagerImpl.class);
         mLatch = new CountDownLatch(1);
         SystemAlarmDispatcher.CommandsCompletedListener completedListener =
@@ -142,7 +145,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 };
 
         TaskExecutor instantTaskExecutor = new TaskExecutor() {
-
             @Override
             @NonNull
             public Executor getMainThreadExecutor() {
@@ -182,6 +184,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         Logger.setLogger(new Logger.LogcatLogger(Log.DEBUG));
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
+                .setTracer(tracer)
                 .build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(configuration);

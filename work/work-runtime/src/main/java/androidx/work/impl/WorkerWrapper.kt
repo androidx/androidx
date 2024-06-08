@@ -127,8 +127,9 @@ class WorkerWrapper internal constructor(builder: Builder) {
     }
 
     private suspend fun runWorker(): Resolution {
+        val isTracingEnabled = configuration.tracer.isEnabled()
         val traceTag = workSpec.traceTag
-        if (traceTag != null) {
+        if (isTracingEnabled && traceTag != null) {
             configuration.tracer.beginAsyncSection(
                 traceTag,
                 // Use hashCode() instead of a generational id given we want to allow concurrent
@@ -274,7 +275,7 @@ class WorkerWrapper internal constructor(builder: Builder) {
             if (it is WorkerStoppedException) {
                 worker.stop(it.reason)
             }
-            if (traceTag != null) {
+            if (isTracingEnabled && traceTag != null) {
                 configuration.tracer.endAsyncSection(traceTag, workSpec.hashCode())
             }
         }
