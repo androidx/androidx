@@ -10,6 +10,14 @@ package androidx.sqlite.db.framework {
 
 package androidx.sqlite.driver {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AndroidSQLiteConnection implements androidx.sqlite.SQLiteConnection {
+    ctor public AndroidSQLiteConnection(android.database.sqlite.SQLiteDatabase db);
+    method public void close();
+    method public android.database.sqlite.SQLiteDatabase getDb();
+    method public androidx.sqlite.SQLiteStatement prepare(String sql);
+    property public final android.database.sqlite.SQLiteDatabase db;
+  }
+
   public final class AndroidSQLiteDriver implements androidx.sqlite.SQLiteDriver {
     ctor public AndroidSQLiteDriver();
     method public androidx.sqlite.SQLiteConnection open(String fileName);
