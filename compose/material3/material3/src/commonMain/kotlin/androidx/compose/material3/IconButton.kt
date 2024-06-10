@@ -98,10 +98,7 @@ fun IconButton(
                     role = Role.Button,
                     interactionSource = interactionSource,
                     indication =
-                        rippleOrFallbackImplementation(
-                            bounded = false,
-                            radius = IconButtonTokens.StateLayerSize / 2
-                        )
+                        ripple(bounded = false, radius = IconButtonTokens.StateLayerSize / 2)
                 )
                 .childSemantics(),
         contentAlignment = Alignment.Center
@@ -164,10 +161,7 @@ fun IconToggleButton(
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
                     indication =
-                        rippleOrFallbackImplementation(
-                            bounded = false,
-                            radius = IconButtonTokens.StateLayerSize / 2
-                        )
+                        ripple(bounded = false, radius = IconButtonTokens.StateLayerSize / 2)
                 ),
         contentAlignment = Alignment.Center
     ) {

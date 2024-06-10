@@ -158,10 +158,7 @@ private fun SwitchImpl(
                     .indication(
                         interactionSource = interactionSource,
                         indication =
-                            rippleOrFallbackImplementation(
-                                bounded = false,
-                                radius = SwitchTokens.StateLayerSize / 2
-                            )
+                            ripple(bounded = false, radius = SwitchTokens.StateLayerSize / 2)
                     )
                     .background(resolvedThumbColor, thumbShape),
             contentAlignment = Alignment.Center

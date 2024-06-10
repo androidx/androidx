@@ -163,7 +163,7 @@ fun LeadingIconTab(
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rippleOrFallbackImplementation(bounded = true, color = selectedContentColor)
+    val ripple = ripple(bounded = true, color = selectedContentColor)
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Row(
@@ -234,7 +234,7 @@ fun Tab(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rippleOrFallbackImplementation(bounded = true, color = selectedContentColor)
+    val ripple = ripple(bounded = true, color = selectedContentColor)
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Column(

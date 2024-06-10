@@ -312,7 +312,6 @@ class RippleTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rippleConfiguration_color_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -355,7 +354,6 @@ class RippleTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rippleConfiguration_color_explicitColorSet_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -404,7 +402,6 @@ class RippleTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rippleConfiguration_alpha_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -450,7 +447,6 @@ class RippleTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rippleConfiguration_disabled_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -489,7 +485,6 @@ class RippleTest {
      * color of currently active ripples unless they are being drawn on the UI thread (which should
      * only happen if the target radius also changes).
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rippleConfigurationChangeDuringRipple_dragged() {
         val interactionSource = MutableInteractionSource()
@@ -558,62 +553,6 @@ class RippleTest {
             // The ripple should now be removed
             Truth.assertThat(Color(centerPixel)).isEqualTo(RippleBoxBackgroundColor)
         }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Suppress("DEPRECATION_ERROR")
-    @Test
-    fun fallback_customRippleTheme() {
-        val interactionSource = MutableInteractionSource()
-
-        val contentColor = Color.Black
-
-        val rippleColor = Color.Red
-        val expectedAlpha = 0.5f
-        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
-
-        val rippleTheme =
-            object : androidx.compose.material.ripple.RippleTheme {
-                @Deprecated("Super method is deprecated")
-                @Composable
-                override fun defaultColor() = rippleColor
-
-                @Deprecated("Super method is deprecated")
-                @Composable
-                override fun rippleAlpha() = rippleAlpha
-            }
-
-        var scope: CoroutineScope? = null
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme,
-                    LocalUseFallbackRippleImplementation provides true
-                ) {
-                    Surface(contentColor = contentColor) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            RippleBoxWithBackground(
-                                interactionSource,
-                                rippleOrFallbackImplementation(),
-                                bounded = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val expectedColor =
-            calculateResultingRippleColor(rippleColor, rippleOpacity = expectedAlpha)
-
-        assertRippleMatches(
-            scope!!,
-            interactionSource,
-            PressInteraction.Press(Offset(10f, 10f)),
-            expectedColor
-        )
     }
 
     /**

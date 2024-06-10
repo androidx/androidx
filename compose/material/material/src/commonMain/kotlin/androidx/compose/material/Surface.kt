@@ -227,7 +227,7 @@ fun Surface(
                     )
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onClick = onClick
                     ),
@@ -337,7 +337,7 @@ fun Surface(
                     .selectable(
                         selected = selected,
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onClick = onClick
                     ),
@@ -447,7 +447,7 @@ fun Surface(
                     .toggleable(
                         value = checked,
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onValueChange = onCheckedChange
                     ),
