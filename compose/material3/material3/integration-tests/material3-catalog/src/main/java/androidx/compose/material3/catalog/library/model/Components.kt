@@ -225,6 +225,18 @@ private val FloatingActionButtons =
         examples = FloatingActionButtonsExamples,
     )
 
+private val FloatingAppBars =
+    Component(
+        id = nextId(),
+        name = "Floating App Bar",
+        description = "A floating app bar displays key actions above the content.",
+        // No floating app bar icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/floating-app-bars",
+        docsUrl = "$DocsUrl#floatingappbar",
+        sourceUrl = "$Material3SourceUrl/AppBar.kt",
+        examples = FloatingAppBarsExamples
+    )
+
 private val IconButtons =
     Component(
         id = nextId(),
@@ -502,6 +514,7 @@ val Components =
         Dialogs,
         ExtendedFloatingActionButton,
         FloatingActionButtons,
+        FloatingAppBars,
         IconButtons,
         Lists,
         Menus,
