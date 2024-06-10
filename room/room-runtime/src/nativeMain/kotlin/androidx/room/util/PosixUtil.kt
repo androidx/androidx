@@ -23,4 +23,4 @@ import platform.posix.strerror
 
 /** Convenience function to get a String description of the last error number. */
 @OptIn(ExperimentalForeignApi::class)
-fun stringError(): String = strerror(errno)?.toKString() ?: "Unknown error"
+fun stringError(): String = "$errno - " + (strerror(errno)?.toKString() ?: "Unknown error")
