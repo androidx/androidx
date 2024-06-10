@@ -151,10 +151,7 @@ public final class androidx/compose/ui/ComposeScene {
 	public final fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public final fun getRoots ()Ljava/util/Set;
 	public final fun hasInvalidations ()Z
-	public final fun moveFocus-3ESFkO8 (I)Z
-	public final fun releaseFocus ()V
 	public final fun render (Lorg/jetbrains/skia/Canvas;J)V
-	public final fun requestFocus ()V
 	public final fun sendKeyEvent-ZmokQxo (Ljava/lang/Object;)Z
 	public final fun sendPointerEvent-BGSDPeU (IJJJILandroidx/compose/ui/input/pointer/PointerButtons;Landroidx/compose/ui/input/pointer/PointerKeyboardModifiers;Ljava/lang/Object;Landroidx/compose/ui/input/pointer/PointerButton;)V
 	public static synthetic fun sendPointerEvent-BGSDPeU$default (Landroidx/compose/ui/ComposeScene;IJJJILandroidx/compose/ui/input/pointer/PointerButtons;Landroidx/compose/ui/input/pointer/PointerKeyboardModifiers;Ljava/lang/Object;Landroidx/compose/ui/input/pointer/PointerButton;ILjava/lang/Object;)V
@@ -3499,10 +3496,12 @@ public final class androidx/compose/ui/scene/ComposeSceneContext$Companion {
 	public final fun getEmpty ()Landroidx/compose/ui/scene/ComposeSceneContext;
 }
 
-public abstract interface class androidx/compose/ui/scene/ComposeSceneFocusManager : androidx/compose/ui/focus/FocusManager {
-	public abstract fun getFocusRect ()Landroidx/compose/ui/geometry/Rect;
-	public abstract fun releaseFocus ()V
-	public abstract fun requestFocus ()V
+public final class androidx/compose/ui/scene/ComposeSceneFocusManager {
+	public static final field $stable I
+	public final fun getFocusRect ()Landroidx/compose/ui/geometry/Rect;
+	public final fun getHasFocus ()Z
+	public final fun releaseFocus ()V
+	public final fun takeFocus-3ESFkO8 (I)Z
 }
 
 public abstract interface class androidx/compose/ui/scene/ComposeSceneLayer {

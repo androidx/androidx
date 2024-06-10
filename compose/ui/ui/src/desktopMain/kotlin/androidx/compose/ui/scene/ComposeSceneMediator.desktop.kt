@@ -24,6 +24,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.SwingInteropContainer
+import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.awt.runOnEDTThread
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -68,6 +69,9 @@ import java.awt.Toolkit
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
+import java.awt.event.FocusEvent.Cause.TRAVERSAL
+import java.awt.event.FocusEvent.Cause.TRAVERSAL_BACKWARD
+import java.awt.event.FocusEvent.Cause.TRAVERSAL_FORWARD
 import java.awt.event.FocusListener
 import java.awt.event.InputEvent
 import java.awt.event.InputMethodEvent
@@ -215,8 +219,20 @@ internal class ComposeSceneMediator(
             // We don't reset focus for Compose when the component loses focus temporary.
             // Partially because we don't support restoring focus after clearing it.
             // Focus can be lost temporary when another window or popup takes focus.
-            if (!e.isTemporary) {
-                scene.focusManager.requestFocus()
+            if (!e.isTemporary && !e.isFocusGainedHandledBySwingPanel(container)) {
+                when (e.cause) {
+                    TRAVERSAL_BACKWARD -> {
+                        if (!focusManager.takeFocus(FocusDirection.Previous)) {
+                            platformContext.parentFocusManager.moveFocus(FocusDirection.Previous)
+                        }
+                    }
+                    TRAVERSAL, TRAVERSAL_FORWARD -> {
+                        if (!focusManager.takeFocus(FocusDirection.Next)) {
+                            platformContext.parentFocusManager.moveFocus(FocusDirection.Next)
+                        }
+                    }
+                    else -> Unit
+                }
             }
         }
 
@@ -651,7 +667,14 @@ internal class ComposeSceneMediator(
         }
         override val parentFocusManager: FocusManager = DesktopFocusManager()
         override fun requestFocus(): Boolean {
-            return contentComponent.hasFocus() || contentComponent.requestFocusInWindow()
+            // Don't check hasFocus(), and don't check the returning result
+            // Swing returns "false" if the window isn't visible or isn't active,
+            // but the component will always receive the focus after activation.
+            //
+            // if we return false - we don't allow changing the focus, and it breaks requesting
+            // focus at start and in inactive mode
+            contentComponent.requestFocusInWindow()
+            return true
         }
 
         override val rootForTestListener

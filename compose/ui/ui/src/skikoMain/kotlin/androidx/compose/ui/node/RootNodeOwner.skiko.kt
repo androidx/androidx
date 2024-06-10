@@ -29,6 +29,9 @@ import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
@@ -104,35 +107,36 @@ internal class RootNodeOwner(
     private val snapshotInvalidationTracker: SnapshotInvalidationTracker,
     private val inputHandler: ComposeSceneInputHandler,
 ) {
-    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-1257/Implement-new-FocusOwnerImpl-from-08.04.2024)
-    //  implement new changes from upstream
-    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2944)
-    //  Check if ComposePanel/SwingPanel focus interop work correctly with new features of
-    //  the focus system (it works with the old features like moveFocus/clearFocus)
     val focusOwner: FocusOwner = FocusOwnerImpl(
-        onRequestFocusForOwner = { focusDirection, _ ->
-            var result = platformContext.requestFocus()
-            if (result && focusDirection != null) {
-                result = platformContext.parentFocusManager.moveFocus(focusDirection)
-            }
-            return@FocusOwnerImpl result
+        onRequestFocusForOwner = { _, _ ->
+            platformContext.requestFocus()
         },
         onRequestApplyChangesListener = {
             owner.registerOnEndApplyChangesListener(it)
         },
-        onMoveFocusInterop = {
-            platformContext.parentFocusManager.moveFocus(it)
-        },
-        onFocusRectInterop = {
-            null
-        },
+        // onMoveFocusInterop's purpose is to move focus inside embed interop views.
+        // Another logic is used in our child-interop views (SwingPanel, etc)
+        onMoveFocusInterop = { false },
+        onFocusRectInterop = { null },
         onLayoutDirection = { _layoutDirection },
         onClearFocusForOwner = {
             platformContext.parentFocusManager.clearFocus(true)
         },
     )
     private val rootSemanticsNode = EmptySemanticsModifier()
+
     private val rootModifier = EmptySemanticsElement(rootSemanticsNode)
+        .focusProperties {
+            exit = {
+                // if focusDirection is forward/backward,
+                // it will move the focus after/before ComposePanel
+                if (platformContext.parentFocusManager.moveFocus(it)) {
+                    FocusRequester.Cancel
+                } else {
+                    FocusRequester.Default
+                }
+            }
+        }
         .then(focusOwner.modifier)
         .semantics {
             // This makes the reported role of the root node "PANEL", which is ignored by VoiceOver

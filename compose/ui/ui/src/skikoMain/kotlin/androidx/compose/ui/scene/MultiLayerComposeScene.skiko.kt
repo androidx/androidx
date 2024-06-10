@@ -28,14 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyInputElement
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
@@ -147,9 +144,9 @@ private class MultiLayerComposeSceneImpl(
             forEachLayer { it.owner.size = value }
         }
 
-    private val _focusManager = ComposeSceneFocusManagerImpl()
-    override val focusManager: ComposeSceneFocusManager
-        get() = _focusManager
+    override val focusManager: ComposeSceneFocusManager = ComposeSceneFocusManager(
+        focusOwner = { focusedOwner.focusOwner }
+    )
 
     private val layers = mutableListOf<AttachedComposeSceneLayer>()
     private val _layersCopyCache = CopiedList {
@@ -401,11 +398,6 @@ private class MultiLayerComposeSceneImpl(
     )
 
     private fun onOwnerAppended(owner: RootNodeOwner) {
-        if (_focusManager.isFocused) {
-            owner.focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
-        } else {
-            owner.focusOwner.releaseFocus()
-        }
         semanticsOwnerListener?.onSemanticsOwnerAppended(owner.semanticsOwner)
     }
 
@@ -457,25 +449,6 @@ private class MultiLayerComposeSceneImpl(
 
             // Enter event to new focusedOwner will be sent via synthetic event on next frame
         }
-    }
-
-    private inner class ComposeSceneFocusManagerImpl : ComposeSceneFocusManager {
-        private val focusOwner get() = focusedOwner.focusOwner
-        var isFocused = true
-            private set
-
-        override fun requestFocus() {
-            focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
-            isFocused = true
-        }
-        override fun releaseFocus() {
-            forEachOwner { it.focusOwner.releaseFocus() }
-            isFocused = false
-        }
-        override fun getFocusRect(): Rect? = focusOwner.getFocusRect()
-        override fun clearFocus(force: Boolean) = focusOwner.clearFocus(force)
-        override fun moveFocus(focusDirection: FocusDirection): Boolean =
-            focusOwner.moveFocus(focusDirection)
     }
 
     private inner class AttachedComposeSceneLayer(
