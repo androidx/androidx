@@ -85,6 +85,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     RestrictToDetector.RESTRICTED,
                     ObsoleteCompatDetector.ISSUE,
                     ReplaceWithDetector.ISSUE,
+                    // This issue is only enabled when `-Pandroidx.migrateArrayAnnotations=true`.
+                    ArrayNullnessMigration.ISSUE,
                 )
             }
     }
