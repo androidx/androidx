@@ -237,7 +237,7 @@ internal fun DropdownMenuItemContent(
                     enabled = enabled,
                     onClick = onClick,
                     interactionSource = interactionSource,
-                    indication = rippleOrFallbackImplementation(true)
+                    indication = ripple(true)
                 )
                 .fillMaxWidth()
                 // Preferred min and max width used during the intrinsic measurement.

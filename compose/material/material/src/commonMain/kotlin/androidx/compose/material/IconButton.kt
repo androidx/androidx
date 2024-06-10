@@ -68,8 +68,7 @@ fun IconButton(
                     enabled = enabled,
                     role = Role.Button,
                     interactionSource = interactionSource,
-                    indication =
-                        rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
+                    indication = ripple(bounded = false, radius = RippleRadius)
                 ),
         contentAlignment = Alignment.Center
     ) {
@@ -114,8 +113,7 @@ fun IconToggleButton(
                     enabled = enabled,
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
-                    indication =
-                        rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
+                    indication = ripple(bounded = false, radius = RippleRadius)
                 ),
         contentAlignment = Alignment.Center
     ) {

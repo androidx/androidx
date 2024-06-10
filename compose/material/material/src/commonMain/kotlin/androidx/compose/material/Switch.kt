@@ -261,8 +261,7 @@ private fun BoxScope.SwitchImpl(
             .offset { IntOffset(thumbValue().roundToInt(), 0) }
             .indication(
                 interactionSource = interactionSource,
-                indication =
-                    rippleOrFallbackImplementation(bounded = false, radius = ThumbRippleRadius)
+                indication = ripple(bounded = false, radius = ThumbRippleRadius)
             )
             .requiredSize(ThumbDiameter)
             .shadow(elevation, CircleShape, clip = false)

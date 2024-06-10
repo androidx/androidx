@@ -68,15 +68,12 @@ fun MaterialTheme(
                 colors.copy()
             }
             .apply { updateColorsFrom(colors) }
-    val rippleIndication = rippleOrFallbackImplementation()
+    val rippleIndication = ripple()
     val selectionColors = rememberTextSelectionColors(rememberedColors)
-    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColors provides rememberedColors,
         LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
-        // TODO: b/304985887 - remove after one stable release
-        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography
