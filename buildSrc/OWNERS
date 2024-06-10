@@ -1,9 +1,11 @@
 # Bug component: 461356
 set noparent
 
-jeffrygaston@google.com
 aurimas@google.com
 alanv@google.com
+fsladkey@google.com
+omarismail@google.com
+radhanakade@google.com
 
 per-file *AndroidXPlaygroundRootPlugin.kt = dustinlam@google.com, rahulrav@google.com, yboyar@google.com
 per-file *LintConfiguration.kt = juliamcclellan@google.com, tiem@google.com
