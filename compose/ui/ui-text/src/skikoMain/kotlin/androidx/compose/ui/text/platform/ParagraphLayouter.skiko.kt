@@ -18,20 +18,23 @@ package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import kotlin.math.abs
-import org.jetbrains.skia.Paint
 import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph
 
@@ -91,6 +94,22 @@ internal class ParagraphLayouter(
             builder.maxLines = maxLines
             builder.ellipsis = ellipsis
             paragraphCache = null
+        }
+    }
+
+    fun setBrushSize(
+        brushSize: Size,
+    ) {
+        if (builder.brushSize != brushSize) {
+            builder.brushSize = brushSize
+
+            // [brushSize] requires only for shader recreation and does not require re-layout,
+            // but we have to invalidate it because it's backed into skia's paragraph.
+            // Since it affects only [ShaderBrush] we can keep the cache if it's not used.
+            if (builder.textStyle.brush is ShaderBrush ||
+                builder.spanStyles.any { it.item.brush is ShaderBrush }) {
+                paragraphCache = null
+            }
         }
     }
 

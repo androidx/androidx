@@ -28,13 +28,13 @@ JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 kotlin {
     iosX64("uikitX64") {
-        configureCInterop(it, false, "x86_64")
+        configure(it, false, "x86_64", "uikitX64Test")
     }
     iosArm64("uikitArm64") {
-        configureCInterop(it, true, "arm64")
+        configure(it, true, "arm64", null /*"uikitArm64Test"*/)
     }
     iosSimulatorArm64("uikitSimArm64") {
-        configureCInterop(it, false, "arm64")
+        configure(it, false, "arm64", "uikitSimArm64Test")
     }
 
     sourceSets {
@@ -51,9 +51,10 @@ kotlin {
     }
 }
 
-def configureCInterop(target, isDevice, architecture) {
+private def configure(target, isDevice, architecture, testTarget) {
     def frameworkName = "CMPUIKitUtils"
-    def schemeName = frameworkName
+    def buildSchemeName = frameworkName
+    def testSchemeName = "${frameworkName}Tests"
     def objcDir = new File(project.projectDir, "src/uikitMain/objc")
     def frameworkSourcesDir = new File(objcDir, frameworkName)
     def sdkName
@@ -79,6 +80,40 @@ def configureCInterop(target, isDevice, architecture) {
         ["-linker-option", it]
     }
 
+    if (!isDevice && testTarget != null) {
+        def getTargetDeviceTaskName = "${target.name}GetTargetDevice"
+        def testFrameworkTaskName = "${target.name}FrameworkTest"
+
+        def getTargetDeviceTask = project.tasks.register(getTargetDeviceTaskName, Exec) {
+            ext.device = ""
+            commandLine "xcrun", "simctl", "list", "devices"
+            standardOutput = new ByteArrayOutputStream()
+            doLast {
+                def output = standardOutput.toString()
+                def match = output.find("iPhone 1[567][ \\w\\d]* \\(")
+                def targetDevice = match.dropRight(2)
+                device = targetDevice
+            }
+        }
+
+        def testFrameworkTask = project.tasks.register(testFrameworkTaskName) {
+            dependsOn getTargetDeviceTask
+            doLast {
+                project.exec {
+                    workingDir frameworkSourcesDir
+                    commandLine "xcodebuild",
+                            "test",
+                            "-scheme", testSchemeName,
+                            "-destination", "platform=iOS Simulator,name=${tasks[getTargetDeviceTaskName].device}",
+                            "-sdk", sdkName,
+                            "VALID_ARCHS=${architecture}"
+                }
+            }
+        }
+
+        tasks.findByName(testTarget)?.dependsOn(testFrameworkTask)
+    }
+
     target.compilations.main {
         def taskName = "${compileTaskProvider.name}ObjCLib"
         project.tasks.register(taskName, Exec) {
@@ -94,13 +129,13 @@ def configureCInterop(target, isDevice, architecture) {
             commandLine("xcodebuild")
             args(
                     "archive",
-                    "-scheme", schemeName,
+                    "-scheme", buildSchemeName,
                     "-archivePath", buildDir,
                     "-sdk", sdkName,
                     "-destination", destination,
                     "SKIP_INSTALL=NO",
                     "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
-                    "VALID_ARCHS=" + architecture,
+                    "VALID_ARCHS=${architecture}",
                     "MACH_O_TYPE=staticlib"
             )
         }

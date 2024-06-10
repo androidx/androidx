@@ -639,19 +639,21 @@ internal class SuspendingPointerInputModifierNodeImpl(
         if (lastEvent.changes.fastAll { !it.pressed }) {
             return // There aren't any pressed pointers, so we don't need to send any events.
         }
-        val newChanges = lastEvent.changes.fastMapNotNull { old ->
-            PointerInputChange(
-                id = old.id,
-                position = old.position,
-                uptimeMillis = old.uptimeMillis,
-                pressed = false,
-                pressure = old.pressure,
-                previousPosition = old.position,
-                previousUptimeMillis = old.uptimeMillis,
-                previousPressed = old.pressed,
-                isInitiallyConsumed = old.pressed
-            )
-        }
+        val newChanges =
+            lastEvent.changes.fastMapNotNull { old ->
+                PointerInputChange(
+                    id = old.id,
+                    position = old.position,
+                    uptimeMillis = old.uptimeMillis,
+                    pressed = false,
+                    pressure = old.pressure,
+                    previousPosition = old.position,
+                    previousUptimeMillis = old.uptimeMillis,
+                    previousPressed = old.pressed,
+                    isInitiallyConsumed = old.pressed,
+                    type = old.type
+                )
+            }
 
         if (newChanges.isEmpty()) return
 

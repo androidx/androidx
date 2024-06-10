@@ -305,6 +305,142 @@ class SuspendingPointerInputFilterTest {
     }
 
     @Test
+    @MediumTest
+    fun testSyntheticMouseCancelEvent() {
+        var currentEventAtEnd: PointerEvent? = null
+        val latch = CountDownLatch(3)
+        val results = Channel<PointerEvent>(Channel.UNLIMITED)
+
+        // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                try {
+                    repeat(3) {
+                        results.trySend(awaitPointerEvent())
+                        latch.countDown()
+                    }
+                    results.close()
+                } finally {
+                    currentEventAtEnd = currentEvent
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(
+                modifier =
+                    elementFor(
+                        key1 = Unit,
+                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                    )
+            )
+        }
+
+        val bounds = IntSize(50, 50)
+        val emitter1 = PointerInputChangeEmitter(0)
+        val emitter2 = PointerInputChangeEmitter(1)
+        val expectedEvents =
+            listOf(
+                PointerEvent(
+                    listOf(
+                        emitter1.nextChange(Offset(5f, 5f), pointerType = PointerType.Mouse),
+                        emitter2.nextChange(Offset(10f, 10f), pointerType = PointerType.Mouse)
+                    )
+                ),
+                PointerEvent(
+                    listOf(
+                        emitter1.nextChange(Offset(6f, 6f), pointerType = PointerType.Mouse),
+                        emitter2.nextChange(
+                            Offset(10f, 10f),
+                            down = false,
+                            pointerType = PointerType.Mouse
+                        )
+                    )
+                ),
+                // Synthetic cancel should look like this (Note: this specific event isn't ever
+                // triggered directly, it's just for reference so you know what
+                // onCancelPointerInput()
+                // triggers).
+                // Both pointers are there, but only the with the pressed = true is changed to
+                // false,
+                // and the down change is consumed.
+                PointerEvent(
+                    listOf(
+                        PointerInputChange(
+                            PointerId(0),
+                            0,
+                            Offset(6f, 6f),
+                            false,
+                            0,
+                            Offset(6f, 6f),
+                            true,
+                            isInitiallyConsumed = true,
+                            PointerType.Mouse
+                        ),
+                        PointerInputChange(
+                            PointerId(1),
+                            0,
+                            Offset(10f, 10f),
+                            false,
+                            0,
+                            Offset(10f, 10f),
+                            false,
+                            isInitiallyConsumed = false,
+                            PointerType.Mouse
+                        )
+                    )
+                )
+            )
+
+        rule.runOnIdle {
+            expectedEvents.take(expectedEvents.size - 1).forEach { pointerEvent ->
+                // Initial
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Initial,
+                    bounds
+                )
+
+                // Main
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Main,
+                    bounds
+                )
+
+                // Final
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Final,
+                    bounds
+                )
+            }
+
+            // Manually cancels the current pointer input event.
+            suspendingPointerInputModifierNode.onCancelPointerInput()
+        }
+
+        // Checks events triggered are the correct ones
+        rule.runOnIdle {
+            assertTrue("Waiting for relaunch timed out", latch.await(200, TimeUnit.MILLISECONDS))
+
+            runTest {
+                val received = withTimeout(200) { results.receiveAsFlow().toList() }
+
+                assertThat(expectedEvents).hasSize(received.size)
+
+                expectedEvents.forEachIndexed { index, expectedEvent ->
+                    val actualEvent = received[index]
+                    PointerEventSubject.assertThat(actualEvent).isStructurallyEqualTo(expectedEvent)
+                }
+                assertThat(currentEventAtEnd).isNotNull()
+                PointerEventSubject.assertThat(currentEventAtEnd!!)
+                    .isStructurallyEqualTo(expectedEvents.last())
+            }
+        }
+    }
+
+    @Test
     @LargeTest
     fun testNoSyntheticCancelEventWhenPressIsFalse() {
         var currentEventAtEnd: PointerEvent? = null

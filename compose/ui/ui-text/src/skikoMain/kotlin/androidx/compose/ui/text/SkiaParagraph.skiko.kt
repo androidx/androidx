@@ -69,6 +69,12 @@ internal class SkiaParagraph(
         }
 
     init {
+        // Size is not known until layout is complete but to apply it, we need to re-create
+        // skia's paragraph :'(
+        // layouter might use cached instance if no [ShaderBrush] was applied.
+        layouter.setBrushSize(Size(width, height))
+        paragraph = layouter.layoutParagraph(width)
+
         paragraph.layout(width)
     }
 
