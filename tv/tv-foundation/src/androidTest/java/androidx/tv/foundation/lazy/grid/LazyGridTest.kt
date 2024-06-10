@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import android.os.Build
@@ -910,6 +912,7 @@ class LazyGridTest(private val orientation: Orientation) :
         rule.onNodeWithTag(LazyGridTag).captureToImage().assertPixels { Color.Green }
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     @Test
     fun customGridCells() {
         val items = (1..5).map { it.toString() }

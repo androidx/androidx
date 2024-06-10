@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.animation.core.AnimationState
@@ -64,6 +66,17 @@ import kotlinx.coroutines.launch
  * @param initialFirstVisibleItemScrollOffset the initial value for
  *   [TvLazyListState.firstVisibleItemScrollOffset]
  */
+@Deprecated(
+    "Use `rememberLazyListState` instead.",
+    replaceWith =
+        ReplaceWith(
+            "rememberLazyListState(" +
+                "initialFirstVisibleItemIndex = initialFirstVisibleItemIndex, " +
+                "initialFirstVisibleItemScrollOffset = initialFirstVisibleItemScrollOffset" +
+                ")",
+            imports = arrayOf("androidx.compose.foundation.lazy.rememberLazyListState")
+        )
+)
 @Composable
 fun rememberTvLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -83,10 +96,20 @@ fun rememberTvLazyListState(
  * @param firstVisibleItemScrollOffset the initial value for
  *   [TvLazyListState.firstVisibleItemScrollOffset]
  */
+@Deprecated(
+    "Use `LazyListState` instead.",
+    replaceWith =
+        ReplaceWith(
+            "LazyListState(" +
+                "firstVisibleItemIndex = firstVisibleItemIndex, " +
+                "firstVisibleItemScrollOffset = firstVisibleItemScrollOffset" +
+                ")",
+            imports = arrayOf("androidx.compose.foundation.lazy.LazyListState")
+        )
+)
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class TvLazyListState
-constructor(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOffset: Int = 0) :
+class TvLazyListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOffset: Int = 0) :
     ScrollableState {
     internal var hasLookaheadPassOccurred: Boolean = false
         private set

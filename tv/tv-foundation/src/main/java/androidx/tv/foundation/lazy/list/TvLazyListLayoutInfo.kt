@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.gestures.Orientation
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * Use [TvLazyListState.layoutInfo] to retrieve this
  */
+@Deprecated("Use `LazyListLayoutInfo` instead.")
 sealed interface TvLazyListLayoutInfo {
     /** The list of [TvLazyListItemInfo] representing all the currently visible items. */
     val visibleItemsInfo: List<TvLazyListItemInfo>
