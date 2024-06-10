@@ -38,6 +38,7 @@ interface ICustomTabsService {
   boolean newSession(in android.support.customtabs.ICustomTabsCallback callback) = 2;
   boolean newSessionWithExtras(in android.support.customtabs.ICustomTabsCallback callback, in android.os.Bundle extras) = 9;
   boolean mayLaunchUrl(in android.support.customtabs.ICustomTabsCallback callback, in android.net.Uri url, in android.os.Bundle extras, in List<android.os.Bundle> otherLikelyBundles) = 3;
+  void prefetch(in android.support.customtabs.ICustomTabsCallback callback, in android.net.Uri url, in android.os.Bundle options) = 14;
   android.os.Bundle extraCommand(String commandName, in android.os.Bundle args) = 4;
   boolean updateVisuals(in android.support.customtabs.ICustomTabsCallback callback, in android.os.Bundle bundle) = 5;
   boolean requestPostMessageChannel(in android.support.customtabs.ICustomTabsCallback callback, in android.net.Uri postMessageOrigin) = 6;
