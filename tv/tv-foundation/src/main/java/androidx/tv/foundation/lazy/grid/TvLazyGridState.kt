@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -57,6 +59,17 @@ import kotlin.math.abs
  * @param initialFirstVisibleItemScrollOffset the initial value for
  *   [TvLazyGridState.firstVisibleItemScrollOffset]
  */
+@Deprecated(
+    "Use `rememberLazyGridState` instead.",
+    replaceWith =
+        ReplaceWith(
+            "rememberLazyGridState(" +
+                "initialFirstVisibleItemIndex = initialFirstVisibleItemIndex, " +
+                "initialFirstVisibleItemScrollOffset = initialFirstVisibleItemScrollOffset" +
+                ")",
+            imports = arrayOf("androidx.compose.foundation.lazy.grid.rememberLazyGridState")
+        )
+)
 @Composable
 fun rememberTvLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -76,6 +89,17 @@ fun rememberTvLazyGridState(
  * @param firstVisibleItemScrollOffset the initial value for
  *   [TvLazyGridState.firstVisibleItemScrollOffset]
  */
+@Deprecated(
+    "Use `LazyGridState` instead.",
+    replaceWith =
+        ReplaceWith(
+            "LazyGridState(" +
+                "firstVisibleItemIndex = firstVisibleItemIndex, " +
+                "firstVisibleItemScrollOffset = firstVisibleItemScrollOffset" +
+                ")",
+            imports = arrayOf("androidx.compose.foundation.lazy.grid.LazyGridState")
+        )
+)
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
 class TvLazyGridState

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -26,6 +28,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 
+@Suppress("OVERRIDE_DEPRECATION")
 @OptIn(ExperimentalFoundationApi::class)
 internal object TvLazyGridItemScopeImpl : TvLazyGridItemScope {
     @ExperimentalFoundationApi

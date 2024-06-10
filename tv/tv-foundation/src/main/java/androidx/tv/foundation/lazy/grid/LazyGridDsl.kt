@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +56,22 @@ import androidx.tv.foundation.PivotOffsets
  * @param content the [TvLazyGridScope] which describes the content
  */
 @Composable
+@Deprecated(
+    "LazyVerticalGrid will, by default, set the position of focused item while " +
+        "scrolling on a Tv. BringIntoViewSpec should be used to control the position.",
+    replaceWith =
+        ReplaceWith(
+            "LazyVerticalGrid(" +
+                "modifier = modifier, " +
+                "contentPadding = contentPadding, " +
+                "reverseLayout = reverseLayout, " +
+                "verticalArrangement = verticalArrangement, " +
+                "horizontalArrangement = horizontalArrangement, " +
+                "userScrollEnabled = userScrollEnabled" +
+                ") { content() }",
+            imports = ["androidx.compose.foundation.lazy.grid.LazyVerticalGrid"],
+        )
+)
 fun TvLazyVerticalGrid(
     columns: TvGridCells,
     modifier: Modifier = Modifier,
@@ -101,6 +119,22 @@ fun TvLazyVerticalGrid(
  *   from the pivot defined by the parentOffset.
  * @param content the [TvLazyGridScope] which describes the content
  */
+@Deprecated(
+    "LazyHorizontalGrid will, by default, set the position of focused item while " +
+        "scrolling on a Tv. BringIntoViewSpec should be used to control the position.",
+    replaceWith =
+        ReplaceWith(
+            "LazyHorizontalGrid(" +
+                "modifier = modifier, " +
+                "contentPadding = contentPadding, " +
+                "reverseLayout = reverseLayout, " +
+                "horizontalArrangement = horizontalArrangement, " +
+                "verticalArrangement = verticalArrangement, " +
+                "userScrollEnabled = userScrollEnabled" +
+                ") { content() }",
+            imports = ["androidx.compose.foundation.lazy.grid.LazyHorizontalGrid"],
+        )
+)
 @Composable
 fun TvLazyHorizontalGrid(
     rows: TvGridCells,
@@ -223,6 +257,14 @@ private class GridSlotCache(private val calculation: Density.(Constraints) -> La
  * This class describes the count and the sizes of columns in vertical grids, or rows in horizontal
  * grids.
  */
+@Deprecated(
+    "Use `GridCells` instead.",
+    replaceWith =
+        ReplaceWith(
+            "GridCells",
+            imports = arrayOf("androidx.compose.foundation.lazy.grid.GridCells")
+        )
+)
 @Stable
 interface TvGridCells {
     /**
@@ -241,6 +283,7 @@ interface TvGridCells {
      * @param spacing cross axis spacing, e.g. horizontal spacing for [TvLazyVerticalGrid]. The
      *   spacing is passed from the corresponding [Arrangement] param of the lazy grid.
      */
+    @Deprecated("Use GridCells from compose foundation.")
     fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int>
 
     /**
@@ -249,11 +292,20 @@ interface TvGridCells {
      * For example, for the vertical [TvLazyVerticalGrid] Fixed(3) would mean that there are 3
      * columns 1/3 of the parent width.
      */
+    @Deprecated(
+        "Use GridCells.Fixed from compose foundation.",
+        replaceWith =
+            ReplaceWith(
+                "GridCells.Fixed(count)",
+                imports = arrayOf("androidx.compose.foundation.lazy.grid.GridCells")
+            )
+    )
     class Fixed(private val count: Int) : TvGridCells {
         init {
             require(count > 0) { "grid with no rows/columns" }
         }
 
+        @Deprecated("Use GridCells from compose foundation.")
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int
@@ -278,11 +330,20 @@ interface TvGridCells {
      * be as many columns as possible and every column will be at least 20.dp and all the columns
      * will have equal width. If the screen is 88.dp wide then there will be 4 columns 22.dp each.
      */
+    @Deprecated(
+        "Use GridCells from compose foundation.",
+        replaceWith =
+            ReplaceWith(
+                "GridCells.Adaptive(minSize)",
+                imports = arrayOf("androidx.compose.foundation.lazy.grid.GridCells")
+            )
+    )
     class Adaptive(private val minSize: Dp) : TvGridCells {
         init {
             require(minSize > 0.dp) { "Grid requires a positive minSize" }
         }
 
+        @Deprecated("Use GridCells from compose foundation.")
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int
@@ -311,11 +372,20 @@ interface TvGridCells {
      * 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp distributed through
      * [Arrangement.Horizontal].
      */
+    @Deprecated(
+        "Use GridCells from compose foundation.",
+        replaceWith =
+            ReplaceWith(
+                "GridCells.FixedSize",
+                imports = arrayOf("androidx.compose.foundation.lazy.grid.GridCells")
+            )
+    )
     class FixedSize(private val size: Dp) : TvGridCells {
         init {
             require(size > 0.dp) { "Provided size $size should be larger than zero." }
         }
 
+        @Deprecated("Use GridCells from compose foundation.")
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int
@@ -351,6 +421,14 @@ private fun calculateCellsCrossAxisSizeImpl(
 }
 
 /** Receiver scope which is used by [TvLazyVerticalGrid]. */
+@Deprecated(
+    "Use LazyGridScope instead.",
+    replaceWith =
+        ReplaceWith(
+            "LazyGridScope",
+            imports = arrayOf("androidx.compose.foundation.lazy.grid.LazyGridScope")
+        )
+)
 @TvLazyGridScopeMarker
 sealed interface TvLazyGridScope {
     /**
@@ -370,6 +448,7 @@ sealed interface TvLazyGridScope {
      *   type will be considered compatible.
      * @param content the content of the item
      */
+    @Deprecated("Use `LazyGridScope.item` instead")
     fun item(
         key: Any? = null,
         span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)? = null,
@@ -395,6 +474,7 @@ sealed interface TvLazyGridScope {
      *   such type will be considered compatible.
      * @param itemContent the content displayed by a single item
      */
+    @Deprecated("Use `LazyGridScope.items` instead")
     fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
@@ -422,6 +502,7 @@ sealed interface TvLazyGridScope {
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyGridScope.items` instead")
 inline fun <T> TvLazyGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -459,6 +540,7 @@ inline fun <T> TvLazyGridScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyGridScope.itemsIndexed` instead.")
 inline fun <T> TvLazyGridScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -496,6 +578,7 @@ inline fun <T> TvLazyGridScope.itemsIndexed(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyGridScope.items` instead.")
 inline fun <T> TvLazyGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -533,6 +616,7 @@ inline fun <T> TvLazyGridScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyGridScope.itemsIndexed` instead.")
 inline fun <T> TvLazyGridScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,

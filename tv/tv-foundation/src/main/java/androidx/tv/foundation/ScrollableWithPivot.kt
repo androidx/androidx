@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -47,6 +49,18 @@ Scrollable.kt and modified */
  *   like bottom to top and left to right will behave like right to left. drag events when this
  *   scrollable is being dragged.
  */
+@Deprecated(
+    "scrollableWithPivot has been deprecated. Construct a custom bringIntoViewSpec to scroll with an offset. To learn how you can control offset during scrolling, refer PivotBringIntoViewSpec: https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/src/androidMain/kotlin/androidx/compose/foundation/gestures/BringIntoViewSpec.android.kt;l=48;drc=dcaa116fbfda77e64a319e1668056ce3b032469f",
+    replaceWith =
+        ReplaceWith(
+            "scrollable(" +
+                "state = state, " +
+                "orientation = orientation, " +
+                "enabled = enabled, " +
+                "reverseDirection = reverseDirection" +
+                ")"
+        )
+)
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalTvFoundationApi
 @Suppress("DEPRECATION")

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.animation.core.FiniteAnimationSpec
