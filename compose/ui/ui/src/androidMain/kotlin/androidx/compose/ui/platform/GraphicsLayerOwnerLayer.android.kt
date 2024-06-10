@@ -367,7 +367,8 @@ internal class GraphicsLayerOwnerLayer(
                 rotationY,
                 rotationZ,
                 scaleX,
-                scaleY
+                scaleY,
+                1.0f
             )
         }
 }
