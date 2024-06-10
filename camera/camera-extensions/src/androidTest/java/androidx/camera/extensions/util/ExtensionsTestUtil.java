@@ -40,12 +40,17 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 import androidx.camera.extensions.impl.ExtensionsTestlibControl;
 import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.advanced.AutoAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
@@ -86,55 +91,67 @@ public class ExtensionsTestUtil {
         return false;
     }
 
+    private static boolean hasNoSuchMethod(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (NoSuchMethodError e) {
+            return true;
+        }
+        return false;
+    }
+
     // Check if the OEM implementation class for the given mode exists or not.
     private static boolean doesOEMImplementationExistForMode(int extensionMode) {
         if (isAdvancedExtender()) {
-            try {
-                switch (extensionMode) {
-                    case HDR:
-                        HdrAdvancedExtenderImpl.checkTestlibRunning();
-                        break;
-                    case BOKEH:
-                        BokehAdvancedExtenderImpl.checkTestlibRunning();
-                        break;
-                    case AUTO:
-                        AutoAdvancedExtenderImpl.checkTestlibRunning();
-                        break;
-                    case FACE_RETOUCH:
-                        BeautyAdvancedExtenderImpl.checkTestlibRunning();
-                        break;
-                    case NIGHT:
-                        NightAdvancedExtenderImpl.checkTestlibRunning();
-                        break;
-                }
-            } catch (NoSuchMethodError e) {
-                return true;
+            switch (extensionMode) {
+                case HDR:
+                    return hasNoSuchMethod(
+                            () -> HdrAdvancedExtenderImpl.checkTestlibRunning());
+                case BOKEH:
+                    return hasNoSuchMethod(
+                            () -> BokehAdvancedExtenderImpl.checkTestlibRunning());
+                case AUTO:
+                    return hasNoSuchMethod(
+                            () -> AutoAdvancedExtenderImpl.checkTestlibRunning());
+                case FACE_RETOUCH:
+                    return hasNoSuchMethod(
+                            () -> BeautyAdvancedExtenderImpl.checkTestlibRunning());
+                case NIGHT:
+                    return hasNoSuchMethod(
+                            () -> NightAdvancedExtenderImpl.checkTestlibRunning());
             }
         } else {
-            try {
-                switch (extensionMode) {
-                    case HDR:
-                        HdrImageCaptureExtenderImpl.checkTestlibRunning();
-                        break;
-                    case BOKEH:
-                        BokehImageCaptureExtenderImpl.checkTestlibRunning();
-                        break;
-                    case AUTO:
-                        AutoImageCaptureExtenderImpl.checkTestlibRunning();
-                        break;
-                    case FACE_RETOUCH:
-                        BeautyImageCaptureExtenderImpl.checkTestlibRunning();
-                        break;
-                    case NIGHT:
-                        NightImageCaptureExtenderImpl.checkTestlibRunning();
-                        break;
-                }
-            } catch (NoSuchMethodError e) {
-                return true;
+            switch (extensionMode) {
+                case HDR:
+                    return hasNoSuchMethod(
+                            () -> HdrImageCaptureExtenderImpl.checkTestlibRunning())
+                            && hasNoSuchMethod(
+                                    () -> HdrPreviewExtenderImpl.checkTestlibRunning());
+                case BOKEH:
+                    return hasNoSuchMethod(
+                            () -> BokehImageCaptureExtenderImpl.checkTestlibRunning())
+                            && hasNoSuchMethod(
+                                    () -> BokehPreviewExtenderImpl.checkTestlibRunning());
+                case AUTO:
+                    return hasNoSuchMethod(
+                            () -> AutoImageCaptureExtenderImpl.checkTestlibRunning())
+                            && hasNoSuchMethod(
+                                    () -> AutoPreviewExtenderImpl.checkTestlibRunning());
+                case FACE_RETOUCH:
+                    return hasNoSuchMethod(
+                            () -> BeautyImageCaptureExtenderImpl.checkTestlibRunning())
+                            && hasNoSuchMethod(
+                                    () -> BeautyPreviewExtenderImpl.checkTestlibRunning());
+                case NIGHT:
+                    return hasNoSuchMethod(
+                            () -> NightImageCaptureExtenderImpl.checkTestlibRunning())
+                            && hasNoSuchMethod(
+                                    () -> NightPreviewExtenderImpl.checkTestlibRunning());
             }
         }
         return false;
     }
+
     /**
      * Returns if extension is supported with the given mode and lens facing. Please note that
      * if some classes are removed by OEMs, the classes in the test lib could still be used so we
