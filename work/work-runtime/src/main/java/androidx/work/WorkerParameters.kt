@@ -36,14 +36,33 @@ fun WorkerParameters.isRemoteWorkRequest(): Boolean {
  * Returns a new instance of [WorkerParameters] representing a [WorkRequest] that can run in a
  * process corresponding to the provided [ComponentName].
  *
+ * @param T The [ListenableWorker] to delegate to.
  * @param componentName The [ComponentName] that identifies the `RemoteService` that hosts the
  *   [WorkRequest].
  * @return A new instance of [WorkerParameters]
  */
-fun WorkerParameters.usingRemoteService(componentName: ComponentName): WorkerParameters {
+inline fun <reified T : ListenableWorker> WorkerParameters.usingRemoteService(
+    componentName: ComponentName
+): WorkerParameters {
+    return usingRemoteService(T::class.java.name, componentName)
+}
+
+/**
+ * Returns a new instance of [WorkerParameters] representing a [WorkRequest] that can run in a
+ * process corresponding to the provided [ComponentName].
+ *
+ * @param workerClassName The fully qualified class name of the [ListenableWorker] to delegate to
+ * @param componentName The [ComponentName] that identifies the `RemoteService` that hosts the
+ *   [WorkRequest].
+ * @return A new instance of [WorkerParameters]
+ */
+fun WorkerParameters.usingRemoteService(
+    workerClassName: String,
+    componentName: ComponentName
+): WorkerParameters {
     return WorkerParameters(
         id,
-        inputData.usingRemoteService(componentName),
+        buildDelegatedRemoteRequestData(workerClassName, componentName, inputData),
         tags,
         runtimeExtras,
         runAttemptCount,
@@ -58,23 +77,23 @@ fun WorkerParameters.usingRemoteService(componentName: ComponentName): WorkerPar
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Data.isRemoteWorkRequest(): Boolean {
-    return hasKey<String>(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME)
+fun buildDelegatedRemoteRequestData(
+    delegatedWorkerName: String,
+    componentName: ComponentName,
+    inputData: Data
+): Data {
+    val builder = Data.Builder()
+    builder
+        .putAll(data = inputData)
+        .putString(ARGUMENT_SERVICE_PACKAGE_NAME, componentName.packageName)
+        .putString(ARGUMENT_SERVICE_CLASS_NAME, componentName.className)
+        .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, delegatedWorkerName)
+    return builder.build()
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Data.usingRemoteService(componentName: ComponentName): Data {
-    val hasPackageName = hasKey<String>(ARGUMENT_SERVICE_PACKAGE_NAME)
-    val hasClassName = hasKey<String>(ARGUMENT_SERVICE_CLASS_NAME)
-    require(hasPackageName && hasClassName) {
-        "$this does not correspond to a request for work in a remote process."
-    }
-    val data =
-        Data.Builder()
-            .putAll(this)
-            .putString(ARGUMENT_SERVICE_PACKAGE_NAME, componentName.packageName)
-            .putString(ARGUMENT_SERVICE_CLASS_NAME, componentName.className)
-            .build()
-
-    return data
+fun Data.isRemoteWorkRequest(): Boolean {
+    return hasKey<String>(ARGUMENT_SERVICE_PACKAGE_NAME) &&
+        hasKey<String>(ARGUMENT_SERVICE_CLASS_NAME) &&
+        hasKey<String>(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME)
 }

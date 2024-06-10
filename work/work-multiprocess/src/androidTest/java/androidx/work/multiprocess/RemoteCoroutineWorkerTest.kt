@@ -28,6 +28,7 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
+import androidx.work.buildDelegatedRemoteRequestData
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -38,7 +39,6 @@ import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.isRemoteWorkRequest
 import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
-import androidx.work.usingRemoteService
 import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -163,13 +163,25 @@ public class RemoteCoroutineWorkerTest {
             return
         }
 
-        val request = buildRequest<RemoteSuccessWorker>()
         val packageName = "PACKAGE_NAME"
         val className = "CLASS_NAME"
-        val data = request.workSpec.input.usingRemoteService(ComponentName(packageName, className))
+        val inputKey = "INPUT_KEY"
+        val inputValue = "InputValue"
+        val inputData = Data.Builder().putString(inputKey, inputValue).build()
+        val data =
+            buildDelegatedRemoteRequestData(
+                delegatedWorkerName = RemoteSuccessWorker::class.java.name,
+                componentName = ComponentName(packageName, className),
+                inputData
+            )
         assertEquals(data.isRemoteWorkRequest(), true)
+        assertEquals(
+            data.getString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME),
+            RemoteSuccessWorker::class.java.name
+        )
         assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME), packageName)
         assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_CLASS_NAME), className)
+        assertEquals(data.getString(inputKey), inputValue)
     }
 
     private inline fun <reified T : ListenableWorker> buildRequest(): OneTimeWorkRequest {
