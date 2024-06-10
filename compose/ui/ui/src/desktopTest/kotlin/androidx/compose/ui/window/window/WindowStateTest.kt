@@ -20,15 +20,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.isLinux
 import androidx.compose.ui.isMacOs
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.toDpSize
+import androidx.compose.ui.toWindowPosition
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -48,6 +54,7 @@ import javax.swing.JFrame
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
+import kotlin.test.assertEquals
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import org.junit.Assume.assumeTrue
@@ -601,10 +608,7 @@ class WindowStateTest {
         }
 
         awaitIdle()
-        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
-        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
-        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
-        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
+        assertWindowStateEquals(lastRecomposedState, initialState)
         lastRecomposedState.placement = newState.placement
         lastRecomposedState.isMinimized = newState.isMinimized
         lastRecomposedState.size = newState.size
@@ -612,17 +616,35 @@ class WindowStateTest {
 
         index = 1
         awaitIdle()
-        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
-        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
-        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
-        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
+        assertWindowStateEquals(lastRecomposedState, initialState)
 
         index = 0
         awaitIdle()
-        assertThat(lastRecomposedState.placement).isEqualTo(newState.placement)
-        assertThat(lastRecomposedState.isMinimized).isEqualTo(newState.isMinimized)
-        assertThat(lastRecomposedState.size).isEqualTo(newState.size)
-        assertThat(lastRecomposedState.position).isEqualTo(newState.position)
+        assertWindowStateEquals(lastRecomposedState, newState)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `can save Unspecified window size`() = runComposeUiTest {
+        val expectedState = WindowState(size = DpSize.Unspecified)
+        lateinit var restoredState: WindowState
+        var index by mutableIntStateOf(0)
+        setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            saveableStateHolder.SaveableStateProvider(index) {
+                val state = rememberWindowState(size = DpSize.Unspecified)
+                if (index == 0) {
+                    restoredState = state
+                }
+            }
+        }
+
+        index = 1
+        waitForIdle()
+        index = 0
+        waitForIdle()
+
+        assertWindowStateEquals(expectedState, restoredState)
     }
 
     @Test
@@ -907,4 +929,11 @@ private fun assertSizesNotApproximatelyEqual(
                 " tolerance <$CoordinateTolerance>"
         )
     }
+}
+
+private fun assertWindowStateEquals(expected: WindowState, actual: WindowState) {
+    assertEquals(expected.placement, actual.placement, "Placement differs")
+    assertEquals(expected.isMinimized, actual.isMinimized, "isMinimized differs")
+    assertEquals(expected.size, actual.size, "size differs")
+    assertEquals(expected.position, actual.position, "position differs")
 }

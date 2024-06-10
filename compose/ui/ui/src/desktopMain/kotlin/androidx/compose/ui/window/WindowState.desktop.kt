@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.takeOrElse
 
 /**
  * Creates a [WindowState] that is remembered across compositions.
@@ -227,20 +229,25 @@ private class WindowStateImpl(
                     it.position.isSpecified,
                     it.position.x.value,
                     it.position.y.value,
-                    it.size.width.value,
-                    it.size.height.value,
+                    it.size.takeOrElse { DpSize.Zero }.width.value,
+                    it.size.takeOrElse { DpSize.Zero }.height.value,
+                    it.size.isSpecified,
                 )
             },
             restore = { state ->
                 WindowStateImpl(
-                    placement = WindowPlacement.values()[state[0] as Int],
+                    placement = WindowPlacement.entries[state[0] as Int],
                     isMinimized = state[1] as Boolean,
                     position = if (state[2] as Boolean) {
                         WindowPosition((state[3] as Float).dp, (state[4] as Float).dp)
                     } else {
                         unspecifiedPosition
                     },
-                    size = DpSize((state[5] as Float).dp, (state[6] as Float).dp),
+                    size = if (state.getOrNull(7) != false) {
+                        DpSize((state[5] as Float).dp, (state[6] as Float).dp)
+                    } else {
+                        DpSize.Unspecified
+                    },
                 )
             }
         )

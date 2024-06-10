@@ -26,8 +26,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
@@ -41,6 +43,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.sendKeyEvent
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.toInt
@@ -666,4 +670,32 @@ class DialogWindowTest {
         dialog?.dispatchEvent(WindowEvent(dialog, WindowEvent.WINDOW_CLOSING))
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `can save Unspecified dialog size`() = runComposeUiTest {
+        val expectedState = DialogState(size = DpSize.Unspecified)
+        lateinit var restoredState: DialogState
+        var index by mutableIntStateOf(0)
+        setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            saveableStateHolder.SaveableStateProvider(index) {
+                val state = rememberDialogState(size = DpSize.Unspecified)
+                if (index == 0) {
+                    restoredState = state
+                }
+            }
+        }
+
+        index = 1
+        waitForIdle()
+        index = 0
+        waitForIdle()
+
+        assertDialogStateEquals(expectedState, restoredState)
+    }
+}
+
+private fun assertDialogStateEquals(expected: DialogState, actual: DialogState) {
+    assertEquals(expected.size, actual.size, "size differs")
+    assertEquals(expected.position, actual.position, "position differs")
 }

@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.takeOrElse
 
 /**
  * Creates a [DialogState] that is remembered across compositions.
@@ -173,8 +175,9 @@ private class DialogStateImpl(
                     it.position.isSpecified,
                     it.position.x.value,
                     it.position.y.value,
-                    it.size.width.value,
-                    it.size.height.value,
+                    it.size.takeOrElse { DpSize.Zero }.width.value,
+                    it.size.takeOrElse { DpSize.Zero }.height.value,
+                    it.size.isSpecified,
                 )
             },
             restore = { state ->
@@ -184,7 +187,11 @@ private class DialogStateImpl(
                     } else {
                         unspecifiedPosition
                     },
-                    size = DpSize((state[3] as Float).dp, (state[4] as Float).dp),
+                    size = if (state.getOrNull(5) != false) {
+                        DpSize((state[3] as Float).dp, (state[4] as Float).dp)
+                    } else {
+                        DpSize.Unspecified
+                    },
                 )
             }
         )
