@@ -348,6 +348,12 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("IllegalExperimentalApiUsage")
         }
 
+        // Only allow the ArrayMigration check to be run when opted-in, since this is meant to be
+        // run once per project when switching to type-use nullness annotations.
+        if (!project.migrateArrayAnnotations()) {
+            disable.add("ArrayMigration")
+        }
+
         fatal.add("UastImplementation") // go/hide-uast-impl
         fatal.add("KotlincFE10") // b/239982263
 
