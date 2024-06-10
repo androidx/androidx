@@ -1007,6 +1007,7 @@ package androidx.compose.foundation.lazy.grid {
     method public int getAfterContentPadding();
     method public int getBeforeContentPadding();
     method public int getMainAxisItemSpacing();
+    method public int getMaxSpan();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
     method public boolean getReverseLayout();
     method public int getTotalItemsCount();
@@ -1017,6 +1018,7 @@ package androidx.compose.foundation.lazy.grid {
     property public abstract int afterContentPadding;
     property public abstract int beforeContentPadding;
     property public abstract int mainAxisItemSpacing;
+    property public abstract int maxSpan;
     property public abstract androidx.compose.foundation.gestures.Orientation orientation;
     property public abstract boolean reverseLayout;
     property public abstract int totalItemsCount;
