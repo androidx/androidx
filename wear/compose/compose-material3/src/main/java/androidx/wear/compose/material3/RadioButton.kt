@@ -135,7 +135,7 @@ fun RadioButton(
                     enabled = enabled,
                     selected = selected,
                     onClick = onSelect,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     interactionSource = interactionSource
                 )
                 .padding(contentPadding)
@@ -280,7 +280,7 @@ fun SplitRadioButton(
                 Modifier.clickable(
                         enabled = enabled,
                         onClick = onContainerClick,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         interactionSource = containerInteractionSource,
                         onClickLabel = containerClickLabel,
                     )
@@ -316,7 +316,7 @@ fun SplitRadioButton(
                         enabled = enabled,
                         selected = selected,
                         onClick = onSelectionClick,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         interactionSource = selectionInteractionSource
                     )
                     .fillMaxHeight()
@@ -1317,7 +1317,7 @@ internal fun RadioControl(
         easing = MotionTokens.EasingStandardDecelerate,
         width = CONTROL_WIDTH,
         height = CONTROL_HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 @Composable

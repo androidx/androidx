@@ -275,7 +275,7 @@ public fun RevealScope.SwipeToRevealUndoAction(
         modifier =
             modifier.clickable(
                 interactionSource = interactionSource,
-                indication = rippleOrFallbackImplementation(),
+                indication = ripple(),
                 role = Role.Button,
                 onClick = {
                     revealState.lastActionType = RevealActionType.UndoAction
@@ -524,7 +524,7 @@ private fun RevealScope.ActionCommon(
                 .fillMaxSize()
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     role = Role.Button,
                     onClick = {
                         revealState.lastActionType = actionType

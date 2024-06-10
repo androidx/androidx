@@ -136,8 +136,7 @@ fun InlineSlider(
         val containerColor = colors.containerColor(enabled)
         val barSeparatorColor = colors.barSeparatorColor(enabled)
         CompositionLocalProvider(
-            LocalIndication provides
-                rippleOrFallbackImplementation(bounded = false, radius = this.maxWidth / 2)
+            LocalIndication provides ripple(bounded = false, radius = this.maxWidth / 2)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

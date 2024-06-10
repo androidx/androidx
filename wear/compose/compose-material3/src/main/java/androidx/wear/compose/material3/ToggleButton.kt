@@ -140,7 +140,7 @@ fun ToggleButton(
         labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -248,7 +248,7 @@ fun SplitToggleButton(
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Contains the default values used by [ToggleButton]s and [SplitToggleButton]s */

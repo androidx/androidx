@@ -99,7 +99,7 @@ fun Stepper(
                 LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
                 LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
             ),
-        buttonRipple = rippleOrFallbackImplementation(bounded = false)
+        buttonRipple = ripple(bounded = false)
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) { content() }
     }
