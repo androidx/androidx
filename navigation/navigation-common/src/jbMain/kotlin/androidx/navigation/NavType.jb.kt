@@ -19,6 +19,7 @@ package androidx.navigation
 import androidx.core.bundle.Bundle
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.internal.Uri
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
@@ -564,8 +565,7 @@ public actual abstract class NavType<T> actual constructor(
                 value.contentDeepEquals(other)
 
             override fun serializeAsValues(value: Array<String>?): List<String> =
-                // TODO value?.map { Uri.encode(it) } ?: emptyList()
-                value?.toList() ?: emptyList()
+                value?.map { Uri.encode(it) } ?: emptyList()
         }
 
         @JvmField
@@ -601,8 +601,7 @@ public actual abstract class NavType<T> actual constructor(
                 }
 
                 override fun serializeAsValues(value: List<String>?): List<String> =
-                    // TODO value?.map { Uri.encode(it) } ?: emptyList()
-                    value ?: emptyList()
+                    value?.map { Uri.encode(it) } ?: emptyList()
             }
     }
 }

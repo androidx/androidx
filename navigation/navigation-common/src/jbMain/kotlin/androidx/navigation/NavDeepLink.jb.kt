@@ -18,7 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
-import androidx.navigation.internal.UriCodec
+import androidx.navigation.internal.Uri
 import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmSuppressWildcards
@@ -157,7 +157,7 @@ public actual class NavDeepLink internal actual constructor(
         val result = fragPattern?.find(fragment) ?: return
 
         this.fragArgs.mapIndexed { index, argumentName ->
-            val value = result.groups[index + 1]?.value?.let { UriCodec.decode(it) } ?: ""
+            val value = result.groups[index + 1]?.value?.let { Uri.decode(it) } ?: ""
             val argument = arguments[argumentName]
             try {
                 parseArgument(bundle, argumentName, value, argument)
@@ -174,7 +174,7 @@ public actual class NavDeepLink internal actual constructor(
         arguments: Map<String, NavArgument?>
     ): Boolean {
         this.pathArgs.mapIndexed { index, argumentName ->
-            val value = result.groups[index + 1]?.value?.let { UriCodec.decode(it) } ?: ""
+            val value = result.groups[index + 1]?.value?.let { Uri.decode(it) } ?: ""
             val argument = arguments[argumentName]
             try {
                 parseArgument(bundle, argumentName, value, argument)
@@ -478,7 +478,7 @@ public actual class NavDeepLink internal actual constructor(
             .groupBy(
                 keySelector = { it[0] },
                 valueTransform = { split ->
-                    split.getOrNull(1)?.let { UriCodec.decode(it) }
+                    split.getOrNull(1)?.let { Uri.decode(it) }
                 }
             )
             .mapValues { it.value.filterNotNull() }
