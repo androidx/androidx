@@ -527,6 +527,23 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
         rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
     }
 
+    @Test
+    fun maxSpan_returnsNumberOfSlotsPerLine() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyGrid(
+                cells = 4,
+                modifier = Modifier.mainAxisSize(itemSizeDp * 4).crossAxisSize(itemSizeDp * 2),
+                state = state,
+                reverseLayout = reverseLayout,
+            ) {
+                items(8) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.maxSpan).isEqualTo(4) }
+    }
+
     fun LazyGridLayoutInfo.assertVisibleItems(
         count: Int,
         cells: Int,

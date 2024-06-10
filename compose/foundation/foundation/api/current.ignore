@@ -1,3 +1,5 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemInfo#getSpan():
     Added method androidx.compose.foundation.lazy.grid.LazyGridItemInfo.getSpan()
+AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo#getMaxSpan():
+    Added method androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo.getMaxSpan()
