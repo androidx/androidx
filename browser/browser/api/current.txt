@@ -260,6 +260,7 @@ package androidx.browser.customtabs {
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent?);
     method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken, String, android.os.Bundle?);
+    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch protected void prefetch(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, androidx.browser.customtabs.PrefetchOptions);
     method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, int, android.os.Bundle?);
     method protected abstract boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri);
     method protected boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, android.net.Uri?, android.os.Bundle);
@@ -301,6 +302,7 @@ package androidx.browser.customtabs {
     method public boolean isEngagementSignalsApiAvailable(android.os.Bundle) throws android.os.RemoteException;
     method public boolean mayLaunchUrl(android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
+    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch public void prefetch(android.net.Uri, androidx.browser.customtabs.PrefetchOptions);
     method public boolean receiveFile(android.net.Uri, int, android.os.Bundle?);
     method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean requestPostMessageChannel(android.net.Uri, android.net.Uri?, android.os.Bundle);
@@ -335,6 +337,9 @@ package androidx.browser.customtabs {
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPendingSession {
   }
 
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPrefetch {
+  }
+
   public class PostMessageService extends android.app.Service {
     ctor public PostMessageService();
     method public android.os.IBinder onBind(android.content.Intent?);
@@ -350,6 +355,18 @@ package androidx.browser.customtabs {
     method public final void onServiceDisconnected(android.content.ComponentName);
     method public final boolean postMessage(String, android.os.Bundle?);
     method public void unbindFromContext(android.content.Context);
+  }
+
+  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch public final class PrefetchOptions {
+    field public final boolean requiresAnonymousIpWhenCrossOrigin;
+    field public final android.net.Uri? sourceOrigin;
+  }
+
+  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch public static final class PrefetchOptions.Builder {
+    ctor public PrefetchOptions.Builder();
+    method public androidx.browser.customtabs.PrefetchOptions build();
+    method public androidx.browser.customtabs.PrefetchOptions.Builder setRequiresAnonymousIpWhenCrossOrigin(boolean);
+    method public androidx.browser.customtabs.PrefetchOptions.Builder setSourceOrigin(android.net.Uri);
   }
 
   public class TrustedWebUtils {
