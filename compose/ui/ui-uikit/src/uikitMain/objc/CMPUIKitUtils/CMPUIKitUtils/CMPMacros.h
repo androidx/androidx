@@ -18,3 +18,12 @@
 
 #define CMP_MUST_BE_OVERRIDED
 #define CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION assert(false && "MUST_OVERRIDE");
+
+// Marker for indicating that raw pointer returned from a function is owned by the caller
+#define CMP_OWNED
+
+// Marker for indicating that raw pointer is consumed when passed as an argument
+#define CMP_CONSUMED
+
+// Marker for indicating that raw pointer is implied as borrowed when returned from a function or passed as an argument
+#define CMP_BORROWED
