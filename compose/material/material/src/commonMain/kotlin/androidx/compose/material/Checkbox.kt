@@ -147,8 +147,7 @@ fun TriStateCheckbox(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication =
-                    rippleOrFallbackImplementation(bounded = false, radius = CheckboxRippleRadius)
+                indication = ripple(bounded = false, radius = CheckboxRippleRadius)
             )
         } else {
             Modifier

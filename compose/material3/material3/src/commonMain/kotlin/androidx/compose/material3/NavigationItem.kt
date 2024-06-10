@@ -361,7 +361,7 @@ private fun NavigationItemLayout(
             Box(
                 Modifier.layoutId(IndicatorRippleLayoutIdTag)
                     .clip(indicatorShape)
-                    .indication(interactionSource, rippleOrFallbackImplementation())
+                    .indication(interactionSource, ripple())
             )
             // Create the indicator. The indicator has a width-expansion animation which interferes
             // with

@@ -258,7 +258,7 @@ fun RowScope.NavigationBarItem(
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
                         .clip(NavigationBarTokens.ActiveIndicatorShape.value)
-                        .indication(offsetInteractionSource, rippleOrFallbackImplementation())
+                        .indication(offsetInteractionSource, ripple())
                 )
             }
         val indicator =

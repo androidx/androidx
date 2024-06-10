@@ -94,11 +94,7 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication =
-                    rippleOrFallbackImplementation(
-                        bounded = false,
-                        radius = RadioButtonRippleRadius
-                    )
+                indication = ripple(bounded = false, radius = RadioButtonRippleRadius)
             )
         } else {
             Modifier

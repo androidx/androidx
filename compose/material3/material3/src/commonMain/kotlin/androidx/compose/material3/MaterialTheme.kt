@@ -53,14 +53,11 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rippleIndication = rippleOrFallbackImplementation()
+    val rippleIndication = ripple()
     val selectionColors = rememberTextSelectionColors(colorScheme)
-    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,
         LocalIndication provides rippleIndication,
-        // TODO: b/304985887 - remove after one stable release
-        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
