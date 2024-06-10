@@ -1690,7 +1690,7 @@ public final class DynamicBuilders {
         }
 
         /**
-         * Creates a {@link DynamicFlaot} containing the result of adding a {@link DynamicFloat} to
+         * Creates a {@link DynamicFloat} containing the result of adding a {@link DynamicFloat} to
          * this {@link DynamicInt32}; As an example, the following is equal to {@code
          * DynamicFloat.constant(13.5f)}
          *
@@ -1741,7 +1741,7 @@ public final class DynamicBuilders {
         }
 
         /**
-         * Creates a {@link DynamicFlaot} containing the result of adding a float to this {@link
+         * Creates a {@link DynamicFloat} containing the result of adding a float to this {@link
          * DynamicInt32}; As an example, the following is equal to {@code
          * DynamicFloat.constant(13.5f)}
          *
@@ -4363,7 +4363,7 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicFloat} containing the result of adding another {@link
          * DynamicFloat} to this {@link DynamicFloat}; As an example, the following is equal to
-         * {@code DynamicFloat.constant(13f)}
+         * {@code DynamicFloat.constant(12f)}
          *
          * <pre>
          *   DynamicFloat.constant(7f).plus(DynamicFloat.constant(5f));
@@ -4389,7 +4389,7 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicFloat} containing the result of adding a float to this {@link
          * DynamicFloat}; As an example, the following is equal to {@code
-         * DynamicFloat.constant(13f)}
+         * DynamicFloat.constant(12f)}
          *
          * <pre>
          *   DynamicFloat.constant(7f).plus(5f);
@@ -4415,7 +4415,7 @@ public final class DynamicBuilders {
         /**
          * Creates a {@link DynamicFloat} containing the result of adding a {@link DynamicInt32} to
          * this {@link DynamicFloat}; As an example, the following is equal to {@code
-         * DynamicFloat.constant(13f)}
+         * DynamicFloat.constant(12f)}
          *
          * <pre>
          *   DynamicFloat.constant(7f).plus(DynamicInt32.constant(5));
@@ -4465,7 +4465,7 @@ public final class DynamicBuilders {
         }
 
         /**
-         * Creates a {@link DynamicFloat} containing the result of subtracting a flaot from this
+         * Creates a {@link DynamicFloat} containing the result of subtracting a float from this
          * {@link DynamicFloat}; As an example, the following is equal to {@code
          * DynamicFloat.constant(2f)}
          *
@@ -4544,7 +4544,7 @@ public final class DynamicBuilders {
 
         /**
          * Creates a {@link DynamicFloat} containing the result of multiplying this {@link
-         * DynamicFloat} by a flaot; As an example, the following is equal to {@code
+         * DynamicFloat} by a float; As an example, the following is equal to {@code
          * DynamicFloat.constant(35f)}
          *
          * <pre>
