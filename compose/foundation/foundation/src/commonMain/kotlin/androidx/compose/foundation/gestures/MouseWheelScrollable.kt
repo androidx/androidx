@@ -46,10 +46,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeoutOrNull
-
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1350/Restore-Scrollable-animation
 
 internal class MouseWheelScrollNode(
     private val scrollingLogic: ScrollingLogic,
@@ -65,7 +62,13 @@ internal class MouseWheelScrollNode(
         }
     }
 
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
+    // Note that when `MouseWheelScrollNode` is used as a delegate of `ScrollableNode`,
+    // pointerInputNode does not get dispatched pointer events to in the standard manner because
+    // Modifier.Node.dispatchForKind does not dispatch to child/delegate nodes of the matching type,
+    // and `ScrollableNode` is already an instance of `PointerInputModifierNode`.
+    // This is worked around by having `MouseWheelScrollNode` simply forward the corresponding calls
+    // to pointerInputNode (hence its need to be `internal`).
+    internal val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         if (enabled) {
             mouseWheelInput()
         }

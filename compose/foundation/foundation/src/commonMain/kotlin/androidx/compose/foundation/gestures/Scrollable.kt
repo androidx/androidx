@@ -54,7 +54,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserI
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -65,7 +64,6 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
-import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -76,8 +74,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.util.fastAll
-import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -507,17 +503,6 @@ private class ScrollableNode(
 
     override fun onPreKeyEvent(event: KeyEvent) = false
 
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    ) {
-        super.onPointerEvent(pointerEvent, pass, bounds)
-        if (pass == PointerEventPass.Main && pointerEvent.type == PointerEventType.Scroll) {
-            processMouseWheelEvent(pointerEvent, bounds)
-        }
-    }
-
     override fun SemanticsPropertyReceiver.applySemantics() {
         if (enabled && (scrollByAction == null || scrollByOffsetAction == null)) {
             setScrollSemanticsActions()
@@ -548,30 +533,31 @@ private class ScrollableNode(
         scrollByOffsetAction = null
     }
 
-    /**
-     * Mouse wheel
-     */
-    private fun processMouseWheelEvent(event: PointerEvent, size: IntSize) {
-        if (event.changes.fastAll { !it.isConsumed }) {
-            with(scrollConfig!!) {
-                val scrollAmount = requireDensity().calculateMouseWheelScroll(event, size)
-                // A coroutine is launched for every individual scroll event in the
-                // larger scroll gesture. If we see degradation in the future (that is,
-                // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                // this point), we can switch to a more efficient solution where we
-                // lazily launch one coroutine (with the first event) and use a Channel
-                // to communicate the scroll amount to the UI thread.
-                coroutineScope.launch {
-                    scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
-                        scrollBy(
-                            offset = scrollAmount,
-                            source = UserInput
-                        )
-                    }
-                }
-                event.changes.fastForEach { it.consume() }
-            }
-        }
+    // Forward all PointerInputModifierNode method calls to `mmouseWheelScrollNode.pointerInputNode`
+    // See explanation in `MouseWheelScrollNode.pointerInputNode`
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        super.onPointerEvent(pointerEvent, pass, bounds)
+        mouseWheelScrollNode.pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancelPointerInput() {
+        super.onCancelPointerInput()
+        mouseWheelScrollNode.pointerInputNode.onCancelPointerInput()
+    }
+
+    override fun onDensityChange() {
+        super.onDensityChange()
+        mouseWheelScrollNode.pointerInputNode.onDensityChange()
+    }
+
+    override fun onViewConfigurationChange() {
+        super.onViewConfigurationChange()
+        mouseWheelScrollNode.pointerInputNode.onViewConfigurationChange()
     }
 }
 
