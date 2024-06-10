@@ -35,11 +35,11 @@ internal class PagerMeasureResult(
     override val beyondViewportPageCount: Int,
     val firstVisiblePage: MeasuredPage?,
     val currentPage: MeasuredPage?,
-    var currentPageOffsetFraction: Float,
-    var firstVisiblePageScrollOffset: Int,
-    var canScrollForward: Boolean,
+    val currentPageOffsetFraction: Float,
+    val firstVisiblePageScrollOffset: Int,
+    val canScrollForward: Boolean,
     override val snapPosition: SnapPosition,
-    measureResult: MeasureResult,
+    private val measureResult: MeasureResult,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
     val extraPagesBefore: List<MeasuredPage> = emptyList(),
@@ -56,16 +56,17 @@ internal class PagerMeasureResult(
         get() = (firstVisiblePage?.index ?: 0) != 0 || firstVisiblePageScrollOffset != 0
 
     /**
-     * Tries to apply a scroll [delta] for this layout info. In some cases we can apply small scroll
-     * deltas by just changing the offsets for each [visiblePagesInfo]. But we can only do so if
-     * after applying the delta we would not need to compose a new item or dispose an item which is
-     * currently visible. In this case this function will not apply the [delta] and return false.
+     * Creates a new layout info with applying a scroll [delta] for this layout info. In some cases
+     * we can apply small scroll deltas by just changing the offsets for each [visiblePagesInfo].
+     * But we can only do so if after applying the delta we would not need to compose a new item or
+     * dispose an item which is currently visible. In this case this function will not apply the
+     * [delta] and return null.
      *
-     * @return true if we can safely apply a passed scroll [delta] to this layout info. If true is
-     *   returned, only the placement phase is needed to apply new offsets. If false is returned, it
-     *   means we have to rerun the full measure phase to apply the [delta].
+     * @return new layout info if we can safely apply a passed scroll [delta] to this layout info.
+     *   If If new layout info is returned, only the placement phase is needed to apply new offsets.
+     *   If null is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun tryToApplyScrollWithoutRemeasure(delta: Int): Boolean {
+    fun copyWithScrollDeltaWithoutRemeasure(delta: Int): PagerMeasureResult? {
         val pageSizeWithSpacing = pageSize + pageSpacing
         if (
             remeasureNeeded ||
@@ -74,7 +75,7 @@ internal class PagerMeasureResult(
                 // applying this delta will change firstVisibleItem
                 (firstVisiblePageScrollOffset - delta) !in 0 until pageSizeWithSpacing
         ) {
-            return false
+            return null
         }
 
         val deltaFraction =
@@ -91,7 +92,7 @@ internal class PagerMeasureResult(
                 newCurrentPageOffsetFraction >= MaxPageOffset ||
                 newCurrentPageOffsetFraction <= MinPageOffset
         ) {
-            return false
+            return null
         }
 
         val first = visiblePagesInfo.first()
@@ -111,18 +112,36 @@ internal class PagerMeasureResult(
                 minOf(deltaToFirstItemChange, deltaToLastItemChange) > delta
             }
         return if (canApply) {
-            currentPageOffsetFraction -= deltaFraction
-            firstVisiblePageScrollOffset -= delta
             visiblePagesInfo.fastForEach { it.applyScrollDelta(delta) }
             extraPagesBefore.fastForEach { it.applyScrollDelta(delta) }
             extraPagesAfter.fastForEach { it.applyScrollDelta(delta) }
-            if (!canScrollForward && delta > 0) {
-                // we scrolled backward, so now we can scroll forward.
-                canScrollForward = true
-            }
-            true
+
+            PagerMeasureResult(
+                visiblePagesInfo = visiblePagesInfo,
+                pageSize = pageSize,
+                pageSpacing = pageSpacing,
+                afterContentPadding = afterContentPadding,
+                orientation = orientation,
+                viewportStartOffset = viewportStartOffset,
+                viewportEndOffset = viewportEndOffset,
+                reverseLayout = reverseLayout,
+                beyondViewportPageCount = beyondViewportPageCount,
+                firstVisiblePage = firstVisiblePage,
+                currentPage = currentPage,
+                currentPageOffsetFraction = currentPageOffsetFraction - deltaFraction,
+                firstVisiblePageScrollOffset = firstVisiblePageScrollOffset - delta,
+                canScrollForward =
+                    canScrollForward ||
+                        delta > 0, // we scrolled backward, so now we can scroll forward
+                snapPosition = snapPosition,
+                measureResult = measureResult,
+                remeasureNeeded = remeasureNeeded,
+                extraPagesBefore = extraPagesBefore,
+                extraPagesAfter = extraPagesAfter,
+                coroutineScope = coroutineScope,
+            )
         } else {
-            false
+            null
         }
     }
 }
