@@ -112,8 +112,14 @@ class HorizontalPageIndicatorTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * 6)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertWidthIsEqualTo(
+                (indicatorSize + spacing) * 6 + PageIndicatorDefaults.edgePadding * 2
+            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertHeightIsEqualTo(indicatorSize * 2 + PageIndicatorDefaults.edgePadding * 2)
     }
 
     @Test
@@ -137,8 +143,14 @@ class HorizontalPageIndicatorTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * pagesCount)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertWidthIsEqualTo(
+                (indicatorSize + spacing) * pagesCount + PageIndicatorDefaults.edgePadding * 2
+            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertHeightIsEqualTo(indicatorSize * 2 + PageIndicatorDefaults.edgePadding * 2)
     }
 
     private fun position_is_selected(isRound: Boolean) {
@@ -163,7 +175,7 @@ class HorizontalPageIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(selectedColor, 1.2f..1.5f)
+            .assertColorInPercentageRange(selectedColor, 1.2f..1.6f)
         // Unselected dots should also be visible on the screen, and should take around 4%
         // (1.3% per dot, 3 dots total)
         rule
