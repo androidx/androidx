@@ -16,16 +16,15 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.codePointAt as _codePointAt
+import androidx.compose.foundation.text.codePointBefore as _codePointBefore
 import androidx.compose.foundation.text.charCount
-import androidx.compose.foundation.text.codePointAt
-import androidx.compose.foundation.text.codePointCount
 
 internal actual fun CharSequence.codePointAt(index: Int): Int =
-    codePointAt(index)
+    _codePointAt(index)
 
 internal actual fun charCount(codePoint: Int): Int =
     codePoint.charCount()
 
-internal actual fun CharSequence.codePointBefore(index: Int): Int {
-    TODO()
-}
+internal actual fun CharSequence.codePointBefore(index: Int): Int =
+    _codePointBefore(index)

@@ -18,4 +18,6 @@ package androidx.compose.foundation.text.input.internal
 
 internal expect fun CharSequence.codePointAt(index: Int): Int
 internal expect fun charCount(codePoint: Int): Int
+
+// TODO: It's not used from common, consider to remove
 internal expect fun CharSequence.codePointBefore(index: Int): Int
