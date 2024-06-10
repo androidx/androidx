@@ -1,3 +1,5 @@
+import androidx.build.ApkCopyHelperKt
+
 /**
  * This file was created using the `create_project.py` script located in the
  * `<AndroidX root>/development/project-creator` directory.
@@ -38,6 +40,9 @@ dependencies {
 
     implementation("androidx.preference:preference-ktx:1.1.1")
 }
+
+// Publish an APK so demo app is available in ab/.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
     defaultConfig {
