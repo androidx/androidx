@@ -69,14 +69,14 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ExpressiveNavigationBarTest {
+class ShortNavigationBarTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
     fun bar_selectableGroupSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBar {
-                ExpressiveNavigationBarItem(
+            ShortNavigationBar {
+                ShortNavigationBarItem(
                     modifier = Modifier.testTag("item"),
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
@@ -97,9 +97,9 @@ class ExpressiveNavigationBarTest {
         val height = 64.dp // TODO: Replace with token.
         rule
             .setMaterialContentForSizeAssertions {
-                ExpressiveNavigationBar {
+                ShortNavigationBar {
                     repeat(3) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
@@ -115,7 +115,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun bar_respectContentPadding() {
         rule.setMaterialContentForSizeAssertions {
-            ExpressiveNavigationBar(windowInsets = WindowInsets(17.dp, 17.dp, 17.dp, 17.dp)) {
+            ShortNavigationBar(windowInsets = WindowInsets(17.dp, 17.dp, 17.dp, 17.dp)) {
                 Box(Modifier.fillMaxSize().testTag("content"))
             }
         }
@@ -134,9 +134,9 @@ class ExpressiveNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ExpressiveNavigationBar {
+                ShortNavigationBar {
                     repeat(4) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
@@ -172,9 +172,9 @@ class ExpressiveNavigationBarTest {
         val defaultHeight = 64.dp // TODO: Replace with token.
 
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBar(modifier = Modifier.testTag("TAG")) {
+            ShortNavigationBar(modifier = Modifier.testTag("TAG")) {
                 repeat(4) { index ->
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         label = { Text("Long\nLabel\nMultiple\nLines") },
                         selected = index == 0,
@@ -199,9 +199,9 @@ class ExpressiveNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
                     repeat(3) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             iconPosition = NavigationItemIconPosition.Start,
                             label = { Text("Item $index") },
@@ -239,9 +239,9 @@ class ExpressiveNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
                     repeat(4) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             iconPosition = NavigationItemIconPosition.Start,
                             label = { Text("Item $index") },
@@ -279,9 +279,9 @@ class ExpressiveNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
                     repeat(5) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             iconPosition = NavigationItemIconPosition.Start,
                             label = { Text("Item $index") },
@@ -319,9 +319,9 @@ class ExpressiveNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
                     repeat(6) { index ->
-                        ExpressiveNavigationBarItem(
+                        ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             iconPosition = NavigationItemIconPosition.Start,
                             label = { Text("Item $index") },
@@ -353,12 +353,12 @@ class ExpressiveNavigationBarTest {
         val defaultHeight = 64.dp // TODO: Replace with token.
 
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBar(
+            ShortNavigationBar(
                 modifier = Modifier.testTag("TAG"),
                 arrangement = NavigationBarArrangement.Centered
             ) {
                 repeat(4) { index ->
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         iconPosition = NavigationItemIconPosition.Start,
                         label = { Text("Long\nLabel\nMultiple\nLines") },
@@ -377,7 +377,7 @@ class ExpressiveNavigationBarTest {
     fun bar_itemsWithCustomColors() {
         rule.setMaterialContent(lightColorScheme()) {
             val customItemColors =
-                ExpressiveNavigationBarItemDefaults.colors()
+                ShortNavigationBarItemDefaults.colors()
                     .copy(
                         selectedIconColor = Color.Red,
                         selectedTextColor = Color.Blue,
@@ -387,22 +387,22 @@ class ExpressiveNavigationBarTest {
                         disabledTextColor = Color.Black,
                     )
 
-            ExpressiveNavigationBar {
-                ExpressiveNavigationBarItem(
+            ShortNavigationBar {
+                ShortNavigationBarItem(
                     selected = true,
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Blue) },
                     onClick = {}
                 )
-                ExpressiveNavigationBarItem(
+                ShortNavigationBarItem(
                     selected = false,
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.White) },
                     onClick = {}
                 )
-                ExpressiveNavigationBarItem(
+                ShortNavigationBarItem(
                     enabled = false,
                     selected = false,
                     colors = customItemColors,
@@ -417,7 +417,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun item_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
@@ -437,7 +437,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun item_disabledSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 enabled = false,
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null) },
@@ -459,7 +459,7 @@ class ExpressiveNavigationBarTest {
     fun item_disabled_noClicks() {
         var clicks = 0
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 enabled = false,
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null) },
@@ -477,7 +477,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun item_iconSemanticsIsNull_whenLabelIsPresent() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
                 label = { Text("Favorite") },
@@ -494,7 +494,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun item_unselectedItem_hasIconSemantics_whenLabelNotPresent() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
                 selected = false,
@@ -511,7 +511,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun itemContent_topIconPosition_sizeAndPosition() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                 label = { Text("ItemText") },
@@ -553,7 +553,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun itemContent_startIconPosition_sizeAndPosition() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                 iconPosition = NavigationItemIconPosition.Start,
@@ -611,7 +611,7 @@ class ExpressiveNavigationBarTest {
     @Test
     fun itemContent_withoutLabel_sizeAndPosition() {
         rule.setMaterialContent(lightColorScheme()) {
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                 label = null,

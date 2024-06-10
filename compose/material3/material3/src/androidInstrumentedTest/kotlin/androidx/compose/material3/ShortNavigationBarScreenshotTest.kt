@@ -57,7 +57,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class ExpressiveNavigationBarScreenshotTest {
+class ShortNavigationBarScreenshotTest {
 
     @get:Rule val composeTestRule = createComposeRule()
 
@@ -70,14 +70,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource)
+            DefaultShortNavigationBar(interactionSource)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_lightTheme"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_lightTheme"
         )
     }
 
@@ -88,14 +88,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource)
+            DefaultShortNavigationBar(interactionSource)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_lightTheme_pressed"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_lightTheme_pressed"
         )
     }
 
@@ -106,14 +106,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource, setUnselectedItemsAsDisabled = true)
+            DefaultShortNavigationBar(interactionSource, setUnselectedItemsAsDisabled = true)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_lightTheme_disabled"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_lightTheme_disabled"
         )
     }
 
@@ -125,20 +125,20 @@ class ExpressiveNavigationBarScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ExpressiveNavigationBar {
-                    ExpressiveNavigationBarItem(
+                ShortNavigationBar {
+                    ShortNavigationBarItem(
                         selected = true,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text("Label\nLabel") },
                     )
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         selected = false,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text("Label") },
                     )
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         selected = false,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
@@ -148,12 +148,11 @@ class ExpressiveNavigationBarScreenshotTest {
             }
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier =
-                "expressiveNavigationBar_equalWeightArrangement_lightTheme_twoLinesLabel"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_lightTheme_twoLinesLabel"
         )
     }
 
@@ -164,14 +163,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource)
+            DefaultShortNavigationBar(interactionSource)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_darkTheme"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_darkTheme"
         )
     }
 
@@ -182,14 +181,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource)
+            DefaultShortNavigationBar(interactionSource)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_darkTheme_pressed"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_darkTheme_pressed"
         )
     }
 
@@ -200,14 +199,14 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setMaterialContent(darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(interactionSource, setUnselectedItemsAsDisabled = true)
+            DefaultShortNavigationBar(interactionSource, setUnselectedItemsAsDisabled = true)
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_equalWeightArrangement_darkTheme_disabled"
+            goldenIdentifier = "shortNavigationBar_equalWeightArrangement_darkTheme_disabled"
         )
     }
 
@@ -218,18 +217,18 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 arrangement = NavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_lightTheme"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_lightTheme"
         )
     }
 
@@ -240,18 +239,18 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 arrangement = NavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(140f, 10f)),
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_lightTheme_pressed"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_lightTheme_pressed"
         )
     }
 
@@ -262,7 +261,7 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 setUnselectedItemsAsDisabled = true,
                 arrangement = NavigationBarArrangement.Centered,
@@ -270,11 +269,11 @@ class ExpressiveNavigationBarScreenshotTest {
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_lightTheme_disabled"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_lightTheme_disabled"
         )
     }
 
@@ -286,22 +285,22 @@ class ExpressiveNavigationBarScreenshotTest {
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
-                    ExpressiveNavigationBarItem(
+                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                    ShortNavigationBarItem(
                         selected = true,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                         iconPosition = NavigationItemIconPosition.Start,
                         label = { Text("Really looooong label") },
                     )
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         selected = false,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                         iconPosition = NavigationItemIconPosition.Start,
                         label = { Text("Label") },
                     )
-                    ExpressiveNavigationBarItem(
+                    ShortNavigationBarItem(
                         selected = false,
                         onClick = {},
                         icon = { Icon(Icons.Filled.Home, contentDescription = null) },
@@ -312,11 +311,11 @@ class ExpressiveNavigationBarScreenshotTest {
             }
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_lightTheme_oneWiderItem"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_lightTheme_oneWiderItem"
         )
     }
 
@@ -327,18 +326,18 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 arrangement = NavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_darkTheme"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_darkTheme"
         )
     }
 
@@ -349,18 +348,18 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 arrangement = NavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(140f, 10f)),
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_darkTheme_pressed"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_darkTheme_pressed"
         )
     }
 
@@ -371,7 +370,7 @@ class ExpressiveNavigationBarScreenshotTest {
 
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, darkColorScheme()) {
             scope = rememberCoroutineScope()
-            DefaultExpressiveNavigationBar(
+            DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 setUnselectedItemsAsDisabled = true,
                 arrangement = NavigationBarArrangement.Centered,
@@ -379,25 +378,25 @@ class ExpressiveNavigationBarScreenshotTest {
             )
         }
 
-        assertExpressiveNavigationBarMatches(
+        assertShortNavigationBarMatches(
             scope = scope,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "expressiveNavigationBar_centeredArrangement_darkTheme_disabled"
+            goldenIdentifier = "shortNavigationBar_centeredArrangement_darkTheme_disabled"
         )
     }
 
     /**
-     * Asserts that the [ExpressiveNavigationBar] matches the screenshot with identifier
+     * Asserts that the [ShortNavigationBar] matches the screenshot with identifier
      * [goldenIdentifier].
      *
      * @param scope [CoroutineScope] used to interact with [MutableInteractionSource]
      * @param interactionSource the [MutableInteractionSource] used for the first
-     *   [ExpressiveNavigationBarItem]
+     *   [ShortNavigationBarItem]
      * @param interaction the [Interaction] to assert for, or `null` if no [Interaction].
      * @param goldenIdentifier the identifier for the corresponding screenshot
      */
-    private fun assertExpressiveNavigationBarMatches(
+    private fun assertShortNavigationBarMatches(
         scope: CoroutineScope,
         interactionSource: MutableInteractionSource,
         interaction: Interaction? = null,
@@ -426,17 +425,17 @@ class ExpressiveNavigationBarScreenshotTest {
 }
 
 /**
- * Default colored [ExpressiveNavigationBar] with three [ExpressiveNavigationBarItem]s. The first
- * item is selected, and the rest are not.
+ * Default colored [ShortNavigationBar] with three [ShortNavigationBarItem]s. The first item is
+ * selected, and the rest are not.
  *
- * @param interactionSource the [MutableInteractionSource] for the first
- *   [ExpressiveNavigationBarItem], to control its visual state.
+ * @param interactionSource the [MutableInteractionSource] for the first [ShortNavigationBarItem],
+ *   to control its visual state.
  * @param modifier the [Modifier] applied to the navigation bar
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DefaultExpressiveNavigationBar(
+private fun DefaultShortNavigationBar(
     interactionSource: MutableInteractionSource,
     modifier: Modifier = Modifier,
     setUnselectedItemsAsDisabled: Boolean = false,
@@ -444,8 +443,8 @@ private fun DefaultExpressiveNavigationBar(
     iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top
 ) {
     Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-        ExpressiveNavigationBar(arrangement = arrangement) {
-            ExpressiveNavigationBarItem(
+        ShortNavigationBar(arrangement = arrangement) {
+            ShortNavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 iconPosition = iconPosition,
                 selected = true,
@@ -453,7 +452,7 @@ private fun DefaultExpressiveNavigationBar(
                 onClick = {},
                 interactionSource = interactionSource
             )
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 iconPosition = iconPosition,
                 selected = false,
@@ -461,7 +460,7 @@ private fun DefaultExpressiveNavigationBar(
                 enabled = !setUnselectedItemsAsDisabled,
                 onClick = {}
             )
-            ExpressiveNavigationBarItem(
+            ShortNavigationBarItem(
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 iconPosition = iconPosition,
                 selected = false,
@@ -501,4 +500,4 @@ private fun ComposeContentTestRule.setContentWithSimulatedSize(
     }
 }
 
-private const val Tag = "ExpressiveNavigationBar"
+private const val Tag = "ShortNavigationBar"

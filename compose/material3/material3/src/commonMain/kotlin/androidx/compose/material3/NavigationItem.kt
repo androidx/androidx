@@ -72,11 +72,10 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-// TODO: Remove "internal".
 /** Class that describes the different supported icon positions of the navigation item. */
 @JvmInline
 @ExperimentalMaterial3Api
-internal value class NavigationItemIconPosition private constructor(private val value: Int) {
+value class NavigationItemIconPosition private constructor(private val value: Int) {
     companion object {
         /* The icon is positioned on top of the label. */
         val Top = NavigationItemIconPosition(0)
@@ -104,11 +103,9 @@ internal value class NavigationItemIconPosition private constructor(private val 
  * @param disabledIconColor the color to use for the icon when the item is disabled.
  * @param disabledTextColor the color to use for the text label when the item is disabled.
  * @constructor create an instance with arbitrary colors.
- *
- * TODO: Remove "internal".
  */
 @Immutable
-internal class NavigationItemColors
+class NavigationItemColors
 constructor(
     val selectedIconColor: Color,
     val selectedTextColor: Color,
