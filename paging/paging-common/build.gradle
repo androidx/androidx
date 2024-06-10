@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
@@ -40,7 +39,18 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
-    android()
+    androidLibrary {
+        namespace = "androidx.paging.common"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }.configure {
+            it.multidex {
+                it.enable = true
+            }
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -147,12 +157,4 @@ androidx {
     description = "Android Paging-Common"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":paging:paging-samples"))
-}
-
-android {
-    namespace "androidx.paging.common"
-
-    defaultConfig {
-        multiDexEnabled = true
-    }
 }
