@@ -1963,6 +1963,62 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun testSmallScrollWithLookaheadScope_lookaheadSizeIsDifferent() {
+        val itemSize = 5
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+        val containerSize = 12
+        val containerSizeDp = with(rule.density) { containerSize.toDp() }
+        val scrollDelta = 7f
+        val scrollDeltaDp = with(rule.density) { scrollDelta.toDp() }
+        val state = LazyListState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LookaheadScope {
+                LazyColumnOrRow(Modifier.mainAxisSize(containerSizeDp), state = state) {
+                    repeat(20) {
+                        item {
+                            Box(
+                                Modifier.layout { measurable, _ ->
+                                        val size =
+                                            if (isLookingAhead) {
+                                                itemSize * 2
+                                            } else {
+                                                itemSize
+                                            }
+                                        val placeable =
+                                            measurable.measure(Constraints.fixed(size, size))
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                                    .testTag("$it")
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+
+        rule.runOnIdle { runBlocking { scope.launch { state.scrollBy(scrollDelta) } } }
+
+        // users see the actual sizes (5 pixels), not the lookahead ones (10 pixels).
+        // as we scrolled by 7 pixels, the 0th item is not visible anymore
+        // but in the lookahead measuring it is still partially visible, so
+        // it is not disposed.
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
+        rule
+            .onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+        rule
+            .onNodeWithTag("2")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 2 - scrollDeltaDp)
+    }
+
+    @Test
     fun testLookaheadPositionWithTwoInBoundTwoOutBound() {
         testLookaheadPositionWithPlacementAnimator(
             initialList = listOf(0, 1, 2, 3, 4, 5),
