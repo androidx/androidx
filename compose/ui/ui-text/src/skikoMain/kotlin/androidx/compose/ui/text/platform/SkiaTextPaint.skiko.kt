@@ -16,47 +16,98 @@
 
 package androidx.compose.ui.text.platform
 
+import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.style.modulate
 
 // Copied from AndroidTextPaint.
 
-internal fun Paint.applyBrush(brush: Brush?, size: Size, alpha: Float = Float.NaN) {
-    // if size is unspecified and brush is not null, nothing should be done.
-    // it basically means brush is given but size is not yet calculated at this time.
-    if ((brush is SolidColor && brush.value.isSpecified) ||
-        (brush is ShaderBrush && size.isSpecified)) {
-        // alpha is always applied even if Float.NaN is passed to applyTo function.
-        // if it's actually Float.NaN, we simply send the current value
-        brush.applyTo(
-            size,
-            this,
-            if (alpha.isNaN()) 1f else alpha.coerceIn(0f, 1f)
-        )
-    } else if (brush == null) {
-        shader = null
-    }
-}
+internal class SkiaTextPaint : Paint by Paint() {
+    @VisibleForTesting
+    internal var brush: Brush? = null
 
-internal fun Paint.applyDrawStyle(drawStyle: DrawStyle?) {
-    when (drawStyle) {
-        Fill, null -> {
-            // Stroke properties such as strokeWidth, strokeMiter are not re-set because
-            // Fill style should make those properties no-op. Next time the style is set
-            // as Stroke, stroke properties get re-set as well.
-            style = PaintingStyle.Fill
+    internal var shaderState: State<Shader?>? = null
+
+    @VisibleForTesting
+    internal var brushSize: Size? = null
+
+    fun setBrush(brush: Brush?, size: Size, alpha: Float = Float.NaN) {
+        when (brush) {
+            // null brush should just clear the shader and leave `color` as the final decider
+            // while painting
+            null -> {
+                clearShader()
+            }
+            // SolidColor brush can be treated just like setting a color.
+            is SolidColor -> {
+                if (color.isSpecified) {
+                    this.color = brush.value.modulate(alpha)
+                    clearShader()
+                }
+            }
+            // This is the brush type that we mostly refer to when we talk about brush support.
+            // Below code is almost equivalent to;
+            // val this.shaderState = remember(brush, brushSize) {
+            //     derivedStateOf {
+            //         brush.createShader(size)
+            //     }
+            // }
+            is ShaderBrush -> {
+                if (this.brush != brush || this.brushSize != size) {
+                    if (size.isSpecified) {
+                        this.brush = brush
+                        this.brushSize = size
+                        this.shaderState = derivedStateOf {
+                            brush.createShader(size)
+                        }
+                    }
+                }
+                this.shader = this.shaderState?.value
+                this.alpha = if (alpha.isNaN()) 1f else alpha.coerceIn(0f, 1f)
+            }
         }
-        is Stroke -> {
-            style = PaintingStyle.Stroke
-            strokeWidth = drawStyle.width
-            strokeMiterLimit = drawStyle.miter
-            strokeJoin = drawStyle.join
-            strokeCap = drawStyle.cap
-            pathEffect = drawStyle.pathEffect
+    }
+
+    fun setDrawStyle(drawStyle: DrawStyle?) {
+        when (drawStyle) {
+            Fill, null -> {
+                // Stroke properties such as strokeWidth, strokeMiter are not re-set because
+                // Fill style should make those properties no-op. Next time the style is set
+                // as Stroke, stroke properties get re-set as well.
+                style = PaintingStyle.Fill
+            }
+
+            is Stroke -> {
+                style = PaintingStyle.Stroke
+                strokeWidth = drawStyle.width
+                strokeMiterLimit = drawStyle.miter
+                strokeJoin = drawStyle.join
+                strokeCap = drawStyle.cap
+                pathEffect = drawStyle.pathEffect
+            }
         }
+    }
+
+    /**
+     * Clears all shader related cache parameters and native shader property.
+     */
+    private fun clearShader() {
+        this.shaderState = null
+        this.brush = null
+        this.brushSize = null
+        this.shader = null
     }
 }
