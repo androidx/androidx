@@ -194,6 +194,8 @@ public class WorkContinuationImpl extends WorkContinuation {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
             mOperation = launchOperation(
+                    mWorkManagerImpl.getConfiguration().getTracer(),
+                    "EnqueueRunnable_" + getExistingWorkPolicy().name(),
                     mWorkManagerImpl.getWorkTaskExecutor().getSerialTaskExecutor(),
                     () -> {
                         EnqueueRunnable.enqueue(this);

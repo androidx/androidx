@@ -15,6 +15,7 @@
  */
 package androidx.work.impl.utils
 
+import androidx.work.Configuration
 import androidx.work.Operation
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -25,7 +26,14 @@ import androidx.work.launchOperation
  * - Is finished (succeeded, failed, or cancelled)
  * - Has zero unfinished dependents
  */
-internal fun WorkDatabase.pruneWork(executor: TaskExecutor): Operation =
-    launchOperation(executor.serialTaskExecutor) {
+internal fun WorkDatabase.pruneWork(
+    configuration: Configuration,
+    executor: TaskExecutor
+): Operation =
+    launchOperation(
+        tracer = configuration.tracer,
+        label = "PruneWork",
+        executor = executor.serialTaskExecutor
+    ) {
         workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
     }

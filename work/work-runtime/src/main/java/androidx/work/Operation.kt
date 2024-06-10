@@ -35,18 +35,25 @@ import java.util.concurrent.Executor
  */
 public suspend inline fun Operation.await(): Operation.State.SUCCESS = result.await()
 
-internal fun launchOperation(executor: Executor, block: () -> Unit): Operation {
+internal fun launchOperation(
+    tracer: Tracer,
+    label: String,
+    executor: Executor,
+    block: () -> Unit
+): Operation {
     val liveData = MutableLiveData<Operation.State>(Operation.IN_PROGRESS)
     val future =
         CallbackToFutureAdapter.getFuture { completer ->
             executor.execute {
-                try {
-                    block()
-                    liveData.postValue(Operation.SUCCESS)
-                    completer.set(Operation.SUCCESS)
-                } catch (t: Throwable) {
-                    liveData.postValue(Operation.State.FAILURE(t))
-                    completer.setException(t)
+                tracer.traced(label) {
+                    try {
+                        block()
+                        liveData.postValue(Operation.SUCCESS)
+                        completer.set(Operation.SUCCESS)
+                    } catch (t: Throwable) {
+                        liveData.postValue(Operation.State.FAILURE(t))
+                        completer.setException(t)
+                    }
                 }
             }
         }
