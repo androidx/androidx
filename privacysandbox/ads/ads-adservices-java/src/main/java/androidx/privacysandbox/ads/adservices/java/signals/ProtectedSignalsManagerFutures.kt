@@ -117,7 +117,8 @@ abstract class ProtectedSignalsManagerFutures internal constructor() {
         /**
          * Creates [ProtectedSignalsManagerFutures].
          *
-         * @return ProtectedSignalsManagerFutures object.
+         * @return ProtectedSignalsManagerFutures object. If the device is running an incompatible
+         *   build (adservices extension version < 12), the value returned is null.
          */
         @JvmStatic
         fun from(context: Context): ProtectedSignalsManagerFutures? {
