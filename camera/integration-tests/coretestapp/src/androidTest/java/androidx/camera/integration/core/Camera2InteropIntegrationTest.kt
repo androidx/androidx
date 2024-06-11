@@ -38,6 +38,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.core.util.CameraPipeUtil
+import androidx.camera.integration.core.util.CameraPipeUtil.builder
+import androidx.camera.integration.core.util.CameraPipeUtil.from
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -281,7 +283,15 @@ class Camera2InteropIntegrationTest(
     }
 
     private fun Camera.setInteropOptions(parameter: Map<CaptureRequest.Key<Int>, Int>) {
-        CameraPipeUtil.setRequestOptions(implName, cameraControl, parameter)
+        CameraPipeUtil.Camera2CameraControlWrapper.from(implName, cameraControl).apply {
+            setCaptureRequestOptions(
+                CameraPipeUtil.CaptureRequestOptionsWrapper.builder(implName)
+                    .apply {
+                        parameter.forEach { (key, value) -> setCaptureRequestOption(key, value) }
+                    }
+                    .build()
+            )
+        }
     }
 
     private val captureCallback =

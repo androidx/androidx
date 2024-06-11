@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video
+package androidx.camera.integration.core
 
 import android.graphics.SurfaceTexture
 import android.view.Surface
