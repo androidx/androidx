@@ -988,6 +988,10 @@ public final class androidx/compose/ui/graphics/SkiaColorFilter_skikoKt {
 	public static final fun asSkiaColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)Lorg/jetbrains/skia/ColorFilter;
 }
 
+public final class androidx/compose/ui/graphics/SkiaGraphicsContext_skikoKt {
+	public static final fun GraphicsContext ()Landroidx/compose/ui/graphics/GraphicsContext;
+}
+
 public final class androidx/compose/ui/graphics/SkiaImageAsset_skikoKt {
 	public static final fun asComposeImageBitmap (Lorg/jetbrains/skia/Bitmap;)Landroidx/compose/ui/graphics/ImageBitmap;
 	public static final fun asSkiaBitmap (Landroidx/compose/ui/graphics/ImageBitmap;)Lorg/jetbrains/skia/Bitmap;
@@ -1644,7 +1648,6 @@ public final class androidx/compose/ui/graphics/layer/GraphicsLayer {
 	public final fun setPivotOffset-k-4lQ0M (J)V
 	public final fun setRectOutline-tz77jQw (JJ)V
 	public static synthetic fun setRectOutline-tz77jQw$default (Landroidx/compose/ui/graphics/layer/GraphicsLayer;JJILjava/lang/Object;)V
-	public final fun setReleased (Z)V
 	public final fun setRenderEffect (Landroidx/compose/ui/graphics/RenderEffect;)V
 	public final fun setRotationX (F)V
 	public final fun setRotationY (F)V
@@ -1654,7 +1657,6 @@ public final class androidx/compose/ui/graphics/layer/GraphicsLayer {
 	public final fun setScaleX (F)V
 	public final fun setScaleY (F)V
 	public final fun setShadowElevation (F)V
-	public final fun setSize-ozmzZPI (J)V
 	public final fun setSpotShadowColor-8_81llA (J)V
 	public final fun setTopLeft--gyyYBs (J)V
 	public final fun setTranslationX (F)V
@@ -1666,10 +1668,6 @@ public final class androidx/compose/ui/graphics/layer/GraphicsLayerKt {
 	public static final field DefaultCameraDistance F
 	public static final fun drawLayer (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/graphics/layer/GraphicsLayer;)V
 	public static final fun setOutline (Landroidx/compose/ui/graphics/layer/GraphicsLayer;Landroidx/compose/ui/graphics/Outline;)V
-}
-
-public final class androidx/compose/ui/graphics/layer/GraphicsLayer_skikoKt {
-	public static final fun GraphicsContext ()Landroidx/compose/ui/graphics/GraphicsContext;
 }
 
 public final class androidx/compose/ui/graphics/painter/BitmapPainter : androidx/compose/ui/graphics/painter/Painter {
