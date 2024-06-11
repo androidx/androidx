@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Switch
@@ -44,12 +43,6 @@ fun ToggleButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item { ListHeader { Text("Checkbox") } }
-        item { DemoToggleCheckbox(enabled = true, initiallyChecked = true) }
-        item { DemoToggleCheckbox(enabled = true, initiallyChecked = false) }
-        item { ListHeader { Text("Disabled Checkbox") } }
-        item { DemoToggleCheckbox(enabled = false, initiallyChecked = true) }
-        item { DemoToggleCheckbox(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Switch") } }
         item { DemoToggleSwitch(enabled = true, initiallyChecked = true) }
         item { DemoToggleSwitch(enabled = true, initiallyChecked = false) }
@@ -58,7 +51,7 @@ fun ToggleButtonDemo() {
         item { DemoToggleSwitch(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Icon") } }
         item {
-            DemoToggleCheckbox(
+            DemoToggleSwitch(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label",
@@ -67,7 +60,7 @@ fun ToggleButtonDemo() {
             }
         }
         item {
-            DemoToggleCheckbox(
+            DemoToggleSwitch(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label",
@@ -78,7 +71,7 @@ fun ToggleButtonDemo() {
         }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoToggleCheckbox(
+            DemoToggleSwitch(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -86,14 +79,14 @@ fun ToggleButtonDemo() {
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoToggleSwitch(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoToggleSwitch(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -104,7 +97,7 @@ fun ToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoToggleCheckbox(
+private fun DemoToggleSwitch(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
@@ -114,6 +107,7 @@ private fun DemoToggleCheckbox(
     var checked by remember { mutableStateOf(initiallyChecked) }
     ToggleButton(
         modifier = Modifier.fillMaxWidth(),
+        icon = content,
         label = {
             Text(
                 primary,
@@ -123,11 +117,6 @@ private fun DemoToggleCheckbox(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        icon = content,
-        checked = checked,
-        toggleControl = { Checkbox() },
-        onCheckedChange = { checked = it },
-        enabled = enabled,
         secondaryLabel = {
             if (secondary.isNotEmpty()) {
                 Text(
@@ -138,23 +127,6 @@ private fun DemoToggleCheckbox(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-    )
-}
-
-@Composable
-private fun DemoToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
-        modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text(
-                "Primary label",
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
-            )
         },
         checked = checked,
         toggleControl = { Switch() },

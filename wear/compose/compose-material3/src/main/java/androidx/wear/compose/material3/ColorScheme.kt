@@ -238,6 +238,10 @@ class ColorScheme(
     internal var defaultToggleButtonColorsCached: ToggleButtonColors? = null
     internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
 
+    // Checkbox Button
+    internal var defaultCheckboxButtonColorsCached: CheckboxButtonColors? = null
+    internal var defaultSplitCheckboxButtonColorsCached: SplitCheckboxButtonColors? = null
+
     // Radio Button
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
     internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null

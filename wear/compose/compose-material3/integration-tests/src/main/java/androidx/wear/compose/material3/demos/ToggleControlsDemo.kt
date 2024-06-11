@@ -29,26 +29,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Switch
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.ToggleButton
-
-@Composable
-fun CheckboxDemos() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        item { ListHeader { Text(text = "Checkbox") } }
-        item { CheckboxDemo(initialChecked = false, enabled = true) }
-        item { CheckboxDemo(initialChecked = true, enabled = true) }
-        item { ListHeader { Text(text = "Disabled Checkbox") } }
-        item { CheckboxDemo(initialChecked = false, enabled = false) }
-        item { CheckboxDemo(initialChecked = true, enabled = false) }
-    }
-}
 
 @Composable
 fun SwitchDemos() {
@@ -74,18 +58,6 @@ fun SwitchDemos() {
             }
         }
     }
-}
-
-@Composable
-private fun CheckboxDemo(initialChecked: Boolean, enabled: Boolean) {
-    var checked by remember { mutableStateOf(initialChecked) }
-    ToggleButton(
-        label = { Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        checked = checked,
-        toggleControl = { Checkbox() },
-        onCheckedChange = { checked = it },
-        enabled = enabled,
-    )
 }
 
 @Composable

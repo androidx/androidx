@@ -286,6 +286,7 @@ fun ToggleButton(
  *   emitting [Interaction]s for this button's "clickable" tap area. You can use this to change the
  *   button's appearance or preview the button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
+ * @param onClickLabel accessibility label for the main body of the split button
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param shape Defines the SplitToggleButton's shape. It is strongly recommended to use the default
@@ -308,6 +309,7 @@ fun SplitToggleButton(
     enabled: Boolean,
     checkedInteractionSource: MutableInteractionSource?,
     clickInteractionSource: MutableInteractionSource?,
+    onClickLabel: String?,
     contentPadding: PaddingValues,
     shape: Shape,
     labelSpacerSize: Dp,
@@ -330,6 +332,7 @@ fun SplitToggleButton(
                         onClick = onClick,
                         indication = ripple,
                         interactionSource = clickInteractionSource,
+                        onClickLabel = onClickLabel,
                     )
                     .semantics { role = Role.Button }
                     .fillMaxHeight()
