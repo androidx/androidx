@@ -43,17 +43,13 @@ import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
  * The Wear Material [ToggleButton] offers four slots and a specific layout for an icon, a label, a
- * secondaryLabel and toggle control (such as [Checkbox] or [Switch]). The icon and secondaryLabel
- * are optional. The items are laid out in a row with the optional icon at the start, a column
- * containing the two label slots in the middle and a slot for the toggle control at the end.
+ * secondaryLabel and toggle control (such as [Switch]). The icon and secondaryLabel are optional.
+ * The items are laid out in a row with the optional icon at the start, a column containing the two
+ * label slots in the middle and a slot for the toggle control at the end.
  *
  * The [ToggleButton] is Stadium shaped and has a max height designed to take no more than two lines
  * of text. With localisation and/or large font sizes, the [ToggleButton] height adjusts to
  * accommodate the contents. The label and secondary label should be start aligned.
- *
- * Samples: Example of a ToggleButton with a Checkbox:
- *
- * @sample androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
  *
  * Example of a ToggleButton with a Switch:
  *
@@ -66,8 +62,8 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
- * @param toggleControl A slot for providing the button's toggle control. Two built-in types of
- *   toggle control are supported: [Checkbox] and [Switch].
+ * @param toggleControl A slot for providing the button's toggle control. One built-in type of
+ *   toggle control is supported: [Switch].
  * @param modifier Modifier to be applied to the [ToggleButton].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
@@ -160,10 +156,6 @@ fun ToggleButton(
  * toggle control. The [onClick] listener will be associated with the main body of the split toggle
  * button with the [onCheckedChange] listener associated with the toggle control area only.
  *
- * Samples: Example of a SplitToggleButton with a Checkbox:
- *
- * @sample androidx.wear.compose.material3.samples.SplitToggleButtonWithCheckbox
- *
  * Example of a SplitToggleButton with a Switch:
  *
  * @sample androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
@@ -181,8 +173,8 @@ fun ToggleButton(
  * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
  * @param onClick Click listener called when the user clicks the main body of the button, the area
  *   behind the labels.
- * @param toggleControl A slot for providing the button's toggle control. Two built-in types of
- *   toggle control are supported: [Checkbox] and [Switch].
+ * @param toggleControl A slot for providing the button's toggle control. One built-in type of
+ *   toggle control is supported: [Switch].
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
@@ -252,6 +244,7 @@ fun SplitToggleButton(
         enabled = enabled,
         checkedInteractionSource = checkedInteractionSource,
         clickInteractionSource = clickInteractionSource,
+        onClickLabel = null,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,

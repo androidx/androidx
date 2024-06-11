@@ -281,6 +281,7 @@ public fun SplitSelectableChip(
         enabled = enabled,
         checkedInteractionSource = selectionInteractionSource,
         clickInteractionSource = containerInteractionSource,
+        onClickLabel = null,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,31 +27,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitCheckboxButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SplitToggleButtonDemo() {
+fun SplitCheckboxButtonDemo() {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item { ListHeader { Text("Switch") } }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = false) }
-        item { ListHeader { Text("Disabled Switch") } }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { ListHeader { Text("Checkbox") } }
+        item { DemoSplitCheckboxButton(enabled = true, initiallyChecked = true) }
+        item { DemoSplitCheckboxButton(enabled = true, initiallyChecked = false) }
+        item { ListHeader { Text("Disabled Checkbox") } }
+        item { DemoSplitCheckboxButton(enabled = false, initiallyChecked = true) }
+        item { DemoSplitCheckboxButton(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -59,14 +56,14 @@ fun SplitToggleButtonDemo() {
             )
         }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoSplitToggleSwitch(
+            DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -77,15 +74,24 @@ fun SplitToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoSplitToggleSwitch(
+private fun DemoSplitCheckboxButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
-    secondary: String? = null,
+    secondary: String? = null
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
-    SplitToggleButton(
+    SplitCheckboxButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        toggleContentDescription = primary,
+        containerClickLabel = "click",
+        onContainerClick = {
+            val toastText = if (checked) "Checked" else "Not Checked"
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+        },
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
@@ -108,13 +114,5 @@ private fun DemoSplitToggleSwitch(
                     )
                 }
             },
-        checked = checked,
-        toggleControl = { Switch(modifier = Modifier.semantics { contentDescription = primary }) },
-        onCheckedChange = { checked = it },
-        onClick = {
-            val toastText = if (checked) "Checked" else "Not Checked"
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
-        },
-        enabled = enabled,
     )
 }
