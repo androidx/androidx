@@ -26,6 +26,7 @@ import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.processing.OpenGlRenderer
 import androidx.camera.core.processing.ShaderProvider
+import androidx.camera.core.processing.util.GLUtils.InputFormat
 import java.util.concurrent.Executors
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.loop
@@ -75,15 +76,15 @@ class CopyingSurfaceProcessor : SurfaceProcessor, AutoCloseable {
 
                 // Update the input format from the transformation info.
                 // Initially initialize it to UNKNOWN until first transformation info.
-                glRenderer.setInputFormat(OpenGlRenderer.InputFormat.UNKNOWN)
+                glRenderer.setInputFormat(InputFormat.UNKNOWN)
                 launch {
                     surfaceRequest
                         .flowOnTransformationInfo()
                         .map {
                             if (it.hasCameraTransform()) {
-                                OpenGlRenderer.InputFormat.YUV
+                                InputFormat.YUV
                             } else {
-                                OpenGlRenderer.InputFormat.DEFAULT
+                                InputFormat.DEFAULT
                             }
                         }
                         .collectLatest { glRenderer.setInputFormat(it) }

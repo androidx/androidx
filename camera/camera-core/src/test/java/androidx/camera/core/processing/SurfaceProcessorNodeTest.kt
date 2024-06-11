@@ -37,12 +37,11 @@ import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
-import androidx.camera.core.impl.utils.TransformUtils.getRotatedSize
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig
+import androidx.camera.core.processing.util.OutConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal

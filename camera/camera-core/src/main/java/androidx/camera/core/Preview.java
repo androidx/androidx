@@ -95,6 +95,7 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.processing.util.OutConfig;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
@@ -246,8 +247,7 @@ public final class Preview extends UseCase {
             // Create nodes and edges.
             mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
             mCameraEdge.addOnInvalidatedListener(this::notifyReset);
-            SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
-                    mCameraEdge);
+            OutConfig outConfig = OutConfig.of(mCameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);

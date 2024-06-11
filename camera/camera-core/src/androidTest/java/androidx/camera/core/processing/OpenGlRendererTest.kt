@@ -34,6 +34,7 @@ import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.util.GraphicDeviceInfo
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.TestImageUtil.createBitmap
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
@@ -388,7 +389,7 @@ class OpenGlRendererTest {
     private suspend fun initRender(
         dynamicRange: DynamicRange = DynamicRange.SDR,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
-    ): OpenGlRenderer.GraphicDeviceInfo {
+    ): GraphicDeviceInfo {
         prepareCamera()
         assumeDynamicRange(dynamicRange)
         return createOpenGlRendererAndInit(
@@ -458,7 +459,7 @@ class OpenGlRendererTest {
     private suspend fun createOpenGlRendererAndInit(
         dynamicRange: DynamicRange = DynamicRange.SDR,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
-    ): OpenGlRenderer.GraphicDeviceInfo {
+    ): GraphicDeviceInfo {
         createOpenGlRenderer()
 
         return if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {
