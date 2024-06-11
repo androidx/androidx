@@ -24,7 +24,33 @@
          <trust file=".*-sources[.]jar" regex="true"/>
          <trust file=".*[.]asc" regex="true"/>
          <trust group="^androidx(?!\.compose.compiler\b)\..*" regex="true" reason="not signed yet"/>
-         <trust group="^com[.]android($|([.].*))" regex="true" reason="b/215430394"/>
+         <trust group="com.android.tools" name="r8" reason="b/215430394"/>
+         <trust group="com.android.tools" name="desugar_jdk_libs" reason="b/215430394"/>
+         <trust group="com.android.tools" name="desugar_jdk_libs_configuration" reason="b/215430394"/>
+         <trust group="com.android.tools.build" name="bundletool" reason="b/215430394"/>
+         <trust group="com.android.tools.build" name="transform-api" reason="b/215430394"/>
+         <trust group="com.android.tools.build.jetifier" reason="b/215430394"/>
+         <trust group="com.android.tools.metalava" reason="developed by our own team, not signed yet"/>
+         <trust group="com.android.ndk.thirdparty" reason="b/215430394"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="7.0.4" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="7.3.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="8.0.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="8.1.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="8.5.0-alpha05" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="30.0.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="30.0.4" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="30.3.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="31.0.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="31.1.0" reason="old version, before signing"/>
+         <trust group="^com[.]android($|([.].*))" regex="true" version="31.5.0-alpha05" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2" version="7.3.0-8691043" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2" version="8.0.0-9289358" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2" version="8.1.0-10154469" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2" version="8.5.0-alpha05-11315950" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2-proto" version="7.3.0-8691043" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2-proto" version="8.0.0-9289358" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2-proto" version="8.1.0-10154469" reason="old version, before signing"/>
+         <trust group="com.android.tools.build" name="aapt2-proto" version="8.5.0-alpha05-11315950" reason="old version, before signing"/>
       </trusted-artifacts>
       <trusted-keys>
          <trusted-key id="00089EE8C3AFA95A854D0F1DF800DD0933ECF7F7" group="com.google.guava"/>
@@ -341,7 +367,22 @@
          <trusted-key id="A4FD709CC4B0515F2E6AF04E218FA0F6A941A037" group="com.github.kevinstern"/>
          <trusted-key id="A5B2DDE7843E7CA3E8CAABD02383163BC40844FD" group="org.reactivestreams"/>
          <trusted-key id="A5BD02B93E7A40482EB1D66A5F69AD087600B22C" group="org.ow2.asm"/>
-         <trusted-key id="A5F483CD733A4EBAEA378B2AE88979FB9B30ACF2" group="^androidx\..*" regex="true"/>
+         <trusted-key id="A5F483CD733A4EBAEA378B2AE88979FB9B30ACF2">
+            <trusting group="^androidx\..*" regex="true"/>
+            <trusting group="com.android"/>
+            <trusting group="com.android.databinding"/>
+            <trusting group="com.android.kotlin.multiplatform.library"/>
+            <trusting group="com.android.tools"/>
+            <trusting group="com.android.tools.analytics-library"/>
+            <trusting group="com.android.tools.build"/>
+            <trusting group="com.android.tools.build.jetifier"/>
+            <trusting group="com.android.tools.ddms"/>
+            <trusting group="com.android.tools.external.com-intellij"/>
+            <trusting group="com.android.tools.external.org-jetbrains"/>
+            <trusting group="com.android.tools.layoutlib"/>
+            <trusting group="com.android.tools.lint"/>
+            <trusting group="com.android.tools.utp"/>
+         </trusted-key>
          <trusted-key id="A6D6C97108B8585F91B158748671A8DF71296252" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="A7892505CF1A58076453E52D7999BEFBA1039E8B" group="net.bytebuddy"/>
          <trusted-key id="AA417737BD805456DB3CBDDE6601E5C08DCCBB96" group="info.picocli" name="picocli"/>
