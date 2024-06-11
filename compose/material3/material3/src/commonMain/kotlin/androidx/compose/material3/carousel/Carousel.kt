@@ -680,10 +680,10 @@ object CarouselDefaults {
     }
 
     /** The minimum size that a carousel strategy can choose its small items to be. * */
-    internal val MinSmallItemSize = 40.dp
+    val MinSmallItemSize = 40.dp
 
     /** The maximum size that a carousel strategy can choose its small items to be. * */
-    internal val MaxSmallItemSize = 56.dp
+    val MaxSmallItemSize = 56.dp
 
     internal val AnchorSize = 10.dp
     internal const val MediumLargeItemDiffThreshold = 0.85f
