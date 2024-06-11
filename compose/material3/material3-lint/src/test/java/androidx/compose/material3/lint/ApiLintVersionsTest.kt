@@ -34,6 +34,6 @@ class ApiLintVersionsTest {
 
         val registry = Material3IssueRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
-        assertThat(registry.minApi).isEqualTo(10)
+        assertThat(registry.minApi).isEqualTo(14)
     }
 }

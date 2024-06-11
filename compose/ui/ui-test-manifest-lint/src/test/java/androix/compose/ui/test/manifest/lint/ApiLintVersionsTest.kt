@@ -40,6 +40,6 @@ class ApiLintVersionsTest {
             registry.api
         )
         // Since we don't publish this lint registry, minApi can match the api version.
-        Assert.assertEquals("registry.minApi matches registry.api", 10, registry.minApi)
+        Assert.assertEquals("registry.minApi matches registry.api", 14, registry.minApi)
     }
 }

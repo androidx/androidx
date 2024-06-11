@@ -32,13 +32,10 @@
          <trust group="com.android.tools.build.jetifier" reason="b/215430394"/>
          <trust group="com.android.tools.metalava" reason="developed by our own team, not signed yet"/>
          <trust group="com.android.ndk.thirdparty" reason="b/215430394"/>
-         <trust group="^com[.]android($|([.].*))" regex="true" version="7.0.4" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="7.3.0" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="8.0.0" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="8.1.0" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="8.5.0-alpha05" reason="old version, before signing"/>
-         <trust group="^com[.]android($|([.].*))" regex="true" version="30.0.0" reason="old version, before signing"/>
-         <trust group="^com[.]android($|([.].*))" regex="true" version="30.0.4" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="30.3.0" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="31.0.0" reason="old version, before signing"/>
          <trust group="^com[.]android($|([.].*))" regex="true" version="31.1.0" reason="old version, before signing"/>
