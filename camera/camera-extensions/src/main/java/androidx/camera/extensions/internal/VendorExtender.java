@@ -185,7 +185,8 @@ public interface VendorExtender {
      * Returns if the onCaptureCompleted with capture result will be invoked or not.
      */
     default boolean willReceiveOnCaptureCompleted() {
-        if (ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_2)) {
+        if (ClientVersion.isMaximumCompatibleVersion(Version.VERSION_1_2)
+                || ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_2)) {
             // For OEM implementing v1.2 or below, onCaptureCompleted won't be invoked.
             return false;
         }
