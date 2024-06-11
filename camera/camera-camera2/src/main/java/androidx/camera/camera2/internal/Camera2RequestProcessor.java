@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
@@ -60,12 +61,17 @@ import java.util.concurrent.ExecutionException;
  */
 public class Camera2RequestProcessor implements RequestProcessor {
     private static final String TAG = "Camera2RequestProcessor";
+    private final Object mLock = new Object();
     @Nullable
+    @GuardedBy("mLock")
     private CaptureSession mCaptureSession;
     @Nullable
+    @GuardedBy("mLock")
     private List<SessionProcessorSurface> mProcessorSurfaces;
+    @GuardedBy("mLock")
     private volatile boolean mIsClosed = false;
     @Nullable
+    @GuardedBy("mLock")
     private volatile SessionConfig mSessionConfig;
 
     public Camera2RequestProcessor(@NonNull CaptureSession captureSession,
@@ -80,10 +86,12 @@ public class Camera2RequestProcessor implements RequestProcessor {
      * After close(), all submit / setRepeating will be disabled.
      */
     public void close() {
-        mIsClosed = true;
-        mCaptureSession = null;
-        mSessionConfig = null;
-        mProcessorSurfaces = null;
+        synchronized (mLock) {
+            mIsClosed = true;
+            mCaptureSession = null;
+            mSessionConfig = null;
+            mProcessorSurfaces = null;
+        }
     }
 
     /**
@@ -91,7 +99,9 @@ public class Camera2RequestProcessor implements RequestProcessor {
      * repeating request.
      */
     public void updateSessionConfig(@Nullable SessionConfig sessionConfig) {
-        mSessionConfig = sessionConfig;
+        synchronized (mLock) {
+            mSessionConfig = sessionConfig;
+        }
     }
 
     private boolean areRequestsValid(@NonNull List<RequestProcessor.Request> requests) {
@@ -131,82 +141,90 @@ public class Camera2RequestProcessor implements RequestProcessor {
     public int submit(
             @NonNull List<RequestProcessor.Request> requests,
             @NonNull RequestProcessor.Callback callback) {
-        if (mIsClosed || !areRequestsValid(requests) || mCaptureSession == null) {
-            return -1;
-        }
-
-        ArrayList<CaptureConfig> captureConfigs = new ArrayList<>();
-        boolean shouldInvokeSequenceCallback = true;
-        for (RequestProcessor.Request request : requests) {
-            CaptureConfig.Builder builder = new CaptureConfig.Builder();
-            builder.setTemplateType(request.getTemplateId());
-            builder.setImplementationOptions(request.getParameters());
-            builder.addCameraCaptureCallback(
-                    CaptureCallbackContainer.create(
-                            new Camera2CallbackWrapper(request, callback,
-                                    shouldInvokeSequenceCallback)));
-            // Only invoke the sequence callback on the first callback wrapper to avoid
-            // duplicate calls on this RequestProcessor.Callback.
-            shouldInvokeSequenceCallback = false;
-
-            for (Integer outputConfigId : request.getTargetOutputConfigIds()) {
-                builder.addSurface(findSurface(outputConfigId));
+        synchronized (mLock) {
+            if (mIsClosed || !areRequestsValid(requests) || mCaptureSession == null) {
+                return -1;
             }
-            captureConfigs.add(builder.build());
+
+            ArrayList<CaptureConfig> captureConfigs = new ArrayList<>();
+            boolean shouldInvokeSequenceCallback = true;
+            for (RequestProcessor.Request request : requests) {
+                CaptureConfig.Builder builder = new CaptureConfig.Builder();
+                builder.setTemplateType(request.getTemplateId());
+                builder.setImplementationOptions(request.getParameters());
+                builder.addCameraCaptureCallback(
+                        CaptureCallbackContainer.create(
+                                new Camera2CallbackWrapper(request, callback,
+                                        shouldInvokeSequenceCallback)));
+                // Only invoke the sequence callback on the first callback wrapper to avoid
+                // duplicate calls on this RequestProcessor.Callback.
+                shouldInvokeSequenceCallback = false;
+
+                for (Integer outputConfigId : request.getTargetOutputConfigIds()) {
+                    builder.addSurface(findSurface(outputConfigId));
+                }
+                captureConfigs.add(builder.build());
+            }
+            return mCaptureSession.issueBurstCaptureRequest(captureConfigs);
         }
-        return mCaptureSession.issueBurstCaptureRequest(captureConfigs);
     }
 
     @Override
     public int setRepeating(
             @NonNull RequestProcessor.Request request,
             @NonNull RequestProcessor.Callback callback) {
-        if (mIsClosed || !isRequestValid(request) || mCaptureSession == null) {
-            return -1;
-        }
-
-        SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
-        sessionConfigBuilder.setTemplateType(request.getTemplateId());
-        sessionConfigBuilder.setImplementationOptions(request.getParameters());
-        sessionConfigBuilder.addCameraCaptureCallback(CaptureCallbackContainer.create(
-                        new Camera2CallbackWrapper(request, callback, true)));
-
-        if (mSessionConfig != null) {
-            // Attach the CameraX camera capture callback so that CameraControl can get the capture
-            // results it needs.
-            for (CameraCaptureCallback cameraCaptureCallback :
-                    mSessionConfig.getRepeatingCameraCaptureCallbacks()) {
-                sessionConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
+        synchronized (mLock) {
+            if (mIsClosed || !isRequestValid(request) || mCaptureSession == null) {
+                return -1;
             }
 
-            // Set the tag (key, value) from CameraX.
-            TagBundle tagBundle =  mSessionConfig.getRepeatingCaptureConfig().getTagBundle();
-            for (String key : tagBundle.listKeys()) {
-                sessionConfigBuilder.addTag(key, tagBundle.getTag(key));
+            SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
+            sessionConfigBuilder.setTemplateType(request.getTemplateId());
+            sessionConfigBuilder.setImplementationOptions(request.getParameters());
+            sessionConfigBuilder.addCameraCaptureCallback(CaptureCallbackContainer.create(
+                    new Camera2CallbackWrapper(request, callback, true)));
+
+            if (mSessionConfig != null) {
+                // Attach the CameraX camera capture callback so that CameraControl can get the
+                // capture results it needs.
+                for (CameraCaptureCallback cameraCaptureCallback :
+                        mSessionConfig.getRepeatingCameraCaptureCallbacks()) {
+                    sessionConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
+                }
+
+                // Set the tag (key, value) from CameraX.
+                TagBundle tagBundle = mSessionConfig.getRepeatingCaptureConfig().getTagBundle();
+                for (String key : tagBundle.listKeys()) {
+                    sessionConfigBuilder.addTag(key, tagBundle.getTag(key));
+                }
             }
-        }
 
-        for (Integer outputConfigId : request.getTargetOutputConfigIds()) {
-            sessionConfigBuilder.addSurface(findSurface(outputConfigId));
-        }
+            for (Integer outputConfigId : request.getTargetOutputConfigIds()) {
+                sessionConfigBuilder.addSurface(findSurface(outputConfigId));
+            }
 
-        return mCaptureSession.issueRepeatingCaptureRequests(sessionConfigBuilder.build());
+            return mCaptureSession.issueRepeatingCaptureRequests(sessionConfigBuilder.build());
+        }
     }
 
     @Override
     public void abortCaptures() {
-        if (mIsClosed || mCaptureSession == null) {
-            return;
+        synchronized (mLock) {
+            if (mIsClosed || mCaptureSession == null) {
+                return;
+            }
+            mCaptureSession.abortCaptures();
         }
-        mCaptureSession.abortCaptures();
     }
 
     @Override
     public void stopRepeating() {
-        if (mIsClosed || mCaptureSession == null) {
-            return;
+        synchronized (mLock) {
+            if (mIsClosed || mCaptureSession == null) {
+                return;
+            }
+            mCaptureSession.stopRepeating();
         }
-        mCaptureSession.stopRepeating();
     }
 
     /**
@@ -280,33 +298,37 @@ public class Camera2RequestProcessor implements RequestProcessor {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     int findOutputConfigId(@NonNull Surface surface) {
-        if (mProcessorSurfaces == null) {
+        synchronized (mLock) {
+            if (mProcessorSurfaces == null) {
+                return -1;
+            }
+            for (SessionProcessorSurface sessionProcessorSurface : mProcessorSurfaces) {
+                try {
+                    if (sessionProcessorSurface.getSurface().get() == surface) {
+                        return sessionProcessorSurface.getOutputConfigId();
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    // This will not happen since SessionProcessorSurface.get() will always
+                    // succeed.
+                }
+            }
+
             return -1;
         }
-        for (SessionProcessorSurface sessionProcessorSurface : mProcessorSurfaces) {
-            try {
-                if (sessionProcessorSurface.getSurface().get() == surface) {
-                    return sessionProcessorSurface.getOutputConfigId();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                // This will not happen since SessionProcessorSurface.get() will always
-                // succeed.
-            }
-        }
-
-        return -1;
     }
 
     @Nullable
     private DeferrableSurface findSurface(int outputConfigId) {
-        if (mProcessorSurfaces == null) {
+        synchronized (mLock) {
+            if (mProcessorSurfaces == null) {
+                return null;
+            }
+            for (SessionProcessorSurface sessionProcessorSurface : mProcessorSurfaces) {
+                if (sessionProcessorSurface.getOutputConfigId() == outputConfigId) {
+                    return sessionProcessorSurface;
+                }
+            }
             return null;
         }
-        for (SessionProcessorSurface sessionProcessorSurface : mProcessorSurfaces) {
-            if (sessionProcessorSurface.getOutputConfigId() == outputConfigId) {
-                return sessionProcessorSurface;
-            }
-        }
-        return null;
     }
 }
