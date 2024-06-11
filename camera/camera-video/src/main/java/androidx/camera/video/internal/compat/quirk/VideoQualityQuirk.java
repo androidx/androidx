@@ -19,24 +19,24 @@ package androidx.camera.video.internal.compat.quirk;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk;
 import androidx.camera.video.Quality;
+import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 
 /**
  * The quirk interface which denotes the quality does not work for video recording on the device.
  *
  * <p>Subclasses of this interface can denote the reason of the Quality option that not capable
- * for video recording.
+ * for video recording. Subclasses of this interface can also implement
+ * {@link SurfaceProcessingQuirk} if the problem can be workaround by enabling surface processing.
+ * Then it may not be taken as an invalid quality in
+ * {@link QualityValidatedEncoderProfilesProvider}.
+ *
+ * @see QualityValidatedEncoderProfilesProvider
  */
 public interface VideoQualityQuirk extends Quirk {
 
     /** Checks if the given Quality type is a problematic quality. */
     boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
             @NonNull Quality quality);
-
-    /**
-     * Returns true if the problem can be workaround by surface processing and we want to enable it.
-     */
-    default boolean workaroundBySurfaceProcessing() {
-        return false;
-    }
 }
