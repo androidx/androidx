@@ -21,7 +21,6 @@ package androidx.compose.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.Selection
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +32,8 @@ import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -44,7 +44,6 @@ import kotlinx.coroutines.withContext
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.MouseEventInit
-import org.w3c.dom.get
 
 class SelectionContainerTests : OnCanvasTests {
 
@@ -55,7 +54,7 @@ class SelectionContainerTests : OnCanvasTests {
         document.getElementById(canvasId)?.remove()
     }
 
-    fun HTMLCanvasElement.doClick() {
+    private fun HTMLCanvasElement.doClick() {
         dispatchEvent(MouseEvent("mousedown", MouseEventInit(5, 5, 5, 5, buttons = 1, button = 1)))
         dispatchEvent(MouseEvent("mouseup", MouseEventInit(5, 5, 5, 5, buttons = 0, button = 1)))
     }
@@ -97,7 +96,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         var selection = syncChannel.receive()
-        assertEquals(null, selection)
+        assertFalse(selection.exists())
 
         // delay to prevent interpreting next single click as a second click of the previous click,
         // so we make sure it won't appear as a double click
@@ -110,7 +109,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         selection = syncChannel.receive()
-        assertNotEquals(null, selection)
+        assertTrue(selection.exists())
         assertEquals(0, selection!!.start.offset)
         assertEquals(6, selection!!.end.offset)
 
@@ -120,11 +119,11 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertEquals(null, selection)
+        assertFalse(selection.exists())
     }
 
     @Test
-    fun canSelectOneLineUsingTrippleClick() = runTest {
+    fun canSelectOneLineUsingTripleClick() = runTest {
         createCanvasAndAttach()
 
         val syncChannel = Channel<Selection?>(
@@ -163,7 +162,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         var selection = syncChannel.receive()
-        assertNotEquals(null, selection)
+        assertTrue(selection.exists())
         assertEquals(0, selection!!.start.offset)
         assertEquals(27, selection!!.end.offset)
 
@@ -173,7 +172,7 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertEquals(null, selection)
+        assertFalse(selection.exists())
     }
 
     @Test
@@ -232,3 +231,5 @@ class SelectionContainerTests : OnCanvasTests {
         }
     }
 }
+
+private fun Selection?.exists() = (this !== null) && !this.toTextRange().collapsed

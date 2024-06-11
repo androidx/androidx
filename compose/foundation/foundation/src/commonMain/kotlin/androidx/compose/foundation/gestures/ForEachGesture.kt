@@ -80,10 +80,12 @@ internal suspend fun PointerInputScope.awaitAllPointersUp() {
 /**
  * Waits for all pointers to be up before returning.
  */
-internal suspend fun AwaitPointerEventScope.awaitAllPointersUp() {
+internal suspend fun AwaitPointerEventScope.awaitAllPointersUp(
+    pass: PointerEventPass = PointerEventPass.Final
+) {
     if (!allPointersUp()) {
         do {
-            val events = awaitPointerEvent(PointerEventPass.Final)
+            val events = awaitPointerEvent(pass)
         } while (events.changes.fastAny { it.pressed })
     }
 }
