@@ -117,6 +117,8 @@ fun Surface(
                         shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() }
                     )
                     .semantics(mergeDescendants = false) {
+                        // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
+                        // pruning API.
                         @Suppress("DEPRECATION")
                         isContainer = true
                     }

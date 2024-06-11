@@ -88,11 +88,12 @@ object SemanticsProperties {
         "Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
-    val IsContainer: SemanticsPropertyKey<Boolean>
-        get() = IsTraversalGroup
+    // TODO(mnuzen): `isContainer` should not need to be an accessibility key after a new
+    //  pruning API is added. See b/347038246 for more details.
+    val IsContainer = AccessibilityKey<Boolean>("IsContainer")
 
     /** @see SemanticsPropertyReceiver.isTraversalGroup */
-    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
+    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
     /** @see SemanticsPropertyReceiver.invisibleToUser */
     @ExperimentalComposeUiApi
@@ -126,7 +127,7 @@ object SemanticsProperties {
 
     /** @see SemanticsPropertyReceiver.traversalIndex */
     val TraversalIndex =
-        AccessibilityKey<Float>(
+        SemanticsPropertyKey<Float>(
             name = "TraversalIndex",
             mergePolicy = { parentValue, _ ->
                 // Never merge traversal indices
@@ -817,7 +818,8 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
     "Use `isTraversalGroup` instead.",
     replaceWith = ReplaceWith("isTraversalGroup"),
 )
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+@Suppress("DEPRECATION")
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
 
 /**
  * Whether this semantics node is a traversal group.

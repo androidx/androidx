@@ -48,6 +48,7 @@ import android.widget.TextView
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -59,6 +60,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -936,6 +939,55 @@ class AndroidAccessibilityTest {
 
         // Assert - Since the column is screenReaderFocusable, it comes before the button.
         rule.runOnIdle { assertThat(rowANI.extras.traversalBefore).isEqualTo(buttonId) }
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_traversalGroupClipping() {
+        // Arrange.
+        val clickableTitle = "clickableTitle"
+        val clickableFirstListElement = "firstListElement"
+
+        setContent {
+            Box {
+                LazyColumn {
+                    items(50) { index ->
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .clickable {}
+                                .padding(16.dp)
+                                .then(
+                                    if (index == 0) Modifier.testTag(clickableFirstListElement)
+                                    else Modifier
+                                )
+                        ) {
+                            Text("Item #${index + 1}")
+                        }
+                    }
+                }
+                Box(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(120.dp)
+                            .background(Color.Black.copy(alpha = 0.9f))
+                            .semantics { isTraversalGroup = true }
+                ) {
+                    Text(
+                        "Testing Box Covering First Elements",
+                        Modifier.align(Alignment.Center).testTag(clickableTitle)
+                    )
+                }
+            }
+        }
+
+        val titleId = rule.onNodeWithTag(clickableTitle).semanticsId
+        val firstElementId = rule.onNodeWithTag(clickableFirstListElement).semanticsId
+
+        // Act.
+        val titleANI = rule.runOnIdle { createAccessibilityNodeInfo(titleId) }
+
+        // Assert - both the title and element are readable; though the title box covers the first
+        // element, it does not clip the items below.
+        rule.runOnIdle { assertThat(titleANI.extras.traversalBefore).isEqualTo(firstElementId) }
     }
 
     @Composable
