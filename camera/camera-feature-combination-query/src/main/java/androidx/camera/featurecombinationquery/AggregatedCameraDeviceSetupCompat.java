@@ -53,6 +53,6 @@ final class AggregatedCameraDeviceSetupCompat implements CameraDeviceSetupCompat
                 return result;
             }
         }
-        return SupportQueryResult.create(RESULT_UNDEFINED, SOURCE_UNDEFINED, 0);
+        return new SupportQueryResult(RESULT_UNDEFINED, SOURCE_UNDEFINED, 0);
     }
 }

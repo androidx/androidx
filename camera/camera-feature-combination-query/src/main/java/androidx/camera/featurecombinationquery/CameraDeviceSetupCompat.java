@@ -24,8 +24,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-import com.google.auto.value.AutoValue;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -61,8 +59,7 @@ public interface CameraDeviceSetupCompat {
     /**
      * Result of a {@link CameraDeviceSetupCompat#isSessionConfigurationSupported} query.
      */
-    @AutoValue
-    abstract class SupportQueryResult {
+    final class SupportQueryResult {
 
         /**
          * Source of the result is undefined. This is always accompanied by
@@ -115,6 +112,28 @@ public interface CameraDeviceSetupCompat {
         @interface Sources {
         }
 
+        // Whether the configuration is supported.
+        @Supported
+        private final int mSupported;
+        // The source of the result.
+        @Sources
+        private final int mSource;
+        // The timestamp of when the result was updated.
+        private final long mTimestampMillis;
+
+        /**
+         * Creates a new instance of {@link SupportQueryResult}.
+         *
+         * @param supported       Whether the {@link SessionConfiguration} is supported.
+         * @param source          The source of the result.
+         * @param timestampMillis The epoch timestamp of when the result was updated.
+         */
+        public SupportQueryResult(int supported, int source, long timestampMillis) {
+            mSupported = supported;
+            mSource = source;
+            mTimestampMillis = timestampMillis;
+        }
+
         /**
          * Whether the {@link SessionConfiguration} is supported.
          *
@@ -125,7 +144,9 @@ public interface CameraDeviceSetupCompat {
          * supported or not.
          */
         @Supported
-        public abstract int getSupported();
+        public int getSupported() {
+            return mSupported;
+        }
 
         /**
          * Returns the source of the result.
@@ -135,7 +156,9 @@ public interface CameraDeviceSetupCompat {
          * {@link #SOURCE_ANDROID_FRAMEWORK}; otherwise, the value is {@link #SOURCE_UNDEFINED}.
          */
         @Sources
-        public abstract int getSource();
+        public int getSource() {
+            return mSource;
+        }
 
         /**
          * Returns the epoch timestamp of when the result was updated.
@@ -145,16 +168,8 @@ public interface CameraDeviceSetupCompat {
          * {@link #SOURCE_ANDROID_FRAMEWORK}, the value is the build property "ro.build.date.utc"
          * if available; otherwise, it will return 0.
          */
-        public abstract long getTimestampMillis();
-
-        /**
-         * Creates a new instance of {@link SupportQueryResult}.
-         */
-        @NonNull
-        public static SupportQueryResult create(@Supported int isSupported, @Sources int source,
-                long timestamp) {
-            return new AutoValue_CameraDeviceSetupCompat_SupportQueryResult(isSupported, source,
-                    timestamp);
+        public long getTimestampMillis() {
+            return mTimestampMillis;
         }
     }
 

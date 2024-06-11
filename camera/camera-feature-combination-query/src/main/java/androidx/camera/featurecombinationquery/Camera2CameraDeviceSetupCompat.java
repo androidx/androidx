@@ -46,7 +46,7 @@ class Camera2CameraDeviceSetupCompat implements CameraDeviceSetupCompat {
     public SupportQueryResult isSessionConfigurationSupported(
             @NonNull SessionConfiguration sessionConfig)
             throws CameraAccessException {
-        return SupportQueryResult.create(
+        return new SupportQueryResult(
                 mCameraDeviceSetup.isSessionConfigurationSupported(sessionConfig) ? RESULT_SUPPORTED
                         : RESULT_UNSUPPORTED,
                 SOURCE_ANDROID_FRAMEWORK,

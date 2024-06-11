@@ -43,6 +43,6 @@ public class PlayServicesCameraDeviceSetupCompat implements CameraDeviceSetupCom
     public SupportQueryResult isSessionConfigurationSupported(
             @NonNull SessionConfiguration sessionConfig) {
         // TODO: Implement this once Google Play Services CameraDeviceSetup is available.
-        return SupportQueryResult.create(RESULT_UNSUPPORTED, SOURCE_PLAY_SERVICES, 0);
+        return new SupportQueryResult(RESULT_UNSUPPORTED, SOURCE_PLAY_SERVICES, 0);
     }
 }
