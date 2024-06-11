@@ -115,15 +115,12 @@ public abstract class Section<T extends Item> {
      */
     @SuppressWarnings({"StaticFinalBuilder", "MissingBuildMethod"})
     protected abstract static class BaseBuilder<T extends Item, B> {
-        @SuppressWarnings({"MutableBareField", "InternalField"})
         @NonNull
-        protected List<T> mItems = new ArrayList<>();
-        @SuppressWarnings({"MutableBareField", "InternalField"})
+        List<T> mItems = new ArrayList<>();
         @Nullable
-        protected CarText mHeader;
-        @SuppressWarnings({"MutableBareField", "InternalField"})
+        CarText mHeader;
         @Nullable
-        protected CarText mNoItemsMessage;
+        CarText mNoItemsMessage;
 
         protected BaseBuilder() {
         }

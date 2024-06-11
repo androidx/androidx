@@ -1334,7 +1334,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence?);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class GridSection extends androidx.car.app.model.Section<androidx.car.app.model.GridItem!> {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public final class GridSection extends androidx.car.app.model.Section<androidx.car.app.model.GridItem!> {
     method public int getItemImageShape();
     method public int getItemSize();
     field public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
@@ -1344,7 +1344,7 @@ package androidx.car.app.model {
     field public static final int ITEM_SIZE_SMALL = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static class GridSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.GridItem!,androidx.car.app.model.GridSection.Builder!> {
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class GridSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.GridItem!,androidx.car.app.model.GridSection.Builder!> {
     ctor public GridSection.Builder();
     ctor public GridSection.Builder(androidx.car.app.model.GridSection);
     method public androidx.car.app.model.GridSection build();
@@ -1745,9 +1745,6 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(CharSequence?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(CharSequence?);
-    field protected androidx.car.app.model.CarText? mHeader;
-    field protected java.util.List<T!> mItems;
-    field protected androidx.car.app.model.CarText? mNoItemsMessage;
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class SectionedItemList {
