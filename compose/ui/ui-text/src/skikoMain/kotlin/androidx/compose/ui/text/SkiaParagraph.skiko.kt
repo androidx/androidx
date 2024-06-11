@@ -34,6 +34,7 @@ import androidx.compose.ui.text.platform.SkiaParagraphIntrinsics
 import androidx.compose.ui.text.platform.cursorHorizontalPosition
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.isUnspecified
@@ -256,7 +257,7 @@ internal class SkiaParagraph(
         val isRtl = paragraphIntrinsics.textDirection == ResolvedTextDirection.Rtl
         val isLtr = !isRtl
         return when {
-            prevBox == null && nextBox == null -> if (isRtl) width else 0f
+            prevBox == null && nextBox == null -> getAlignedStartingPosition(isRtl)
             prevBox == null -> nextBox!!.cursorHorizontalPosition(true)
             nextBox == null -> prevBox.cursorHorizontalPosition()
             nextBox.direction == prevBox.direction -> nextBox.cursorHorizontalPosition(true)
@@ -268,6 +269,16 @@ internal class SkiaParagraph(
             else -> nextBox.cursorHorizontalPosition(true)
         }
     }
+
+    private fun getAlignedStartingPosition(isRtl: Boolean): Float =
+        when (layouter.textStyle.textAlign) {
+            TextAlign.Left -> 0f
+            TextAlign.Right -> width
+            TextAlign.Center -> width / 2
+            TextAlign.Start -> if (isRtl) width else 0f
+            TextAlign.End -> if (isRtl) 0f else width
+            else -> 0f
+        }
 
     private var _lineMetrics: Array<LineMetrics>? = null
     private val lineMetrics: Array<LineMetrics>
