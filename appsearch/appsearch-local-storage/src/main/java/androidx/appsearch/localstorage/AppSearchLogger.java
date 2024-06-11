@@ -45,45 +45,61 @@ public interface AppSearchLogger {
     /**
      * Logs {@link CallStats}
      */
-    void logStats(@NonNull CallStats stats);
+    default void logStats(@NonNull CallStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link PutDocumentStats}
      */
-    void logStats(@NonNull PutDocumentStats stats);
+    default void logStats(@NonNull PutDocumentStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link InitializeStats}
      */
-    void logStats(@NonNull InitializeStats stats);
+    default void logStats(@NonNull InitializeStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link SearchStats}
      */
-    void logStats(@NonNull SearchStats stats);
+    default void logStats(@NonNull SearchStats stats) {
+        // no-op
+    }
 
-    /**
-     * Logs {@link RemoveStats}
-     */
-    void logStats(@NonNull RemoveStats stats);
+    /** Logs {@link RemoveStats} */
+    default void logStats(@NonNull RemoveStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link OptimizeStats}
      */
-    void logStats(@NonNull OptimizeStats stats);
+    default void logStats(@NonNull OptimizeStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link SetSchemaStats}
      */
-    void logStats(@NonNull SetSchemaStats stats);
+    default void logStats(@NonNull SetSchemaStats stats) {
+        // no-op
+    }
 
     /**
      * Logs {@link SchemaMigrationStats}
      */
-    void logStats(@NonNull SchemaMigrationStats stats);
+    default void logStats(@NonNull SchemaMigrationStats stats) {
+        // no-op
+    }
 
     /** Logs a collection of {@link SearchIntentStats} */
-    void logStats(@NonNull List<SearchIntentStats> searchIntentsStats);
+    default void logStats(@NonNull List<SearchIntentStats> searchIntentsStats) {
+        // no-op
+    }
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }
