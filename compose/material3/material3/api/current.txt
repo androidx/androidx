@@ -2227,9 +2227,13 @@ package androidx.compose.material3 {
 package androidx.compose.material3.carousel {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class CarouselDefaults {
+    method public float getMaxSmallItemSize();
+    method public float getMinSmallItemSize();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior multiBrowseFlingBehavior(androidx.compose.material3.carousel.CarouselState state, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior noSnapFlingBehavior();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior singleAdvanceFlingBehavior(androidx.compose.material3.carousel.CarouselState state, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
+    property public final float MaxSmallItemSize;
+    property public final float MinSmallItemSize;
     field public static final androidx.compose.material3.carousel.CarouselDefaults INSTANCE;
   }
 
@@ -2260,12 +2264,9 @@ package androidx.compose.material3.carousel {
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class CarouselState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public CarouselState(optional int currentItem, optional @FloatRange(from=-0.5, to=0.5) float currentItemOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
     method public float dispatchRawDelta(float delta);
-    method public androidx.compose.runtime.MutableState<kotlin.jvm.functions.Function0<java.lang.Integer>> getItemCountState();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public void setItemCountState(androidx.compose.runtime.MutableState<kotlin.jvm.functions.Function0<java.lang.Integer>>);
     property public boolean isScrollInProgress;
-    property public final androidx.compose.runtime.MutableState<kotlin.jvm.functions.Function0<java.lang.Integer>> itemCountState;
     field public static final androidx.compose.material3.carousel.CarouselState.Companion Companion;
   }
 

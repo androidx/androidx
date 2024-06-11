@@ -47,7 +47,7 @@ class CarouselState(
     @FloatRange(from = -0.5, to = 0.5) currentItemOffsetFraction: Float = 0f,
     itemCount: () -> Int
 ) : ScrollableState {
-    var itemCountState = mutableStateOf(itemCount)
+    internal var itemCountState = mutableStateOf(itemCount)
 
     internal var pagerState: PagerState =
         PagerState(currentItem, currentItemOffsetFraction, itemCountState.value)
