@@ -82,7 +82,7 @@ public fun Checkbox(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -140,7 +140,7 @@ public fun Switch(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -191,7 +191,7 @@ public fun RadioButton(
         easing = STANDARD_IN,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Represents the content colors used in [Checkbox] in different states. */

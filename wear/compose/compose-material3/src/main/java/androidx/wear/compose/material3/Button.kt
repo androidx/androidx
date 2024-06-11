@@ -1632,7 +1632,7 @@ private fun ButtonImpl(
                     onLongClick = onLongClick,
                     onLongClickLabel = onLongClickLabel,
                     role = Role.Button,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     interactionSource = interactionSource,
                 )
                 .padding(contentPadding),

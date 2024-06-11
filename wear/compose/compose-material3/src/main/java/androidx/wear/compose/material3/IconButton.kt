@@ -103,7 +103,7 @@ fun IconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -172,7 +172,7 @@ fun FilledIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -241,7 +241,7 @@ fun FilledTonalIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -314,7 +314,7 @@ fun OutlinedIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -378,7 +378,7 @@ fun IconToggleButton(
         toggleButtonSize = IconButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content =
             provideScopeContent(colors.contentColor(enabled = enabled, checked = checked), content)
     )

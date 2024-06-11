@@ -109,7 +109,7 @@ fun TextButton(
         shape = shape,
         border = { border },
         buttonSize = TextButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content =
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
@@ -180,7 +180,7 @@ fun TextToggleButton(
         toggleButtonSize = TextButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content =
             provideScopeContent(
                 colors.contentColor(enabled = enabled, checked = checked),
