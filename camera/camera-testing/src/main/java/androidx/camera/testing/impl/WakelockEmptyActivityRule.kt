@@ -34,11 +34,24 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/** A rule that opens an empty Activity and wakes the device to prevent test failures. */
-class WakelockEmptyActivityRule : TestRule {
+/**
+ * A rule that opens an empty Activity and wakes the device to prevent test failures.
+ *
+ * By default, all brands will be enabled (brandsToEnable == null). Caller can specify the brand
+ * list to enable the rule via the [brandsToEnable] parameter.
+ */
+class WakelockEmptyActivityRule(val brandsToEnable: List<String>? = null) : TestRule {
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
             override fun evaluate() {
+                if (
+                    brandsToEnable != null &&
+                        !brandsToEnable.any { Build.BRAND.equals(it, ignoreCase = true) }
+                ) {
+                    base.evaluate()
+                    return
+                }
+
                 val instrumentation = InstrumentationRegistry.getInstrumentation()
                 clearDeviceUI(instrumentation)
                 var activityRef: EmptyActivity? = null
