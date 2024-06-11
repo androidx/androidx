@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input
+package androidx.compose.ui.events
 
 import androidx.compose.ui.input.key.Key
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.KeyboardEventInit
+import org.w3c.dom.events.MouseEvent
 
 internal external interface KeyboardEventInitExtended : KeyboardEventInit {
     var keyCode: Int?
@@ -55,3 +56,14 @@ internal fun keyDownEventUnprevented(): KeyboardEvent =
     KeyboardEventInit(ctrlKey = true, cancelable = true, key = "Control")
         .withKeyCode(Key.CtrlLeft.keyCode.toInt())
         .keyDownEvent()
+
+private fun DummyTouchEventInit(): TouchEventInit = js("({ changedTouches: [new Touch({identifier: 0, target: document})] })")
+
+internal fun createTouchEvent(type: String): TouchEvent {
+    return TouchEvent(type, DummyTouchEventInit())
+}
+
+internal fun createMouseEvent(type: String): MouseEvent {
+    return MouseEvent(type)
+}
+

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input
 
+import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.toComposeEvent

@@ -25,17 +25,17 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.events.keyDownEvent
+import androidx.compose.ui.events.keyDownEventUnprevented
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.keyDownEventUnprevented
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.keyDownEvent
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlinx.browser.document
@@ -56,7 +56,6 @@ class CanvasBasedWindowTests {
 
     @Test
     fun canCreate() {
-        if (isHeadlessBrowser()) return
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -65,7 +64,6 @@ class CanvasBasedWindowTests {
 
     @Test
     fun testPreventDefault() {
-        if (isHeadlessBrowser()) return
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -106,8 +104,6 @@ class CanvasBasedWindowTests {
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/3644
     fun keyMappingIsValid() {
-        if (isHeadlessBrowser()) return
-
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -154,7 +150,6 @@ class CanvasBasedWindowTests {
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/2296
     fun onPreviewKeyEventShouldWork() {
-        if (isHeadlessBrowser()) return
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -192,7 +187,3 @@ class CanvasBasedWindowTests {
         assertEquals("testx", textValue.value)
     }
 }
-
-
-// Unreliable heuristic, but it works for now
-internal fun isHeadlessBrowser(): Boolean = false//window.navigator.userAgent.contains("Headless")

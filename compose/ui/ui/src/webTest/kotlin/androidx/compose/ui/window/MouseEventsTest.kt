@@ -47,7 +47,6 @@ class MouseEventsTest {
 
     @Test
     fun testPointerEvents() = runTest {
-        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -96,7 +95,6 @@ class MouseEventsTest {
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testOnClickWithPointerMatchers() = runTest {
-        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -129,7 +127,6 @@ class MouseEventsTest {
 
     @Test
     fun testPointerButtonIsNullForNoClickEvents() = runTest {
-        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
