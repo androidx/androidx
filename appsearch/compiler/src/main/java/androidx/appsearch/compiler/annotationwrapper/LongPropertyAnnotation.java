@@ -28,6 +28,7 @@ import androidx.appsearch.compiler.ProcessingException;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import java.util.Map;
 
@@ -69,7 +70,8 @@ public abstract class LongPropertyAnnotation extends DataPropertyAnnotation {
         String name = (String) annotationParams.get("name");
         SerializerClass customSerializer = null;
         TypeMirror serializerInAnnotation = (TypeMirror) annotationParams.get("serializer");
-        if (!serializerInAnnotation.toString().equals(DEFAULT_SERIALIZER_CLASS.canonicalName())) {
+        String typeName = TypeName.get(serializerInAnnotation).toString();
+        if (!typeName.equals(DEFAULT_SERIALIZER_CLASS.canonicalName())) {
             customSerializer = SerializerClass.create(
                     (TypeElement) asElement(serializerInAnnotation),
                     SerializerClass.Kind.LONG_SERIALIZER);

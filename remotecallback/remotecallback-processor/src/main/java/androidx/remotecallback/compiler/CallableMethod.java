@@ -117,7 +117,7 @@ class CallableMethod {
 
     private AnnotationMirror findAnnotation(VariableElement element, String cls) {
         for (AnnotationMirror mirror: element.getAnnotationMirrors()) {
-            if (mirror.getAnnotationType().toString().equals(cls)) {
+            if (typeString(mirror.getAnnotationType()).equals(cls)) {
                 return mirror;
             }
         }
@@ -147,13 +147,13 @@ class CallableMethod {
             ProcessingEnvironment env, Messager messager) {
         // Validate types
         for (int i = 0; i < mTypes.size(); i++) {
-            if (checkType(mTypes.get(i).toString(), messager)) {
+            if (checkType(typeString(mTypes.get(i)), messager)) {
                 messager.printMessage(Diagnostic.Kind.ERROR,
                         "Invalid type " + mTypes.get(i));
                 return;
             }
         }
-        if (!"androidx.remotecallback.RemoteCallback".equals(mReturnType.toString())) {
+        if (!"androidx.remotecallback.RemoteCallback".equals(typeString(mReturnType))) {
             messager.printMessage(Diagnostic.Kind.ERROR,
                     "RemoteCallable methods must return RemoteCallback.LOCAL.");
             return;
@@ -183,20 +183,22 @@ class CallableMethod {
         methodCall.append(mElement.getSimpleName());
         methodCall.append("(");
         for (int i = 0; i < mNames.size(); i++) {
+            TypeMirror type = mTypes.get(i);
+            String typeString = typeString(type);
             // Pass the parameter to the method call.
             if (i != 0) {
                 methodCall.append(", ");
             }
             methodCall.append("p" + i);
 
-            if (mTypes.get(i).toString().equals(context.toString())) {
+            if (typeString.equals(context.toString())) {
                 code.addStatement("$L p" + i + " = context", mTypes.get(i));
                 continue;
             }
-            code.addStatement("$L p" + i, mTypes.get(i));
+            code.addStatement("$L p" + i, type);
             String key = mExtInputKeys.get(i) != null ? mExtInputKeys.get(i) : getBundleKey(i);
             // Generate code to extract the value.
-            code.addStatement("p$L = $L", i, getBundleParam(mTypes.get(i).toString(), key));
+            code.addStatement("p$L = $L", i, getBundleParam(typeString, key));
         }
         methodCall.append(")");
         // Add the method call as the last thing.
@@ -218,18 +220,20 @@ class CallableMethod {
 
         code.addStatement("$L b = new $L()", bundle, bundle);
         for (int i = 0; i < mNames.size(); i++) {
-            builder.addParameter(TypeName.get(mTypes.get(i)), "p" + i);
-            if (mTypes.get(i).toString().equals(context.toString())) {
+            TypeMirror type = mTypes.get(i);
+            String typeString = typeString(type);
+            builder.addParameter(TypeName.get(type), "p" + i);
+            if (typeString.equals(context.toString())) {
                 continue;
             }
-            boolean isNative = isNative(mTypes.get(i).toString());
+            boolean isNative = isNative(typeString);
             // Only fill in value if the argument has a value.
             if (!isNative) code.beginControlFlow("if (p$L != null)", i);
 
             // Otherwise just need to place the arg value.
             code.addStatement("b.put$L($L, ($L) p$L)",
-                    getTypeMethod(mTypes.get(i).toString()),
-                    getBundleKey(i), mTypes.get(i), i);
+                    getTypeMethod(typeString),
+                    getBundleKey(i), type, i);
 
             // No value present, need an explicit null for security.
             if (!isNative) code.nextControlFlow("else");
@@ -249,7 +253,7 @@ class CallableMethod {
     private int countArgs(ClassName context) {
         int ct = 0;
         for (int i = 0; i < mTypes.size(); i++) {
-            if (mTypes.get(i).toString().equals(context.toString())) {
+            if (typeString(mTypes.get(i)).equals(context.toString())) {
                 continue;
             }
             ct++;
@@ -399,5 +403,10 @@ class CallableMethod {
             default:
                 return true;
         }
+    }
+
+    /** Returns a simple string version of the type, with no annotations. */
+    private String typeString(TypeMirror type) {
+        return TypeName.get(type).toString();
     }
 }
