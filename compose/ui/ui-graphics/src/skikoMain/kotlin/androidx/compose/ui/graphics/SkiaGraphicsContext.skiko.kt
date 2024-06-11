@@ -18,11 +18,13 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import kotlin.js.JsName
 
 /**
  * Create a new [GraphicsContext].
  */
 @InternalComposeUiApi
+@JsName("createGraphicsContext")
 fun GraphicsContext(): GraphicsContext =
     SkiaGraphicsContext()
 
