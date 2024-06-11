@@ -267,6 +267,11 @@ internal fun BasicTextField(
     // would be carrying an invalid TextFieldState in its nonMeasureInputs.
     val textLayoutState = remember(transformedState) { TextLayoutState() }
 
+    // InputTransformation.keyboardOptions might be backed by Snapshot state.
+    // Read in a restartable composable scope to make sure the resolved value is always up-to-date.
+    val resolvedKeyboardOptions =
+        keyboardOptions.fillUnspecifiedValuesWith(inputTransformation?.keyboardOptions)
+
     val textFieldSelectionState =
         remember(transformedState) {
             TextFieldSelectionState(
@@ -311,7 +316,7 @@ internal fun BasicTextField(
                     filter = inputTransformation,
                     enabled = enabled,
                     readOnly = readOnly,
-                    keyboardOptions = keyboardOptions,
+                    keyboardOptions = resolvedKeyboardOptions,
                     keyboardActionHandler = onKeyboardAction,
                     singleLine = singleLine,
                     interactionSource = interactionSource
@@ -384,7 +389,8 @@ internal fun BasicTextField(
                                         textFieldState = transformedState,
                                         textStyle = textStyle,
                                         singleLine = singleLine,
-                                        onTextLayout = onTextLayout
+                                        onTextLayout = onTextLayout,
+                                        keyboardOptions = resolvedKeyboardOptions,
                                     )
                                 )
                     )
