@@ -752,8 +752,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 getInfoStateDescriptionOrNull(node) != null ||
                 getInfoIsCheckable(node)
 
-        return node.unmergedConfig.isMergingSemanticsOfDescendants ||
-            node.isUnmergedLeafNode && isSpeakingNode
+        return node.isVisible &&
+            (node.unmergedConfig.isMergingSemanticsOfDescendants ||
+                node.isUnmergedLeafNode && isSpeakingNode)
     }
 
     private fun populateAccessibilityNodeInfoProperties(
@@ -798,6 +799,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // This property exists to distinguish semantically meaningful nodes from purely structural
         // or decorative UI elements.  Most nodes are considered important, except:
+        // * Invisible nodes.
         // * Non-merging nodes with only non-accessibility-speakable properties.
         //     * Of the built-in ones, the key example is testTag.
         //     * Custom SemanticsPropertyKeys defined outside the UI package
@@ -2129,26 +2131,36 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             hitSemanticsEntities = hitSemanticsEntities
         )
 
-        val layoutNode = hitSemanticsEntities.lastOrNull()?.requireLayoutNode()
+        // Iterate front-to-back until we find a node with semantics that are important-for-a11y
+        for (i in hitSemanticsEntities.lastIndex downTo 0) {
+            val layoutNode = hitSemanticsEntities[i].requireLayoutNode()
 
-        var virtualViewId = InvalidId
-        if (layoutNode?.nodes?.has(Nodes.Semantics) == true) {
+            // If this node corresponds to an AndroidView, then we should return InvalidId
+            // to let the View System handle it.
+            val androidView = view.androidViewsHandler.layoutNodeToHolder[layoutNode]
+            if (androidView != null) {
+                return InvalidId
+            }
+
+            if (!layoutNode.nodes.has(Nodes.Semantics)) {
+                continue
+            }
+
+            val virtualViewId = semanticsNodeIdToAccessibilityVirtualNodeId(layoutNode.semanticsId)
 
             // The node below is not added to the tree; it's a wrapper around outer semantics to
             // use the methods available to the SemanticsNode
             val semanticsNode = SemanticsNode(layoutNode, false)
 
-            // Do not 'find' invisible nodes when exploring by touch. This will prevent us from
-            // sending events for invisible nodes
-            if (semanticsNode.isVisible) {
-                val androidView = view.androidViewsHandler.layoutNodeToHolder[layoutNode]
-                if (androidView == null) {
-                    virtualViewId =
-                        semanticsNodeIdToAccessibilityVirtualNodeId(layoutNode.semanticsId)
-                }
+            // Continue to the next items in the hit test if it's not considered important.
+            if (!semanticsNode.isImportantForAccessibility()) {
+                continue
             }
+
+            return virtualViewId
         }
-        return virtualViewId
+
+        return InvalidId
     }
 
     /**
@@ -3247,9 +3259,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 // TODO(mnuzen): Move common semantics logic into `SemanticsUtils` file to make a11y delegate
 // shorter and more readable.
 private fun SemanticsNode.enabled() = (!config.contains(SemanticsProperties.Disabled))
-
-private val SemanticsNode.isVisible: Boolean
-    get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
 
 private fun SemanticsNode.propertiesDeleted(oldConfig: SemanticsConfiguration): Boolean {
     for (entry in oldConfig) {
