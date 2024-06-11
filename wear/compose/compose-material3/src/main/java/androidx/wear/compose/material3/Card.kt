@@ -819,7 +819,7 @@ private fun CardImpl(
                     onLongClick = onLongClick,
                     onLongClickLabel = onLongClickLabel,
                     role = null,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     interactionSource = interactionSource,
                 )
                 .then(border?.let { Modifier.border(border = border, shape = shape) } ?: Modifier)

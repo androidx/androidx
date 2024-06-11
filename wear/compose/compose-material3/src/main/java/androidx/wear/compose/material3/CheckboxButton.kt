@@ -153,7 +153,7 @@ fun CheckboxButton(
         labelSpacerSize = CheckboxButtonDefaults.LabelSpacerSize,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -278,7 +278,7 @@ fun SplitCheckboxButton(
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = CheckboxButtonDefaults.LabelSpacerSize,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Contains the default values used by [CheckboxButton]s and [SplitCheckboxButton]s */
@@ -1337,7 +1337,7 @@ private fun Checkbox(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = CHECKBOX_WIDTH,
         height = CHECKBOX_HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {

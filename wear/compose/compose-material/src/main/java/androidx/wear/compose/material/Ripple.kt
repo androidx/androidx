@@ -23,11 +23,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.createRippleModifierNode
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.isSpecified
@@ -147,53 +143,6 @@ private object RippleDefaults {
             contentColor
         }
     }
-}
-
-/**
- * Temporary CompositionLocal to allow configuring whether the old ripple implementation that uses
- * the deprecated [androidx.compose.material.ripple.RippleTheme] API should be used in Material
- * components and LocalIndication, instead of the new [ripple] API. This flag defaults to false, and
- * will be removed after one stable release: it should only be used to temporarily unblock
- * upgrading.
- *
- * Provide this CompositionLocal before you provide [MaterialTheme] to make sure it is correctly
- * provided through LocalIndication.
- */
-// TODO: b/304985887 - remove after one stable release
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalWearMaterialApi
-@ExperimentalWearMaterialApi
-val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf {
-        false
-    }
-
-// TODO: b/304985887 - remove after one stable release
-@Suppress("DEPRECATION_ERROR")
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-internal fun rippleOrFallbackImplementation(
-    bounded: Boolean = true,
-    radius: Dp = Dp.Unspecified,
-    color: Color = Color.Unspecified
-): Indication {
-    return if (LocalUseFallbackRippleImplementation.current) {
-        androidx.compose.material.ripple.rememberRipple(bounded, radius, color)
-    } else {
-        ripple(bounded, radius, color)
-    }
-}
-
-// TODO: b/304985887 - remove after one stable release
-@Suppress("DEPRECATION_ERROR")
-@Immutable
-internal object CompatRippleTheme : androidx.compose.material.ripple.RippleTheme {
-
-    @Deprecated("Super method is deprecated")
-    @Composable
-    override fun defaultColor() = RippleDefaults.rippleColor(LocalContentColor.current)
-
-    @Deprecated("Super method is deprecated") @Composable override fun rippleAlpha() = RippleAlpha
 }
 
 @Stable

@@ -515,10 +515,8 @@ package androidx.wear.compose.material3 {
   }
 
   public final class RippleKt {
-    method @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalUseFallbackRippleImplementation();
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional float radius, optional long color);
-    property @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalUseFallbackRippleImplementation;
   }
 
   public final class ScrollIndicatorDefaults {
