@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.6.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-alpha03)" variant="all" version="8.6.0-alpha03">
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    val selectedIndex = remember { mutableStateOf(0) }"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/integration/playground/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="        mutableStateOf(Navigation.values().indexOf(initialSelectedTab))"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/integration/playground/TopNavigation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable backgrounds with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="    val backgrounds ="
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/integration/playground/FeaturedCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable colors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="    val colors = listOf(Color.Red, Color.Magenta, Color.Green, Color.Yellow, Color.Blue, Color.Cyan)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/integration/playground/LazyRowsAndColumns.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable backgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="    val backgroundColors = List(columnsCount) { colors.random() }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/integration/playground/LazyRowsAndColumns.kt"/>
+    </issue>
+
+</issues>
