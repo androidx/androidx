@@ -72,6 +72,7 @@ class LazyScrollTest { // (private val orientation: Orientation)
     private fun testScroll(
         spacingPx: Int = 0,
         containerSizePx: Int = itemSizePx * 3,
+        beforeContentPaddingPx: Int = 0,
         afterContentPaddingPx: Int = 0,
         assertBlock: suspend () -> Unit
     ) {
@@ -79,7 +80,12 @@ class LazyScrollTest { // (private val orientation: Orientation)
             state = rememberLazyGridState()
             scope = rememberCoroutineScope()
             with(rule.density) {
-                TestContent(spacingPx.toDp(), containerSizePx.toDp(), afterContentPaddingPx.toDp())
+                TestContent(
+                    spacingPx.toDp(),
+                    containerSizePx.toDp(),
+                    beforeContentPaddingPx.toDp(),
+                    afterContentPaddingPx.toDp()
+                )
             }
         }
         runBlocking { assertBlock() }
@@ -383,6 +389,20 @@ class LazyScrollTest { // (private val orientation: Orientation)
             assertSpringAnimation(toIndex = 2, fromIndex = 12, spacingPx = -10)
         }
 
+    @Test
+    fun overScrollingBackShouldIgnoreBeforeContentPadding() =
+        testScroll(beforeContentPaddingPx = 5) {
+            val floatItemSize = itemSizePx.toFloat()
+            var consumed: Float
+            withContext(Dispatchers.Main) {
+                // scroll to next item
+                state.scrollBy(floatItemSize)
+                // scroll back with some overscroll, which should be ignored
+                consumed = state.scrollBy(-(floatItemSize + 10f))
+            }
+            assertThat(consumed).isEqualTo(-floatItemSize)
+        }
+
     private fun assertSpringAnimation(
         toIndex: Int,
         toOffset: Int = 0,
@@ -437,13 +457,19 @@ class LazyScrollTest { // (private val orientation: Orientation)
     }
 
     @Composable
-    private fun TestContent(spacingDp: Dp, containerSizeDp: Dp, afterContentPaddingDp: Dp) {
+    private fun TestContent(
+        spacingDp: Dp,
+        containerSizeDp: Dp,
+        beforeContentPaddingDp: Dp,
+        afterContentPaddingDp: Dp
+    ) {
         if (vertical) {
             LazyVerticalGrid(
                 GridCells.Fixed(2),
                 Modifier.height(containerSizeDp),
                 state,
-                contentPadding = PaddingValues(bottom = afterContentPaddingDp),
+                contentPadding =
+                    PaddingValues(top = beforeContentPaddingDp, bottom = afterContentPaddingDp),
                 verticalArrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(itemsCount) { ItemContent() }

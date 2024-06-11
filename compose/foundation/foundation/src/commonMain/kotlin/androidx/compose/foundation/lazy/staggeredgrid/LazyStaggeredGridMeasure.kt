@@ -435,8 +435,9 @@ private fun LazyStaggeredGridMeasureContext.measure(
         // we scrolled backward, but there were not enough items to fill the start. this means
         // some amount of scroll should be left over
         if (firstItemOffsets[0] < minOffset) {
-            scrollDelta += firstItemOffsets[0]
+            val notConsumedScrollDelta = minOffset - firstItemOffsets[0]
             firstItemOffsets.offsetBy(minOffset - firstItemOffsets[0])
+            scrollDelta -= notConsumedScrollDelta
             debugLog { "up, correcting scroll delta from ${firstItemOffsets[0]} to $minOffset" }
         }
 
