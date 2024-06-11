@@ -126,9 +126,7 @@ import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
-import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -176,18 +174,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
-    @VisibleForTesting
-    static boolean sEnableSurfaceProcessingByQuirk;
-
-    static {
-        boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
-                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
-        boolean hasExtraSupportedResolutionQuirk =
-                DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
-        sEnableSurfaceProcessingByQuirk =
-                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
-                        || hasExtraSupportedResolutionQuirk;
-    }
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     DeferrableSurface mDeferrableSurface;
@@ -1215,7 +1201,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
         // If there has been a buffer copy, it means the surface processing is already enabled on
         // input stream. Otherwise, enable it as needed.
-        return camera.getHasTransform() && (sEnableSurfaceProcessingByQuirk
+        return camera.getHasTransform() && (workaroundBySurfaceProcessing(DeviceQuirks.getAll())
                 || workaroundBySurfaceProcessing(camera.getCameraInfoInternal().getCameraQuirks()));
     }
 
@@ -1541,16 +1527,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
         return sizeLargestVideoEncoderInfo;
-    }
-
-    private static boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing() {
-        List<VideoQualityQuirk> quirks = DeviceQuirks.getAll(VideoQualityQuirk.class);
-        for (VideoQualityQuirk quirk : quirks) {
-            if (quirk.workaroundBySurfaceProcessing()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

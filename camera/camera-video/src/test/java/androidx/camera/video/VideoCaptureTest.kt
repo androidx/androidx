@@ -64,6 +64,7 @@ import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil.surfaceRotationToDegrees
@@ -945,8 +946,7 @@ class VideoCaptureTest {
     @Test
     fun hasSurfaceProcessingQuirk_nodeIsNeeded() {
         // Arrange.
-        VideoCapture.sEnableSurfaceProcessingByQuirk = true
-        setupCamera()
+        setupCamera(cameraQuirks = listOf(object : SurfaceProcessingQuirk {}))
         createCameraUseCaseAdapter()
 
         // Act.
@@ -955,16 +955,12 @@ class VideoCaptureTest {
 
         // Assert.
         assertThat(videoCapture.isSurfaceProcessingEnabled()).isTrue()
-
-        // Clean-up.
-        VideoCapture.sEnableSurfaceProcessingByQuirk = false
     }
 
     @Test
     fun hasSurfaceProcessingQuirkButNoCameraTransform_nodeIsNotNeeded() {
         // Arrange.
-        VideoCapture.sEnableSurfaceProcessingByQuirk = true
-        setupCamera(hasTransform = false)
+        setupCamera(hasTransform = false, cameraQuirks = listOf(object : SurfaceProcessingQuirk {}))
         createCameraUseCaseAdapter()
 
         // Act.
@@ -973,9 +969,6 @@ class VideoCaptureTest {
 
         // Assert.
         assertThat(videoCapture.isSurfaceProcessingEnabled()).isFalse()
-
-        // Clean-up.
-        VideoCapture.sEnableSurfaceProcessingByQuirk = false
     }
 
     @Test
@@ -1877,6 +1870,7 @@ class VideoCaptureTest {
         supportedResolutions: Map<Int, List<Size>> = SUPPORTED_RESOLUTION_MAP,
         profiles: Map<Int, EncoderProfilesProxy> = CAMERA_0_PROFILES,
         timebase: Timebase = Timebase.UPTIME,
+        cameraQuirks: List<Quirk>? = null,
     ) {
         cameraInfo =
             FakeCameraInfoInternal(cameraId, sensorRotation, lensFacing).apply {
@@ -1886,6 +1880,7 @@ class VideoCaptureTest {
                 encoderProfilesProvider =
                     FakeEncoderProfilesProvider.Builder().addAll(profiles).build()
                 setTimebase(timebase)
+                cameraQuirks?.forEach { quirk -> addCameraQuirk(quirk) }
             }
         camera = FakeCamera(cameraId, null, cameraInfo)
         camera.hasTransform = hasTransform

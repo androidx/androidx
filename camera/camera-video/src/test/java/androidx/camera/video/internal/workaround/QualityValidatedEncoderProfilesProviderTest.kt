@@ -25,6 +25,7 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
@@ -133,7 +134,7 @@ class QualityValidatedEncoderProfilesProviderTest {
     class FakeQuirk(
         private val unsupportedQualities: Set<Quality> = emptySet(),
         private val canBeWorkaround: Boolean = false
-    ) : VideoQualityQuirk {
+    ) : VideoQualityQuirk, SurfaceProcessingQuirk {
 
         override fun isProblematicVideoQuality(
             cameraInfo: CameraInfoInternal,
