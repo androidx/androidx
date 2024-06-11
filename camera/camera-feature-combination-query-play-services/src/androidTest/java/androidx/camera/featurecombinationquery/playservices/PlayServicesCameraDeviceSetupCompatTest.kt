@@ -18,6 +18,7 @@ package androidx.camera.featurecombinationquery.playservices
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.params.SessionConfiguration
+import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat.SupportQueryResult
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat.SupportQueryResult.SOURCE_PLAY_SERVICES
 import androidx.camera.featurecombinationquery.CameraDeviceSetupCompatFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -60,5 +61,7 @@ class PlayServicesCameraDeviceSetupCompatTest {
         val result = impl.isSessionConfigurationSupported(sessionConfiguration)
         // Assert.
         assertThat(result.source).isEqualTo(SOURCE_PLAY_SERVICES)
+        assertThat(result.supported).isEqualTo(SupportQueryResult.RESULT_UNSUPPORTED)
+        assertThat(result.timestampMillis).isEqualTo(0)
     }
 }

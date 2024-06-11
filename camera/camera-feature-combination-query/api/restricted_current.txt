@@ -5,12 +5,11 @@ package @androidx.camera.featurecombinationquery.ExperimentalFeatureCombinationQ
     method public androidx.camera.featurecombinationquery.CameraDeviceSetupCompat.SupportQueryResult isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration) throws android.hardware.camera2.CameraAccessException;
   }
 
-  @com.google.auto.value.AutoValue public abstract static class CameraDeviceSetupCompat.SupportQueryResult {
-    ctor public CameraDeviceSetupCompat.SupportQueryResult();
-    method public static androidx.camera.featurecombinationquery.CameraDeviceSetupCompat.SupportQueryResult create(int, int, long);
-    method public abstract int getSource();
-    method public abstract int getSupported();
-    method public abstract long getTimestampMillis();
+  public static final class CameraDeviceSetupCompat.SupportQueryResult {
+    ctor public CameraDeviceSetupCompat.SupportQueryResult(int, int, long);
+    method public int getSource();
+    method public int getSupported();
+    method public long getTimestampMillis();
     field public static final int RESULT_SUPPORTED = 1; // 0x1
     field public static final int RESULT_UNDEFINED = 0; // 0x0
     field public static final int RESULT_UNSUPPORTED = 2; // 0x2
