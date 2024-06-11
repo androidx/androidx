@@ -36,6 +36,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.tryResolveUDeclaration
+import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
 import org.jetbrains.kotlin.psi.KtParameter
@@ -45,49 +46,174 @@ import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.getParameterForArgument
+import org.jetbrains.uast.getParentOfType
 
 private const val MODIFIER_PARAMETER_NAME = "modifier"
+private const val SHARED_ELEMENT_MODIFIER_NAME = "sharedElement"
+private const val SHARED_BOUNDS_MODIFIER_NAME = "sharedBounds"
 
 /** Detector to highlight unused provided Modifier from SharedTransitionContent. */
 class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(SharedTransitionScope.shortName)
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(SharedTransitionScope.shortName, RememberSharedContentState.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(Names.Animation.PackageName)) {
-            // Only one argument expected for `SharedTransitionScope(...)`, the content lambda.
-            val lambdaArgument = node.getArgumentForParameter(0) as? ULambdaExpression ?: return
-
-            lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
-                val location =
-                    unreferencedParameter.parameter?.let { context.getLocation(it) }
-                        ?: context.getLocation(lambdaArgument)
-
-                // Find a Composable call proper for a quickfix
-                val fixCandidate =
-                    (lambdaArgument.body as? UBlockExpression)?.let {
-                        findCompatibleComposableCall(it)
-                    }
-
-                val quickFix =
-                    fixCandidate?.let {
-                        buildQuickFix(
-                            context = context,
-                            node = fixCandidate,
-                            unusedModifierParameter = unreferencedParameter
-                        )
-                    }
-
-                context.report(
-                    issue = UnusedSharedTransitionModifierParameter,
-                    scope = node,
-                    location = location,
-                    message =
-                        "Supplied Modifier parameter should be used on the top most " +
-                            "Composable. Otherwise, consider using `SharedTransitionLayout`.",
-                    quickfixData = quickFix
-                )
+            when (method.name) {
+                SharedTransitionScope.shortName ->
+                    detectUnusedSharedTransitionModifierParameter(context, node)
+                RememberSharedContentState.shortName ->
+                    detectConstantLiteralInSharedContentSateWithinItemsCall(context, node)
             }
         }
+    }
+
+    /**
+     * Detects cases of `SharedTransitionScope` when its modifier parameter is unused. Lint check
+     * may include a quick fix when possible.
+     *
+     * @see buildUnusedSharedTransitionModifierQuickFix
+     * @see UnusedSharedTransitionModifierParameter
+     */
+    private fun detectUnusedSharedTransitionModifierParameter(
+        context: JavaContext,
+        node: UCallExpression
+    ) {
+        // Only one argument expected for `SharedTransitionScope(...)`, the content lambda.
+        val lambdaArgument = node.getArgumentForParameter(0) as? ULambdaExpression ?: return
+
+        lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
+            val location =
+                unreferencedParameter.parameter?.let { context.getLocation(it) }
+                    ?: context.getLocation(lambdaArgument)
+
+            // Find a Composable call proper for a quickfix
+            val fixCandidate =
+                (lambdaArgument.body as? UBlockExpression)?.let { findCompatibleComposableCall(it) }
+
+            val quickFix =
+                fixCandidate?.let {
+                    buildUnusedSharedTransitionModifierQuickFix(
+                        context = context,
+                        node = fixCandidate,
+                        unusedModifierParameter = unreferencedParameter
+                    )
+                }
+
+            context.report(
+                issue = UnusedSharedTransitionModifierParameter,
+                scope = node,
+                location = location,
+                message =
+                    "Supplied Modifier parameter should be used on the top most " +
+                        "Composable. Otherwise, consider using `SharedTransitionLayout`.",
+                quickfixData = quickFix
+            )
+        }
+    }
+
+    /**
+     * Detects the most naive case when using a `rememberSharedContentState` call with a constant
+     * literal within `LazyListScope.items` call (and derivatives), which will result in undesired
+     * behavior. The Lint check suggests the user to have unique `SharedContentState` keys.
+     *
+     * The expected naive use case should look something like this:
+     * ```
+     * SharedTransitionLayout {
+     *  AnimatedContent(
+     *      targetState = myState
+     *  ) { targetState ->
+     *      if (predicate(targetState)) {
+     *          LazyColumn {
+     *              items(count) { index ->
+     *                  MyComposable(
+     *                      data = getData[index],
+     *                      modifier = Modifier.sharedElement(
+     *                          // Note the key is a constant value called multiple times by `items`
+     *                          state = rememberContentState("myItem"),
+     *                          animatedVisibilityScope = this@AnimatedContent
+     *                      )
+     *                  )
+     *              }
+     *          }
+     *      } else {
+     *          ...
+     *      }
+     *  }
+     * }
+     * ```
+     *
+     * So the detector looks for a matching pattern from the `rememberSharedContentState` call up to
+     * the `items` call.
+     *
+     * @see ConstantContentStateKeyInItemsCall
+     */
+    private fun detectConstantLiteralInSharedContentSateWithinItemsCall(
+        context: JavaContext,
+        node: UCallExpression
+    ) {
+        // We first check whether the key is a constant literal
+        val keyElement = node.getArgumentForParameter(0)
+        // Non evaluate-able keys are assumed to be correct (they don't resolve to a constant
+        // literal)
+        if (keyElement?.evaluate() == null) {
+            return
+        }
+
+        // Verify `sharedElement` Modifier call
+        val sharedElementCallCandidate = node.getParentOfType<UCallExpression>(strict = true)
+        val resolvedSharedElementCall =
+            sharedElementCallCandidate?.tryResolveUDeclaration() as? UMethod
+
+        if (
+            !(resolvedSharedElementCall?.name == SHARED_ELEMENT_MODIFIER_NAME ||
+                resolvedSharedElementCall?.name == SHARED_BOUNDS_MODIFIER_NAME) ||
+                !resolvedSharedElementCall.isInPackageName(Names.Animation.PackageName)
+        ) {
+            return
+        }
+
+        // Verify parent is a valid Composable
+        val composableCallCandidate =
+            sharedElementCallCandidate.getParentOfType<UCallExpression>(strict = true)
+        val resolvedComposeCall = composableCallCandidate?.tryResolveUDeclaration() as? UMethod
+        if (resolvedComposeCall?.isComposable != true) {
+            return
+        }
+
+        // Verify parent is a LazyListScope `items` or `itemsIndexed` call
+        val itemsCallCandidate =
+            composableCallCandidate.getParentOfType<UCallExpression>(strict = true)
+
+        // Need to resolve to declaration to check for package and method name
+        val resolvedItemsCall = itemsCallCandidate?.tryResolveUDeclaration() as? UMethod
+
+        if (resolvedItemsCall?.name != "items" && resolvedItemsCall?.name != "itemsIndexed") {
+            return
+        }
+
+        val itemsMethodPackage =
+            resolvedItemsCall.let { (it.containingFile as? PsiClassOwner)?.packageName }
+
+        // There's several LazyList implementations in different packages, such as
+        // `androidx.compose.foundation`, `androidx.tv.foundation`, `android.wear.compose`
+        // so we need to account for that
+        if (
+            itemsMethodPackage?.startsWith("androidx") == false ||
+                itemsMethodPackage?.contains("foundation") == false
+        ) {
+            return
+        }
+
+        context.report(
+            issue = ConstantContentStateKeyInItemsCall,
+            scope = node,
+            location = context.getLocation(node),
+            message =
+                "Each Composable within a LazyList `items` call should have unique content state " +
+                    "keys. Make sure to either associate a unique key related to the item's " +
+                    "data, or simply append the item's index to the key."
+        )
     }
 
     /**
@@ -172,7 +298,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
      * simply assign the unused modifier parameter to it. E.g.: `MyComposable(modifier = it)`. If it
      * did already have a modifier expression on it. We can just wrap around it with `.then()`.
      */
-    private fun buildQuickFix(
+    private fun buildUnusedSharedTransitionModifierQuickFix(
         context: JavaContext,
         node: UCallExpression,
         unusedModifierParameter: UnreferencedParameter
@@ -234,7 +360,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
             Issue.create(
                 id = "UnusedSharedTransitionModifierParameter",
                 briefDescription =
-                    "SharedTransitionScope calls should use the provided Modifier " + "parameter.",
+                    "SharedTransitionScope calls should use the provided Modifier parameter.",
                 explanation =
                     "When using `SharedTransitionScope` the provided `Modifier` should " +
                         "always be used on the top-most child, as the `Modifier` both obtains " +
@@ -249,7 +375,32 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
                         EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
                     )
             )
+
+        val ConstantContentStateKeyInItemsCall =
+            Issue.create(
+                id = "ConstantContentStateKeyInItemsCall",
+                briefDescription =
+                    "Composables within an LazyList `items` call should have unique content " +
+                        "state keys.",
+                explanation =
+                    "When using shared elements (`Modifier.sharedElement` or " +
+                        "`Modifier.sharedBounds`) in a LazyList, each Composable within an " +
+                        "`items` block should have its own unique key. Otherwise, only one item " +
+                        "of the visible layout will be rendered, regardless if there's an ongoing" +
+                        " shared element transition.",
+                category = Category.CORRECTNESS,
+                priority = 3,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        SharedTransitionScopeDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    )
+            )
     }
 }
 
 private val SharedTransitionScope = Name(Names.Animation.PackageName, "SharedTransitionScope")
+
+private val RememberSharedContentState =
+    Name(Names.Animation.PackageName, "rememberSharedContentState")
