@@ -165,27 +165,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
-            kotlinExtension.sourceSets
-                .configure(closure)
-                .also {
-                    kotlinExtension.sourceSets.configureEach { sourceSet ->
-                        if (sourceSet.name == "main" || sourceSet.name == "test") {
-                            throw Exception(
-                                "KMP-enabled projects must use target-prefixed " +
-                                    "source sets, e.g. androidMain or commonTest, rather than main or test"
-                            )
-                        }
+            kotlinExtension.sourceSets.configure(closure).also {
+                kotlinExtension.sourceSets.configureEach { sourceSet ->
+                    if (sourceSet.name == "main" || sourceSet.name == "test") {
+                        throw Exception(
+                            "KMP-enabled projects must use target-prefixed " +
+                                "source sets, e.g. androidMain or commonTest, rather than main or test"
+                        )
                     }
                 }
-                .also {
-                    if (!project.enableMac()) {
-                        for (sourceSetName in macOnlySourceSetNames) {
-                            kotlinExtension.sourceSets.findByName(sourceSetName)?.let {
-                                kotlinExtension.sourceSets.remove(it)
-                            }
-                        }
-                    }
-                }
+            }
         }
     }
 
@@ -534,15 +523,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
-        private val macOnlySourceSetNames =
-            setOf(
-                "darwinMain",
-                "darwinTest",
-                "iosMain",
-                "iosSimulatorArm64Main",
-                "iosX64Main",
-                "iosArm64Main"
-            )
     }
 }
 
