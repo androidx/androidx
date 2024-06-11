@@ -161,8 +161,9 @@ internal fun measureLazyGrid(
         // if we were scrolled backward, but there were not enough items before. this means
         // not the whole scroll was consumed
         if (currentFirstLineScrollOffset < minOffset) {
-            scrollDelta += currentFirstLineScrollOffset
+            val notConsumedScrollDelta = minOffset - currentFirstLineScrollOffset
             currentFirstLineScrollOffset = minOffset
+            scrollDelta -= notConsumedScrollDelta
         }
 
         // neutralize previously added padding as we stopped filling the before content padding
