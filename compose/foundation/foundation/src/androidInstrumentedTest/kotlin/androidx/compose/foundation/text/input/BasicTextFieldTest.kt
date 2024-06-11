@@ -62,8 +62,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
@@ -97,8 +95,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -260,18 +260,11 @@ internal class BasicTextFieldTest {
         var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
         val textLayoutResults = mutableListOf<TextLayoutResult?>()
         inputMethodInterceptor.setTextFieldTestContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides
-                    object : WindowInfo {
-                        override val isWindowFocused = true
-                    }
-            ) {
-                BasicTextField(
-                    state = state,
-                    modifier = Modifier.fillMaxSize().testTag(Tag),
-                    onTextLayout = { textLayoutResultState = it }
-                )
-            }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                onTextLayout = { textLayoutResultState = it }
+            )
 
             LaunchedEffect(Unit) {
                 snapshotFlow { textLayoutResultState?.invoke() }
@@ -929,18 +922,11 @@ internal class BasicTextFieldTest {
                 )
             )
         inputMethodInterceptor.setTextFieldTestContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides
-                    object : WindowInfo {
-                        override val isWindowFocused = true
-                    }
-            ) {
-                BasicTextField(
-                    state = rememberTextFieldState(),
-                    modifier = Modifier.testTag(Tag),
-                    inputTransformation = filter,
-                )
-            }
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = filter,
+            )
         }
         requestFocus(Tag)
 
@@ -953,6 +939,43 @@ internal class BasicTextFieldTest {
             KeyboardOptionsFilter(
                 KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search)
             )
+
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL).isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun textField_filterKeyboardOptions_applyWhenKeyboardOptionsChanged() {
+        var keyboardOptionsState by
+            mutableStateOf(
+                KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Previous)
+            )
+        val filter =
+            object : InputTransformation {
+                override val keyboardOptions: KeyboardOptions
+                    get() = keyboardOptionsState
+
+                override fun TextFieldBuffer.transformInput() = Unit
+            }
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = filter,
+            )
+        }
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).isNotEqualTo(0)
+        }
+
+        keyboardOptionsState =
+            KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search)
 
         inputMethodInterceptor.withEditorInfo {
             assertThat(imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
@@ -1376,6 +1399,51 @@ internal class BasicTextFieldTest {
                 )
             assertThat(currentTextLayout!!.multiParagraph.intrinsics.annotatedString.spanStyles)
                 .contains(expectedSpan)
+        }
+    }
+
+    @Test
+    fun phoneKeyboardType_RtlLocaleLtrDigits_resolvesToLtrTextDirection() {
+        val state = TextFieldState()
+        var textLayoutProvider: (() -> TextLayoutResult?)? by mutableStateOf(null)
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                textStyle = TextStyle(localeList = LocaleList("ar")),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                onTextLayout = { textLayoutProvider = it }
+            )
+        }
+
+        rule.runOnIdle {
+            // this would normally have been Unspecified.
+            assertThat(textLayoutProvider?.invoke()?.layoutInput?.style?.textDirection)
+                .isEqualTo(TextDirection.Ltr)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 31) // Adlam digits were added in API 31
+    @Test
+    fun phoneKeyboardType_RtlLocaleRtlDigits_resolvesToRtlTextDirection() {
+        val state = TextFieldState()
+        var textLayoutProvider: (() -> TextLayoutResult?)? by mutableStateOf(null)
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                textStyle = TextStyle(localeList = LocaleList("ff-Adlm-BF")),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                onTextLayout = { textLayoutProvider = it }
+            )
+        }
+
+        rule.runOnIdle {
+            // this would normally have been Unspecified.
+            assertThat(textLayoutProvider?.invoke()?.layoutInput?.style?.textDirection)
+                .isEqualTo(TextDirection.Rtl)
         }
     }
 

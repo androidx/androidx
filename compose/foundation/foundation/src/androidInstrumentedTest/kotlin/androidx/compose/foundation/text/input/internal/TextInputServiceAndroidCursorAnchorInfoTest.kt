@@ -22,6 +22,7 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.ComposeInputMethodManagerTestRule
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshots.ObserverHandle
@@ -341,7 +342,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             textFieldState = transformedState,
             textStyle = TextStyle.Default,
             singleLine = false,
-            softWrap = false
+            softWrap = false,
+            keyboardOptions = KeyboardOptions.Default
         )
         layoutState.layoutWithNewMeasureInputs(
             density = defaultDensity,
