@@ -31,9 +31,11 @@ plugins {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         applicationId "androidx.window.demo"
         minSdkVersion 23
+        targetSdkVersion 35
     }
     buildFeatures {
         viewBinding true
@@ -85,7 +87,7 @@ dependencies {
     androidTestImplementation(project(":window:window-testing"))
     androidTestImplementation(project(":window:window-demos:demo-common"))
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
+    coreLibraryDesugaring(libs.desugarJdkLibs)
 }
 
 // Allow usage of Kotlin's @OptIn.
