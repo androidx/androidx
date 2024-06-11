@@ -2237,7 +2237,7 @@ package androidx.compose.material3.carousel {
     field public static final androidx.compose.material3.carousel.CarouselDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemInfo {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemDrawInfo {
     method public androidx.compose.ui.geometry.Rect getMaskRect();
     method public float getMaxSize();
     method public float getMinSize();
@@ -2249,11 +2249,11 @@ package androidx.compose.material3.carousel {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemScope {
-    method public androidx.compose.material3.carousel.CarouselItemInfo getCarouselItemInfo();
+    method public androidx.compose.material3.carousel.CarouselItemDrawInfo getCarouselItemDrawInfo();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskClip(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape shape);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.GenericShape rememberMaskShape(androidx.compose.ui.graphics.Shape shape);
-    property public abstract androidx.compose.material3.carousel.CarouselItemInfo carouselItemInfo;
+    property public abstract androidx.compose.material3.carousel.CarouselItemDrawInfo carouselItemDrawInfo;
   }
 
   public final class CarouselKt {
