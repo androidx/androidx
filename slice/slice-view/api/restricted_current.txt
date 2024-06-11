@@ -158,8 +158,8 @@ package androidx.slice.widget {
     method @Deprecated protected int getExtraTopPadding();
     method @Deprecated protected int getMaxCells();
     method @Deprecated protected int getTitleTextLayout();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onClick(android.view.View);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public boolean onTouch(android.view.View, android.view.MotionEvent);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onClick(android.view.View);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public boolean onTouch(android.view.View, android.view.MotionEvent);
     method @Deprecated protected void populateViews();
     method @Deprecated public void resetView();
     method @Deprecated protected boolean scheduleMaxCellsUpdate();
@@ -202,7 +202,7 @@ package androidx.slice.widget {
     method @Deprecated public void onClick(android.view.View);
     method @Deprecated public void onItemSelected(android.widget.AdapterView<? extends java.lang.Object!>, android.view.View, int, long);
     method @Deprecated public void onNothingSelected(android.widget.AdapterView<? extends java.lang.Object!>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
   }
 
   @Deprecated public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder!> {
@@ -210,8 +210,8 @@ package androidx.slice.widget {
     method @Deprecated public androidx.slice.widget.GridRowView getGridRowView();
     method @Deprecated public int getItemCount();
     method @Deprecated public androidx.slice.widget.RowView getRowView();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void onBindViewHolder(androidx.slice.widget.SliceAdapter.SliceViewHolder, int);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
   }
 
   @Deprecated public abstract class SliceChildView extends android.widget.FrameLayout {
@@ -290,7 +290,7 @@ package androidx.slice.widget {
   @Deprecated public class TemplateView extends androidx.slice.widget.SliceChildView {
     ctor @Deprecated public TemplateView(android.content.Context);
     method @Deprecated public void onAttachedToWindow();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
     method @Deprecated public void setAdapter(androidx.slice.widget.SliceAdapter);
   }
 
