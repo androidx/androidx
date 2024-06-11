@@ -100,14 +100,14 @@ package androidx.test.uiautomator {
   public final class Configurator {
     method public long getActionAcknowledgmentTimeout();
     method public static androidx.test.uiautomator.Configurator getInstance();
-    method public long getKeyInjectionDelay();
+    method @Deprecated public long getKeyInjectionDelay();
     method public long getScrollAcknowledgmentTimeout();
     method public int getToolType();
     method public int getUiAutomationFlags();
     method public long getWaitForIdleTimeout();
     method public long getWaitForSelectorTimeout();
     method public androidx.test.uiautomator.Configurator setActionAcknowledgmentTimeout(long);
-    method public androidx.test.uiautomator.Configurator setKeyInjectionDelay(long);
+    method @Deprecated public androidx.test.uiautomator.Configurator setKeyInjectionDelay(long);
     method public androidx.test.uiautomator.Configurator setScrollAcknowledgmentTimeout(long);
     method public androidx.test.uiautomator.Configurator setToolType(int);
     method public androidx.test.uiautomator.Configurator setUiAutomationFlags(int);
