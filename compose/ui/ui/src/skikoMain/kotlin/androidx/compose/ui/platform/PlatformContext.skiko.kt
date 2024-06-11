@@ -62,20 +62,36 @@ interface PlatformContext {
     val isWindowTransparent: Boolean get() = false
 
     /**
-     * Returns the position relative to the containing window of the [localPosition],
-     * the position relative to the [ComposeScene]. If the [ComposeScene] is rotated, scaled,
-     * or otherwise transformed relative to the window, this will not be a simple translation.
+     * Converts [localPosition] relative to the [ComposeScene] into an [Offset] relative to
+     * the containing window.
+     * If the [ComposeScene] is rotated, scaled, or otherwise transformed relative to the window,
+     * this will not be a simple translation.
      */
-    fun calculatePositionInWindow(localPosition: Offset): Offset =
+    fun convertLocalToWindowPosition(localPosition: Offset): Offset =
         localPosition
 
     /**
-     * Returns the position relative to the [ComposeScene] of the [positionInWindow],
-     * the position relative to the window. If the [ComposeScene] is rotated, scaled, or
-     * otherwise transformed relative to the window, this will not be a simple translation.
+     * Converts [positionInWindow] relative to the window into an [Offset] relative to
+     * the [ComposeScene].
+     * If the [ComposeScene] is rotated, scaled, or otherwise transformed relative to the window,
+     * this will not be a simple translation.
      */
-    fun calculateLocalPosition(positionInWindow: Offset): Offset =
+    fun convertWindowToLocalPosition(positionInWindow: Offset): Offset =
         positionInWindow
+
+    /**
+     * Converts [localPosition] relative to the [ComposeScene] into an [Offset] relative to
+     * the device's screen.
+     */
+    fun convertLocalToScreenPosition(localPosition: Offset): Offset =
+        convertLocalToWindowPosition(localPosition)
+
+    /**
+     * Converts [positionOnScreen] relative to the device's screen into an [Offset] relative to
+     * the [ComposeScene].
+     */
+    fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset =
+        convertWindowToLocalPosition(positionOnScreen)
 
     /**
      * Determines if [OwnedLayer] should measure bounds for all drawings.

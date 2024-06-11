@@ -138,8 +138,8 @@ interface ComposeScene {
      * Invalidates position of [ComposeScene] in window. It will trigger callbacks like
      * [Modifier.onGloballyPositioned] so they can recalculate actual position in the window.
      *
-     * @see PlatformContext.calculatePositionInWindow
-     * @see PlatformContext.calculateLocalPosition
+     * @see PlatformContext.convertLocalToWindowPosition
+     * @see PlatformContext.convertWindowToLocalPosition
      */
     fun invalidatePositionInWindow()
 

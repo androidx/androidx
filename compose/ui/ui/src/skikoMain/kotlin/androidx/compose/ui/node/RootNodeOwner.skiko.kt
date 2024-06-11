@@ -275,10 +275,10 @@ internal class RootNodeOwner(
 
     private fun calculateBoundsInWindow(): Rect? {
         val rect = size?.toIntRect()?.toRect() ?: return null
-        val p0 = platformContext.calculatePositionInWindow(Offset(rect.left, rect.top))
-        val p1 = platformContext.calculatePositionInWindow(Offset(rect.left, rect.bottom))
-        val p3 = platformContext.calculatePositionInWindow(Offset(rect.right, rect.top))
-        val p4 = platformContext.calculatePositionInWindow(Offset(rect.right, rect.bottom))
+        val p0 = platformContext.convertLocalToWindowPosition(Offset(rect.left, rect.top))
+        val p1 = platformContext.convertLocalToWindowPosition(Offset(rect.left, rect.bottom))
+        val p3 = platformContext.convertLocalToWindowPosition(Offset(rect.right, rect.top))
+        val p4 = platformContext.convertLocalToWindowPosition(Offset(rect.right, rect.bottom))
 
         val left = min(min(p0.x, p1.x), min(p3.x, p4.x))
         val top = min(min(p0.y, p1.y), min(p3.y, p4.y))
@@ -460,22 +460,22 @@ internal class RootNodeOwner(
         }
 
         override fun calculatePositionInWindow(localPosition: Offset): Offset =
-            platformContext.calculatePositionInWindow(localPosition)
+            platformContext.convertLocalToWindowPosition(localPosition)
 
         override fun calculateLocalPosition(positionInWindow: Offset): Offset =
-            platformContext.calculateLocalPosition(positionInWindow)
+            platformContext.convertWindowToLocalPosition(positionInWindow)
 
-        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1259/Implement-screen-position-converters-PositionCalculator-in-RootNodeOwner
-        //  currently we assume that window occupies the whole screen
-        override fun screenToLocal(positionOnScreen: Offset): Offset {
-            return calculateLocalPosition(positionOnScreen)
-        }
+        override fun screenToLocal(positionOnScreen: Offset): Offset =
+            platformContext.convertScreenToLocalPosition(positionOnScreen)
 
-        override fun localToScreen(localPosition: Offset): Offset {
-            return calculatePositionInWindow(localPosition)
-        }
+        override fun localToScreen(localPosition: Offset): Offset =
+            platformContext.convertLocalToScreenPosition(localPosition)
 
         override fun localToScreen(localTransform: Matrix) {
+            throw UnsupportedOperationException(
+                "Construction of local-to-screen matrix is not supported, " +
+                    "use direct conversion instead"
+            )
         }
 
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()

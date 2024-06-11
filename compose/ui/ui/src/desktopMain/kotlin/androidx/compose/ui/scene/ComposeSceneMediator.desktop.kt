@@ -651,11 +651,17 @@ internal class ComposeSceneMediator(
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
         override val isWindowTransparent: Boolean get() = windowContext.isWindowTransparent
 
-        override fun calculatePositionInWindow(localPosition: Offset): Offset =
-            windowContext.calculatePositionInWindow(container, localPosition)
+        override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
+            windowContext.convertLocalToWindowPosition(container, localPosition)
 
-        override fun calculateLocalPosition(positionInWindow: Offset): Offset =
-            windowContext.calculateLocalPosition(container, positionInWindow)
+        override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset =
+            windowContext.convertWindowToLocalPosition(container, positionInWindow)
+
+        override fun convertLocalToScreenPosition(localPosition: Offset): Offset =
+            windowContext.convertLocalToScreenPosition(container, localPosition)
+
+        override fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset =
+            windowContext.convertScreenToLocalPosition(container, positionOnScreen)
 
         override val measureDrawLayerBounds: Boolean = this@ComposeSceneMediator.measureDrawLayerBounds
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()

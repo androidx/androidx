@@ -668,11 +668,17 @@ internal class ComposeSceneMediator(
     private inner class IOSPlatformContext : PlatformContext by PlatformContext.Empty {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
 
-        override fun calculatePositionInWindow(localPosition: Offset): Offset =
-            windowContext.calculatePositionInWindow(viewForKeyboardOffsetTransform, localPosition)
+        override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
+            windowContext.convertLocalToWindowPosition(viewForKeyboardOffsetTransform, localPosition)
 
-        override fun calculateLocalPosition(positionInWindow: Offset): Offset =
-            windowContext.calculateLocalPosition(viewForKeyboardOffsetTransform, positionInWindow)
+        override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset =
+            windowContext.convertWindowToLocalPosition(viewForKeyboardOffsetTransform, positionInWindow)
+
+        override fun convertLocalToScreenPosition(localPosition: Offset): Offset =
+            windowContext.convertLocalToScreenPosition(viewForKeyboardOffsetTransform, localPosition)
+
+        override fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset =
+            windowContext.convertScreenToLocalPosition(viewForKeyboardOffsetTransform, positionOnScreen)
 
         override val measureDrawLayerBounds get() = this@ComposeSceneMediator.measureDrawLayerBounds
         override val viewConfiguration get() = this@ComposeSceneMediator.viewConfiguration
