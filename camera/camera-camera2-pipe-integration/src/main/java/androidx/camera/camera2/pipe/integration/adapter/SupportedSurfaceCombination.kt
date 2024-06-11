@@ -1214,9 +1214,7 @@ class SupportedSurfaceCombination(
                 isBurstCaptureSupported
             )
         )
-        surfaceCombinations.addAll(
-            extraSupportedSurfaceCombinationsContainer[cameraId, hardwareLevel]
-        )
+        surfaceCombinations.addAll(extraSupportedSurfaceCombinationsContainer[cameraId])
     }
 
     private fun generateUltraHighResolutionSupportedCombinationList() {

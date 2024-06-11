@@ -25,7 +25,7 @@ class ExtraSupportedSurfaceCombinationsContainer {
         DeviceQuirks[ExtraSupportedSurfaceCombinationsQuirk::class.java]
 
     /** Retrieves the extra surface combinations which can be supported on the device. */
-    operator fun get(cameraId: String, hardwareLevel: Int): List<SurfaceCombination> {
-        return quirk?.getExtraSupportedSurfaceCombinations(cameraId, hardwareLevel) ?: listOf()
+    operator fun get(cameraId: String): List<SurfaceCombination> {
+        return quirk?.getExtraSupportedSurfaceCombinations(cameraId) ?: listOf()
     }
 }
