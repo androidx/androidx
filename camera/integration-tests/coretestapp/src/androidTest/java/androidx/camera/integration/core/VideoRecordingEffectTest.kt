@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video
+package androidx.camera.integration.core
 
 import android.Manifest
 import android.content.Context
@@ -42,10 +42,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraControl
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -54,6 +50,11 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
+import androidx.camera.integration.core.util.CameraPipeUtil
+import androidx.camera.integration.core.util.CameraPipeUtil.builder
+import androidx.camera.integration.core.util.CameraPipeUtil.from
+import androidx.camera.integration.core.util.CameraPipeUtil.setCameraCaptureSessionCallback
+import androidx.camera.integration.core.util.doTempRecording
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.AndroidUtil
@@ -62,6 +63,8 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.concurrent.futures.await
 import androidx.palette.graphics.Palette
 import androidx.test.core.app.ApplicationProvider
@@ -88,7 +91,8 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class VideoRecordingEffectTest(
-    implName: String,
+    private val implName: String,
+    val selectorName: String,
     private val cameraSelector: CameraSelector,
     private val cameraConfig: CameraXConfig
 ) {
@@ -96,7 +100,7 @@ class VideoRecordingEffectTest(
     @get:Rule
     val cameraPipeConfigTestRule =
         CameraPipeConfigTestRule(
-            active = implName.contains(CameraPipeConfig::class.simpleName!!),
+            active = implName == CameraPipeConfig::class.simpleName,
         )
 
     @get:Rule
@@ -117,26 +121,30 @@ class VideoRecordingEffectTest(
         private val LEVEL_3 = setOf(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
 
         @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun data(): Collection<Array<Any>> {
+        @Parameterized.Parameters(name = "{1}+{0}")
+        fun data(): List<Array<Any?>> {
             return listOf(
                 arrayOf(
-                    "back+" + Camera2Config::class.simpleName,
+                    Camera2Config::class.simpleName,
+                    "back",
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     Camera2Config.defaultConfig()
                 ),
                 arrayOf(
-                    "front+" + Camera2Config::class.simpleName,
+                    Camera2Config::class.simpleName,
+                    "front",
                     CameraSelector.DEFAULT_FRONT_CAMERA,
                     Camera2Config.defaultConfig()
                 ),
                 arrayOf(
-                    "back+" + CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig::class.simpleName,
+                    "back",
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     CameraPipeConfig.defaultConfig()
                 ),
                 arrayOf(
-                    "front+" + CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig::class.simpleName,
+                    "front",
                     CameraSelector.DEFAULT_FRONT_CAMERA,
                     CameraPipeConfig.defaultConfig()
                 ),
@@ -242,9 +250,7 @@ class VideoRecordingEffectTest(
             // Add Preview to ensure the preview stream does not drop frames during/after recordings
             val preview =
                 Preview.Builder()
-                    .apply {
-                        Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback)
-                    }
+                    .apply { setCameraCaptureSessionCallback(implName, this, captureCallback) }
                     .build()
 
             var effectJob: Job? = null
@@ -268,14 +274,15 @@ class VideoRecordingEffectTest(
                 val camera =
                     camProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
 
-                Camera2CameraControl.from(camera.cameraControl).apply {
-                    setCaptureRequestOptions(
-                        createMinimalProcessedSolidColorCaptureRequestOptions(
-                            colorChannel,
-                            camera.cameraInfo
+                CameraPipeUtil.Camera2CameraControlWrapper.from(implName, camera.cameraControl)
+                    .apply {
+                        setCaptureRequestOptions(
+                            createMinimalProcessedSolidColorCaptureRequestOptions(
+                                colorChannel,
+                                camera.cameraInfo
+                            )
                         )
-                    )
-                }
+                    }
 
                 lifecycleOwner.startAndResume()
                 try {
@@ -336,7 +343,7 @@ class VideoRecordingEffectTest(
             Build.VERSION.SDK_INT == 30 && AndroidUtil.isEmulator()
         )
 
-        with(Camera2CameraInfo.from(cameraInfo)) {
+        with(CameraPipeUtil.Camera2CameraInfoWrapper.from(implName, cameraInfo)) {
             val availableTestPatterns = getCameraCharacteristic(SENSOR_AVAILABLE_TEST_PATTERN_MODES)
             if (availableTestPatterns?.contains(SENSOR_TEST_PATTERN_MODE_SOLID_COLOR) == false) {
                 throw AssumptionViolatedException(
@@ -349,7 +356,7 @@ class VideoRecordingEffectTest(
     private fun createMinimalProcessedSolidColorCaptureRequestOptions(
         colorChannel: ColorChannel,
         cameraInfo: CameraInfo
-    ): CaptureRequestOptions {
+    ): CameraPipeUtil.CaptureRequestOptionsWrapper {
         val sensorData =
             when (colorChannel) {
                 ColorChannel.RED -> {
@@ -381,7 +388,7 @@ class VideoRecordingEffectTest(
                 }
             }
 
-        return CaptureRequestOptions.Builder()
+        return CameraPipeUtil.CaptureRequestOptionsWrapper.builder(implName)
             .apply {
                 setCaptureRequestOption(CaptureRequest.SENSOR_TEST_PATTERN_DATA, sensorData)
 
@@ -390,7 +397,7 @@ class VideoRecordingEffectTest(
                     CaptureRequest.SENSOR_TEST_PATTERN_MODE_SOLID_COLOR
                 )
 
-                with(Camera2CameraInfo.from(cameraInfo)) {
+                with(CameraPipeUtil.Camera2CameraInfoWrapper.from(implName, cameraInfo)) {
                     val availableAberrationModes =
                         getCameraCharacteristic(
                             CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES
