@@ -24,8 +24,8 @@
       <item quantity="one"><xliff:g id="NUMBER_OF_HOURS_0">%d</xliff:g> ordu</item>
     </plurals>
     <plurals name="time_difference_words_minutes" formatted="false" msgid="529404827937478243">
-      <item quantity="other"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> minutu</item>
-      <item quantity="one"><xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g> minutu</item>
+      <item quantity="other"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> min</item>
+      <item quantity="one"><xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g> min</item>
     </plurals>
     <string name="time_difference_now" msgid="2068359133884605223">"Orain"</string>
 </resources>
