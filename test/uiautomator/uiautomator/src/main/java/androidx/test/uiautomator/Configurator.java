@@ -170,11 +170,12 @@ public final class Configurator {
 
     /**
      * Sets a delay between key presses when injecting text input.
-     * See {@link UiObject#setText(String)}
      *
      * @param delay Delay value in milliseconds
      * @return self
+     * @deprecated This parameter is no longer used (text is set directly rather than by key).
      */
+    @Deprecated
     public @NonNull Configurator setKeyInjectionDelay(long delay) {
         mKeyInjectionDelay = delay;
         return this;
@@ -182,10 +183,11 @@ public final class Configurator {
 
     /**
      * Gets the current delay between key presses when injecting text input.
-     * See {@link UiObject#setText(String)}
      *
      * @return current delay in milliseconds
+     * @deprecated This parameter is no longer used (text is set directly rather than by key).
      */
+    @Deprecated
     public long getKeyInjectionDelay() {
         return mKeyInjectionDelay;
     }
