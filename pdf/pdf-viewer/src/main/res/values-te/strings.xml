@@ -46,16 +46,10 @@
     <string name="label_page_range" msgid="8290964180158460076">"<xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g> / <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
     <string name="desc_page_range" msgid="5286496438609641577">"<xliff:g id="TOTAL">%3$d</xliff:g>లో <xliff:g id="FIRST">%1$d</xliff:g> నుండి <xliff:g id="LAST">%2$d</xliff:g> పేజీలు"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"ఇమేజ్: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
-    <!-- no translation found for hint_find (5385388836603550565) -->
-    <skip />
-    <!-- no translation found for message_no_matches_found (6965828658999779258) -->
-    <skip />
-    <!-- no translation found for message_match_status (6288242289981639727) -->
-    <skip />
-    <!-- no translation found for action_edit (5882082700509010966) -->
-    <skip />
-    <!-- no translation found for password_not_entered (8875370870743585303) -->
-    <skip />
-    <!-- no translation found for retry_button_text (3443862378337999137) -->
-    <skip />
+    <string name="hint_find" msgid="5385388836603550565">"ఫైల్‌లో కనుగొనండి"</string>
+    <string name="message_no_matches_found" msgid="6965828658999779258">"మ్యాచ్‌లు ఏవీ దొరకలేదు."</string>
+    <string name="message_match_status" msgid="6288242289981639727">"మొత్తం <xliff:g id="TOTAL">%2$d</xliff:g>లో <xliff:g id="POSITION">%1$d</xliff:g>"</string>
+    <string name="action_edit" msgid="5882082700509010966">"ఫైల్‌ను ఎడిట్ చేయండి"</string>
+    <string name="password_not_entered" msgid="8875370870743585303">"అన్‌లాక్ చేయడానికి పాస్‌వర్డ్‌ను నమోదు చేయండి"</string>
+    <string name="retry_button_text" msgid="3443862378337999137">"మళ్లీ ట్రై చేయండి"</string>
 </resources>
