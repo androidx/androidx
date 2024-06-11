@@ -26,6 +26,8 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import com.google.android.material.switchmaterial.SwitchMaterial
 
@@ -41,15 +43,6 @@ class MainFragment : BaseFragment() {
     private lateinit var mediationDropDownMenu: Spinner
     private lateinit var inflatedView: View
     private lateinit var sdkApi: ISdkApi
-
-    // Mediation Option values.
-    // Please keep the order here the same as the order in which the options occur in the
-    // mediation_dropdown_menu_array.
-    enum class MediationOption {
-        NONE,
-        RUNTIME_RUNTIME,
-        RUNTIME_APP
-    }
 
     override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
         webViewBannerView.orderProviderUiAboveClientUi(!isDrawerOpen)
@@ -97,17 +90,35 @@ class MainFragment : BaseFragment() {
     private fun loadWebViewBannerAd() {
         webViewBannerView.addStateChangedListener()
         webViewBannerView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadLocalWebViewAd())
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadBannerAd(
+                    AdType.WEBVIEW,
+                    MediationOption.NON_MEDIATED,
+                    /* waitInsideOnDraw= */ false
+                )
+            )
         )
 
         localWebViewToggle.setOnCheckedChangeListener { _: View, isChecked: Boolean ->
             if (isChecked) {
                 webViewBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadLocalWebViewAd())
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                        sdkApi.loadBannerAd(
+                            AdType.WEBVIEW_FROM_LOCAL_ASSETS,
+                            MediationOption.NON_MEDIATED,
+                            /*waitInsideOnDraw=*/ false
+                        )
+                    )
                 )
             } else {
                 webViewBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadWebViewAd())
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                        sdkApi.loadBannerAd(
+                            AdType.WEBVIEW,
+                            MediationOption.NON_MEDIATED,
+                            /*waitInsideOnDraw=*/ false
+                        )
+                    )
                 )
             }
         }
@@ -123,7 +134,13 @@ class MainFragment : BaseFragment() {
                 .addView(bottomBannerView)
         }
         bottomBannerView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadTestAd(/* text= */ "Hey!"))
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadBannerAd(
+                    AdType.NON_WEBVIEW,
+                    MediationOption.NON_MEDIATED,
+                    /* waitInsideOnDraw= */ false
+                )
+            )
         )
     }
 
@@ -131,34 +148,52 @@ class MainFragment : BaseFragment() {
         resizableBannerView.addStateChangedListener()
         resizableBannerView.setAdapter(
             SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                sdkApi.loadTestAdWithWaitInsideOnDraw(/* text= */ "Resizable View")
+                sdkApi.loadBannerAd(
+                    AdType.NON_WEBVIEW,
+                    MediationOption.NON_MEDIATED,
+                    /* waitInsideOnDraw= */ true
+                )
             )
         )
 
-        var count = 1
         newAdButton.setOnClickListener {
             // Mediation is enabled if Runtime-Runtime Mediation option or Runtime-App Mediation
             // option is selected.
             val selectedMediationOptionId = mediationDropDownMenu.selectedItemId
             val mediationEnabled =
-                selectedMediationOptionId == MediationOption.RUNTIME_RUNTIME.ordinal.toLong() ||
-                    selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
+                selectedMediationOptionId == MediationOption.SDK_RUNTIME_MEDIATEE.toLong() ||
+                    selectedMediationOptionId == MediationOption.IN_APP_MEDIATEE.toLong()
             val appOwnedMediationEnabled =
-                selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
+                selectedMediationOptionId == MediationOption.IN_APP_MEDIATEE.toLong()
             if (mediationEnabled) {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadMediatedTestAd(count, appOwnedMediationEnabled)
+                        if (appOwnedMediationEnabled) {
+                            sdkApi.loadBannerAd(
+                                AdType.NON_WEBVIEW,
+                                MediationOption.IN_APP_MEDIATEE,
+                                /*waitInsideOnDraw=*/ true
+                            )
+                        } else {
+                            sdkApi.loadBannerAd(
+                                AdType.NON_WEBVIEW,
+                                MediationOption.SDK_RUNTIME_MEDIATEE,
+                                /*waitInsideOnDraw=*/ true
+                            )
+                        }
                     )
                 )
             } else {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadTestAdWithWaitInsideOnDraw(/* text= */ "Ad #$count")
+                        sdkApi.loadBannerAd(
+                            AdType.NON_WEBVIEW,
+                            MediationOption.NON_MEDIATED,
+                            /*waitInsideOnDraw=*/ true
+                        )
                     )
                 )
             }
-            count++
         }
 
         val maxWidthPixels = 1000

@@ -22,6 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -86,7 +88,11 @@ class PoolingContainerFragment : BaseFragment() {
             if (!sandboxedSdkViewSet.contains(childSandboxedSdkView)) {
                 childSandboxedSdkView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadTestAd(/* text= */ "PoolingContainer Ad #$position")
+                        sdkApi.loadBannerAd(
+                            AdType.NON_WEBVIEW,
+                            MediationOption.NON_MEDIATED,
+                            /*waitInsideOnDraw=*/ false
+                        )
                     )
                 )
                 sandboxedSdkViewSet.add(childSandboxedSdkView)
