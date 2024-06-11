@@ -178,8 +178,9 @@ internal fun measureLazyList(
         // if we were scrolled backward, but there were not enough items before. this means
         // not the whole scroll was consumed
         if (currentFirstItemScrollOffset < minOffset) {
-            scrollDelta += currentFirstItemScrollOffset
+            val notConsumedScrollDelta = minOffset - currentFirstItemScrollOffset
             currentFirstItemScrollOffset = minOffset
+            scrollDelta -= notConsumedScrollDelta
         }
 
         // neutralize previously added padding as we stopped filling the before content padding

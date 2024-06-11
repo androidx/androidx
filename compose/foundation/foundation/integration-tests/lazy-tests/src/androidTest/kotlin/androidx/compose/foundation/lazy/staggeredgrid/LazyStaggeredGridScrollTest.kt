@@ -65,10 +65,20 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
         itemSizeDp = with(rule.density) { itemSizePx.toDp() }
     }
 
-    fun setContent(containerSizePx: Int = itemSizePx * 5, afterContentPaddingPx: Int = 0) {
+    fun setContent(
+        containerSizePx: Int = itemSizePx * 5,
+        beforeContentPaddingPx: Int = 0,
+        afterContentPaddingPx: Int = 0
+    ) {
         rule.setContent {
             state = rememberLazyStaggeredGridState()
-            with(rule.density) { TestContent(containerSizePx.toDp(), afterContentPaddingPx.toDp()) }
+            with(rule.density) {
+                TestContent(
+                    containerSizePx.toDp(),
+                    beforeContentPaddingPx.toDp(),
+                    afterContentPaddingPx.toDp()
+                )
+            }
         }
     }
 
@@ -369,8 +379,29 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
             )
     }
 
+    @Test
+    fun overScrollingBackShouldIgnoreBeforeContentPadding() {
+        setContent(beforeContentPaddingPx = 5)
+
+        val floatItemSize = itemSizePx.toFloat()
+        var consumed: Float
+        runBlocking {
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                // scroll to next item
+                state.scrollBy(floatItemSize)
+                // scroll back with some overscroll, which should be ignored
+                consumed = state.scrollBy(-(floatItemSize + 10f))
+            }
+        }
+        assertThat(consumed).isEqualTo(-floatItemSize)
+    }
+
     @Composable
-    private fun TestContent(containerSizeDp: Dp, afterContentPaddingDp: Dp) {
+    private fun TestContent(
+        containerSizeDp: Dp,
+        beforeContentPaddingDp: Dp,
+        afterContentPaddingDp: Dp
+    ) {
         // |-|-|
         // |0|1|
         // |-| |
@@ -386,9 +417,9 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
             modifier = Modifier.axisSize(itemSizeDp * 2, containerSizeDp),
             contentPadding =
                 if (vertical) {
-                    PaddingValues(bottom = afterContentPaddingDp)
+                    PaddingValues(top = beforeContentPaddingDp, bottom = afterContentPaddingDp)
                 } else {
-                    PaddingValues(end = afterContentPaddingDp)
+                    PaddingValues(start = beforeContentPaddingDp, end = afterContentPaddingDp)
                 },
         ) {
             items(
