@@ -33,8 +33,8 @@ internal class RouteEncoder<T : Any>(
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
-    val map: MutableMap<String, List<String>> = mutableMapOf()
-    var elementIndex: Int = -1
+    private val map: MutableMap<String, List<String>> = mutableMapOf()
+    private var elementIndex: Int = -1
 
     /**
      * Entry point to set up and start encoding [T].
@@ -47,7 +47,7 @@ internal class RouteEncoder<T : Any>(
     @Suppress("UNCHECKED_CAST")
     fun encodeToArgMap(value: Any): Map<String, List<String>> {
         super.encodeSerializableValue(serializer, value as T)
-        return map
+        return map.toMap()
     }
 
     /**
@@ -86,7 +86,9 @@ internal class RouteEncoder<T : Any>(
     private fun internalEncodeValue(value: Any?) {
         val argName = serializer.descriptor.getElementName(elementIndex)
         val navType = typeMap[argName]
-        checkNotNull(navType) { "MISSING NAV TYPE" }
+        checkNotNull(navType) {
+            "Cannot find NavType for argument $argName. Please provide NavType through typeMap."
+        }
         val parsedValue =
             if (navType is CollectionNavType) {
                 navType.serializeAsValues(value)
