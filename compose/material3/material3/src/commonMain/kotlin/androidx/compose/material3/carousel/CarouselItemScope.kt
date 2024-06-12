@@ -40,7 +40,7 @@ sealed interface CarouselItemScope {
      * it will be recomposed on every change causing potential performance issues. Avoid using it in
      * the composition.
      */
-    val carouselItemInfo: CarouselItemInfo
+    val carouselItemDrawInfo: CarouselItemDrawInfo
 
     /**
      * Clips the composable to the given [shape], taking into account the item's size in the cross
@@ -73,8 +73,9 @@ sealed interface CarouselItemScope {
 }
 
 @ExperimentalMaterial3Api
-internal class CarouselItemScopeImpl(private val itemInfo: CarouselItemInfo) : CarouselItemScope {
-    override val carouselItemInfo: CarouselItemInfo
+internal class CarouselItemScopeImpl(private val itemInfo: CarouselItemDrawInfo) :
+    CarouselItemScope {
+    override val carouselItemDrawInfo: CarouselItemDrawInfo
         get() = itemInfo
 
     @Composable
@@ -87,9 +88,9 @@ internal class CarouselItemScopeImpl(private val itemInfo: CarouselItemInfo) : C
     @Composable
     override fun rememberMaskShape(shape: Shape): GenericShape {
         val density = LocalDensity.current
-        return remember(carouselItemInfo, density) {
+        return remember(carouselItemDrawInfo, density) {
             GenericShape { size, direction ->
-                val rect = carouselItemInfo.maskRect.intersect(size.toRect())
+                val rect = carouselItemDrawInfo.maskRect.intersect(size.toRect())
                 addOutline(shape.createOutline(rect.size, direction, density))
                 translate(Offset(rect.left, rect.top))
             }
