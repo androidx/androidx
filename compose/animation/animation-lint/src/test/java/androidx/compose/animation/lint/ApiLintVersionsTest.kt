@@ -34,6 +34,6 @@ class ApiLintVersionsTest {
 
         val registry = AnimationIssueRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
-        assertThat(registry.minApi).isEqualTo(10)
+        assertThat(registry.minApi).isEqualTo(14)
     }
 }

@@ -193,7 +193,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                             // Grab the source of this argument as it's represented.
                             val source =
                                 nearestNonQualifiedReferenceParent.valueArguments[0]
-                                    .skipParenthesizedExprDown()!!
+                                    .skipParenthesizedExprDown()
                                     .asSourceString()
                             val parentToReplace =
                                 nearestNonQualifiedReferenceParent

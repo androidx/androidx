@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.androidLintMinComposeApi)
+    compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 
     api(libs.kotlinMetadataJvm) { exclude group: "org.jetbrains.kotlin" }
