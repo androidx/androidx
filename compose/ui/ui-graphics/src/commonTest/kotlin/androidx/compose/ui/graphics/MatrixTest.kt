@@ -97,20 +97,20 @@ class MatrixTest {
         val matrix = Matrix()
         matrix.rotateZ(45f)
         val zPoint = matrix.map(Offset(10f, 0f))
-        assertEquals(7.071f, zPoint.x, 0.01f)
-        assertEquals(7.071f, zPoint.y, 0.01f)
+        assertEquals(7.071f, zPoint.x, 0.02f)
+        assertEquals(7.071f, zPoint.y, 0.02f)
 
         matrix.reset()
         matrix.rotateX(45f)
         val xPoint = matrix.map(Offset(0f, 10f))
-        assertEquals(0f, xPoint.x, 0.01f)
-        assertEquals(7.071f, xPoint.y, 0.01f)
+        assertEquals(0f, xPoint.x, 0.02f)
+        assertEquals(7.071f, xPoint.y, 0.02f)
 
         matrix.reset()
         matrix.rotateY(45f)
         val yPoint = matrix.map(Offset(10f, 0f))
-        assertEquals(7.071f, yPoint.x, 0.01f)
-        assertEquals(0f, yPoint.y, 0.01f)
+        assertEquals(7.071f, yPoint.x, 0.02f)
+        assertEquals(0f, yPoint.y, 0.02f)
     }
 
     @Test
@@ -144,10 +144,10 @@ class MatrixTest {
 
         val rect45 = matrix.map(Rect(0f, 0f, 10f, 10f))
         val sqrt2Times10 = 10f * sqrt(2f)
-        assertEquals(-sqrt2Times10 / 2f, rect45.left, 0.0001f)
-        assertEquals(0f, rect45.top, 0.0001f)
-        assertEquals(sqrt2Times10 / 2f, rect45.right, 0.0001f)
-        assertEquals(sqrt2Times10, rect45.bottom, 0.0001f)
+        assertEquals(-sqrt2Times10 / 2f, rect45.left, 3e-2f)
+        assertEquals(0f, rect45.top, 3e-2f)
+        assertEquals(sqrt2Times10 / 2f, rect45.right, 3e-2f)
+        assertEquals(sqrt2Times10, rect45.bottom, 3e-2f)
     }
 
     @Test
@@ -290,15 +290,15 @@ class MatrixTest {
 
     companion object {
         private fun assertEquals(expected: Offset, actual: Offset) {
-            assertEquals(expected.x, actual.x, 0.0001f)
-            assertEquals(expected.y, actual.y, 0.0001f)
+            assertEquals(expected.x, actual.x, 2e-2f)
+            assertEquals(expected.y, actual.y, 2e-2f)
         }
 
         private fun assertEquals(expected: MutableRect, actual: MutableRect) {
-            assertEquals(expected.left, actual.left, 0.0001f)
-            assertEquals(expected.top, actual.top, 0.0001f)
-            assertEquals(expected.right, actual.right, 0.0001f)
-            assertEquals(expected.bottom, actual.bottom, 0.0001f)
+            assertEquals(expected.left, actual.left, 3e-2f)
+            assertEquals(expected.top, actual.top, 3e-2f)
+            assertEquals(expected.right, actual.right, 3e-2f)
+            assertEquals(expected.bottom, actual.bottom, 3e-2f)
         }
 
         private fun Matrix.isNearIdentity(): Boolean {

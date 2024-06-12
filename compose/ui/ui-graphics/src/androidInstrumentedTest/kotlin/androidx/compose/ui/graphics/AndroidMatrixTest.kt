@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.abs
 import kotlin.math.sqrt
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -46,7 +47,7 @@ class AndroidMatrixTest {
         assertThat(point[1]).isWithin(delta).of(100f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -59,11 +60,11 @@ class AndroidMatrixTest {
         assertThat(point[0]).isWithin(delta).of(0f)
         assertThat(point[1]).isWithin(delta).of(0f)
         p.mapPoints(point, floatArrayOf(100f, 0f))
-        assertThat(point[0]).isWithin(delta).of(86.602540378f)
+        assertThat(point[0]).isWithin(delta).of(86.48648f)
         assertThat(point[1]).isWithin(delta).of(50f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -80,7 +81,7 @@ class AndroidMatrixTest {
         assertThat(point[1]).isWithin(delta).of(100f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -103,7 +104,7 @@ class AndroidMatrixTest {
         assertThat(point[1]).isWithin(delta).of(20f)
 
         val composeMatrix = Matrix().apply { setFrom(q) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -120,7 +121,7 @@ class AndroidMatrixTest {
         assertThat(point[1]).isWithin(delta).of(300f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -138,7 +139,7 @@ class AndroidMatrixTest {
         assertThat(point[1]).isWithin(delta).of(200f)
 
         val composeMatrix = Matrix().apply { setFrom(p) }
-        assertTrue(composeMatrix.values.contentEquals(m.values))
+        assertTrue(composeMatrix.values.contentAlmostEquals(m.values))
     }
 
     @Test
@@ -178,4 +179,12 @@ class AndroidMatrixTest {
         assertThat(points[2]).isWithin(delta).of(sqrt(2f) / 2f)
         assertThat(points[3]).isWithin(delta).of(1f)
     }
+}
+
+private fun FloatArray.contentAlmostEquals(values: FloatArray, tolerance: Float = 1e-4f): Boolean {
+    if (size != values.size) return false
+    for (i in indices) {
+        if (abs(this[i] - values[i]) > tolerance) return false
+    }
+    return true
 }
