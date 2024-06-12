@@ -341,4 +341,17 @@ class MultiParagraphLayoutCacheTest {
             )
         assertThat(actual.height).isEqualTo(expected.height)
     }
+
+    @Test
+    fun hugeString_doesntCrash() {
+        val text = "A".repeat(100_000)
+        val subject =
+            MultiParagraphLayoutCache(
+                    text = AnnotatedString(text),
+                    style = TextStyle(fontSize = 100.sp),
+                    fontFamilyResolver = fontFamilyResolver,
+                )
+                .also { it.density = density }
+        subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+    }
 }
