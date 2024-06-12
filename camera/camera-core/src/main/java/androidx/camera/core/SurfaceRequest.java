@@ -104,6 +104,7 @@ public final class SurfaceRequest {
 
     private final Range<Integer> mExpectedFrameRate;
     private final CameraInternal mCamera;
+    private final boolean mIsPrimary;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -157,9 +158,26 @@ public final class SurfaceRequest {
             @NonNull DynamicRange dynamicRange,
             @NonNull Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
+        this(resolution, camera, true, dynamicRange,
+                expectedFrameRate, onInvalidated);
+    }
+
+    /**
+     * Creates a new surface request with the given resolution, {@link Camera}, dynamic range, and
+     * expected frame rate and whether it's primary or secondary camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SurfaceRequest(
+            @NonNull Size resolution,
+            @NonNull CameraInternal camera,
+            boolean isPrimary,
+            @NonNull DynamicRange dynamicRange,
+            @NonNull Range<Integer> expectedFrameRate,
+            @NonNull Runnable onInvalidated) {
         super();
         mResolution = resolution;
         mCamera = camera;
+        mIsPrimary = isPrimary;
         mDynamicRange = dynamicRange;
         mExpectedFrameRate = expectedFrameRate;
 
@@ -370,6 +388,15 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public CameraInternal getCamera() {
         return mCamera;
+    }
+
+    /**
+     * Returns whether the {@link Camera} is primary or secondary in dual camera case.
+     * The value is always true for single camera case.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isPrimary() {
+        return mIsPrimary;
     }
 
     /**

@@ -43,6 +43,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.SurfaceOutput.CameraInputInfo;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.SurfaceRequest.TransformationInfo;
@@ -249,12 +250,25 @@ public class SurfaceEdge {
     @MainThread
     @NonNull
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal) {
+        return createSurfaceRequest(cameraInternal, true);
+    }
+
+    /**
+     * Creates a {@link SurfaceRequest} that is linked to this {@link SurfaceEdge}
+     * with the additional information whether camera is primary or secondary in dual camera case.
+     */
+    @MainThread
+    @NonNull
+    public SurfaceRequest createSurfaceRequest(
+            @NonNull CameraInternal cameraInternal,
+            boolean isPrimary) {
         checkMainThread();
         checkNotClosed();
         // TODO(b/238230154) figure out how to support HDR.
         SurfaceRequest surfaceRequest = new SurfaceRequest(
                 mStreamSpec.getResolution(),
                 cameraInternal,
+                isPrimary,
                 mStreamSpec.getDynamicRange(),
                 mStreamSpec.getExpectedFrameRateRange(),
                 () -> mainThreadExecutor().execute(() -> {
@@ -302,16 +316,16 @@ public class SurfaceEdge {
      * already has a Surface consumer. To remove the current Surface consumer, call
      * {@link #invalidate()} to reset the connection.
      *
-     * @param inputSize       resolution of input image buffer
-     * @param cropRect        crop rect of input image buffer
-     * @param rotationDegrees expected rotation to the input image buffer
-     * @param mirroring       expected mirroring to the input image buffer
+     * @param format output buffer format
+     * @param cameraInputInfo primary camera {@link CameraInputInfo}
+     * @param secondaryCameraInputInfo secondary camera {@link CameraInputInfo}
      */
     @MainThread
     @NonNull
-    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
-            @CameraEffect.Formats int format, @NonNull Rect cropRect, int rotationDegrees,
-            boolean mirroring, @Nullable CameraInternal cameraInternal) {
+    public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(
+            @CameraEffect.Formats int format,
+            @NonNull CameraInputInfo cameraInputInfo,
+            @Nullable CameraInputInfo secondaryCameraInputInfo) {
         checkMainThread();
         checkNotClosed();
         checkAndSetHasConsumer();
@@ -325,8 +339,9 @@ public class SurfaceEdge {
                         return immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), format, mStreamSpec.getResolution(), inputSize, cropRect,
-                            rotationDegrees, mirroring, cameraInternal, mSensorToBufferTransform);
+                            getTargets(), format, mStreamSpec.getResolution(),
+                            cameraInputInfo, secondaryCameraInputInfo,
+                            mSensorToBufferTransform);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
                             directExecutor());
