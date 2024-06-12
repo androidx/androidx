@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.wear.compose.material
+
+package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
@@ -61,12 +62,309 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.material3.tokens.MotionTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.materialcore.screenHeightDp
 import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.max
 import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
+
+/**
+ * Draws a placeholder shape over the top of a composable and animates a wipe off effect to remove
+ * the placeholder. Typically used whilst content is 'loading' and then 'revealed'.
+ *
+ * Example of a [Button] with icon and a label that put placeholders over individual content slots:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
+ *
+ * Example of a [Button] with icon and a primary and secondary labels that draws another [Button]
+ * over the top of it when waiting for placeholder data to load:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelsAndOverlaidPlaceholder
+ *
+ * The [placeholderState] determines when to 'show' and 'wipe off' the placeholder.
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be first in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ *
+ * @sample androidx.wear.compose.material3.samples.TextPlaceholder
+ * @param placeholderState determines whether the placeholder is visible and controls animation
+ *   effects for the placeholder.
+ * @param shape the shape to apply to the placeholder
+ * @param color the color of the placeholder.
+ */
+@Composable
+fun Modifier.placeholder(
+    placeholderState: PlaceholderState,
+    shape: Shape = PlaceholderDefaults.shape,
+    color: Color =
+        MaterialTheme.colorScheme.onSurface
+            .copy(alpha = 0.1f)
+            .compositeOver(MaterialTheme.colorScheme.surfaceContainer)
+): Modifier =
+    this then
+        PlaceholderElement(
+            placeholderState = placeholderState,
+            color = color,
+            shape = shape,
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "placeholder"
+                    properties["placeholderState"] = placeholderState
+                    properties["shape"] = shape
+                    properties["color"] = color
+                }
+        )
+
+/**
+ * Modifier to draw a placeholder shimmer over a component. The placeholder shimmer is a 45 degree
+ * gradient from Top|Left of the screen to Bottom|Right. The shimmer is coordinated via the
+ * animation frame clock which orchestrates the shimmer so that every component will shimmer as the
+ * gradient progresses across the screen.
+ *
+ * Example of a [Button] with icon and a label that put placeholders over individual content slots
+ * and then draws a placeholder shimmer over the result:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
+ *
+ * Example of a [Button] with icon and a primary and secondary labels that draws another [Button]
+ * over the top of it when waiting for placeholder data to load and then draws a placeholder shimmer
+ * over the top:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelsAndOverlaidPlaceholder
+ *
+ * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
+ * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
+ * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
+ * modifiers.
+ *
+ * @sample androidx.wear.compose.material3.samples.TextPlaceholder
+ * @param placeholderState the current placeholder state that determine whether the placeholder
+ *   shimmer should be shown.
+ * @param shape the shape of the component.
+ * @param color the color to use in the shimmer.
+ */
+@OptIn(ExperimentalWearFoundationApi::class)
+@Composable
+fun Modifier.placeholderShimmer(
+    placeholderState: PlaceholderState,
+    shape: Shape = PlaceholderDefaults.shape,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+): Modifier =
+    this.then(
+        if (LocalReduceMotion.current.enabled()) {
+            Modifier
+        } else {
+            PlaceholderShimmerElement(
+                placeholderState = placeholderState,
+                color = color,
+                shape = shape,
+                inspectorInfo =
+                    debugInspectorInfo {
+                        name = "placeholderShimmer"
+                        properties["placeholderState"] = placeholderState
+                        properties["shape"] = shape
+                        properties["color"] = color
+                    }
+            )
+        }
+    )
+
+/**
+ * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
+ * animations run [PlaceholderState.startPlaceholderAnimation].
+ *
+ * A [PlaceholderState] should be created for each component that has placeholder data. The state is
+ * used to coordinate all of the different placeholder effects and animations.
+ *
+ * Placeholder has a number of different effects designed to work together. [Modifier.placeholder]
+ * draws a placeholder shape on top of content that is waiting to load. There can be multiple
+ * placeholders in a component. [Modifier.placeholderShimmer] does a shimmer animation over the
+ * whole component that includes the placeholders. There should only be one placeholderShimmer for
+ * each component.
+ *
+ * Background placeholder effects are used to mask the background of components like buttons and
+ * cards until all of the data has loaded. Use [PlaceholderDefaults.placeholderButtonColors]
+ * [PlaceholderDefaults.placeholderBackgroundBrush] and
+ * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
+ * background.
+ *
+ * Once all of the components content is loaded, [isContentReady] is `true` the shimmer will stop
+ * and a wipe off animation will remove the placeholders to reveal the content.
+ *
+ * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
+ *   given component and is ready to be displayed.
+ */
+@OptIn(ExperimentalWearFoundationApi::class)
+@Composable
+fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
+    val maxScreenDimension =
+        with(LocalDensity.current) { Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx() }
+    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
+    val myLambdaState = rememberUpdatedState(isContentReady)
+    return remember { PlaceholderState(myLambdaState, maxScreenDimension, isReduceMotionEnabled) }
+}
+
+/**
+ * Contains the default values used for providing placeholders.
+ *
+ * There are three distinct but coordinated aspects to placeholders in Compose for Wear OS. Firstly
+ * placeholder [Modifier.placeholder] which is drawn over content that is not yet loaded. Secondly a
+ * placeholder background which provides a background brush to cover the usual background of
+ * containers such as [Button] or [Card] until all of the content has loaded. Thirdly a placeholder
+ * shimmer effect [Modifier.placeholderShimmer] effect which runs in an animation loop while waiting
+ * for the data to load.
+ */
+object PlaceholderDefaults {
+
+    /** Default [Shape] for Placeholder. */
+    val shape: Shape = ShapeTokens.CornerFull
+
+    /**
+     * Create a [ButtonColors] that can be used in placeholder mode. This will provide the
+     * placeholder background effect that covers the normal button background with a solid
+     * background of [color] when the [placeholderState] is set to show the placeholder and a wipe
+     * off gradient brush when the state is in wipe-off mode. If the state is
+     * [PlaceholderState.isShowContent] then the normal background will be used. All other colors
+     * will be delegated to [originalButtonColors].
+     *
+     * Example of a [Button] with icon and a label that put placeholders over individual content
+     * slots and then draws a placeholder shimmer over the result and draws over the [Button]s
+     * normal background color with [color] as the placeholder background color which will be wiped
+     * away once all of the placeholder data is loaded:
+     *
+     * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
+     * @param originalButtonColors the button colors to use when not in placeholder mode.
+     * @param placeholderState the placeholder state of the component
+     * @param color the color to use for the placeholder background brush
+     */
+    @Composable
+    fun placeholderButtonColors(
+        originalButtonColors: ButtonColors,
+        placeholderState: PlaceholderState,
+        color: Color = MaterialTheme.colorScheme.surfaceContainer
+    ): ButtonColors {
+        return if (!placeholderState.isShowContent) {
+            ButtonColors(
+                containerPainter =
+                    PlaceholderBackgroundPainter(
+                        painter = originalButtonColors.containerPainter(enabled = true),
+                        placeholderState = placeholderState,
+                        color = color
+                    ),
+                contentColor = originalButtonColors.contentColor(enabled = true),
+                secondaryContentColor = originalButtonColors.secondaryContentColor(enabled = true),
+                iconColor = originalButtonColors.iconColor(enabled = true),
+                disabledContainerPainter =
+                    PlaceholderBackgroundPainter(
+                        painter = originalButtonColors.containerPainter(enabled = false),
+                        placeholderState = placeholderState,
+                        color = color
+                    ),
+                disabledContentColor = originalButtonColors.contentColor(enabled = false),
+                disabledSecondaryContentColor =
+                    originalButtonColors.secondaryContentColor(enabled = false),
+                disabledIconColor = originalButtonColors.iconColor(enabled = false),
+            )
+        } else {
+            originalButtonColors
+        }
+    }
+
+    /**
+     * Create a [ButtonColors] that can be used for a [Button] that is used as a placeholder drawn
+     * on top of another [Button]. When not drawing a placeholder background brush the button will
+     * be transparent allowing the contents of the button below to be displayed.
+     *
+     * Example of a [Button] with icon and a primary and secondary labels that draws another
+     * [Button] over the top of it when waiting for placeholder data to load and draws over the
+     * [Button]s normal background color with [color] as the placeholder background color which will
+     * be wiped away once all of the placeholder data is loaded:
+     *
+     * @sample androidx.wear.compose.material3.samples.ButtonWithIconAndLabelsAndOverlaidPlaceholder
+     * @param color the color to use for the placeholder background brush.
+     * @param placeholderState the current placeholder state.
+     */
+    @Composable
+    fun placeholderButtonColors(
+        placeholderState: PlaceholderState,
+        color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    ): ButtonColors {
+        return ButtonColors(
+            containerPainter =
+                PlaceholderBackgroundPainter(
+                    painter = null,
+                    placeholderState = placeholderState,
+                    color = color
+                ),
+            contentColor = Color.Transparent,
+            secondaryContentColor = Color.Transparent,
+            iconColor = Color.Transparent,
+            disabledContainerPainter =
+                PlaceholderBackgroundPainter(
+                    painter = null,
+                    placeholderState = placeholderState,
+                    color = color
+                ),
+            disabledContentColor = Color.Transparent,
+            disabledSecondaryContentColor = Color.Transparent,
+            disabledIconColor = Color.Transparent,
+        )
+    }
+
+    /**
+     * Create a [Painter] that wraps another painter and overlays a placeholder background brush on
+     * top. If the [placeholderState] is [PlaceholderState.isShowContent] the original painter will
+     * be used. Otherwise the [painter] will be drawn and then a placeholder background will be
+     * drawn over it or a wipe-off brush will be used to reveal the background when the state is
+     * [PlaceholderState.isWipeOff].
+     *
+     * @param placeholderState the state of the placeholder
+     * @param painter the original painter that will be drawn over when in placeholder mode.
+     * @param color the color to use for the placeholder background brush
+     */
+    @Composable
+    fun painterWithPlaceholderOverlayBackgroundBrush(
+        placeholderState: PlaceholderState,
+        painter: Painter,
+        color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    ): Painter {
+        return if (!placeholderState.isShowContent) {
+            PlaceholderBackgroundPainter(
+                painter = painter,
+                placeholderState = placeholderState,
+                color = color
+            )
+        } else {
+            painter
+        }
+    }
+
+    /**
+     * Create a [Painter] that paints with a placeholder background brush. If the [placeholderState]
+     * is [PlaceholderState.isShowContent] then a transparent background will be shown. Otherwise a
+     * placeholder background will be drawn or a wipe-off brush will be used to reveal the content
+     * underneath when [PlaceholderState.isWipeOff] is true.
+     *
+     * @param placeholderState the state of the placeholder
+     * @param color the color to use for the placeholder background brush
+     */
+    @Composable
+    fun placeholderBackgroundBrush(
+        placeholderState: PlaceholderState,
+        color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    ): Painter {
+        return PlaceholderBackgroundPainter(
+            painter = null,
+            placeholderState = placeholderState,
+            color = color,
+        )
+    }
+}
 
 /**
  * A state object that can be used to control placeholders. Placeholders are used when the content
@@ -87,10 +385,10 @@ import kotlinx.coroutines.isActive
  * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
  * modifiers.
  *
- * @sample androidx.wear.compose.material.samples.TextPlaceholder
+ * @sample androidx.wear.compose.material3.samples.TextPlaceholder
  *
- * Background placeholder effects are used to mask the background of components like chips and cards
- * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
+ * Background placeholder effects are used to mask the background of components like buttons and
+ * cards until all of the data has loaded. Use [PlaceholderDefaults.placeholderButtonColors]
  * [PlaceholderDefaults.placeholderBackgroundBrush] and
  * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
  * background.
@@ -98,9 +396,8 @@ import kotlinx.coroutines.isActive
  * Once all of the components content is loaded the shimmer will stop and a wipe off animation will
  * remove the placeholders.
  */
-@ExperimentalWearMaterialApi
 @Stable
-public class PlaceholderState
+class PlaceholderState
 internal constructor(
     private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
@@ -112,7 +409,7 @@ internal constructor(
      * the component which is having its background painted with
      * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush],
      * [PlaceholderDefaults.placeholderBackgroundBrush] or
-     * [PlaceholderDefaults.placeholderChipColors].
+     * [PlaceholderDefaults.placeholderButtonColors].
      *
      * The offset values should be retrieved with [OnGloballyPositionedModifier].
      *
@@ -122,7 +419,7 @@ internal constructor(
     internal var backgroundOffset: Offset = Offset.Zero
 
     /** Start the animation of the placeholder state. */
-    public suspend fun startPlaceholderAnimation() {
+    suspend fun startPlaceholderAnimation() {
         if (!isReduceMotionEnabled) {
             coroutineScope {
                 while (isActive) {
@@ -166,7 +463,6 @@ internal constructor(
      *
      * The time taken for this progression is [PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS]
      */
-    @ExperimentalWearMaterialApi
     internal val placeholderWipeOffAlpha: Float by derivedStateOf {
         val absoluteProgression =
             ((frameMillis.longValue - startOfWipeOffAnimation)
@@ -184,8 +480,7 @@ internal constructor(
      * screen. Starting off screen to the left and progressing across the screen and finishing off
      * the screen to the right after [PLACEHOLDER_SHIMMER_DURATION_MS].
      */
-    @ExperimentalWearMaterialApi
-    public val placeholderProgression: Float by derivedStateOf {
+    val placeholderProgression: Float by derivedStateOf {
         val absoluteProgression =
             (frameMillis.longValue
                 .mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
@@ -200,7 +495,6 @@ internal constructor(
      * progression gives the alpha to apply during the period of the placeholder effect. This allows
      * the effect to be faded in and then out during the [PLACEHOLDER_SHIMMER_DURATION_MS].
      */
-    @ExperimentalWearMaterialApi
     internal val placeholderShimmerAlpha: Float by derivedStateOf {
         val absoluteProgression =
             (frameMillis.longValue
@@ -220,13 +514,15 @@ internal constructor(
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity during
      * the fade-in part of reset placeholder animation. This allows the effect to be faded in during
-     * the [PLACEHOLDER_RESET_ANIMATION_DURATION].
+     * the [PLACEHOLDER_RESET_ANIMATION_DURATION_MS].
      */
     internal val resetPlaceholderFadeInAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue - startOfResetAnimation - RAPID)
-                .coerceAtMost(QUICK.toLong())
-                .toFloat() / QUICK.toFloat()
+            (frameMillis.longValue -
+                    startOfResetAnimation -
+                    PLACEHOLDER_RESET_ANIMATION_OUTGOING_DURATION_MS)
+                .coerceAtMost(PLACEHOLDER_RESET_ANIMATION_INCOMING_DURATION_MS)
+                .toFloat() / PLACEHOLDER_RESET_ANIMATION_INCOMING_DURATION_MS.toFloat()
         if (absoluteProgression < 0f) {
             0f
         } else {
@@ -238,12 +534,13 @@ internal constructor(
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity during
      * the fade-out part of reset placeholder animation. This allows the effect to be faded out
-     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION].
+     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION_MS].
      */
     internal val resetPlaceholderFadeOutAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue - startOfResetAnimation).coerceAtMost(RAPID.toLong()).toFloat() /
-                RAPID.toFloat()
+            (frameMillis.longValue - startOfResetAnimation)
+                .coerceAtMost(PLACEHOLDER_RESET_ANIMATION_OUTGOING_DURATION_MS)
+                .toFloat() / PLACEHOLDER_RESET_ANIMATION_OUTGOING_DURATION_MS.toFloat()
         val alpha = lerp(1f, 0f, absoluteProgression)
         resetFadeOutInterpolator.transform(alpha)
     }
@@ -252,7 +549,7 @@ internal constructor(
      * Returns true if the placeholder content should be shown with no placeholders effects and
      * false if either the placeholder or the wipe-off effect are being shown.
      */
-    public val isShowContent: Boolean by derivedStateOf {
+    val isShowContent: Boolean by derivedStateOf {
         placeholderStage == PlaceholderStage.ShowContent
     }
 
@@ -260,7 +557,7 @@ internal constructor(
      * Should only be called when [isShowContent] is false. Returns true if the wipe-off effect that
      * reveals content should be shown and false if the placeholder effect should be shown.
      */
-    public val isWipeOff: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.WipeOff }
+    val isWipeOff: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.WipeOff }
 
     /**
      * The width of the gradient to use for the placeholder shimmer and wipe-off effects. This is
@@ -301,7 +598,7 @@ internal constructor(
                             if (startOfResetAnimation != 0L) {
                                 if (
                                     frameMillis.longValue - startOfResetAnimation >=
-                                        PLACEHOLDER_RESET_ANIMATION_DURATION
+                                        PLACEHOLDER_RESET_ANIMATION_DURATION_MS
                                 ) {
                                     startOfResetAnimation = 0L
                                     field = PlaceholderStage.ShowPlaceholder
@@ -333,307 +630,10 @@ internal constructor(
 
     private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f)
     private val wipeOffInterpolator: Easing = CubicBezierEasing(0f, 0.2f, 1f, 0.6f)
-    private val resetFadeInInterpolator: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
-    private val resetFadeOutInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 1f, 1f)
+    private val resetFadeInInterpolator: Easing = MotionTokens.EasingStandard
+    private val resetFadeOutInterpolator: Easing = MotionTokens.EasingStandardAccelerate
 }
 
-/**
- * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
- * animations run [PlaceholderState.startPlaceholderAnimation].
- *
- * A [PlaceholderState] should be created for each component that has placeholder data. The state is
- * used to coordinate all of the different placeholder effects and animations.
- *
- * Placeholder has a number of different effects designed to work together. [Modifier.placeholder]
- * draws a placeholder shape on top of content that is waiting to load. There can be multiple
- * placeholders in a component. [Modifier.placeholderShimmer] does a shimmer animation over the
- * whole component that includes the placeholders. There should only be one placeholderShimmer for
- * each component.
- *
- * Background placeholder effects are used to mask the background of components like chips and cards
- * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
- * [PlaceholderDefaults.placeholderBackgroundBrush] and
- * [PlaceholderDefaults.painterWithPlaceholderOverlayBackgroundBrush] to draw the component
- * background.
- *
- * Once all of the components content is loaded, [isContentReady] is `true` the shimmer will stop
- * and a wipe off animation will remove the placeholders to reveal the content.
- *
- * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
- *   given component and is ready to be displayed.
- */
-@OptIn(ExperimentalWearFoundationApi::class)
-@ExperimentalWearMaterialApi
-@Composable
-public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
-    val maxScreenDimension =
-        with(LocalDensity.current) { Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx() }
-    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
-    val myLambdaState = rememberUpdatedState(isContentReady)
-    return remember { PlaceholderState(myLambdaState, maxScreenDimension, isReduceMotionEnabled) }
-}
-
-/**
- * Draws a placeholder shape over the top of a composable and animates a wipe off effect to remove
- * the placeholder. Typically used whilst content is 'loading' and then 'revealed'.
- *
- * Example of a [Chip] with icon and a label that put placeholders over individual content slots:
- *
- * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
- *
- * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip] over
- * the top of it when waiting for placeholder data to load:
- *
- * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
- *
- * The [placeholderState] determines when to 'show' and 'wipe off' the placeholder.
- *
- * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
- * [Modifier.placeholderShimmer] to the same composable then the shimmer must be first in the
- * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
- * modifiers.
- *
- * @sample androidx.wear.compose.material.samples.TextPlaceholder
- * @param placeholderState determines whether the placeholder is visible and controls animation
- *   effects for the placeholder.
- * @param shape the shape to apply to the placeholder
- * @param color the color of the placeholder.
- */
-@ExperimentalWearMaterialApi
-@Composable
-public fun Modifier.placeholder(
-    placeholderState: PlaceholderState,
-    shape: Shape = MaterialTheme.shapes.small,
-    color: Color =
-        MaterialTheme.colors.onSurface
-            .copy(alpha = 0.1f)
-            .compositeOver(MaterialTheme.colors.surface)
-): Modifier =
-    this then
-        PlaceholderElement(
-            placeholderState = placeholderState,
-            color = color,
-            shape = shape,
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "placeholder"
-                    properties["placeholderState"] = placeholderState
-                    properties["shape"] = shape
-                    properties["color"] = color
-                }
-        )
-
-/**
- * Modifier to draw a placeholder shimmer over a component. The placeholder shimmer is a 45 degree
- * gradient from Top|Left of the screen to Bottom|Right. The shimmer is coordinated via the
- * animation frame clock which orchestrates the shimmer so that every component will shimmer as the
- * gradient progresses across the screen.
- *
- * Example of a [Chip] with icon and a label that put placeholders over individual content slots and
- * then draws a placeholder shimmer over the result:
- *
- * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
- *
- * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip] over
- * the top of it when waiting for placeholder data to load and then draws a placeholder shimmer over
- * the top:
- *
- * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
- *
- * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
- * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
- * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
- * modifiers.
- *
- * @sample androidx.wear.compose.material.samples.TextPlaceholder
- * @param placeholderState the current placeholder state that determine whether the placeholder
- *   shimmer should be shown.
- * @param shape the shape of the component.
- * @param color the color to use in the shimmer.
- */
-@ExperimentalWearMaterialApi
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-public fun Modifier.placeholderShimmer(
-    placeholderState: PlaceholderState,
-    shape: Shape = MaterialTheme.shapes.small,
-    color: Color = MaterialTheme.colors.onSurface,
-): Modifier =
-    this.then(
-        if (LocalReduceMotion.current.enabled()) {
-            Modifier
-        } else {
-            PlaceholderShimmerElement(
-                placeholderState = placeholderState,
-                color = color,
-                shape = shape,
-                inspectorInfo =
-                    debugInspectorInfo {
-                        name = "placeholderShimmer"
-                        properties["placeholderState"] = placeholderState
-                        properties["shape"] = shape
-                        properties["color"] = color
-                    }
-            )
-        }
-    )
-
-/**
- * Contains the default values used for providing placeholders.
- *
- * There are three distinct but coordinated aspects to placeholders in Compose for Wear OS. Firstly
- * placeholder [Modifier.placeholder] which is drawn over content that is not yet loaded. Secondly a
- * placeholder background which provides a background brush to cover the usual background of
- * containers such as [Chip] or [Card] until all of the content has loaded. Thirdly a placeholder
- * shimmer effect [Modifier.placeholderShimmer] effect which runs in an animation loop while waiting
- * for the data to load.
- */
-@ExperimentalWearMaterialApi
-public object PlaceholderDefaults {
-
-    /**
-     * Create a [ChipColors] that can be used in placeholder mode. This will provide the placeholder
-     * background effect that covers the normal chip background with a solid background of [color]
-     * when the [placeholderState] is set to show the placeholder and a wipe off gradient brush when
-     * the state is in wipe-off mode. If the state is [PlaceholderState.isShowContent] then the
-     * normal background will be used. All other colors will be delegated to [originalChipColors].
-     *
-     * Example of a [Chip] with icon and a label that put placeholders over individual content slots
-     * and then draws a placeholder shimmer over the result and draws over the [Chip]s normal
-     * background color with [color] as the placeholder background color which will be wiped away
-     * once all of the placeholder data is loaded:
-     *
-     * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
-     * @param originalChipColors the chip colors to use when not in placeholder mode.
-     * @param placeholderState the placeholder state of the component
-     * @param color the color to use for the placeholder background brush
-     */
-    @Composable
-    public fun placeholderChipColors(
-        originalChipColors: ChipColors,
-        placeholderState: PlaceholderState,
-        color: Color = MaterialTheme.colors.surface
-    ): ChipColors {
-        return if (!placeholderState.isShowContent) {
-            ChipDefaults.chipColors(
-                backgroundPainter =
-                    PlaceholderBackgroundPainter(
-                        painter = originalChipColors.background(enabled = true).value,
-                        placeholderState = placeholderState,
-                        color = color
-                    ),
-                contentColor = originalChipColors.contentColor(enabled = true).value,
-                secondaryContentColor =
-                    originalChipColors.secondaryContentColor(enabled = true).value,
-                iconColor = originalChipColors.iconColor(enabled = true).value,
-                disabledBackgroundPainter =
-                    PlaceholderBackgroundPainter(
-                        painter = originalChipColors.background(enabled = false).value,
-                        placeholderState = placeholderState,
-                        color = color
-                    ),
-                disabledContentColor = originalChipColors.contentColor(enabled = false).value,
-                disabledSecondaryContentColor =
-                    originalChipColors.secondaryContentColor(enabled = false).value,
-                disabledIconColor = originalChipColors.iconColor(enabled = false).value,
-            )
-        } else {
-            originalChipColors
-        }
-    }
-
-    /**
-     * Create a [ChipColors] that can be used for a [Chip] that is used as a placeholder drawn on
-     * top of another [Chip]. When not drawing a placeholder background brush the chip will be
-     * transparent allowing the contents of the chip below to be displayed.
-     *
-     * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip]
-     * over the top of it when waiting for placeholder data to load and draws over the [Chip]s
-     * normal background color with [color] as the placeholder background color which will be wiped
-     * away once all of the placeholder data is loaded:
-     *
-     * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
-     * @param color the color to use for the placeholder background brush.
-     * @param placeholderState the current placeholder state.
-     */
-    @Composable
-    public fun placeholderChipColors(
-        placeholderState: PlaceholderState,
-        color: Color = MaterialTheme.colors.surface,
-    ): ChipColors {
-        return ChipDefaults.chipColors(
-            backgroundPainter =
-                PlaceholderBackgroundPainter(
-                    painter = null,
-                    placeholderState = placeholderState,
-                    color = color
-                ),
-            contentColor = Color.Transparent,
-            secondaryContentColor = Color.Transparent,
-            iconColor = Color.Transparent,
-            disabledBackgroundPainter =
-                PlaceholderBackgroundPainter(
-                    painter = null,
-                    placeholderState = placeholderState,
-                    color = color
-                ),
-            disabledContentColor = Color.Transparent,
-            disabledSecondaryContentColor = Color.Transparent,
-            disabledIconColor = Color.Transparent,
-        )
-    }
-
-    /**
-     * Create a [Painter] that wraps another painter and overlays a placeholder background brush on
-     * top. If the [placeholderState] is [PlaceholderState.isShowContent] the original painter will
-     * be used. Otherwise the [painter] will be drawn and then a placeholder background will be
-     * drawn over it or a wipe-off brush will be used to reveal the background when the state is
-     * [PlaceholderState.isWipeOff].
-     *
-     * @param placeholderState the state of the placeholder
-     * @param painter the original painter that will be drawn over when in placeholder mode.
-     * @param color the color to use for the placeholder background brush
-     */
-    @Composable
-    public fun painterWithPlaceholderOverlayBackgroundBrush(
-        placeholderState: PlaceholderState,
-        painter: Painter,
-        color: Color = MaterialTheme.colors.surface,
-    ): Painter {
-        return if (!placeholderState.isShowContent) {
-            PlaceholderBackgroundPainter(
-                painter = painter,
-                placeholderState = placeholderState,
-                color = color
-            )
-        } else {
-            painter
-        }
-    }
-
-    /**
-     * Create a [Painter] that paints with a placeholder background brush. If the [placeholderState]
-     * is [PlaceholderState.isShowContent] then a transparent background will be shown. Otherwise a
-     * placeholder background will be drawn or a wipe-off brush will be used to reveal the content
-     * underneath when [PlaceholderState.isWipeOff] is true.
-     *
-     * @param placeholderState the state of the placeholder
-     * @param color the color to use for the placeholder background brush
-     */
-    @Composable
-    public fun placeholderBackgroundBrush(
-        placeholderState: PlaceholderState,
-        color: Color = MaterialTheme.colors.surface,
-    ): Painter {
-        return PlaceholderBackgroundPainter(
-            painter = null,
-            placeholderState = placeholderState,
-            color = color,
-        )
-    }
-}
-
-@ExperimentalWearMaterialApi
 @Immutable
 @JvmInline
 /** Enumerate the possible stages (states) that a placeholder can be in. */
@@ -673,7 +673,6 @@ internal value class PlaceholderStage internal constructor(internal val type: In
     }
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 private fun wipeOffBrush(color: Color, offset: Offset, placeholderState: PlaceholderState): Brush {
     val halfGradientWidth = placeholderState.gradientXYWidth / 2f
     return Brush.linearGradient(
@@ -700,7 +699,6 @@ private fun wipeOffBrush(color: Color, offset: Offset, placeholderState: Placeho
  * A painter which wraps an optional [Painter] and is used to create an effect over the [Painter]
  * such as a solid placeholder color or a placeholder wipe off effect.
  */
-@ExperimentalWearMaterialApi
 internal class PlaceholderBackgroundPainter(
     val painter: Painter?,
     private val placeholderState: PlaceholderState,
@@ -757,7 +755,8 @@ internal class PlaceholderBackgroundPainter(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null) return false
+        if (this::class != other::class) return false
 
         other as PlaceholderBackgroundPainter
 
@@ -850,7 +849,6 @@ private abstract class AbstractPlaceholderModifierNode(
     }
 }
 
-@ExperimentalWearMaterialApi
 private class PlaceholderElement(
     private val placeholderState: PlaceholderState,
     private val color: Color,
@@ -898,7 +896,6 @@ private class PlaceholderElement(
     }
 }
 
-@ExperimentalWearMaterialApi
 private class PlaceholderModifierNode(
     var placeholderState: PlaceholderState,
     var color: Color,
@@ -930,7 +927,6 @@ private class PlaceholderModifierNode(
     }
 }
 
-@ExperimentalWearMaterialApi
 private class PlaceholderShimmerElement(
     private val placeholderState: PlaceholderState,
     private val color: Color,
@@ -978,7 +974,6 @@ private class PlaceholderShimmerElement(
     }
 }
 
-@ExperimentalWearMaterialApi
 private class PlaceholderShimmerModifierNode(
     var placeholderState: PlaceholderState,
     var color: Color,
@@ -1019,8 +1014,14 @@ private class PlaceholderShimmerModifierNode(
     }
 }
 
-internal const val PLACEHOLDER_SHIMMER_DURATION_MS = 800L
-internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 300L
-internal const val PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS = 2000L
+internal const val PLACEHOLDER_SHIMMER_DURATION_MS = MotionTokens.DurationExtraLong2.toLong()
+internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS =
+    MotionTokens.DurationMedium2.toLong()
+internal const val PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS =
+    MotionTokens.DurationExtraLong4.toLong().times(2L)
 internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS = 80L
-internal const val PLACEHOLDER_RESET_ANIMATION_DURATION = 400L
+internal const val PLACEHOLDER_RESET_ANIMATION_DURATION_MS = MotionTokens.DurationLong1.toLong()
+internal const val PLACEHOLDER_RESET_ANIMATION_INCOMING_DURATION_MS =
+    MotionTokens.DurationMedium1.toLong()
+internal const val PLACEHOLDER_RESET_ANIMATION_OUTGOING_DURATION_MS =
+    MotionTokens.DurationShort3.toLong()
