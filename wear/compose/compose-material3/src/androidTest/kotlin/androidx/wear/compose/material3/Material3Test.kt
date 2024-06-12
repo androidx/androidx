@@ -338,3 +338,5 @@ internal enum class Status {
 
     fun enabled() = this == Enabled
 }
+
+class StableRef<T>(var value: T)
