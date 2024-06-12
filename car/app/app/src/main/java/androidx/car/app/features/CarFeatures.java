@@ -16,21 +16,35 @@
 
 package androidx.car.app.features;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StringDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
- * Class for checking for whether car related features are available on the system
+ * Class for checking for whether car related features are available on the system.
  */
 public final class CarFeatures {
 
     /**
-     * Flag value to check whether or not audio is allowed to play while driving
+     * Flag value to check whether or not audio is allowed to play while driving.
      */
     public static final String FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING =
             "background_audio_while_driving";
+
+    @RestrictTo(LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({
+            FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING,
+    })
+    public @interface CarFeature {}
 
     // Do not instantiate
     private CarFeatures() {}
@@ -38,9 +52,14 @@ public final class CarFeatures {
     // Create an open api surface to support future system features that may need to be
     // backported without needing to create a new api
     /**
-     *  @return  whether the system enables a given feature
+     * Checks whether the system enables a given CarFeature.
+     *
+     * @param context The context with which to query for the CarFeature.
+     * @param feature The CarFeature to query for.
+     * @return  Whether the system enables a given CarFeature.
      */
-    public static boolean isFeatureEnabled(@NonNull Context context, @NonNull String feature) {
+    public static boolean isFeatureEnabled(@NonNull Context context,
+            @NonNull @CarFeature String feature) {
         PackageManager packageManager = context.getPackageManager();
 
         return packageManager.hasSystemFeature(feature);
