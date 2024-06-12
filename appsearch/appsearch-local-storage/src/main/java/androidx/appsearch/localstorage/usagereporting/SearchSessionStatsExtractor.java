@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.localstorage.stats.ClickStats;
 import androidx.appsearch.localstorage.stats.SearchIntentStats;
+import androidx.appsearch.localstorage.stats.SearchSessionStats;
 import androidx.appsearch.usagereporting.ActionConstants;
 
 import java.util.ArrayList;
@@ -31,12 +32,12 @@ import java.util.Objects;
 
 /**
  * Extractor class for analyzing a list of taken action {@link GenericDocument} and creating a list
- * of {@link SearchIntentStats}.
+ * of {@link SearchSessionStats}.
  *
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SearchIntentStatsExtractor {
+public final class SearchSessionStatsExtractor {
     // TODO(b/319285816): make thresholds configurable.
     /**
      * Threshold for noise search intent detection, in millisecond. A search action will be
@@ -55,8 +56,8 @@ public final class SearchIntentStatsExtractor {
      * Threshold for independent search intent detection, in millisecond. If the action timestamp
      * (action document creation timestamp) difference between the previous and the current search
      * action exceeds this threshold, then the current search action will be considered as a
-     * completely independent search intent, and there will be no correlation analysis between the
-     * previous and the current search action.
+     * completely independent search intent (i.e. belonging to a new search session), and there will
+     * be no correlation analysis between the previous and the current search action.
      */
     private static final long INDEPENDENT_SEARCH_INTENT_TIMESTAMP_DIFF_THRESHOLD_MILLIS =
             10L * 60 * 1000;
@@ -115,19 +116,22 @@ public final class SearchIntentStatsExtractor {
     }
 
     /**
-     * Returns a list of {@link SearchIntentStats} extracted from the given list of taken action
-     * {@link GenericDocument} .
+     * Returns a list of {@link SearchSessionStats} extracted from the given list of taken action
+     * {@link GenericDocument}.
      *
-     * <p>Search intent is consist of a valid search action with 0 or more click actions. To extract
+     * <p>A search session consists of several related search intents.
+     *
+     * <p>A search intent consists of a valid search action with 0 or more click actions. To extract
      * search intent metrics, this function will try to group the given taken actions into several
-     * search intents, and yield a {@link SearchIntentStats} for each search intent.
+     * search intents, and yield a {@link SearchIntentStats} for each search intent. Finally related
+     * {@link SearchIntentStats} will be wrapped into {@link SearchSessionStats}.
      *
      * @param packageName The package name of the caller.
      * @param database The database name of the caller.
      * @param genericDocuments a list of taken actions in generic document form.
      */
     @NonNull
-    public List<SearchIntentStats> extract(
+    public List<SearchSessionStats> extract(
             @NonNull String packageName,
             @Nullable String database,
             @NonNull List<GenericDocument> genericDocuments) {
@@ -150,7 +154,8 @@ public final class SearchIntentStatsExtractor {
                         Long.compare(doc1.getCreationTimestampMillis(),
                                 doc2.getCreationTimestampMillis()));
 
-        List<SearchIntentStats> result = new ArrayList<>();
+        List<SearchSessionStats> result = new ArrayList<>();
+        SearchSessionStats.Builder searchSessionStatsBuilder = null;
         SearchActionGenericDocument prevSearchAction = null;
         // Clients are expected to report search action followed by its associated click actions.
         // For example, [searchAction1, clickAction1, searchAction2, searchAction3, clickAction2,
@@ -162,6 +167,9 @@ public final class SearchIntentStatsExtractor {
         // Here we're going to break down the list into segments. Each segment starts with a search
         // action followed by 0 or more associated click actions, and they form a single search
         // intent. We will analyze and extract metrics from the taken actions for the search intent.
+        //
+        // If a search intent is considered independent from the previous one, then we will start a
+        // new search session analysis.
         for (int i = 0; i < takenActionGenericDocuments.size(); ++i) {
             if (takenActionGenericDocuments.get(i).getActionType()
                     != ActionConstants.ACTION_TYPE_SEARCH) {
@@ -193,21 +201,33 @@ public final class SearchIntentStatsExtractor {
                         (SearchActionGenericDocument) takenActionGenericDocuments.get(i + 1);
             }
 
-            if (isIndependentSearchAction(currSearchAction, prevSearchAction)) {
-                // If the current search action is independent from the previous one, then ignore
-                // the previous search action when extracting stats.
+            if (prevSearchAction != null
+                    && isIndependentSearchAction(currSearchAction, prevSearchAction)) {
+                // If the current search action is independent from the previous one, then:
+                // - Build and append the previous search session stats.
+                // - Start a new search session analysis.
+                // - Ignore the previous search action when extracting stats.
+                if (searchSessionStatsBuilder != null) {
+                    result.add(searchSessionStatsBuilder.build());
+                    searchSessionStatsBuilder = null;
+                }
                 prevSearchAction = null;
             } else if (clickActions.isEmpty()
                     && isIntermediateSearchAction(
-                            currSearchAction, prevSearchAction, nextSearchAction)) {
+                    currSearchAction, prevSearchAction, nextSearchAction)) {
                 // If the current search action is an intermediate search action with no click
                 // actions, then we consider it as a noise and skip it.
                 continue;
             }
 
             // Now we get a valid search intent (the current search action + a list of click actions
-            // associated with it). Extract metrics and add SearchIntentStats.
-            result.add(
+            // associated with it). Extract metrics and add SearchIntentStats into this search
+            // session.
+            if (searchSessionStatsBuilder == null) {
+                searchSessionStatsBuilder =
+                        new SearchSessionStats.Builder(packageName).setDatabase(database);
+            }
+            searchSessionStatsBuilder.addSearchIntentsStats(
                     createSearchIntentStats(
                             packageName,
                             database,
@@ -215,6 +235,9 @@ public final class SearchIntentStatsExtractor {
                             clickActions,
                             prevSearchAction));
             prevSearchAction = currSearchAction;
+        }
+        if (searchSessionStatsBuilder != null) {
+            result.add(searchSessionStatsBuilder.build());
         }
         return result;
     }
@@ -290,7 +313,7 @@ public final class SearchIntentStatsExtractor {
 
         // Whether the next search action is independent from the current search action. If true,
         // then the current search action will not be considered as an intermediate search action
-        // since it is the last search action of the related search sequence.
+        // since it is the last search action of the search session.
         boolean isNextSearchActionIndependent =
                 isIndependentSearchAction(nextSearchAction, currSearchAction);
 
@@ -319,12 +342,9 @@ public final class SearchIntentStatsExtractor {
      */
     private static boolean isIndependentSearchAction(
             @NonNull SearchActionGenericDocument currSearchAction,
-            @Nullable SearchActionGenericDocument prevSearchAction) {
+            @NonNull SearchActionGenericDocument prevSearchAction) {
         Objects.requireNonNull(currSearchAction);
-
-        if (prevSearchAction == null) {
-            return true;
-        }
+        Objects.requireNonNull(prevSearchAction);
 
         long searchTimeDiffMillis = currSearchAction.getCreationTimestampMillis()
                 - prevSearchAction.getCreationTimestampMillis();
