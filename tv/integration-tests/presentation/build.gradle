@@ -50,14 +50,6 @@ dependencies {
     implementation(project(":tv:tv-material"))
 }
 
-androidx {
-    name = "TV-Compose Test App"
-    type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.TV
-    inceptionYear = "2022"
-    description = "Test application for TV libraries"
-}
-
 android {
     defaultConfig {
         minSdkVersion 28
