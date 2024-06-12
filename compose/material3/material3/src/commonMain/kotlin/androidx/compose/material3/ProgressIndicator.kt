@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -462,8 +463,8 @@ private fun DrawScope.drawLinearIndicator(
     }
 }
 
-private val SemanticsBoundsPadding: Dp = 10.dp
-private val IncreaseSemanticsBounds: Modifier =
+@VisibleForTesting internal val SemanticsBoundsPadding: Dp = 10.dp
+internal val IncreaseSemanticsBounds: Modifier =
     Modifier.layout { measurable, constraints ->
             val paddingPx = SemanticsBoundsPadding.roundToPx()
             // We need to add vertical padding to the semantics bounds in order to meet
