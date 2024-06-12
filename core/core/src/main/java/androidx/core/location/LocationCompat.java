@@ -494,12 +494,14 @@ public final class LocationCompat {
      * this should be considered a mock location.
      *
      * @see android.location.LocationManager#addTestProvider
-     * @deprecated Call {@link Location#isFromMockProvider()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "location.isFromMockProvider()")
+    @SuppressWarnings("deprecation")
     public static boolean isMock(@NonNull Location location) {
-        return location.isFromMockProvider();
+        if (VERSION.SDK_INT >= 31) {
+            return Api31Impl.isMock(location);
+        } else {
+            return location.isFromMockProvider();
+        }
     }
 
     /**
@@ -995,6 +997,18 @@ public final class LocationCompat {
             if (extras.isEmpty()) {
                 location.setExtras(null);
             }
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isMock(Location location) {
+            return location.isMock();
         }
     }
 }
