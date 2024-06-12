@@ -56,10 +56,6 @@ import sqlite3.sqlite3_finalize
 import sqlite3.sqlite3_reset
 import sqlite3.sqlite3_step
 
-/**
- * TODO:
- *     * (b/304295573) busy / locked handling
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
