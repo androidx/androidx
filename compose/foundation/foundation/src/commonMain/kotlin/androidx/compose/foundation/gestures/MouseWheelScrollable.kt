@@ -308,7 +308,7 @@ internal class MouseWheelScrollNode(
 
     private fun NestedScrollScope.dispatchMouseWheelScroll(delta: Float) = with(scrollingLogic) {
         val offset = delta.reverseIfNeeded().toOffset()
-        val consumed = scrollByWithOverscroll(
+        val consumed = scrollBy(
             offset,
             NestedScrollSource.UserInput,
         )
