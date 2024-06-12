@@ -287,7 +287,8 @@ class CapturePipelineTest {
             fakeCameraProperties,
             fakeUseCaseGraphConfig,
             fakeZslControl,
-            fakeUseCaseThreads
+            fakeUseCaseThreads,
+            NoOpTemplateParamsOverride,
         )
     private var runningRepeatingJob: Job? = null
         set(value) {

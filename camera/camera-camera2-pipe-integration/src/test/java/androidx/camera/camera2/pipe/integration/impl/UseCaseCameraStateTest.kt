@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.R
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.Quirks
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -204,7 +206,10 @@ class UseCaseCameraStateTest {
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
                 threads = useCaseThreads,
                 sessionProcessorManager = null,
-                templateParamsOverride = TemplateParamsQuirkOverride,
+                templateParamsOverride =
+                    TemplateParamsQuirkOverride(
+                        Quirks(listOf(object : CaptureIntentPreviewQuirk {}))
+                    ),
             )
 
         // startRepeating is called when there is at least one stream after updateAsync call
