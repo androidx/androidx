@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION_CODES
@@ -39,6 +40,7 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import androidx.test.rule.ServiceTestRule
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.delay
@@ -93,6 +95,14 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
                 .toList()
         }
     }
+
+    /**
+     * Grant READ_PHONE_NUMBERS permission as part of testing
+     * [InCallServiceCompat#resolveCallExtensionsType].
+     */
+    @get:Rule
+    val readPhoneNumbersRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.READ_PHONE_NUMBERS)!!
 
     @get:Rule val serviceRule: ServiceTestRule = ServiceTestRule()
 

@@ -18,10 +18,12 @@ package androidx.core.telecom.internal
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.telecom.Call
 import android.telecom.Call.Callback
@@ -29,6 +31,7 @@ import android.telecom.InCallService
 import android.telecom.PhoneAccount
 import android.telecom.TelecomManager
 import android.util.Log
+import androidx.annotation.CallSuper
 import androidx.annotation.IntDef
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -36,10 +39,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.util.ExperimentalAppActions
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import java.util.Objects
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -54,8 +58,10 @@ import kotlinx.coroutines.withTimeoutOrNull
  */
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
-internal open class InCallServiceCompat : InCallService() {
-    var scope: CoroutineScope? = null
+internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
+    // Since we define this service as a LifecycleOwner, we need to implement this dispatcher as
+    // well. See [LifecycleService] for the example used to implement [LifecycleOwner].
+    private val dispatcher = ServiceLifecycleDispatcher(this)
     val mCallCompats = mutableListOf<CallCompat>()
     @VisibleForTesting var mExtensionLevelSupport = -1
 
@@ -74,15 +80,43 @@ internal open class InCallServiceCompat : InCallService() {
         internal const val UNKNOWN = 3
     }
 
+    override val lifecycle: Lifecycle
+        get() = dispatcher.lifecycle
+
+    @CallSuper
     override fun onCreate() {
+        dispatcher.onServicePreSuperOnCreate()
         super.onCreate()
-        scope = CoroutineScope(Dispatchers.Default)
     }
 
+    @CallSuper
+    override fun onBind(intent: Intent): IBinder? {
+        dispatcher.onServicePreSuperOnBind()
+        return super.onBind(intent)
+    }
+
+    // We do not use onStart, but if the client does for some reason, we still want to override to
+    // ensure the lifecycle events are consistent.
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    @CallSuper
+    override fun onStart(intent: Intent?, startId: Int) {
+        dispatcher.onServicePreSuperOnStart()
+        super.onStart(intent, startId)
+    }
+
+    // We do not use onStartCommand, but if the client does for some reason, we still want to ensure
+    // that the super is called (this command internally calls onStart)
+    @CallSuper
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    @CallSuper
     override fun onDestroy() {
-        super.onDestroy()
+        dispatcher.onServicePreSuperOnDestroy()
         // Todo: invoke CapabilityExchangeListener#onRemoveExtensions to inform the VOIP app
-        scope?.cancel()
+        super.onDestroy()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -107,14 +141,21 @@ internal open class InCallServiceCompat : InCallService() {
         val callback =
             object : Callback() {
                 override fun onDetailsChanged(call: Call?, details: Call.Details?) {
-                    details?.also { trySendBlocking(it) }
+                    details?.also {
+                        Log.v(TAG, "detailsFlow: details changed to $it")
+                        trySendBlocking(it)
+                    }
                 }
             }
         // send the current state first since registering for the callback doesn't deliver the
         // current value.
         trySendBlocking(call.details)
+        Log.v(TAG, "detailsFlow: registering callback")
         call.registerCallback(callback, Handler(Looper.getMainLooper()))
-        awaitClose { call.unregisterCallback(callback) }
+        awaitClose {
+            Log.v(TAG, "detailsFlow: closing, unregistering callback")
+            call.unregisterCallback(callback)
+        }
     }
 
     /**
@@ -125,7 +166,7 @@ internal open class InCallServiceCompat : InCallService() {
      */
     private fun processCallAdded(call: Call) {
         Log.d(TAG, "processCallAdded for call = $call")
-        scope?.launch {
+        lifecycleScope.launch {
             // invoke onCreateCallCompat and use CallCompat below
             mExtensionLevelSupport = resolveCallExtensionsType(call)
             Log.d(
