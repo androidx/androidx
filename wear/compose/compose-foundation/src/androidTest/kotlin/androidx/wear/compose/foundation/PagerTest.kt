@@ -23,6 +23,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -35,6 +36,8 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -112,5 +115,73 @@ class PagerTest {
             rule.onNodeWithText("Page $i").assertIsDisplayed()
             rule.onNodeWithTag(pagerTestTag).performTouchInput { swipeDown() }
         }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun verifyScrollsToEachPage(
+        pageCount: Int,
+        pagerState: PagerState,
+        scrollScope: CoroutineScope
+    ) {
+        val listOfPageIndices = 0 until pageCount
+
+        // Scroll to each page then return to page 0
+        for (i in listOfPageIndices) {
+            rule.runOnIdle { Assert.assertEquals(0, pagerState.currentPage) }
+            rule.onNodeWithText("Page 0").assertIsDisplayed()
+
+            rule.runOnIdle { scrollScope.launch { pagerState.animateScrollToPage(i) } }
+
+            rule.runOnIdle { Assert.assertEquals(i, pagerState.currentPage) }
+            rule.onNodeWithText("Page $i").assertIsDisplayed()
+
+            rule.runOnIdle { scrollScope.launch { pagerState.animateScrollToPage(0) } }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun horizontal_pager_with_nested_scaling_lazy_column_is_able_to_scroll_to_arbitrary_page() {
+        val pageCount = 5
+        lateinit var pagerState: PagerState
+        lateinit var scrollScope: CoroutineScope
+
+        rule.setContent {
+            pagerState = rememberPagerState { pageCount }
+            scrollScope = rememberCoroutineScope()
+
+            HorizontalPager(state = pagerState, modifier = Modifier.testTag(pagerTestTag)) { page ->
+                ScalingLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item { BasicText(text = "Page $page") }
+                }
+            }
+        }
+
+        verifyScrollsToEachPage(pageCount, pagerState, scrollScope)
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun vertical_pager_with_nested_scaling_lazy_column_is_able_to_scroll_to_arbitrary_page() {
+        val pageCount = 5
+        lateinit var pagerState: PagerState
+        lateinit var scrollScope: CoroutineScope
+
+        rule.setContent {
+            pagerState = rememberPagerState { pageCount }
+            scrollScope = rememberCoroutineScope()
+
+            VerticalPager(state = pagerState, modifier = Modifier.testTag(pagerTestTag)) { page ->
+                ScalingLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item { BasicText(text = "Page $page") }
+                }
+            }
+        }
+
+        verifyScrollsToEachPage(pageCount, pagerState, scrollScope)
     }
 }
