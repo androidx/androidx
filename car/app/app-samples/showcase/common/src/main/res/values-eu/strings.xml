@@ -334,7 +334,7 @@
     <string name="showcase_demos_title" msgid="1542092687878113304">"Erakutsi demo-bertsioak"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Txantiloi-diseinuen demo-bertsioak"</string>
     <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Sareten txantiloien demo-bertsioak"</string>
-    <string name="voice_access_demo_title" msgid="3825223890895361496">"Ahots bidezko sarbidearen demo-bertsioaren pantaila"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access-en demo-bertsioaren pantaila"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Erabiltzailearen interakzioak"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Baimen-eskaeren demo-bertsioak"</string>
     <string name="application_overflow_title" msgid="396427940886169325">"Aplikazioaren luzapen-menuen baliozkotzailea"</string>
