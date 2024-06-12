@@ -61,7 +61,6 @@ public final class Row implements Item {
 
     /**
      * The type of images supported within rows.
-     *
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_EXTRA_SMALL})
@@ -126,6 +125,7 @@ public final class Row implements Item {
     private final boolean mIsBrowsable;
     @RowImageType
     private final int mRowImageType;
+    private final boolean mIndexable;
 
     /**
      * Returns the title of the row or {@code null} if not set.
@@ -248,6 +248,24 @@ public final class Row implements Item {
         return YOUR_BOAT;
     }
 
+    /**
+     * Returns whether this item should be included in an indexed list.
+     *
+     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
+     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
+     * which allow a user to quickly find a particular {@link Item} in a long list.
+     *
+     * <p>To exclude a single item from indexed lists and accelerator features, use
+     * {@link Row.Builder#setIndexable(boolean)}.
+     *
+     * <p>To enable/disable accelerators for the entire list, see the API for the particular
+     * list-like {@link Template} that you are using.
+     */
+    @ExperimentalCarApi
+    public boolean isIndexable() {
+        return mIndexable;
+    }
+
     /** Returns a {@link Row} for rowing {@link #yourBoat()} */
     @NonNull
     public Row row() {
@@ -289,7 +307,8 @@ public final class Row implements Item {
                 mMetadata,
                 mIsBrowsable,
                 mRowImageType,
-                mIsEnabled);
+                mIsEnabled,
+                mIndexable);
     }
 
     @Override
@@ -311,7 +330,8 @@ public final class Row implements Item {
                 && Objects.equals(mMetadata, otherRow.mMetadata)
                 && mIsBrowsable == otherRow.mIsBrowsable
                 && mRowImageType == otherRow.mRowImageType
-                && mIsEnabled == otherRow.isEnabled();
+                && mIsEnabled == otherRow.isEnabled()
+                && mIndexable == otherRow.mIndexable;
     }
 
     Row(Builder builder) {
@@ -326,6 +346,7 @@ public final class Row implements Item {
         mIsBrowsable = builder.mIsBrowsable;
         mRowImageType = builder.mRowImageType;
         mIsEnabled = builder.mIsEnabled;
+        mIndexable = builder.mIndexable;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -341,6 +362,7 @@ public final class Row implements Item {
         mIsBrowsable = false;
         mRowImageType = IMAGE_TYPE_SMALL;
         mIsEnabled = true;
+        mIndexable = true;
     }
 
     /** A builder of {@link Row}. */
@@ -361,6 +383,7 @@ public final class Row implements Item {
         boolean mIsBrowsable;
         @RowImageType
         int mRowImageType = IMAGE_TYPE_SMALL;
+        boolean mIndexable = true;
 
         /**
          * Sets the title of the row.
@@ -668,6 +691,14 @@ public final class Row implements Item {
         @RequiresCarApi(5)
         public Builder setEnabled(boolean enabled) {
             mIsEnabled = enabled;
+            return this;
+        }
+
+        /** @see #isIndexable */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setIndexable(boolean indexable) {
+            mIndexable = indexable;
             return this;
         }
 
