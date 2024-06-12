@@ -3242,8 +3242,10 @@ public final class androidx/compose/ui/platform/NativeClipboard {
 
 public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public static final field Companion Landroidx/compose/ui/platform/PlatformContext$Companion;
-	public fun calculateLocalPosition-MK-Hz9U (J)J
-	public fun calculatePositionInWindow-MK-Hz9U (J)J
+	public fun convertLocalToScreenPosition-MK-Hz9U (J)J
+	public fun convertLocalToWindowPosition-MK-Hz9U (J)J
+	public fun convertScreenToLocalPosition-MK-Hz9U (J)J
+	public fun convertWindowToLocalPosition-MK-Hz9U (J)J
 	public abstract fun getInputModeManager ()Landroidx/compose/ui/input/InputModeManager;
 	public fun getMeasureDrawLayerBounds ()Z
 	public fun getParentFocusManager ()Landroidx/compose/ui/focus/FocusManager;
