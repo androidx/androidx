@@ -28,7 +28,8 @@ internal fun finalConstraints(
     softWrap: Boolean,
     overflow: TextOverflow,
     maxIntrinsicWidth: Float
-): Constraints = Constraints(
+): Constraints =
+    Constraints.fitPrioritizingWidth(
         minWidth = 0,
         maxWidth = finalMaxWidth(constraints, softWrap, overflow, maxIntrinsicWidth),
         minHeight = 0,
