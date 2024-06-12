@@ -332,14 +332,12 @@ internal class IntermediateTextInputUIView(
     override fun positionWithinRange(
         range: UITextRange,
         atCharacterOffset: NSInteger
-    ): UITextPosition? =
-        TODO("positionWithinRange range: $range, atCharacterOffset: $atCharacterOffset")
+    ): UITextPosition? = null // TODO positionWithinRange
 
     override fun positionWithinRange(
         range: UITextRange,
         farthestInDirection: UITextLayoutDirection
-    ): UITextPosition? =
-        TODO("positionWithinRange, farthestInDirection: ${farthestInDirection.directionToStr()}")
+    ): UITextPosition? = null // TODO positionWithinRange
 
     override fun characterRangeByExtendingPosition(
         position: UITextPosition,
@@ -348,7 +346,7 @@ internal class IntermediateTextInputUIView(
         if (position !is IntermediateTextPosition) {
             error("position !is IntermediateTextPosition")
         }
-        TODO("characterRangeByExtendingPosition, inDirection: ${inDirection.directionToStr()}")
+        return null // TODO characterRangeByExtendingPosition
     }
 
     override fun baseWritingDirectionForPosition(
@@ -356,9 +354,6 @@ internal class IntermediateTextInputUIView(
         inDirection: UITextStorageDirection
     ): NSWritingDirection {
         return NSWritingDirectionLeftToRight // TODO support RTL text direction
-        if (position !is IntermediateTextPosition) {
-            error("position !is IntermediateTextPosition")
-        }
     }
 
     override fun setBaseWritingDirection(
@@ -377,9 +372,6 @@ internal class IntermediateTextInputUIView(
             Ideally, here should be correct rect for caret from Compose.
          */
         return CGRectMake(x = 1.0, y = 1.0, width = 1.0, height = 1.0)
-        if (position !is IntermediateTextPosition) {
-            error("position !is IntermediateTextPosition")
-        }
     }
 
     override fun selectionRectsForRange(range: UITextRange): List<*> = listOf<UITextSelectionRect>()
@@ -397,9 +389,6 @@ internal class IntermediateTextInputUIView(
     ): Map<Any?, *>? {
         return NSDictionary.dictionary()
         //TODO: Need to implement
-        if (position !is IntermediateTextPosition) {
-            error("position !is IntermediateTextPosition")
-        }
     }
 
     override fun characterOffsetOfPosition(
@@ -409,7 +398,7 @@ internal class IntermediateTextInputUIView(
         if (position !is IntermediateTextPosition) {
             error("position !is IntermediateTextPosition")
         }
-        TODO("characterOffsetOfPosition")
+        return 0 // TODO: characterOffsetOfPosition
     }
 
     override fun shouldChangeTextInRange(range: UITextRange, replacementText: String): Boolean {
