@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.Dimension;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -1159,11 +1160,12 @@ public final class LayoutElementBuilders {
          * <p>Note that using this {@link FontSetting} will override {@link
          * FontStyle.Builder#setWeight}.
          *
-         * @param value weight, usually in 1..1000, but actual range can depend on the font used
+         * @param value weight, usually in 1..1000, but actual range can be smaller, depending on
+         *              the font used
          */
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
-        static FontSetting weight(float value) {
+        static FontSetting weight(@IntRange(from = 1, to = 1000) int value) {
             return new FontVariationSetting.Builder(WEIGHT_AXIS_TAG, value).build();
         }
 
@@ -1175,7 +1177,7 @@ public final class LayoutElementBuilders {
          */
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
-        static FontSetting width(float value) {
+        static FontSetting width(@FloatRange(from = 0) float value) {
             return new FontVariationSetting.Builder(WIDTH_AXIS_TAG, value).build();
         }
 
