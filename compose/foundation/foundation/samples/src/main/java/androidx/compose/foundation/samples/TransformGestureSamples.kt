@@ -59,11 +59,10 @@ fun DetectTransformGestures() {
      * See: [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
      */
     fun Offset.rotateBy(angle: Float): Offset {
-        val angleInRadians = angle * PI / 180
-        return Offset(
-            (x * cos(angleInRadians) - y * sin(angleInRadians)).toFloat(),
-            (x * sin(angleInRadians) + y * cos(angleInRadians)).toFloat()
-        )
+        val angleInRadians = angle * (PI / 180)
+        val cos = cos(angleInRadians)
+        val sin = sin(angleInRadians)
+        return Offset((x * cos - y * sin).toFloat(), (x * sin + y * cos).toFloat())
     }
 
     var offset by remember { mutableStateOf(Offset.Zero) }

@@ -75,6 +75,8 @@ package androidx.compose.ui.util {
     method public static float lerp(float start, float stop, float fraction);
     method public static int lerp(int start, int stop, float fraction);
     method public static long lerp(long start, long stop, float fraction);
+    method public static inline float normalizedAngleCos(float normalizedDegrees);
+    method public static inline float normalizedAngleSin(float normalizedDegrees);
   }
 
 }

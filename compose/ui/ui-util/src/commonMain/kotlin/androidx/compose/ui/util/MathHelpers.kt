@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.ui.util
 
+import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.math.roundToLong
 
 /** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
@@ -37,7 +41,6 @@ fun lerp(start: Long, stop: Long, fraction: Float): Long {
  * `kotlin.comparisons.minfOf()` for 4 arguments as it avoids allocating an array because of the
  * varargs.
  */
-@Suppress("NOTHING_TO_INLINE")
 inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
     // ART inlines everything and generates only 3 fmin instructions
     return minOf(a, minOf(b, minOf(c, d)))
@@ -48,7 +51,6 @@ inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
  * `kotlin.comparisons.maxOf()` for 4 arguments as it avoids allocating an array because of the
  * varargs.
  */
-@Suppress("NOTHING_TO_INLINE")
 inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
     // ART inlines everything and generates only 3 fmax instructions
     return maxOf(a, maxOf(b, maxOf(c, d)))
@@ -59,18 +61,15 @@ inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
  * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceIn(minimumValue: Float, maximumValue: Float) =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceAtLeast(minimumValue: Float): Float {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
     return if (this > maximumValue) maximumValue else this
 }
@@ -80,18 +79,15 @@ inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
  * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceIn(minimumValue: Double, maximumValue: Double) =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceAtLeast(minimumValue: Double): Double {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-@Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
     return if (this > maximumValue) maximumValue else this
 }
@@ -222,3 +218,63 @@ fun fastCbrt(x: Float): Float {
 
     return estimate
 }
+
+/**
+ * Fast, approximate sine function. Returns the sine of the angle [normalizedDegrees] expressed in
+ * normalized degrees. For instance, to compute the sine of 180 degrees, you should pass `0.5f`
+ * (`180.0f/360.0f`). To compute the sine of any angle in degrees, call the function this way:
+ * ```
+ * val s = normalizedAngleSin(angleInDegrees * (1.0f / 360.0f))
+ * ```
+ *
+ * If you are compute the sine and the cosine of an angle at the same time, you can reuse the
+ * normalized angle:
+ * ```
+ * val normalizedAngle = angleInDegrees * (1.0f / 360.0f)
+ * val s = normalizedAngleSin(normalizedAngle)
+ * val c = normalizedAngleCos(normalizedAngle)
+ * ```
+ *
+ * The maximum error of this function in the range 0..360 degrees (0..1 as passed to the function)
+ * is 1.63197e-3, or ~0.0935 degrees.
+ *
+ * When [normalizedDegrees] is:
+ * - [Float.NaN], returns [Float.NaN]
+ * - [Float.POSITIVE_INFINITY], returns [Float.NaN]
+ * - [Float.NEGATIVE_INFINITY], returns [Float.NaN]
+ * - 0f, 0.25f, 0.5f, 0.75f, or 1.0f (0, 90, 180, 360 degrees), the returned value is exact
+ */
+inline fun normalizedAngleSin(normalizedDegrees: Float): Float {
+    val degrees = normalizedDegrees - floor(normalizedDegrees + 0.5f)
+    val x = 2.0f * abs(degrees)
+    val a = 1.0f - x
+    return 8.0f * degrees * a / (1.25f - x * a)
+}
+
+/**
+ * Fast, approximate sine function. Returns the sine of the angle [normalizedDegrees] expressed in
+ * normalized degrees. For instance, to compute the sine of 180 degrees, you should pass `0.5f`
+ * (`180.0f/360.0f`). To compute the cosine of any angle in degrees, call the function this way:
+ * ```
+ * val c = normalizedAngleCos(angleInDegrees * (1.0f / 360.0f))
+ * ```
+ *
+ * If you are compute the sine and the cosine of an angle at the same time, you can reuse the
+ * normalized angle:
+ * ```
+ * val normalizedAngle = angleInDegrees * (1.0f / 360.0f)
+ * val s = normalizedAngleSin(normalizedAngle)
+ * val c = normalizedAngleCos(normalizedAngle)
+ * ```
+ *
+ * The maximum error of this function in the range 0..360 degrees (0..1 as passed to the function)
+ * is 1.63231e-3, or ~0.0935 degrees.
+ *
+ * When [normalizedDegrees] is:
+ * - [Float.NaN], returns [Float.NaN]
+ * - [Float.POSITIVE_INFINITY], returns [Float.NaN]
+ * - [Float.NEGATIVE_INFINITY], returns [Float.NaN]
+ * - 0f, 0.25f, 0.5f, 0.75f, or 1.0f (0, 90, 180, 360 degrees), the returned value is exact
+ */
+inline fun normalizedAngleCos(normalizedDegrees: Float): Float =
+    normalizedAngleSin(normalizedDegrees + 0.25f)
