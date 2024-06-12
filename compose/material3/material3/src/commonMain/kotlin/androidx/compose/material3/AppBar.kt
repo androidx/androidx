@@ -55,7 +55,6 @@ import androidx.compose.material3.tokens.TopAppBarSmallCenteredTokens
 import androidx.compose.material3.tokens.TopAppBarSmallTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -68,6 +67,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -75,6 +75,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
@@ -82,6 +83,8 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -1238,12 +1241,14 @@ object TopAppBarDefaults {
         snapAnimationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
     ): TopAppBarScrollBehavior =
-        ExitUntilCollapsedScrollBehavior(
-            state = state,
-            snapAnimationSpec = snapAnimationSpec,
-            flingAnimationSpec = flingAnimationSpec,
-            canScroll = canScroll
-        )
+        remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
+            ExitUntilCollapsedScrollBehavior(
+                state = state,
+                snapAnimationSpec = snapAnimationSpec,
+                flingAnimationSpec = flingAnimationSpec,
+                canScroll = canScroll
+            )
+        }
 
     /** The default expanded height of a [TopAppBar] and the [CenterAlignedTopAppBar]. */
     val TopAppBarExpandedHeight: Dp = TopAppBarSmallTokens.ContainerHeight
@@ -1307,7 +1312,7 @@ class TopAppBarState(
      *
      * Use this limit to coerce the [heightOffset] value when it's updated.
      */
-    var heightOffsetLimit by mutableFloatStateOf(initialHeightOffsetLimit)
+    var heightOffsetLimit = initialHeightOffsetLimit
 
     /**
      * The top app bar's current height offset in pixels. This height offset is applied to the fixed
@@ -1851,30 +1856,26 @@ private fun SingleRowTopAppBar(
     require(expandedHeight.isSpecified && expandedHeight.isFinite) {
         "The expandedHeight is expected to be specified and finite"
     }
-    val expandedHeightPx = with(LocalDensity.current) { expandedHeight.toPx().coerceAtLeast(0f) }
-    SideEffect {
-        // Sets the app bar's height offset to collapse the entire bar's height when content is
-        // scrolled.
-        if (scrollBehavior?.state?.heightOffsetLimit != -expandedHeightPx) {
-            scrollBehavior?.state?.heightOffsetLimit = -expandedHeightPx
-        }
-    }
+    // Sets the app bar's height offset to collapse the entire bar's height when content is
+    // scrolled.
+    scrollBehavior?.state?.heightOffsetLimit =
+        -with(LocalDensity.current) { expandedHeight.toPx().coerceAtLeast(0f) }
 
     // Obtain the container color from the TopAppBarColors using the `overlapFraction`. This
     // ensures that the colors will adjust whether the app bar behavior is pinned or scrolled.
     // This may potentially animate or interpolate a transition between the container-color and the
     // container's scrolled-color according to the app bar's scroll state.
-    val colorTransitionFraction by
-        remember(scrollBehavior) {
-            // derivedStateOf to prevent redundant recompositions when the content scrolls.
+    val targetColor by
+        remember(colors, scrollBehavior) {
             derivedStateOf {
                 val overlappingFraction = scrollBehavior?.state?.overlappedFraction ?: 0f
-                if (overlappingFraction > 0.01f) 1f else 0f
+                colors.containerColor(if (overlappingFraction > 0.01f) 1f else 0f)
             }
         }
-    val appBarContainerColor by
+
+    val appBarContainerColor =
         animateColorAsState(
-            targetValue = colors.containerColor(colorTransitionFraction),
+            targetColor,
             animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
         )
 
@@ -1912,7 +1913,19 @@ private fun SingleRowTopAppBar(
     // The surface's background color is animated as specified above.
     // The height of the app bar is determined by subtracting the bar's height offset from the
     // app bar's defined constant height value (i.e. the ContainerHeight token).
-    Surface(modifier = modifier.then(appBarDragModifier), color = appBarContainerColor) {
+    Box(
+        modifier =
+            modifier
+                .then(appBarDragModifier)
+                .drawBehind {
+                    val color = appBarContainerColor.value
+                    if (color != Color.Unspecified) {
+                        drawRect(color = color)
+                    }
+                }
+                .semantics { isTraversalGroup = true }
+                .pointerInput(Unit) {}
+    ) {
         TopAppBarLayout(
             modifier =
                 Modifier.windowInsetsPadding(windowInsets)
@@ -1925,7 +1938,7 @@ private fun SingleRowTopAppBar(
             actionIconContentColor = colors.actionIconContentColor,
             title = title,
             titleTextStyle = titleTextStyle,
-            titleAlpha = 1f,
+            titleAlpha = { 1f },
             titleVerticalArrangement = Arrangement.Center,
             titleHorizontalArrangement =
                 if (centeredTitle) Arrangement.Center else Arrangement.Start,
@@ -1978,19 +1991,15 @@ private fun TwoRowsTopAppBar(
 
     // Sets the app bar's height offset limit to hide just the bottom title area and keep top title
     // visible when collapsed.
-    SideEffect {
-        if (scrollBehavior?.state?.heightOffsetLimit != collapsedHeightPx - expandedHeightPx) {
-            scrollBehavior?.state?.heightOffsetLimit = collapsedHeightPx - expandedHeightPx
-        }
-    }
+    scrollBehavior?.state?.heightOffsetLimit = collapsedHeightPx - expandedHeightPx
 
     // Obtain the container Color from the TopAppBarColors using the `collapsedFraction`, as the
     // bottom part of this TwoRowsTopAppBar changes color at the same rate the app bar expands or
     // collapse.
     // This will potentially animate or interpolate a transition between the container color and the
     // container's scrolled color according to the app bar's scroll state.
-    val colorTransitionFraction = scrollBehavior?.state?.collapsedFraction ?: 0f
-    val appBarContainerColor = colors.containerColor(colorTransitionFraction)
+    val colorTransitionFraction = { scrollBehavior?.state?.collapsedFraction ?: 0f }
+    val appBarContainerColor = { colors.containerColor(colorTransitionFraction()) }
 
     // Wrap the given actions in a Row.
     val actionsRow =
@@ -2001,11 +2010,12 @@ private fun TwoRowsTopAppBar(
                 content = actions
             )
         }
-    val topTitleAlpha = TopTitleAlphaEasing.transform(colorTransitionFraction)
-    val bottomTitleAlpha = 1f - colorTransitionFraction
+    val topTitleAlpha = { TopTitleAlphaEasing.transform(colorTransitionFraction()) }
+    val bottomTitleAlpha = { 1f - colorTransitionFraction() }
     // Hide the top row title semantics when its alpha value goes below 0.5 threshold.
     // Hide the bottom row title semantics when the top title semantics are active.
-    val hideTopRowSemantics = colorTransitionFraction < 0.5f
+    val hideTopRowSemantics by
+        remember(colorTransitionFraction) { derivedStateOf { colorTransitionFraction() < 0.5f } }
     val hideBottomRowSemantics = !hideTopRowSemantics
 
     // Set up support for resizing the top app bar when vertically dragging the bar itself.
@@ -2028,7 +2038,14 @@ private fun TwoRowsTopAppBar(
             Modifier
         }
 
-    Surface(modifier = modifier.then(appBarDragModifier), color = appBarContainerColor) {
+    Box(
+        modifier =
+            modifier
+                .then(appBarDragModifier)
+                .drawBehind { drawRect(color = appBarContainerColor()) }
+                .semantics { isTraversalGroup = true }
+                .pointerInput(Unit) {}
+    ) {
         Column {
             TopAppBarLayout(
                 modifier =
@@ -2113,7 +2130,7 @@ private fun TopAppBarLayout(
     actionIconContentColor: Color,
     title: @Composable () -> Unit,
     titleTextStyle: TextStyle,
-    titleAlpha: Float,
+    titleAlpha: () -> Float,
     titleVerticalArrangement: Arrangement.Vertical,
     titleHorizontalArrangement: Arrangement.Horizontal,
     titleBottomPadding: Int,
@@ -2133,7 +2150,7 @@ private fun TopAppBarLayout(
                 Modifier.layoutId("title")
                     .padding(horizontal = TopAppBarHorizontalPadding)
                     .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics {} else Modifier)
-                    .graphicsLayer(alpha = titleAlpha)
+                    .graphicsLayer { alpha = titleAlpha() }
             ) {
                 ProvideContentColorTextStyle(
                     contentColor = titleContentColor,
