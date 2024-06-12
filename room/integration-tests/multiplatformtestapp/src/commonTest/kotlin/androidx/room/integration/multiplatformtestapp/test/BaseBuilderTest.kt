@@ -22,6 +22,9 @@ import androidx.room.RoomDatabase
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
@@ -230,6 +233,31 @@ abstract class BaseBuilderTest {
                 }
             }
         assertThat(syncMode).isEqualTo(2) // FULL mode
+
+        database.close()
+    }
+
+    @Test
+    fun setCustomBusyTimeout() = runTest {
+        val customBusyTimeout = 20000
+        val actualDriver = BundledSQLiteDriver()
+        val driverWrapper =
+            object : SQLiteDriver by actualDriver {
+                override fun open(fileName: String): SQLiteConnection {
+                    return actualDriver.open(fileName).also { newConnection ->
+                        newConnection.execSQL("PRAGMA busy_timeout = $customBusyTimeout")
+                    }
+                }
+            }
+        val database = getRoomDatabaseBuilder().setDriver(driverWrapper).build()
+        val configuredBusyTimeout =
+            database.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA busy_timeout") {
+                    it.step()
+                    it.getLong(0)
+                }
+            }
+        assertThat(configuredBusyTimeout).isEqualTo(customBusyTimeout)
 
         database.close()
     }

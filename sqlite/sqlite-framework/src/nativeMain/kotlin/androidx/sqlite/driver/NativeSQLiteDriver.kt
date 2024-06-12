@@ -36,8 +36,6 @@ import sqlite3.sqlite3_threadsafe
  *
  * Usage of this driver expects that `libsqlite` can be found in the shared library path.
  */
-// TODO:
-//    (b/304295573) busy handler registering
 class NativeSQLiteDriver : SQLiteDriver {
 
     /**
