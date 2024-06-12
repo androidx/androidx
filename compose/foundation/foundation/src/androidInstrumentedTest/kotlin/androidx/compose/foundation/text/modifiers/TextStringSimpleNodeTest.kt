@@ -142,7 +142,7 @@ class TextStringSimpleNodeTest {
         assertNotEquals(0, textLayout2.size.width)
     }
 
-    @Ignore("b/279797016 drawBehind is currently broken in tot")
+    @Ignore("b/346810857")
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun asyncTextResolution_causesRedraw() {
