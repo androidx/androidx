@@ -26,5 +26,6 @@ android {
 
 dependencies {
     implementation project(':privacysandbox:ui:ui-core')
+    implementation project(':privacysandbox:ui:ui-provider')
     implementation project(':webkit:webkit')
 }
