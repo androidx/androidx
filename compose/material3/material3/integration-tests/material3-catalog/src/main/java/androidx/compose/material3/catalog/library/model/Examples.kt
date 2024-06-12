@@ -117,6 +117,7 @@ import androidx.compose.material3.samples.PlainTooltipWithCustomCaret
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTextTabs
+import androidx.compose.material3.samples.PullToRefreshCustomIndicatorWithDefaultTransform
 import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.PullToRefreshScalingSample
@@ -1011,6 +1012,13 @@ val PullToRefreshExamples =
             sourceUrl = PullToRefreshExampleSourceUrl
         ) {
             PullToRefreshViewModelSample()
+        },
+        Example(
+            name = ::PullToRefreshViewModelSample.name,
+            description = PullToRefreshExampleDescription,
+            sourceUrl = PullToRefreshExampleSourceUrl
+        ) {
+            PullToRefreshCustomIndicatorWithDefaultTransform()
         },
     )
 

@@ -2350,6 +2350,7 @@ package androidx.compose.material3.pulltorefresh {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class PullToRefreshDefaults {
     method @androidx.compose.runtime.Composable public void Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long color, optional float threshold);
+    method @androidx.compose.runtime.Composable public void IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float elevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getElevation();
     method @androidx.compose.runtime.Composable public long getIndicatorColor();
@@ -2367,7 +2368,6 @@ package androidx.compose.material3.pulltorefresh {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean isRefreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.pulltorefresh.PullToRefreshState PullToRefreshState();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefresh(androidx.compose.ui.Modifier, boolean isRefreshing, androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional boolean enabled, optional float threshold, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefreshIndicator(androidx.compose.ui.Modifier, androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float elevation);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState();
   }
 
