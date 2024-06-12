@@ -1,5 +1,5 @@
 // Baseline format: 1.0
+AcronymName: androidx.sqlite.driver.bundled.BundledSQLite:
+    Acronyms should not be capitalized in class names: was `BundledSQLite`, should this be `BundledSqLite`?
 AcronymName: androidx.sqlite.driver.bundled.BundledSQLiteDriver:
     Acronyms should not be capitalized in class names: was `BundledSQLiteDriver`, should this be `BundledSqLiteDriver`?
-AcronymName: androidx.sqlite.driver.bundled.BundledSQLiteKt:
-    Acronyms should not be capitalized in class names: was `BundledSQLiteKt`, should this be `BundledSqLiteKt`?

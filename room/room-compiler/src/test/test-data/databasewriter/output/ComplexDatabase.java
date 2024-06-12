@@ -8,8 +8,8 @@ import androidx.room.migration.Migration;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
+import androidx.sqlite.SQLite;
 import androidx.sqlite.SQLiteConnection;
-import androidx.sqlite.SQLiteKt;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -33,20 +33,20 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
         final RoomOpenDelegate _openDelegate = new RoomOpenDelegate(1923, "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2") {
             @Override
             public void createAllTables(@NonNull final SQLiteConnection connection) {
-                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
-                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child1` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
-                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
-                SQLiteKt.execSQL(connection, "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
-                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                SQLiteKt.execSQL(connection, "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12b646c55443feeefb567521e2bece85')");
+                SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
+                SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child1` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
+                SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
+                SQLite.execSQL(connection, "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
+                SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
+                SQLite.execSQL(connection, "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12b646c55443feeefb567521e2bece85')");
             }
 
             @Override
             public void dropAllTables(@NonNull final SQLiteConnection connection) {
-                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `User`");
-                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `Child1`");
-                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `Child2`");
-                SQLiteKt.execSQL(connection, "DROP VIEW IF EXISTS `UserSummary`");
+                SQLite.execSQL(connection, "DROP TABLE IF EXISTS `User`");
+                SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Child1`");
+                SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Child2`");
+                SQLite.execSQL(connection, "DROP VIEW IF EXISTS `UserSummary`");
             }
 
             @Override

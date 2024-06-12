@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.sqlite {
 
+  public final class SQLite {
+    method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
+    method public static Void throwSQLiteException(int errorCode, String? errorMsg);
+    method public static inline <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
+  }
+
   public interface SQLiteConnection {
     method public void close();
     method public androidx.sqlite.SQLiteStatement prepare(String sql);
@@ -8,12 +14,6 @@ package androidx.sqlite {
 
   public interface SQLiteDriver {
     method public androidx.sqlite.SQLiteConnection open(String fileName);
-  }
-
-  public final class SQLiteKt {
-    method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
-    method public static Void throwSQLiteException(int errorCode, String? errorMsg);
-    method public static inline <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
   }
 
   public interface SQLiteStatement {
