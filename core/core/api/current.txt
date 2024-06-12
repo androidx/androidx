@@ -315,6 +315,7 @@ package androidx.core.app {
     field public static final String CATEGORY_STOPWATCH = "stopwatch";
     field public static final String CATEGORY_SYSTEM = "sys";
     field public static final String CATEGORY_TRANSPORT = "transport";
+    field public static final String CATEGORY_VOICEMAIL = "voicemail";
     field public static final String CATEGORY_WORKOUT = "workout";
     field @ColorInt public static final int COLOR_DEFAULT = 0; // 0x0
     field public static final int DEFAULT_ALL = -1; // 0xffffffff
