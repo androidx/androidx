@@ -27,6 +27,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
@@ -84,7 +85,7 @@ public class SearchResultToProtoConverterTest {
         removePrefixesFromDocument(documentProtoBuilder);
         removePrefixesFromDocument(joinedDocProtoBuilder);
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
-                searchResultProto, schemaMap, config);
+                searchResultProto, new SchemaCache(schemaMap), config);
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult result = searchResultPage.getResults().get(0);
         assertThat(result.getPackageName()).isEqualTo("com.package.foo");
@@ -148,7 +149,8 @@ public class SearchResultToProtoConverterTest {
 
         removePrefixesFromDocument(documentProtoBuilder);
         Exception e = assertThrows(AppSearchException.class,
-                () -> SearchResultToProtoConverter.toSearchResultPage(searchResultProto, schemaMap,
+                () -> SearchResultToProtoConverter.toSearchResultPage(searchResultProto,
+                        new SchemaCache(schemaMap),
                         new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new LocalStorageIcingOptionsConfig())));
         assertThat(e.getMessage())

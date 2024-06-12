@@ -186,12 +186,8 @@ public final class AppSearchImpl implements Closeable {
     @VisibleForTesting
     final IcingSearchEngine mIcingSearchEngineLocked;
 
-    // This map contains schema types and SchemaTypeConfigProtos for all package-database
-    // prefixes. It maps each package-database prefix to an inner-map. The inner-map maps each
-    // prefixed schema type to its respective SchemaTypeConfigProto.
     @GuardedBy("mReadWriteLock")
-    private final Map<String, Map<String, SchemaTypeConfigProto>> mSchemaMapLocked =
-            new ArrayMap<>();
+    private final SchemaCache mSchemaCacheLocked = new SchemaCache();
 
     // This map contains namespaces for all package-database prefixes. All values in the map are
     // prefixed with the package-database prefix.
@@ -377,8 +373,11 @@ public final class AppSearchImpl implements Closeable {
                 for (int i = 0; i < schemaProtoTypesList.size(); i++) {
                     SchemaTypeConfigProto schema = schemaProtoTypesList.get(i);
                     String prefixedSchemaType = schema.getSchemaType();
-                    addToMap(mSchemaMapLocked, getPrefix(prefixedSchemaType), schema);
+                    mSchemaCacheLocked.addToSchemaMap(getPrefix(prefixedSchemaType), schema);
                 }
+
+                // Populate schema parent-to-children map
+                mSchemaCacheLocked.rebuildSchemaParentToChildrenMap();
 
                 // Populate namespace map
                 List<String> prefixedNamespaceList =
@@ -790,12 +789,15 @@ public final class AppSearchImpl implements Closeable {
         // Update derived data structures.
         for (SchemaTypeConfigProto schemaTypeConfigProto :
                 rewrittenSchemaResults.mRewrittenPrefixedTypes.values()) {
-            addToMap(mSchemaMapLocked, prefix, schemaTypeConfigProto);
+            mSchemaCacheLocked.addToSchemaMap(prefix, schemaTypeConfigProto);
         }
 
         for (String schemaType : rewrittenSchemaResults.mDeletedPrefixedTypes) {
-            removeFromMap(mSchemaMapLocked, prefix, schemaType);
+            mSchemaCacheLocked.removeFromSchemaMap(prefix, schemaType);
         }
+
+        mSchemaCacheLocked.rebuildSchemaParentToChildrenMapForPrefix(prefix);
+
         // Since the constructor of VisibilityStore will set schema. Avoid call visibility
         // store before we have already created it.
         if (mVisibilityStoreLocked != null) {
@@ -1202,7 +1204,7 @@ public final class AppSearchImpl implements Closeable {
             removePrefixesFromDocument(documentBuilder);
             String prefix = createPrefix(packageName, databaseName);
             Map<String, SchemaTypeConfigProto> schemaTypeMap =
-                    Preconditions.checkNotNull(mSchemaMapLocked.get(prefix));
+                    mSchemaCacheLocked.getSchemaMapForPrefix(prefix);
             return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
                     prefix, schemaTypeMap, mConfig);
         } finally {
@@ -1244,7 +1246,7 @@ public final class AppSearchImpl implements Closeable {
             // schema had ever been set for that prefix. Given we have retrieved a document from
             // the index, we know a schema had to have been set.
             Map<String, SchemaTypeConfigProto> schemaTypeMap =
-                    Preconditions.checkNotNull(mSchemaMapLocked.get(prefix));
+                    mSchemaCacheLocked.getSchemaMapForPrefix(prefix);
             return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build(),
                     prefix, schemaTypeMap, mConfig);
         } finally {
@@ -1359,7 +1361,7 @@ public final class AppSearchImpl implements Closeable {
             String prefix = createPrefix(packageName, databaseName);
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec,
-                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked,
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaCacheLocked,
                             mConfig);
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
@@ -1461,7 +1463,7 @@ public final class AppSearchImpl implements Closeable {
             }
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec, prefixFilters,
-                            mNamespaceMapLocked, mSchemaMapLocked, mConfig);
+                            mNamespaceMapLocked, mSchemaCacheLocked, mConfig);
             // Remove those inaccessible schemas.
             searchSpecToProtoConverter.removeInaccessibleSchemaFilter(
                     callerAccess, mVisibilityStoreLocked, mVisibilityCheckerLocked);
@@ -1502,7 +1504,7 @@ public final class AppSearchImpl implements Closeable {
         long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto();
         ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
-                mNamespaceMapLocked, mSchemaMapLocked);
+                mNamespaceMapLocked, mSchemaCacheLocked);
         ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchSpecLatencyMillis((int)
@@ -1516,7 +1518,7 @@ public final class AppSearchImpl implements Closeable {
         long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
         // Rewrite search result before we return.
         SearchResultPage searchResultPage = SearchResultToProtoConverter
-                .toSearchResultPage(searchResultProto, mSchemaMapLocked, mConfig);
+                .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig);
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchResultLatencyMillis(
                     (int) (SystemClock.elapsedRealtime()
@@ -1599,7 +1601,7 @@ public final class AppSearchImpl implements Closeable {
                             searchSuggestionSpec,
                             Collections.singleton(prefix),
                             mNamespaceMapLocked,
-                            mSchemaMapLocked);
+                            mSchemaCacheLocked);
 
             if (searchSuggestionSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
@@ -1634,7 +1636,7 @@ public final class AppSearchImpl implements Closeable {
         mReadWriteLock.readLock().lock();
         try {
             Map<String, Set<String>> packageToDatabases = new ArrayMap<>();
-            for (String prefix : mSchemaMapLocked.keySet()) {
+            for (String prefix : mSchemaCacheLocked.getAllPrefixes()) {
                 String packageName = getPackageName(prefix);
 
                 Set<String> databases = packageToDatabases.get(packageName);
@@ -1714,7 +1716,7 @@ public final class AppSearchImpl implements Closeable {
             long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
             // Rewrite search result before we return.
             SearchResultPage searchResultPage = SearchResultToProtoConverter
-                    .toSearchResultPage(searchResultProto, mSchemaMapLocked, mConfig);
+                    .toSearchResultPage(searchResultProto, mSchemaCacheLocked, mConfig);
             if (sStatsBuilder != null) {
                 sStatsBuilder.setRewriteSearchResultLatencyMillis(
                         (int) (SystemClock.elapsedRealtime()
@@ -1928,7 +1930,7 @@ public final class AppSearchImpl implements Closeable {
 
             SearchSpecToProtoConverter searchSpecToProtoConverter =
                     new SearchSpecToProtoConverter(queryExpression, searchSpec,
-                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked,
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaCacheLocked,
                             mConfig);
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return
@@ -2355,10 +2357,9 @@ public final class AppSearchImpl implements Closeable {
                     }
                     for (String databaseName : databaseNames) {
                         String removedPrefix = createPrefix(packageName, databaseName);
-                        Map<String, SchemaTypeConfigProto> removedSchemas =
-                                Preconditions.checkNotNull(mSchemaMapLocked.remove(removedPrefix));
+                        Set<String> removedSchemas = mSchemaCacheLocked.removePrefix(removedPrefix);
                         if (mVisibilityStoreLocked != null) {
-                            mVisibilityStoreLocked.removeVisibility(removedSchemas.keySet());
+                            mVisibilityStoreLocked.removeVisibility(removedSchemas);
                         }
 
                         mNamespaceMapLocked.remove(removedPrefix);
@@ -2388,7 +2389,7 @@ public final class AppSearchImpl implements Closeable {
                 resetResultProto.getStatus(),
                 resetResultProto);
         mOptimizeIntervalCountLocked = 0;
-        mSchemaMapLocked.clear();
+        mSchemaCacheLocked.clear();
         mNamespaceMapLocked.clear();
         mDocumentCountMapLocked.clear();
         synchronized (mNextPageTokensLocked) {
@@ -2634,24 +2635,6 @@ public final class AppSearchImpl implements Closeable {
         values.add(prefixedValue);
     }
 
-    private static void addToMap(Map<String, Map<String, SchemaTypeConfigProto>> map, String prefix,
-            SchemaTypeConfigProto schemaTypeConfigProto) {
-        Map<String, SchemaTypeConfigProto> schemaTypeMap = map.get(prefix);
-        if (schemaTypeMap == null) {
-            schemaTypeMap = new ArrayMap<>();
-            map.put(prefix, schemaTypeMap);
-        }
-        schemaTypeMap.put(schemaTypeConfigProto.getSchemaType(), schemaTypeConfigProto);
-    }
-
-    private static void removeFromMap(Map<String, Map<String, SchemaTypeConfigProto>> map,
-            String prefix, String schemaType) {
-        Map<String, SchemaTypeConfigProto> schemaTypeMap = map.get(prefix);
-        if (schemaTypeMap != null) {
-            schemaTypeMap.remove(schemaType);
-        }
-    }
-
     /**
      * Checks the given status code and throws an {@link AppSearchException} if code is an error.
      *
@@ -2817,11 +2800,7 @@ public final class AppSearchImpl implements Closeable {
     public List<String> getAllPrefixedSchemaTypes() {
         mReadWriteLock.readLock().lock();
         try {
-            List<String> cachedPrefixedSchemaTypes = new ArrayList<>();
-            for (Map<String, SchemaTypeConfigProto> value : mSchemaMapLocked.values()) {
-                cachedPrefixedSchemaTypes.addAll(value.keySet());
-            }
-            return cachedPrefixedSchemaTypes;
+            return mSchemaCacheLocked.getAllPrefixedSchemaTypes();
         } finally {
             mReadWriteLock.readLock().unlock();
         }

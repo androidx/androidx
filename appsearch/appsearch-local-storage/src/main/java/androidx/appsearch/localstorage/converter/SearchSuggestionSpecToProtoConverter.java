@@ -19,10 +19,10 @@ package androidx.appsearch.localstorage.converter;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.NamespaceDocumentUriGroup;
-import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SuggestionScoringSpecProto;
 import com.google.android.icing.proto.SuggestionSpecProto;
 import com.google.android.icing.proto.TermMatchType;
@@ -73,7 +73,7 @@ public final class SearchSuggestionSpecToProtoConverter {
             @NonNull SearchSuggestionSpec searchSuggestionSpec,
             @NonNull Set<String> prefixes,
             @NonNull Map<String, Set<String>> namespaceMap,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap) {
+            @NonNull SchemaCache schemaCache) {
         mSuggestionQueryExpression = Preconditions.checkNotNull(suggestionQueryExpression);
         mSearchSuggestionSpec = Preconditions.checkNotNull(searchSuggestionSpec);
         mPrefixes = Preconditions.checkNotNull(prefixes);
@@ -83,7 +83,7 @@ public final class SearchSuggestionSpecToProtoConverter {
                         prefixes, namespaceMap, searchSuggestionSpec.getFilterNamespaces());
         mTargetPrefixedSchemaFilters =
                 SearchSpecToProtoConverterUtil.generateTargetSchemaFilters(
-                        prefixes, schemaMap, searchSuggestionSpec.getFilterSchemas());
+                        prefixes, schemaCache, searchSuggestionSpec.getFilterSchemas());
     }
 
     /**
