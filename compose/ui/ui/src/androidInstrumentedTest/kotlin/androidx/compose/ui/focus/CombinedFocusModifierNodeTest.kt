@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -212,7 +211,7 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         val focusTargetModifierNode = delegate(FocusTargetModifierNode())
 
         override val focusState: FocusState
-            @OptIn(ExperimentalComposeUiApi::class) get() = focusTargetModifierNode.focusState
+            get() = focusTargetModifierNode.focusState
 
         override var canFocus by mutableStateOf(true)
 

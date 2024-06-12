@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -128,7 +127,6 @@ class NestedScrollInteropConnectionTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun swipeNoOpComposeScrollable_insideNestedScrollingParentView_shouldNotScrollView() {
         // arrange
@@ -322,7 +320,6 @@ class NestedScrollInteropConnectionTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun createViewComposeActivity(
         enableInterop: Boolean = true,
         content: @Composable () -> Unit

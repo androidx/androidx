@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
@@ -36,7 +35,6 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 
 @Preview
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LookaheadWithAnimatedContentSize() {
     val expanded by

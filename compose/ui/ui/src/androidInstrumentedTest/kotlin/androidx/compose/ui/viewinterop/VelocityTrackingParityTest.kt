@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
@@ -90,7 +89,6 @@ class VelocityTrackingParityTest {
 
     private var latestComposeVelocity = Velocity.Zero
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Before
     fun setUp() {
         latestComposeVelocity = Velocity.Zero

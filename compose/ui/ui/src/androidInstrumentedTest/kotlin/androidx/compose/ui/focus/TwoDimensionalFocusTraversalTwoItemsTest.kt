@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
 import androidx.compose.ui.focus.FocusDirection.Companion.Right
@@ -4714,7 +4713,6 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
      * * _________________ | ---- Direction of Search ---> * | next sibling | |
      * * |________________| v
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @MediumTest
     @Test
     fun picksSiblingAndNotChild() {

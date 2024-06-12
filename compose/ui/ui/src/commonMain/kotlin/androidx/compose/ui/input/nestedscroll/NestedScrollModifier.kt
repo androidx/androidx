@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
@@ -217,7 +216,7 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
         return when (this) {
             UserInput -> "UserInput"
             SideEffect -> "SideEffect"
-            @OptIn(ExperimentalComposeUiApi::class) Relocate -> "Relocate"
+            Relocate -> "Relocate"
             else -> "Invalid"
         }
     }
@@ -262,8 +261,6 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
 
         /** Relocating when a component asks parents to scroll to bring it into view. */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @get:ExperimentalComposeUiApi
-        @ExperimentalComposeUiApi
         @Deprecated("Do not use. Will be removed in the future.")
         val Relocate: NestedScrollSource = NestedScrollSource(3)
 

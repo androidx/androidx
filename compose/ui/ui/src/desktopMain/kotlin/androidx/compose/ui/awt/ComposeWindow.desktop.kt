@@ -16,7 +16,6 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.WindowPlacement
@@ -52,7 +51,6 @@ class ComposeWindow(graphicsConfiguration: GraphicsConfiguration? = null) :
      *
      * @param content Composable content of the ComposeWindow.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun setContent(content: @Composable FrameWindowScope.() -> Unit) =
         setContent(onPreviewKeyEvent = { false }, onKeyEvent = { false }, content = content)
 
@@ -69,7 +67,6 @@ class ComposeWindow(graphicsConfiguration: GraphicsConfiguration? = null) :
      *   If you return false, the key event will be sent to this [onKeyEvent]'s parent.
      * @param content Composable content of the ComposeWindow.
      */
-    @ExperimentalComposeUiApi
     fun setContent(
         onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
         onKeyEvent: (KeyEvent) -> Boolean = { false },

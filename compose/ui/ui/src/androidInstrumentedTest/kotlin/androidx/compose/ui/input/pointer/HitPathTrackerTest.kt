@@ -20,7 +20,6 @@ package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -86,7 +85,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class HitPathTrackerTest {
 
     private lateinit var hitPathTracker: HitPathTracker
@@ -3187,7 +3185,6 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
         TODO("Not yet implemented")
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val tail: androidx.compose.ui.Modifier.Node = object : Modifier.Node() {}
 
     override fun measure(constraints: Constraints): Placeable {
@@ -3261,11 +3258,9 @@ private class MockOwner(
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val autofillTree: AutofillTree
         get() = TODO("Not yet implemented")
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val autofill: Autofill?
         get() = TODO("Not yet implemented")
 

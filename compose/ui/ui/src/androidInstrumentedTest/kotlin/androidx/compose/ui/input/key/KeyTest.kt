@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.key
 
 import android.view.KeyEvent.KEYCODE_A as KeyCodeA
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -26,7 +25,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class KeyTest {
     @Test
     fun androidKeyCode_to_composeKey() {

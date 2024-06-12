@@ -24,7 +24,6 @@ import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import androidx.collection.LongSparseArray
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -41,7 +40,6 @@ import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import org.junit.Assert
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEventData(
     id: Int,
     uptime: Long,
@@ -260,7 +258,6 @@ internal fun InternalPointerEvent(
     for (i in 0 until changes.size()) {
         val data = changes.valueAt(i)
         pointers.add(
-            @OptIn(ExperimentalComposeUiApi::class)
             PointerInputEventData(
                 id = data.id,
                 uptime = data.uptimeMillis,
@@ -276,7 +273,6 @@ internal fun InternalPointerEvent(
     return InternalPointerEvent(changes, pointer)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class PointerInputNodeMock(
     val log: MutableList<LogEntry> = mutableListOf(),
     val pointerEventHandler: PointerEventHandler? = null,
@@ -351,7 +347,6 @@ internal fun List<LogEntry>.getOnCancelFilterLog() = filterIsInstance<OnCancelFi
 
 internal sealed class LogEntry
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal data class OnPointerEventEntry(
     val pointerInputNode: PointerInputModifierNode,
     val pointerEvent: PointerEvent,
@@ -366,7 +361,6 @@ internal data class OnPointerEventFilterEntry(
     val bounds: IntSize
 ) : LogEntry()
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class OnCancelEntry(val pointerInputNode: PointerInputModifierNode) : LogEntry()
 
 internal class OnCancelFilterEntry(val pointerInputFilter: PointerInputFilter) : LogEntry()
@@ -381,7 +375,6 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
 
     val pointers =
         changes.map {
-            @OptIn(ExperimentalComposeUiApi::class)
             PointerInputEventData(
                 id = it.id,
                 uptime = it.uptimeMillis,
@@ -416,7 +409,6 @@ internal fun hoverInternalPointerEvent(
             PointerType.Mouse
         )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     val pointer =
         PointerInputEventData(
             id = change.id,

@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.collection.MutableLongSet
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
@@ -153,12 +152,7 @@ internal class FocusOwnerImpl(
      * component.
      */
     override fun clearFocus(force: Boolean) {
-        clearFocus(
-            force,
-            refreshFocusEvents = true,
-            clearOwnerFocus = true,
-            focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
-        )
+        clearFocus(force, refreshFocusEvents = true, clearOwnerFocus = true, focusDirection = Exit)
     }
 
     override fun clearFocus(
@@ -240,7 +234,7 @@ internal class FocusOwnerImpl(
             rootFocusNode.findActiveFocusNode()?.also {
                 // Check if a custom focus traversal order is specified.
                 when (val customDest = it.customFocusSearch(focusDirection, onLayoutDirection())) {
-                    @OptIn(ExperimentalComposeUiApi::class) Cancel -> return null
+                    Cancel -> return null
                     Default -> {
                         /* Do Nothing */
                     }
@@ -279,7 +273,6 @@ internal class FocusOwnerImpl(
         return false
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
         check(!focusInvalidationManager.hasPendingInvalidation()) {
             "Dispatching intercepted soft keyboard event while focus system is invalidated."

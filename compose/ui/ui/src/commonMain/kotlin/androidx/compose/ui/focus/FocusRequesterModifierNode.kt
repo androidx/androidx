@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.node.DelegatableNode
@@ -36,7 +35,6 @@ interface FocusRequesterModifierNode : DelegatableNode
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
         return if (focusTarget.fetchFocusProperties().canFocus) {
@@ -94,7 +92,6 @@ fun FocusRequesterModifierNode.freeFocus(): Boolean {
  * @return true if the focus target associated with this node has a focused child and we
  *   successfully saved a reference to it.
  */
-@ExperimentalComposeUiApi
 fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.saveFocusedChild()) {
@@ -112,7 +109,6 @@ fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
  * @return true if we successfully restored focus to one of the children of the [focusTarget]
  *   associated with this node.
  */
-@ExperimentalComposeUiApi
 fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { if (it.restoreFocusedChild()) return true }
     return false

@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.layout.Layout
@@ -204,7 +203,7 @@ class FocusSearchNonPlacedItemsTest {
         }
 
         // Act.
-        rule.runOnIdle { @OptIn(ExperimentalComposeUiApi::class) focusManager.moveFocus(Enter) }
+        rule.runOnIdle { focusManager.moveFocus(Enter) }
 
         // Assert.
         rule.runOnIdle {

@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.collection.mutableObjectIntMapOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.classKeyForObject
 import androidx.compose.ui.draw.DrawModifier
@@ -69,7 +68,6 @@ internal val NodeKind<*>.includeSelfInTraversal: Boolean
 // Note that these don't inherit from Modifier.Node to allow for a single Modifier.Node
 // instance to implement multiple Node interfaces
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal object Nodes {
     @JvmStatic
     inline val Any
@@ -184,7 +182,6 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
 
 private val classToKindSetMap = mutableObjectIntMapOf<Any>()
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     // This function does not take delegates into account, as a result, the kindSet will never
     // change, so if it is non-zero, it means we've already calculated it and we can just bail

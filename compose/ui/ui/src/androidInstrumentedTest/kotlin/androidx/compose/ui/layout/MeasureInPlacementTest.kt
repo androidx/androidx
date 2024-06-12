@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestActivity
@@ -102,7 +101,6 @@ class MeasureInPlacementTest {
      * Make sure that measurement in the layout modifier's placement block doesn't crash in
      * lookahead scope.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInModifierPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero
@@ -130,7 +128,6 @@ class MeasureInPlacementTest {
     /**
      * Make sure that measurement in the layout's placement block doesn't crash in lookahead scope.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInLayoutPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero

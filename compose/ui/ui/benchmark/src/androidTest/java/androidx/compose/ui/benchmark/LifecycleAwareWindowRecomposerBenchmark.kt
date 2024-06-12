@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.createLifecycleAwareWindowRecomposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -37,7 +36,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.model.Statement
 
 @LargeTest
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(AndroidJUnit4::class)
 class LifecycleAwareWindowRecomposerBenchmark {
 

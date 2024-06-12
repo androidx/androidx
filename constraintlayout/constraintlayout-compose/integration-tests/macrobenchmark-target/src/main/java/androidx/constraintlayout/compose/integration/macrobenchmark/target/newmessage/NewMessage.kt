@@ -47,7 +47,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -91,7 +90,7 @@ fun NewMotionMessagePreviewWithDslOptimized() {
     NewMotionMessageWithControls(useDsl = true, optimize = true)
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMotionApi::class)
+@OptIn(ExperimentalMotionApi::class)
 @Composable
 fun NewMotionMessageWithControls(useDsl: Boolean, optimize: Boolean) {
     val initialLayout = NewMessageLayout.Full

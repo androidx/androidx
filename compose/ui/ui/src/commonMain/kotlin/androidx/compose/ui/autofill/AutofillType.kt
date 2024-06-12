@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.autofill
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-
 /**
  * Autofill type information.
  *
@@ -25,7 +23,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  * associated with this type. If the [AutofillType] is not specified, the autofill services have to
  * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
-@ExperimentalComposeUiApi
 enum class AutofillType {
     /** Indicates that the associated component can be autofilled with an email address. */
     EmailAddress,

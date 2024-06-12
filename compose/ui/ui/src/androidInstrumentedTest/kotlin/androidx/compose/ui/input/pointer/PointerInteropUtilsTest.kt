@@ -19,7 +19,6 @@ package androidx.compose.ui.input.pointer
 import android.view.MotionEvent
 import android.view.View
 import androidx.collection.LongSparseArray
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
@@ -29,7 +28,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PointerInteropUtilsTest {

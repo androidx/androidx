@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
@@ -118,7 +117,6 @@ class PlacementLayoutCoordinatesTest {
      * The [Placeable.PlacementScope.coordinates] should not be `null` during normal placement and
      * should have the position of the parent that is placing.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun coordinatesWhilePlacingWithLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
@@ -197,7 +195,6 @@ class PlacementLayoutCoordinatesTest {
      * The [Placeable.PlacementScope.coordinates] should be `null` while calculating the alignment,
      * but should be non-null after the alignment has been calculated.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun coordinatesWhileAligningWithLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
@@ -258,7 +255,6 @@ class PlacementLayoutCoordinatesTest {
      * The [Placeable.PlacementScope.coordinates] should be `null` while calculating the alignment,
      * but should be non-null after the alignment has been calculated.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun coordinatesWhileAligningInLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
@@ -791,7 +787,6 @@ class PlacementLayoutCoordinatesTest {
         assert(relayoutExpected = false, "providedAlignmentLines") { it.providedAlignmentLines }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun onlyRealPositionReadsTriggerRelayout_inLookahead() {
         var offset by mutableStateOf(0)

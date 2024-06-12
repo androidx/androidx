@@ -40,7 +40,6 @@ import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.LocalView
@@ -368,7 +367,6 @@ class TextAccessibilityBenchmark(
     }
 
     @Composable
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun setupAccessibility() {
         view = LocalView.current
         // TODO(b/308007375): Eventually we will be able to remove `accessibilityForTesting()`;
@@ -381,7 +379,6 @@ class TextAccessibilityBenchmark(
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun invalidateSemantics() {
         // Setting forceAccessibilityForTesting invalidates semantics.
         (view as RootForTest).forceAccessibilityForTesting(accessibilityEnabled)

@@ -26,7 +26,6 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -68,7 +67,6 @@ import androidx.compose.ui.unit.round
  */
 @Immutable
 actual class PopupProperties
-@ExperimentalComposeUiApi
 constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
@@ -78,7 +76,6 @@ constructor(
     val usePlatformInsets: Boolean = true,
 ) {
     // Constructor with all non-experimental arguments.
-    @OptIn(ExperimentalComposeUiApi::class)
     actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,

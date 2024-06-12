@@ -16,7 +16,6 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.DialogWindowScope
 import java.awt.Component
@@ -48,7 +47,6 @@ class ComposeDialog(owner: Window? = null, modalityType: ModalityType = Modality
      *
      * @param content Composable content of the ComposeDialog.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun setContent(content: @Composable DialogWindowScope.() -> Unit) =
         setContent(onPreviewKeyEvent = { false }, onKeyEvent = { false }, content = content)
 
@@ -65,7 +63,6 @@ class ComposeDialog(owner: Window? = null, modalityType: ModalityType = Modality
      *   If you return false, the key event will be sent to this [onKeyEvent]'s parent.
      * @param content Composable content of the ComposeWindow.
      */
-    @ExperimentalComposeUiApi
     fun setContent(
         onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
         onKeyEvent: ((KeyEvent) -> Boolean) = { false },

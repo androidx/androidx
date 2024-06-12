@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
@@ -109,7 +108,6 @@ fun ConditionalFocusabilityDemo() {
                     .focusRequester(item4)
                     .pointerInput(item4) {
                         detectTapGestures {
-                            @OptIn(ExperimentalComposeUiApi::class)
                             if (localInputModeManager.requestInputMode(Keyboard)) {
                                 item4.requestFocus()
                             }

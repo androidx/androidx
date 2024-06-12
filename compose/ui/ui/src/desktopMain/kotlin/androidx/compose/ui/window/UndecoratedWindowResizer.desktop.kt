@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -132,7 +131,6 @@ internal class UndecoratedWindowResizer(
             }
         )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.cursor(awtCursorId: Int) =
         pointerHoverIcon(PointerIcon(Cursor(awtCursorId)))
 

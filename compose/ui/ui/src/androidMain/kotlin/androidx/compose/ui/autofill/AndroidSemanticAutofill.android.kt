@@ -35,7 +35,6 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
@@ -150,7 +149,6 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
         checkingForSemanticsChanges = false
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun checkForAutofillPropertyChanges(
         newSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>
     ) {
@@ -300,14 +298,12 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
             }
 
             /** Registers the autofill debug callback. */
-            @ExperimentalComposeUiApi
             @DoNotInline
             fun register(semanticAutofill: AndroidSemanticAutofill) {
                 semanticAutofill.autofillManager.autofillManager.registerCallback(this)
             }
 
             /** Unregisters the autofill debug callback. */
-            @ExperimentalComposeUiApi
             @DoNotInline
             fun unregister(semanticAutofill: AndroidSemanticAutofill) {
                 semanticAutofill.autofillManager.autofillManager.unregisterCallback(this)
@@ -366,7 +362,6 @@ internal fun AndroidSemanticAutofill.populateViewStructure(root: ViewStructure) 
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun SemanticsNode.populateViewStructure(child: ViewStructure) {
     // ———————— Interactions (clicking, checking, selecting, etc.)

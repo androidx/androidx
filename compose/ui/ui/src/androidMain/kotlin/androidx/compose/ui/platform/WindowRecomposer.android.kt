@@ -30,7 +30,6 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.R
@@ -162,7 +161,6 @@ fun interface WindowRecomposerFactory {
          * least [Lifecycle.State.STARTED], causing animations and other uses of
          * [MonotonicFrameClock] APIs to suspend until a **visible** frame will be produced.
          */
-        @OptIn(ExperimentalComposeUiApi::class)
         val LifecycleAware: WindowRecomposerFactory = WindowRecomposerFactory { rootView ->
             rootView.createLifecycleAwareWindowRecomposer()
         }
@@ -320,7 +318,6 @@ internal val View.windowRecomposer: Recomposer
  * Recomposition and associated [frame-based][MonotonicFrameClock] effects may be throttled or
  * paused while the [Lifecycle] is not at least [Lifecycle.State.STARTED].
  */
-@ExperimentalComposeUiApi
 fun View.createLifecycleAwareWindowRecomposer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     lifecycle: Lifecycle? = null

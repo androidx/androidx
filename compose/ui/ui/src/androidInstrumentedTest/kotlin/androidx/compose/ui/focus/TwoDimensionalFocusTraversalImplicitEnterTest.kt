@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -78,7 +77,6 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val (child1, child2, child3, child4) = FocusRequester.createRefs()
         val customFocusEnter =
             Modifier.focusProperties {
-                @OptIn(ExperimentalComposeUiApi::class)
                 enter = {
                     when (it) {
                         Left -> child1
@@ -149,7 +147,6 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val child = mutableStateOf(false)
         var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
         var directionSentToEnter: FocusDirection? = null
-        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter =
             Modifier.focusProperties {
                 enter = {
@@ -222,7 +219,6 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val child = mutableStateOf(false)
         var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
         var directionSentToEnter: FocusDirection? = null
-        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter =
             Modifier.focusProperties {
                 enter = {
@@ -329,7 +325,6 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val (up, down, left, right) = List(4) { mutableStateOf(false) }
         val (item, other) = List(2) { mutableStateOf(false) }
         var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
-        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter = Modifier.focusProperties { enter = { Cancel } }
         when (focusDirection) {
             Left -> rightItem = initialFocus

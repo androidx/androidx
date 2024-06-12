@@ -23,7 +23,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
@@ -219,7 +218,7 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
-@OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class, ExperimentalComposeUiApi::class)
+@OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class)
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private val effectContext: CoroutineContext = EmptyCoroutineContext
 ) {

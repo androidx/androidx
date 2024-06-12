@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -233,7 +232,6 @@ class NestedScrollInteropThreeFoldTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun createViewComposeActivity(
         enableInterop: Boolean = true,
         outerModifier: Modifier = Modifier,

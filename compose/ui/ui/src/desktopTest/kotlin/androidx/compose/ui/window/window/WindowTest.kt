@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LeakDetector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
@@ -54,7 +53,6 @@ import kotlinx.coroutines.swing.Swing
 import org.junit.Assume.assumeFalse
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class WindowTest {
     @Test
     fun `open and close custom window`() = runApplicationTest {

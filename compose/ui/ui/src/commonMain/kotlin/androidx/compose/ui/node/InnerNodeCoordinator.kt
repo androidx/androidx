@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -57,10 +56,10 @@ internal class TailModifierNode : Modifier.Node() {
 }
 
 internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(layoutNode) {
-    @OptIn(ExperimentalComposeUiApi::class) override val tail = TailModifierNode()
+    override val tail = TailModifierNode()
 
     init {
-        @OptIn(ExperimentalComposeUiApi::class) tail.updateCoordinator(this)
+        tail.updateCoordinator(this)
     }
 
     override var lookaheadDelegate: LookaheadDelegate? =
@@ -183,7 +182,6 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun hitTestChild(
         hitTestSource: HitTestSource,
         pointerPosition: Offset,

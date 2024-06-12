@@ -64,7 +64,6 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.graphics.Color
@@ -143,7 +142,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class AndroidViewTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
@@ -1726,7 +1724,6 @@ class AndroidViewTest {
             .isEqualTo(1)
     }
 
-    @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
         crossinline factory: (Context) -> T,

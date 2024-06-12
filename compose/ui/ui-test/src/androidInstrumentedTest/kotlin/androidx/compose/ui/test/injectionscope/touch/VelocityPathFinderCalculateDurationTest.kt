@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.injectionscope.touch
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -70,7 +69,6 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
                     "2\\. increase the distance between the start and end to (.*) or higher"
             )
 
-        @OptIn(ExperimentalComposeUiApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() =
@@ -195,7 +193,6 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun testWithoutExpectedError(config: TestConfig) {
         val actualDuration =
             VelocityPathFinder.calculateDefaultDuration(

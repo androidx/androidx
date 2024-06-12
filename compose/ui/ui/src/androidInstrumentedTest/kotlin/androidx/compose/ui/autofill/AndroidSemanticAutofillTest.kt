@@ -38,7 +38,6 @@ import androidx.compose.foundation.text.input.insert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -442,7 +441,6 @@ class AndroidPerformSemanticAutofillTest {
             )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
@@ -1023,7 +1021,6 @@ class AndroidPerformSemanticAutofillTest {
             .apply(block)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun ComposeContentTestRule.setContentWithAutofillEnabled(
         content: @Composable () -> Unit
     ) {

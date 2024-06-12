@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
@@ -249,7 +248,6 @@ fun DropdownMenu(
  * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DropdownMenu(
     state: DropdownMenuState,

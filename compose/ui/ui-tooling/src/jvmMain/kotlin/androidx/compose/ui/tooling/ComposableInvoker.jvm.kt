@@ -24,7 +24,6 @@ import kotlin.math.ceil
 
 /** A utility object to invoke composable function by its name and containing class. */
 @Deprecated("Use androidx.compose.runtime.reflect.ComposableMethodInvoker instead")
-@ExperimentalComposeUiApi
 object ComposableInvoker {
 
     /**

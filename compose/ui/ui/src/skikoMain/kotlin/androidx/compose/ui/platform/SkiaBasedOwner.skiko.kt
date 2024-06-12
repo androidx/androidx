@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.DefaultPointerButtons
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.PrimaryPressedPointerButtons
@@ -95,7 +94,7 @@ import kotlin.coroutines.CoroutineContext
 
 private typealias Command = () -> Unit
 
-@OptIn(ExperimentalComposeUiApi::class, InternalCoreApi::class, InternalComposeUiApi::class)
+@OptIn(InternalCoreApi::class, InternalComposeUiApi::class)
 internal class SkiaBasedOwner(
     private val platformInputService: PlatformInput,
     private val component: PlatformComponent,

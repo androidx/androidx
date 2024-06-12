@@ -18,7 +18,6 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.geometry.Offset
@@ -333,7 +332,6 @@ internal class ComposeLayer {
 }
 
 @Suppress("ControlFlowWithEmptyBody")
-@OptIn(ExperimentalComposeUiApi::class)
 private fun ComposeScene.onMouseEvent(density: Float, event: MouseEvent) {
     val eventType =
         when (event.id) {
@@ -357,7 +355,6 @@ private fun ComposeScene.onMouseEvent(density: Float, event: MouseEvent) {
 }
 
 @Suppress("ControlFlowWithEmptyBody")
-@OptIn(ExperimentalComposeUiApi::class)
 private fun ComposeScene.onMouseWheelEvent(density: Float, event: MouseWheelEvent) {
     sendPointerEvent(
         eventType = PointerEventType.Scroll,
@@ -376,7 +373,6 @@ private fun ComposeScene.onMouseWheelEvent(density: Float, event: MouseWheelEven
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val MouseEvent.buttons
     get() =
         PointerButtons(
@@ -389,7 +385,6 @@ private val MouseEvent.buttons
             isForwardPressed = (modifiersEx and MouseEvent.getMaskForButton(5)) != 0,
         )
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val MouseEvent.keyboardModifiers
     get() =
         PointerKeyboardModifiers(

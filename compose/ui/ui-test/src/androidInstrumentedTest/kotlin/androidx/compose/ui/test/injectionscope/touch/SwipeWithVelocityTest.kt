@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
@@ -86,7 +85,6 @@ class SwipeWithVelocityTest(private val config: TestConfig) {
 
     private val recorder = SinglePointerInputRecorder()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun swipeWithVelocity() {
         rule.setContent {

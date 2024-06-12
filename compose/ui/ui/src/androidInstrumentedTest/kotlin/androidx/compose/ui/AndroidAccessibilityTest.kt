@@ -3229,7 +3229,6 @@ class AndroidAccessibilityTest {
         assertThat(vitrualViewId).isEqualTo(hitTestedId)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testSemanticsHitTest_invisibleToUserSemantics() {
         // Arrange.
@@ -4000,7 +3999,6 @@ class AndroidAccessibilityTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun testTestTagsAsResourceId() {
         // Arrange.
         val tag1 = "box1"

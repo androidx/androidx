@@ -63,7 +63,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
@@ -2073,7 +2072,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun LazyListInLookaheadScope(
         list: List<Int>,
@@ -2110,7 +2109,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.trackPositions(
         lookaheadPosition: MutableMap<Int, Int>,
         postLookaheadPosition: MutableMap<Int, Int>,
@@ -2147,7 +2145,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun animContentSizeWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()
@@ -2325,7 +2323,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             assert(assertedSmallItems)
         }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun animVisibilityWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()
@@ -2407,7 +2405,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun resizeLazyList() {
         val lookaheadPositions = mutableMapOf<Int, Offset>()
@@ -2500,7 +2497,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun lookaheadSizeSmallerThanPostLookahead() {
         val lookaheadPositions = mutableMapOf<Int, Offset>()
@@ -2600,7 +2596,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     private val Offset.mainAxisPosition
         get() = (if (vertical) y else x).roundToInt()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun postLookaheadItemsComposed() {
         lateinit var state: LazyListState
@@ -2639,7 +2634,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun postLookaheadItemsComposedBasedOnScrollDelta() {
         var lookaheadSize by mutableStateOf(30)

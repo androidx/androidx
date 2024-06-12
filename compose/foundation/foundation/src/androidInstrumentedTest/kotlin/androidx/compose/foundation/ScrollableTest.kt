@@ -60,7 +60,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.FocusDirection
@@ -3068,7 +3067,6 @@ class ScrollableTest {
 // Very low tolerance on the difference
 internal val VelocityTrackerCalculationThreshold = 1
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
@@ -3076,7 +3074,6 @@ internal suspend fun savePointerInputEvents(
     savePointerInputEventsWithFix(tracker, pointerInputScope)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEventsWithFix(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
@@ -3104,7 +3101,6 @@ internal suspend fun savePointerInputEventsWithFix(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEventsLegacy(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope

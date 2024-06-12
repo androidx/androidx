@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.Nodes
@@ -303,7 +302,6 @@ internal class ComposeAccessible(
             return semanticsNode.size.toAwtDimension()
         }
 
-        @OptIn(ExperimentalComposeUiApi::class)
         override fun isVisible(): Boolean =
             with(semanticsNode) {
                 !config.contains(SemanticsProperties.InvisibleToUser) &&

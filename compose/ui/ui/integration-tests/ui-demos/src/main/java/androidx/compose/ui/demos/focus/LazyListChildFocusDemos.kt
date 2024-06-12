@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
@@ -80,14 +79,7 @@ fun LazyListChildFocusDemos() {
         stickyHeader { Text("Direct Focus to previously Focused Child") }
         item {
             var previouslyFocusedItem: FocusRequester? by remember { mutableStateOf(null) }
-            LazyRow(
-                Modifier.focusProperties {
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    enter = {
-                        previouslyFocusedItem ?: Default
-                    }
-                }
-            ) {
+            LazyRow(Modifier.focusProperties { enter = { previouslyFocusedItem ?: Default } }) {
                 items(10) { index ->
                     val focusRequester = remember(index) { FocusRequester() }
                     val pinnableContainer = LocalPinnableContainer.current

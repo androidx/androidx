@@ -345,7 +345,6 @@ internal constructor(
      *   Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
      * @param nativeEvent The original native event.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun sendPointerEvent(
         eventType: PointerEventType,
         position: Offset,
