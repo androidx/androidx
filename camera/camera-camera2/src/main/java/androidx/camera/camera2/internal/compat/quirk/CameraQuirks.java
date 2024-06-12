@@ -122,6 +122,9 @@ public class CameraQuirks {
         if (TemporalNoiseQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new TemporalNoiseQuirk());
         }
+        if (ImageCaptureFailedForVideoSnapshotQuirk.load()) {
+            quirks.add(new ImageCaptureFailedForVideoSnapshotQuirk());
+        }
 
         return new Quirks(quirks);
     }

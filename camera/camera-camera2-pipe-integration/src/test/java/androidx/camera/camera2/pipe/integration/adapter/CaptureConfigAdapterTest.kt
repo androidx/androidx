@@ -21,6 +21,10 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCaptureFailedForVideoSnapshotQuirk
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
+import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
+import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
@@ -30,6 +34,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -63,18 +68,7 @@ class CaptureConfigAdapterTest {
     }
     private val fakeCameraProperties = FakeCameraProperties()
     private val surface = FakeSurface()
-    private val configAdapter =
-        CaptureConfigAdapter(
-            useCaseGraphConfig =
-                UseCaseGraphConfig(
-                    graph = FakeCameraGraph(),
-                    surfaceToStreamMap = mapOf(surface to StreamId(0)),
-                    cameraStateAdapter = CameraStateAdapter(),
-                ),
-            cameraProperties = fakeCameraProperties,
-            zslControl = ZslControlNoOpImpl(),
-            threads = fakeUseCaseThreads,
-        )
+    private val configAdapter = createConfigAdapter()
 
     @After
     fun tearDown() {
@@ -314,4 +308,55 @@ class CaptureConfigAdapterTest {
             val template = request.template
             assertThat(template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT))
         }
+
+    @Test
+    fun submitStillCaptureRequests_withTemplateRecord_captureIntentIsOverride(): Unit =
+        runBlocking {
+            // Arrange.
+            val configAdapter =
+                createConfigAdapter(
+                    templateParamsOverride =
+                        TemplateParamsQuirkOverride(
+                            Quirks(listOf(ImageCaptureFailedForVideoSnapshotQuirk()))
+                        )
+                )
+            val imageCaptureConfig =
+                CaptureConfig.Builder()
+                    .apply {
+                        templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+                        addSurface(surface)
+                    }
+                    .build()
+
+            // Act.
+            val request =
+                configAdapter.mapToRequest(
+                    imageCaptureConfig,
+                    // With session template in TEMPLATE_RECORD
+                    RequestTemplate(CameraDevice.TEMPLATE_RECORD),
+                    Camera2ImplConfig.Builder().build(),
+                )
+
+            // Assert.
+            val template = request.template
+            assertThat(template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT))
+            assertThat(request.parameters[CaptureRequest.CONTROL_CAPTURE_INTENT])
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
+        }
+
+    private fun createConfigAdapter(
+        templateParamsOverride: TemplateParamsOverride = NoOpTemplateParamsOverride
+    ) =
+        CaptureConfigAdapter(
+            useCaseGraphConfig =
+                UseCaseGraphConfig(
+                    graph = FakeCameraGraph(),
+                    surfaceToStreamMap = mapOf(surface to StreamId(0)),
+                    cameraStateAdapter = CameraStateAdapter(),
+                ),
+            cameraProperties = fakeCameraProperties,
+            zslControl = ZslControlNoOpImpl(),
+            threads = fakeUseCaseThreads,
+            templateParamsOverride = templateParamsOverride,
+        )
 }

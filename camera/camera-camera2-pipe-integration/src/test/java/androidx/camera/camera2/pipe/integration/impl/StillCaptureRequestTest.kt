@@ -415,6 +415,7 @@ class StillCaptureRequestTest {
                 cameraProperties = fakeCameraProperties,
                 zslControl = ZslControlNoOpImpl(),
                 threads = fakeUseCaseThreads,
+                templateParamsOverride = NoOpTemplateParamsOverride,
             )
         fakeUseCaseCameraState =
             UseCaseCameraState(
