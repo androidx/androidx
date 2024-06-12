@@ -116,6 +116,7 @@ abstract class BaseRoomConnectionManager {
      */
     private fun configurationConnection(connection: SQLiteConnection) {
         configureSynchronousFlag(connection)
+        configureBusyTimeout(connection)
         openDelegate.onOpen(connection)
     }
 
@@ -136,6 +137,19 @@ abstract class BaseRoomConnectionManager {
             connection.execSQL("PRAGMA synchronous = NORMAL")
         } else {
             connection.execSQL("PRAGMA synchronous = FULL")
+        }
+    }
+
+    private fun configureBusyTimeout(connection: SQLiteConnection) {
+        // Set a busy timeout if no timeout is set to avoid SQLITE_BUSY during slow I/O or during
+        // an auto-checkpoint.
+        val currentBusyTimeout =
+            connection.prepare("PRAGMA busy_timeout").use {
+                it.step()
+                it.getLong(0)
+            }
+        if (currentBusyTimeout < BUSY_TIMEOUT_MS) {
+            connection.execSQL("PRAGMA busy_timeout = $BUSY_TIMEOUT_MS")
         }
     }
 
@@ -308,5 +322,14 @@ abstract class BaseRoomConnectionManager {
 
     private fun invokeOpenCallback(connection: SQLiteConnection) {
         callbacks.forEach { it.onOpen(connection) }
+    }
+
+    companion object {
+        /*
+         * Busy timeout amount. This wait time is relevant to same-process connections, if a
+         * database is used across multiple processes, it is recommended that the developer sets a
+         * higher timeout.
+         */
+        const val BUSY_TIMEOUT_MS = 3000
     }
 }
