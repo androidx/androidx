@@ -36,6 +36,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import java.util.concurrent.Executor
@@ -53,7 +54,7 @@ class TestAdapters(val sdkContext: Context) {
         }
     }
 
-    abstract class BannerAd() : SandboxedUiAdapter {
+    abstract class BannerAd() : AbstractSandboxedUiAdapter() {
         lateinit var sessionClientExecutor: Executor
         lateinit var sessionClient: SandboxedUiAdapter.SessionClient
 

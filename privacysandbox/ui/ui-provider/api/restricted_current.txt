@@ -1,6 +1,17 @@
 // Signature format: 4.0
 package androidx.privacysandbox.ui.provider {
 
+  public abstract class AbstractSandboxedUiAdapter implements androidx.privacysandbox.ui.core.SandboxedUiAdapter {
+    ctor public AbstractSandboxedUiAdapter();
+  }
+
+  public abstract static class AbstractSandboxedUiAdapter.AbstractSession implements androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session {
+    ctor public AbstractSandboxedUiAdapter.AbstractSession();
+    method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
+    method public void notifyResized(int width, int height);
+    method public void notifyZOrderChanged(boolean isZOrderOnTop);
+  }
+
   public final class SandboxedUiAdapterProxy {
     method public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SandboxedUiAdapter, android.content.Context context);
   }
