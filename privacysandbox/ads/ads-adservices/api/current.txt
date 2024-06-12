@@ -92,8 +92,10 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public final class GetAdSelectionDataRequest {
-    ctor public GetAdSelectionDataRequest(optional androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? seller);
+    ctor public GetAdSelectionDataRequest(optional androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? seller, optional android.net.Uri? coordinatorOriginUri);
+    method public android.net.Uri? getCoordinatorOriginUri();
     method public androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? getSeller();
+    property public final android.net.Uri? coordinatorOriginUri;
     property public final androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? seller;
   }
 
