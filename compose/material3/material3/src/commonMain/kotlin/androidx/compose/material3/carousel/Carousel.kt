@@ -42,7 +42,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -263,7 +262,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
             val clipShape = remember {
                 object : Shape {
@@ -283,7 +282,7 @@ internal fun Carousel(
                         index = page,
                         state = state,
                         strategy = { pageSize.strategy },
-                        carouselItemInfo = carouselItemInfo,
+                        carouselItemDrawInfo = carouselItemInfo,
                         clipShape = clipShape
                     )
             ) {
@@ -306,7 +305,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
             val clipShape = remember {
                 object : Shape {
@@ -326,7 +325,7 @@ internal fun Carousel(
                         index = page,
                         state = state,
                         strategy = { pageSize.strategy },
-                        carouselItemInfo = carouselItemInfo,
+                        carouselItemDrawInfo = carouselItemInfo,
                         clipShape = clipShape
                     )
             ) {
@@ -421,7 +420,8 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param index the index of the item in the carousel
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
- * @param carouselItemInfo the item info that should be updated with the changes in this modifier
+ * @param carouselItemDrawInfo the item info that should be updated with the changes in this
+ *   modifier
  * @param clipShape the shape the item will clip itself to. This should be a rectangle with a bounds
  *   that match the carousel item info's mask rect. Corner radii and other shape customizations can
  *   be done by the client using [CarouselItemScope.maskClip] and [CarouselItemScope.maskBorder].
@@ -431,7 +431,7 @@ internal fun Modifier.carouselItem(
     index: Int,
     state: CarouselState,
     strategy: () -> Strategy,
-    carouselItemInfo: CarouselItemInfoImpl,
+    carouselItemDrawInfo: CarouselItemDrawInfoImpl,
     clipShape: Shape,
 ): Modifier {
     return layout { measurable, constraints ->
@@ -514,10 +514,10 @@ internal fun Modifier.carouselItem(
                         )
 
                     // Update carousel item info
-                    carouselItemInfo.sizeState = interpolatedKeyline.size
-                    carouselItemInfo.minSizeState = roundedKeylines.minBy { it.size }.size
-                    carouselItemInfo.maxSizeState = roundedKeylines.firstFocal.size
-                    carouselItemInfo.maskRectState = maskRect
+                    carouselItemDrawInfo.sizeState = interpolatedKeyline.size
+                    carouselItemDrawInfo.minSizeState = roundedKeylines.minBy { it.size }.size
+                    carouselItemDrawInfo.maxSizeState = roundedKeylines.firstFocal.size
+                    carouselItemDrawInfo.maskRectState = maskRect
 
                     // Clip the item
                     clip = maskRect != Rect(0f, 0f, size.width, size.height)
