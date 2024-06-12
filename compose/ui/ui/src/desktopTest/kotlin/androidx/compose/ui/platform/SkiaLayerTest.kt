@@ -150,8 +150,8 @@ class SkiaLayerTest {
         val matrix = layer.matrix
 
         val y = 10 * (1 - cos45.toFloat())
-        assertEquals(Offset(0f, y), matrix.map(Offset(0f, 0f)))
-        assertEquals(Offset(100f, 10f), matrix.map(Offset(100f, 10f)))
+        assertOffsetEquals(Offset(0f, y), matrix.map(Offset(0f, 0f)))
+        assertOffsetEquals(Offset(100f, 10f), matrix.map(Offset(100f, 10f)))
     }
 
     @Test
@@ -380,4 +380,9 @@ class SkiaLayerTest {
         scope.outline = shape.createOutline(size, scope.layoutDirection, scope.graphicsDensity)
         updateLayerProperties(scope)
     }
+}
+
+fun assertOffsetEquals(a: Offset, b: Offset, delta: Float = 0.02f) {
+    assertEquals(a.x, b.x, delta)
+    assertEquals(a.y, b.y, delta)
 }

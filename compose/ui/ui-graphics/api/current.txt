@@ -407,7 +407,7 @@ package androidx.compose.ui.graphics {
     method public void convertYuvToRgb();
     method public inline operator float get(int row, int column);
     method public float[] getValues();
-    method public void reset();
+    method public inline void reset();
     method public void set(float[] src);
     method public inline operator void set(int row, int column, float v);
     method public void setToRotateBlue(float degrees);

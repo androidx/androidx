@@ -20,11 +20,10 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import kotlin.math.PI
-import kotlin.math.cos
+import androidx.compose.ui.util.normalizedAngleCos
+import androidx.compose.ui.util.normalizedAngleSin
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 
 // NOTE: This class contains a number of tests like this:
 //
@@ -260,9 +259,9 @@ value class Matrix(
         // See top-level comment
         if (values.size < 16) return
 
-        val r = degrees * PI / 180.0
-        val s = sin(r).toFloat()
-        val c = cos(r).toFloat()
+        val d = degrees * (1.0f / 360.0f)
+        val s = normalizedAngleSin(d)
+        val c = normalizedAngleCos(d)
 
         val a01 = this[0, 1]
         val a02 = this[0, 2]
@@ -299,9 +298,9 @@ value class Matrix(
         // See top-level comment
         if (values.size < 16) return
 
-        val r = degrees * PI / 180.0
-        val s = sin(r).toFloat()
-        val c = cos(r).toFloat()
+        val d = degrees * (1.0f / 360.0f)
+        val s = normalizedAngleSin(d)
+        val c = normalizedAngleCos(d)
 
         val a00 = this[0, 0]
         val a02 = this[0, 2]
@@ -338,9 +337,9 @@ value class Matrix(
         // See top-level comment
         if (values.size < 16) return
 
-        val r = degrees * PI / 180.0
-        val s = sin(r).toFloat()
-        val c = cos(r).toFloat()
+        val d = degrees * (1.0f / 360.0f)
+        val s = normalizedAngleSin(d)
+        val c = normalizedAngleCos(d)
 
         val a00 = this[0, 0]
         val a10 = this[1, 0]
@@ -444,9 +443,9 @@ value class Matrix(
         scaleZ: Float = 1f
     ) {
         // X
-        val rx = rotationX * PI / 180.0
-        val rsx = sin(rx).toFloat()
-        val rcx = cos(rx).toFloat()
+        val rx = rotationX * (1.0f / 360.0f)
+        val rsx = normalizedAngleSin(rx)
+        val rcx = normalizedAngleCos(rx)
 
         var v11 = rcx
         var v12 = rsx
@@ -458,9 +457,9 @@ value class Matrix(
         var v32 = translationY * rsx + translationZ * rcx
 
         // Y
-        val ry = rotationY * PI / 180.0
-        val rsy = sin(ry).toFloat()
-        val rcy = cos(ry).toFloat()
+        val ry = rotationY * (1.0f / 360.0f)
+        val rsy = normalizedAngleSin(ry)
+        val rcy = normalizedAngleCos(ry)
 
         var v00 = rcy
         var v02 = -rsy
@@ -475,9 +474,9 @@ value class Matrix(
         v32 = -translationX * rsy + v32 * rcy
 
         // Z
-        val rz = rotationZ * PI / 180.0
-        val rsz = sin(rz).toFloat()
-        val rcz = cos(rz).toFloat()
+        val rz = rotationZ * (1.0f / 360.0f)
+        val rsz = normalizedAngleSin(rz)
+        val rcz = normalizedAngleCos(rz)
 
         val a10 = v10
         v10 = -rsz * v00 + rcz * v10
