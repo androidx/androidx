@@ -38,7 +38,7 @@ import java.util.Objects;
 @ExperimentalCarApi
 @CarProtocol
 @KeepFields
-public class GridSection extends Section<GridItem> {
+public final class GridSection extends Section<GridItem> {
     /** Defines possible sizes of the grid items within a grid section. */
     @IntDef(
             value = {
@@ -148,7 +148,7 @@ public class GridSection extends Section<GridItem> {
 
     /** A builder that constructs {@link GridSection} instances. */
     @ExperimentalCarApi
-    public static class Builder extends BaseBuilder<GridItem, Builder> {
+    public static final class Builder extends BaseBuilder<GridItem, Builder> {
         @ItemSize
         private int mItemSize = ITEM_SIZE_SMALL;
 
