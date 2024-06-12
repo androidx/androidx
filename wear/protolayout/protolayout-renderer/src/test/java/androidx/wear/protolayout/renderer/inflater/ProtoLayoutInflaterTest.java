@@ -5301,7 +5301,6 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getAlpha()).isEqualTo(opacity);
     }
 
-    @Ignore // b/342225240
     @Test
     public void inflate_box_withTransformationModifier() {
         DpProp translationX = dp(10.f).build();
@@ -5351,8 +5350,10 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getRotation()).isEqualTo(degree.getValue());
         assertThat(box.getScaleX()).isEqualTo(scaleX.getValue());
         assertThat(box.getScaleY()).isEqualTo(scaleY.getValue());
+        // TODO(b/342379311): reenable the test when robolectric returns the correct default
+        //  location.
         // pivot is default to the middle of the element.
-        assertThat(box.getPivotX()).isEqualTo(boxWidth.getLinearDimension().getValue() * 0.5f);
+        // assertThat(box.getPivotX()).isEqualTo(boxWidth.getLinearDimension().getValue() * 0.5f);
         assertThat(box.getPivotY())
                 .isEqualTo(
                         boxHeight.getLinearDimension().getValue()
@@ -5421,6 +5422,7 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getScaleY()).isEqualTo(1);
     }
 
+    // TODO(b/342379311): reenable the test when robolectric returns the correct default location.
     @Ignore // b/342225240
     @Test
     public void inflate_box_withPivotTransformationModifier_noValidPivot_defaultToCenter() {
