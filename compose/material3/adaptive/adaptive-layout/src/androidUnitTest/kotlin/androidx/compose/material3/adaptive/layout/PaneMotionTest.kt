@@ -16,6 +16,16 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.AnimateBounds
 import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterFromLeft
@@ -29,6 +39,14 @@ import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.Ex
 import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.NoMotion
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.Expanded
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.Hidden
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +66,38 @@ class PaneMotionTest {
                     .isEqualTo(ExpectedThreePaneMotions[from][to])
             }
         }
+    }
+
+    @Test
+    fun test_allDefaultPaneMotionTransitions() {
+        NoMotion.assertTransitions(EnterTransition.None, ExitTransition.None)
+        EnterFromLeft.assertTransitions(mockEnterFromLeftTransition, ExitTransition.None)
+        EnterFromRight.assertTransitions(mockEnterFromRightTransition, ExitTransition.None)
+        EnterFromLeftDelayed.assertTransitions(
+            mockEnterFromLeftDelayedTransition,
+            ExitTransition.None
+        )
+        EnterFromRightDelayed.assertTransitions(
+            mockEnterFromRightDelayedTransition,
+            ExitTransition.None
+        )
+        ExitToLeft.assertTransitions(EnterTransition.None, mockExitToLeftTransition)
+        ExitToRight.assertTransitions(EnterTransition.None, mockExitToRightTransition)
+        EnterWithExpand.assertTransitions(mockEnterWithExpandTransition, ExitTransition.None)
+        ExitWithShrink.assertTransitions(EnterTransition.None, mockExitWithShrinkTransition)
+    }
+
+    private fun DefaultPaneMotion.assertTransitions(
+        expectedEnterTransition: EnterTransition,
+        expectedExitTransition: ExitTransition
+    ) {
+        // Can't compare equality directly because of lambda. Check string representation instead
+        assertWithMessage("Enter transition of $this: ")
+            .that(mockPaneMotionScope.enterTransition.toString())
+            .isEqualTo(expectedEnterTransition.toString())
+        assertWithMessage("Exit transition of $this: ")
+            .that(mockPaneMotionScope.exitTransition.toString())
+            .isEqualTo(expectedExitTransition.toString())
     }
 }
 
@@ -166,3 +216,84 @@ private val ExpectedThreePaneMotions =
             arrayOf(AnimateBounds, AnimateBounds, AnimateBounds), // To V, V, V
         ),
     )
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val mockPaneMotionScope =
+    object : PaneMotionScope {
+        override val positionAnimationSpec: FiniteAnimationSpec<IntOffset> = tween()
+        override val sizeAnimationSpec: FiniteAnimationSpec<IntSize> = spring()
+        override val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> = snap()
+        override val slideInFromLeftOffset: Int = 1
+        override val slideInFromRightOffset: Int = 2
+        override val slideOutToLeftOffset: Int = 3
+        override val slideOutToRightOffset: Int = 4
+        override val motionProgress: () -> Float = { 0.5F }
+        override val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
+            get() = mockLayoutCoordinates
+
+        override fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates =
+            mockLayoutCoordinates
+
+        val mockLayoutCoordinates =
+            object : LayoutCoordinates {
+                override val isAttached: Boolean = false
+                override val parentCoordinates: LayoutCoordinates? = null
+                override val parentLayoutCoordinates: LayoutCoordinates? = null
+                override val providedAlignmentLines: Set<AlignmentLine> = emptySet()
+                override val size: IntSize = IntSize.Zero
+
+                override fun get(alignmentLine: AlignmentLine): Int = 0
+
+                override fun localBoundingBoxOf(
+                    sourceCoordinates: LayoutCoordinates,
+                    clipBounds: Boolean
+                ): Rect = Rect.Zero
+
+                override fun localPositionOf(
+                    sourceCoordinates: LayoutCoordinates,
+                    relativeToSource: Offset
+                ): Offset = Offset.Zero
+
+                override fun localToRoot(relativeToLocal: Offset): Offset = Offset.Zero
+
+                override fun localToWindow(relativeToLocal: Offset): Offset = Offset.Zero
+
+                override fun windowToLocal(relativeToWindow: Offset): Offset = Offset.Zero
+            }
+    }
+
+private val mockEnterFromLeftTransition =
+    slideInHorizontally(mockPaneMotionScope.positionAnimationSpec) {
+        mockPaneMotionScope.slideInFromLeftOffset
+    }
+
+private val mockEnterFromRightTransition =
+    slideInHorizontally(mockPaneMotionScope.positionAnimationSpec) {
+        mockPaneMotionScope.slideInFromRightOffset
+    }
+
+private val mockEnterFromLeftDelayedTransition =
+    slideInHorizontally(mockPaneMotionScope.delayedPositionAnimationSpec) {
+        mockPaneMotionScope.slideInFromLeftOffset
+    }
+
+private val mockEnterFromRightDelayedTransition =
+    slideInHorizontally(mockPaneMotionScope.delayedPositionAnimationSpec) {
+        mockPaneMotionScope.slideInFromLeftOffset
+    }
+
+private val mockExitToLeftTransition =
+    slideOutHorizontally(mockPaneMotionScope.positionAnimationSpec) {
+        mockPaneMotionScope.slideOutToLeftOffset
+    }
+
+private val mockExitToRightTransition =
+    slideOutHorizontally(mockPaneMotionScope.positionAnimationSpec) {
+        mockPaneMotionScope.slideOutToRightOffset
+    }
+
+private val mockEnterWithExpandTransition =
+    expandHorizontally(mockPaneMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)
+
+private val mockExitWithShrinkTransition =
+    shrinkHorizontally(mockPaneMotionScope.sizeAnimationSpec, Alignment.CenterHorizontally)

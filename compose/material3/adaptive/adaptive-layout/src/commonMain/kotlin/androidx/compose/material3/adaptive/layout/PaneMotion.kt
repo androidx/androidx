@@ -17,16 +17,39 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.max
 import kotlin.math.min
 
 @ExperimentalMaterial3AdaptiveApi
+internal interface PaneMotionScope : LookaheadScope {
+    val positionAnimationSpec: FiniteAnimationSpec<IntOffset>
+    val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
+    val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset>
+    val slideInFromLeftOffset: Int
+    val slideInFromRightOffset: Int
+    val slideOutToLeftOffset: Int
+    val slideOutToRightOffset: Int
+    val motionProgress: () -> Float
+}
+
+@ExperimentalMaterial3AdaptiveApi
 internal interface PaneMotion {
-    // TODO (conradchen): Implement the following fields
-    // val enterTransition: EnterTransition
-    // val exitTransition: ExitTransition
-    // val animateBoundsModifier: Modifier
+    val PaneMotionScope.enterTransition: EnterTransition
+    val PaneMotionScope.exitTransition: ExitTransition
+    val PaneMotionScope.animateBoundsModifier: Modifier
 }
 
 @ExperimentalMaterial3AdaptiveApi
@@ -41,22 +64,60 @@ internal value class DefaultPaneMotion private constructor(val value: Int) : Pan
         val EnterFromRightDelayed = DefaultPaneMotion(5)
         val ExitToLeft = DefaultPaneMotion(6)
         val ExitToRight = DefaultPaneMotion(7)
-        val ExitWithShrink = DefaultPaneMotion(8)
-        val EnterWithExpand = DefaultPaneMotion(9)
+        val EnterWithExpand = DefaultPaneMotion(8)
+        val ExitWithShrink = DefaultPaneMotion(9)
     }
 
+    override val PaneMotionScope.enterTransition: EnterTransition
+        get() =
+            when (this@DefaultPaneMotion) {
+                EnterFromLeft ->
+                    slideInHorizontally(positionAnimationSpec) { slideInFromLeftOffset }
+                EnterFromRight ->
+                    slideInHorizontally(positionAnimationSpec) { slideInFromRightOffset }
+                EnterFromLeftDelayed ->
+                    slideInHorizontally(delayedPositionAnimationSpec) { slideInFromLeftOffset }
+                EnterFromRightDelayed ->
+                    slideInHorizontally(delayedPositionAnimationSpec) { slideInFromRightOffset }
+                // TODO(conradche): Figure out how to expand with position change
+                EnterWithExpand ->
+                    expandHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
+                else -> EnterTransition.None
+            }
+
+    override val PaneMotionScope.exitTransition: ExitTransition
+        get() =
+            when (this@DefaultPaneMotion) {
+                ExitToLeft -> slideOutHorizontally(positionAnimationSpec) { slideOutToLeftOffset }
+                ExitToRight -> slideOutHorizontally(positionAnimationSpec) { slideOutToRightOffset }
+                // TODO(conradche): Figure out how to shrink with position change
+                ExitWithShrink ->
+                    shrinkHorizontally(sizeAnimationSpec, Alignment.CenterHorizontally)
+                else -> ExitTransition.None
+            }
+
+    override val PaneMotionScope.animateBoundsModifier: Modifier
+        get() =
+            Modifier.animateBounds(
+                motionProgress,
+                sizeAnimationSpec,
+                positionAnimationSpec,
+                this,
+                this@DefaultPaneMotion == AnimateBounds
+            )
+
     override fun toString(): String =
-        when (value) {
-            0 -> "NoMotion"
-            1 -> "AnimateBounds"
-            2 -> "EnterFromLeft"
-            3 -> "EnterFromRight"
-            4 -> "EnterFromLeftDelayed"
-            5 -> "EnterFromRightDelayed"
-            6 -> "ExitToLeft"
-            7 -> "ExitToRight"
-            8 -> "ExitWithShrink"
-            9 -> "EnterWithExpand"
+        when (this) {
+            NoMotion -> "NoMotion"
+            AnimateBounds -> "AnimateBounds"
+            EnterFromLeft -> "EnterFromLeft"
+            EnterFromRight -> "EnterFromRight"
+            EnterFromLeftDelayed -> "EnterFromLeftDelayed"
+            EnterFromRightDelayed -> "EnterFromRightDelayed"
+            ExitToLeft -> "ExitToLeft"
+            ExitToRight -> "ExitToRight"
+            EnterWithExpand -> "EnterWithExpand"
+            ExitWithShrink -> "ExitWithShrink"
             else -> "Undefined($value)"
         }
 }
