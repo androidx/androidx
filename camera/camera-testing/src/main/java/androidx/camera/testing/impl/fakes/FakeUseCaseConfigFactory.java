@@ -91,10 +91,6 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
             case VIDEO_CAPTURE:
                 return CameraDevice.TEMPLATE_RECORD;
             case STREAM_SHARING:
-                // Uses TEMPLATE_PREVIEW instead of TEMPLATE_RECORD. Since there is a issue that
-                // captured results being stretched when requested for recording on some models,
-                // it would be safer to request for preview, which is also better tested. More
-                // detail please see b/297167569.
             case PREVIEW:
             case IMAGE_ANALYSIS:
             default:
