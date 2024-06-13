@@ -2089,7 +2089,7 @@ package androidx.core.location {
     method public static boolean hasMslAltitudeAccuracy(android.location.Location);
     method public static boolean hasSpeedAccuracy(android.location.Location);
     method public static boolean hasVerticalAccuracy(android.location.Location);
-    method @Deprecated public static boolean isMock(android.location.Location);
+    method public static boolean isMock(android.location.Location);
     method public static void removeBearingAccuracy(android.location.Location);
     method public static void removeMslAltitude(android.location.Location);
     method public static void removeMslAltitudeAccuracy(android.location.Location);
