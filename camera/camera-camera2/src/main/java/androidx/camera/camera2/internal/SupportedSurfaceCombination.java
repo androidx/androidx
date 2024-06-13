@@ -1289,8 +1289,7 @@ final class SupportedSurfaceCombination {
                 GuaranteedConfigurationsUtil.generateSupportedCombinationList(mHardwareLevel,
                         mIsRawSupported, mIsBurstCaptureSupported));
 
-        mSurfaceCombinations.addAll(
-                mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
+        mSurfaceCombinations.addAll(mExtraSupportedSurfaceCombinationsContainer.get(mCameraId));
     }
 
     private void generateUltraHighSupportedCombinationList() {
