@@ -51,6 +51,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -165,6 +166,10 @@ class ViewPagerActivityTest(private val lensFacing: Int, private val cameraXConf
         }
     }
 
+    @Ignore(
+        "b/344664219, b/346947822 - Enable after revamp since test does not work as intended" +
+            " and the test passing does not indicate actual passing"
+    )
     @Test
     fun testPreviewViewUpdateAfterSwitchOutAndStop_ResumeAndSwitchBack() {
         launchActivity(lensFacing, cameraXConfig).use { scenario ->
