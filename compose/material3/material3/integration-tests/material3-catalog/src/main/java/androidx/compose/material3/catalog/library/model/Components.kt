@@ -233,7 +233,7 @@ private val FloatingAppBars =
         // No floating app bar icon
         guidelinesUrl = "$ComponentGuidelinesUrl/floating-app-bars",
         docsUrl = "$DocsUrl#floatingappbar",
-        sourceUrl = "$Material3SourceUrl/AppBar.kt",
+        sourceUrl = "$Material3SourceUrl/FloatingAppBar.kt",
         examples = FloatingAppBarsExamples
     )
 
