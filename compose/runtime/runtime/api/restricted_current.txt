@@ -749,7 +749,8 @@ package androidx.compose.runtime.collection {
     method @kotlin.PublishedApi internal void setSize(int newSize);
     method public void sortWith(java.util.Comparator<T> comparator);
     method public inline int sumBy(kotlin.jvm.functions.Function1<? super T,java.lang.Integer> selector);
-    method @kotlin.PublishedApi internal Void throwNoSuchElementException();
+    method @kotlin.PublishedApi internal inline Void throwNoSuchElementException();
+    method @kotlin.PublishedApi internal Void throwNoSuchElementException(String message);
     property public final inline kotlin.ranges.IntRange indices;
     property public final inline int lastIndex;
     property public final int size;
