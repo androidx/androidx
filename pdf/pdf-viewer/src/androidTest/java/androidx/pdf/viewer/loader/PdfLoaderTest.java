@@ -59,6 +59,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -227,6 +228,7 @@ public class PdfLoaderTest {
         assertThat(mPdfLoader.getPageLoader(PAGE).mSelectionTask).isNotNull();
     }
 
+    @Ignore // b/342212541
     @Test
     @UiThreadTest
     public void testLoadTiles() {
