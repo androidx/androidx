@@ -55,6 +55,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraTaskTrackingExecutor
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -240,12 +241,19 @@ class VideoRecordingTest(
             }
         }
 
+    private lateinit var cameraExecutor: CameraTaskTrackingExecutor
+
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
         skipVideoRecordingTestIfNotSupportedByEmulator()
 
-        ProcessCameraProvider.configureInstance(cameraConfig)
+        cameraExecutor = CameraTaskTrackingExecutor()
+        val cameraXConfig =
+            CameraXConfig.Builder.fromConfig(cameraConfig).setCameraExecutor(cameraExecutor).build()
+
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+
         cameraProvider =
             ProcessCameraProviderWrapper(ProcessCameraProvider.getInstance(context).get())
         lifecycleOwner = FakeLifecycleOwner()
@@ -1766,8 +1774,14 @@ class VideoRecordingTest(
             .prepareRecording(context, FileOutputOptions.Builder(file).build())
             .start(CameraXExecutors.directExecutor(), eventListener)
 
-    private fun CameraControl.verifyIfInVideoUsage(expected: Boolean, message: String = "") {
+    private suspend fun CameraControl.verifyIfInVideoUsage(
+        expected: Boolean,
+        message: String = ""
+    ) {
         instrumentation.waitForIdleSync() // VideoCapture observes Recorder in main thread
+        // VideoUsage is updated in camera thread. So, we should ensure all tasks already submitted
+        // to camera thread are completed before checking isInVideoUsage
+        cameraExecutor.awaitIdle()
         assertWithMessage(message).that((this as CameraControlInternal).isInVideoUsage).apply {
             if (expected) {
                 isTrue()
