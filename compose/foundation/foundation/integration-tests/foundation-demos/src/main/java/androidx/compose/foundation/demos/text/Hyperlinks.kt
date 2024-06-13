@@ -103,6 +103,31 @@ fun Hyperlinks() {
                 }
             )
         }
+        Sample("Link custom styling") {
+            val string = buildAnnotatedString {
+                withStyle(SpanStyle(Color.Green)) {
+                    append("Text. ")
+                    withLink(
+                        LinkAnnotation.Url(
+                            "tr",
+                            styles =
+                                TextLinkStyles(
+                                    SpanStyle(Color.Blue, textDecoration = TextDecoration.Underline)
+                                )
+                        )
+                    ) {
+                        append("VERY")
+                        withStyle(SpanStyle(Color.Cyan)) {
+                            append("LO")
+                            withStyle(SpanStyle(Color.Magenta)) { append("NG") }
+                        }
+                        append("LINK.")
+                    }
+                    append(" Text.")
+                }
+            }
+            BasicText(string)
+        }
         Sample("State-based styling from Html-tagged string") {
             val htmlString =
                 """
