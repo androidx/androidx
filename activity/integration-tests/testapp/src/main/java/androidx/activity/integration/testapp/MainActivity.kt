@@ -131,17 +131,38 @@ class MainActivity : ComponentActivity() {
                         PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/gif"))
                     )
                 }
+                button("Pick an image & show albums tab (w/ photo picker)") {
+                    pickVisualMedia.launch(
+                        PickVisualMediaRequest(
+                            mediaType = PickVisualMedia.ImageOnly,
+                            defaultTab = PickVisualMedia.DefaultTab.AlbumsTab
+                        )
+                    )
+                }
+                button("Pick an image & green accent color (w/ photo picker)") {
+                    pickVisualMedia.launch(
+                        PickVisualMediaRequest(
+                            mediaType = PickVisualMedia.ImageOnly,
+                            accentColor = 0xFF123456
+                        )
+                    )
+                }
                 button("Pick 5 visual media max (w/ photo picker)") {
                     pickMultipleVisualMedia.launch(
                         PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
                     )
                 }
-                button("Pick 9 visual media max (w/ photo picker)") {
+                button("Pick 3 visual media max (w/ photo picker)") {
                     pickMultipleVisualMedia.launch(
                         PickVisualMediaRequest(
                             mediaType = PickVisualMedia.ImageAndVideo,
-                            maxItems = 9
+                            maxItems = 3
                         )
+                    )
+                }
+                button("Pick 5 visual media max (w/ photo picker) & selection order") {
+                    pickMultipleVisualMedia.launch(
+                        PickVisualMediaRequest(isOrderedSelection = true)
                     )
                 }
                 button("Create document") { createDocument.launch("Temp") }

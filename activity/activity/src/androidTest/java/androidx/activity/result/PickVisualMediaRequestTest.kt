@@ -109,4 +109,43 @@ class PickVisualMediaRequestTest {
         assertThat(intent.getIntExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, /* defaultValue= */ 0))
             .isEqualTo(/* expected= */ 7)
     }
+
+    @Test
+    fun testPickVisualMediaRequest_accentColor() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.isCustomAccentColorApplied).isEqualTo(false)
+
+        // test given accent color in PickVisualMediaRequest
+        request = PickVisualMediaRequest(accentColor = 0xffff0000)
+        assertThat(request.isCustomAccentColorApplied).isEqualTo(true)
+        assertThat(request.accentColor).isEqualTo(0xffff0000)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_defaultTab() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.defaultTab)
+            .isEqualTo(ActivityResultContracts.PickVisualMedia.DefaultTab.PhotosTab)
+
+        // test given default tab in PickVisualMediaRequest
+        request =
+            PickVisualMediaRequest(
+                defaultTab = ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab
+            )
+        assertThat(request.defaultTab)
+            .isEqualTo(ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab)
+    }
+
+    @Test
+    fun testPickVisualMediaRequest_isOrderedSelection() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.isOrderedSelection).isEqualTo(false)
+
+        // test given isOrderedSelection in PickVisualMediaRequest
+        request = PickVisualMediaRequest(isOrderedSelection = true)
+        assertThat(request.isOrderedSelection).isEqualTo(true)
+    }
 }
