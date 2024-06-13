@@ -36,6 +36,7 @@ import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
+import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 import androidx.camera.extensions.internal.VendorExtender;
@@ -270,7 +271,8 @@ final class ExtensionsInfo {
     }
 
     private static boolean isAdvancedExtenderSupported() {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) < 0) {
+        if (ClientVersion.isMaximumCompatibleVersion(Version.VERSION_1_1)
+                || ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_1)) {
             return false;
         }
         return ExtensionVersion.isAdvancedExtenderSupported();
