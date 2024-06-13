@@ -198,7 +198,7 @@ internal class PrefetchMetrics {
                 calculateAverageTime(executionTime.inWholeNanoseconds, currentAvgMeasureTimeNanos)
             averageMeasureTimeNanosByContentType[contentType] = newAvgMeasureTimeNanos
         }
-        averageMeasureTimeNanos = calculateAverageTime(executionTime, averageMeasureTimeNanos)
+        averageMeasureTimeNanos = calculateAverageTime(executionTime.inWholeNanoseconds, averageMeasureTimeNanos)
     }
 
     private fun calculateAverageTime(new: Long, current: Long): Long {
