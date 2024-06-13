@@ -61,10 +61,14 @@ internal constructor(
         internal val tags: MutableSet<String> = mutableSetOf(workerClass.name)
 
         /**
-         * The id of the request.
+         * Sets a unique identifier for this unit of work.
          *
-         * It is a useful for the creation of `WorkRequest` for the [WorkManager.updateWork], that
-         * uses `id` for identifying work that should be updated.
+         * The id can be useful when retrieving [WorkInfo] by `id` or when trying to update an
+         * existing work. For example, using [WorkManager.updateWork] requires that the work has an
+         * id.
+         *
+         * @param id The unique identifier for this unit of work.
+         * @return The current [Builder]
          */
         @SuppressWarnings("SetterReturnsThis")
         fun setId(id: UUID): B {
