@@ -19,32 +19,39 @@ package androidx.core.provider;
 import static androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 
 import android.graphics.Typeface;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.core.provider.FontRequestWorker.TypefaceResult;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback;
 
+import java.util.concurrent.Executor;
+
 /**
- * Wraps a {@link FontRequestCallback} and a {@link Handler} in order to call the callback
+ * Wraps a {@link FontRequestCallback} and a {@link Executor} in order to call the callback
  * functions on the provided handler.
  *
- * If no Handler is provided, {@link CalleeHandler#create()} is used instead.
+ * If no Executor is provided, {@link CalleeHandler#create()} is used instead.
  */
-class CallbackWithHandler {
+class CallbackWrapper {
     @NonNull private final FontRequestCallback mCallback;
-    @NonNull private final Handler mCallbackHandler;
+    @NonNull private final Executor mExecutor;
 
-    CallbackWithHandler(
+    /**
+     * Run callbacks in {@param executor}
+     */
+    CallbackWrapper(
             @NonNull FontRequestCallback callback,
-            @NonNull Handler callbackHandler) {
+            @NonNull Executor executor
+    ) {
         this.mCallback = callback;
-        this.mCallbackHandler = callbackHandler;
+        this.mExecutor = executor;
     }
 
-    CallbackWithHandler(@NonNull FontRequestCallback callback) {
-        this.mCallback = callback;
-        this.mCallbackHandler = CalleeHandler.create();
+    /**
+     * Run callbacks on main thread
+     */
+    CallbackWrapper(@NonNull FontRequestCallback callback) {
+        this(callback, RequestExecutor.createHandlerExecutor(CalleeHandler.create()));
     }
 
     /**
@@ -52,7 +59,7 @@ class CallbackWithHandler {
      */
     private void onTypefaceRetrieved(@NonNull final Typeface typeface) {
         final FontRequestCallback callback = this.mCallback;
-        mCallbackHandler.post(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 callback.onTypefaceRetrieved(typeface);
@@ -65,7 +72,7 @@ class CallbackWithHandler {
      */
     private void onTypefaceRequestFailed(@FontRequestFailReason final int reason) {
         final FontRequestCallback callback = this.mCallback;
-        mCallbackHandler.post(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 callback.onTypefaceRequestFailed(reason);

@@ -95,7 +95,7 @@ class FontRequestWorker {
     static Typeface requestFontSync(
             @NonNull final Context context,
             @NonNull final FontRequest request,
-            @NonNull final CallbackWithHandler callback,
+            @NonNull final CallbackWrapper callback,
             final int style,
             int timeoutInMillis
     ) {
@@ -139,7 +139,7 @@ class FontRequestWorker {
      * Request a Font to be loaded async.
      *
      * The {@link FontRequest} is executed on executor, and the callback is called on the
-     * {@link Handler} that is contained in {@link CallbackWithHandler}.
+     * {@link Handler} that is contained in {@link CallbackWrapper}.
      *
      *
      * @param context
@@ -149,7 +149,7 @@ class FontRequestWorker {
      * @param executor Executor instance to execute the request. If null is provided
      *                 DEFAULT_EXECUTOR_SERVICE will be used.
      * @param callback callback to be called for async FontRequest result.
-     *                 {@link CallbackWithHandler} contains the Handler to call the
+     *                 {@link CallbackWrapper} contains the Handler to call the
      *                 callback on.
      * @return
      */
@@ -158,7 +158,7 @@ class FontRequestWorker {
             @NonNull final FontRequest request,
             final int style,
             @Nullable final Executor executor,
-            @NonNull final CallbackWithHandler callback
+            @NonNull final CallbackWrapper callback
     ) {
 
         final String id = createCacheId(request, style);
