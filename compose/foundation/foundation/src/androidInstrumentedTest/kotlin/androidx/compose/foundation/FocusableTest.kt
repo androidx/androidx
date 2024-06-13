@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -70,6 +71,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -97,6 +99,13 @@ class FocusableTest {
     fun after() {
         isDebugInspectorInfoEnabled = false
     }
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     @Test
     fun focusable_defaultSemantics() {
@@ -326,7 +335,59 @@ class FocusableTest {
     }
 
     @Test
-    fun focusable_interactionSource_resetWhenDisposed() {
+    fun focusable_interactionSource_resetWhenModifierDetached() {
+        val interactionSource = MutableInteractionSource()
+        val focusRequester = FocusRequester()
+        var emitFocusableNode by mutableStateOf(true)
+
+        lateinit var scope: CoroutineScope
+
+        rule.setFocusableContent {
+            scope = rememberCoroutineScope()
+            Box {
+                BasicText(
+                    "focusableText",
+                    modifier =
+                        Modifier.testTag(focusTag)
+                            .focusRequester(focusRequester)
+                            .then(
+                                if (emitFocusableNode) {
+                                    Modifier.focusable(interactionSource = interactionSource)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                )
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Dispose focusable, Interaction should be gone
+        rule.runOnIdle { emitFocusableNode = false }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun focusable_interactionSource_resetWhenLayoutDetached() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         var emitFocusableText by mutableStateOf(true)
@@ -361,7 +422,7 @@ class FocusableTest {
             assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
         }
 
-        // Dispose focusable, Interaction should be gone
+        // Dispose the layout node, Interaction should be gone
         rule.runOnIdle { emitFocusableText = false }
 
         rule.runOnIdle {

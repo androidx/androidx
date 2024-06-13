@@ -62,7 +62,8 @@ internal class FocusOwnerImpl(
     private val onLayoutDirection: (() -> LayoutDirection)
 ) : FocusOwner {
 
-    internal var rootFocusNode = FocusTargetNode()
+    // The root focus target is not focusable, and acts like a focus group.
+    internal var rootFocusNode = FocusTargetNode(focusability = Focusability.Never)
 
     private val focusInvalidationManager =
         FocusInvalidationManager(onRequestApplyChangesListener, ::invalidateOwnerFocusState)
@@ -75,27 +76,19 @@ internal class FocusOwnerImpl(
      */
     // TODO(b/168831247): return an empty Modifier when there are no focusable children.
     override val modifier: Modifier =
-        Modifier
-            // The root focus target is not focusable, and acts like a focus group.
-            //  We could save an allocation here by making FocusTargetNode implement
-            //  FocusPropertiesModifierNode but to do that we would have to allocate
-            //  a focus properties object. This way only the root node has this extra allocation.
-            .focusProperties { canFocus = false }
-            .then(
-                object : ModifierNodeElement<FocusTargetNode>() {
-                    override fun create() = rootFocusNode
+        object : ModifierNodeElement<FocusTargetNode>() {
+            override fun create() = rootFocusNode
 
-                    override fun update(node: FocusTargetNode) {}
+            override fun update(node: FocusTargetNode) {}
 
-                    override fun InspectorInfo.inspectableProperties() {
-                        name = "RootFocusTarget"
-                    }
+            override fun InspectorInfo.inspectableProperties() {
+                name = "RootFocusTarget"
+            }
 
-                    override fun hashCode(): Int = rootFocusNode.hashCode()
+            override fun hashCode(): Int = rootFocusNode.hashCode()
 
-                    override fun equals(other: Any?) = other === this
-                }
-            )
+            override fun equals(other: Any?) = other === this
+        }
 
     /**
      * This function is called to ask the owner to request focus from the framework. eg. If a

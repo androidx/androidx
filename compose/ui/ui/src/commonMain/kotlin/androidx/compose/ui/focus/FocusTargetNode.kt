@@ -39,7 +39,10 @@ import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.node.visitSubtreeIf
 import androidx.compose.ui.platform.InspectorInfo
 
-internal class FocusTargetNode :
+internal class FocusTargetNode(
+    focusability: Focusability = Focusability.Always,
+    private val onFocusChange: ((previous: FocusState, current: FocusState) -> Unit)? = null
+) :
     CompositionLocalConsumerModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
@@ -55,7 +58,6 @@ internal class FocusTargetNode :
 
     override val shouldAutoInvalidate = false
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override var focusState: FocusStateImpl
         get() =
             focusTransactionManager?.run { uncommittedFocusState }
@@ -63,6 +65,24 @@ internal class FocusTargetNode :
                 ?: Inactive
         set(value) {
             with(requireTransactionManager()) { uncommittedFocusState = value }
+        }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun requestFocus(): Boolean {
+        return requestFocus(FocusDirection.Enter) ?: false
+    }
+
+    override var focusability: Focusability = focusability
+        set(value) {
+            if (field != value) {
+                field = value
+                // Avoid invalidating if we have not been initialized yet: there is no need to
+                // invalidate since these property changes cannot affect anything.
+                if (isAttached && committedFocusState != null) {
+                    // Invalidate focus if needed
+                    onObservedReadsChanged()
+                }
+            }
         }
 
     var previouslyFocusedChildHash: Int = 0
@@ -73,7 +93,7 @@ internal class FocusTargetNode :
     override fun onObservedReadsChanged() {
         val previousFocusState = focusState
         invalidateFocus()
-        if (previousFocusState != focusState) refreshFocusEventNodes()
+        if (previousFocusState != focusState) dispatchFocusCallbacks()
     }
 
     /** Clears focus if this focus target has it. */
@@ -116,6 +136,7 @@ internal class FocusTargetNode :
      */
     internal fun fetchFocusProperties(): FocusProperties {
         val properties = FocusPropertiesImpl()
+        properties.canFocus = focusability.canFocus(this)
         visitSelfAndAncestors(Nodes.FocusProperties, untilType = Nodes.FocusTarget) {
             it.applyFocusProperties(properties)
         }
@@ -197,6 +218,25 @@ internal class FocusTargetNode :
             }
             ActiveParent,
             Inactive -> {}
+        }
+    }
+
+    /**
+     * Triggers [onFocusChange] and sends a "Focus Event" up the hierarchy that asks all
+     * [FocusEventModifierNode]s to recompute their observed focus state.
+     */
+    internal fun dispatchFocusCallbacks() {
+        val previousOrInactive = committedFocusState ?: Inactive
+        val focusState = focusState
+        // Avoid invoking callback when we initialize the state (from `null` to Inactive) or
+        // if we are detached and go from Inactive to `null` - there isn't a conceptual focus
+        // state change here
+        if (previousOrInactive != focusState) {
+            onFocusChange?.invoke(previousOrInactive, focusState)
+        }
+        visitSelfAndAncestors(Nodes.FocusEvent, untilType = Nodes.FocusTarget) {
+            // TODO(251833873): Consider caching it.getFocusState().
+            it.onFocusEvent(it.getFocusState())
         }
     }
 

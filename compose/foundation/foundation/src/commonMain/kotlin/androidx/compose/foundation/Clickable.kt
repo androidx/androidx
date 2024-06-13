@@ -28,8 +28,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusEventModifierNode
-import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -881,7 +880,6 @@ internal abstract class AbstractClickableNode(
     DelegatingNode(),
     PointerInputModifierNode,
     KeyInputModifierNode,
-    FocusEventModifierNode,
     SemanticsModifierNode,
     TraversableNode {
     protected var enabled = enabled
@@ -892,8 +890,13 @@ internal abstract class AbstractClickableNode(
 
     final override val shouldAutoInvalidate: Boolean = false
 
-    private val focusableInNonTouchMode: FocusableInNonTouchMode = FocusableInNonTouchMode()
-    private val focusableNode: FocusableNode = FocusableNode(interactionSource)
+    private val focusableNode: FocusableNode =
+        FocusableNode(
+            interactionSource,
+            focusability = Focusability.SystemDefined,
+            onFocus = ::initializeIndicationAndInteractionSourceIfNeeded
+        )
+
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
     private var indicationNode: DelegatableNode? = null
 
@@ -942,11 +945,9 @@ internal abstract class AbstractClickableNode(
         }
         if (this.enabled != enabled) {
             if (enabled) {
-                delegate(focusableInNonTouchMode)
                 delegate(focusableNode)
             } else {
                 // TODO: Should we remove indicationNode? Previously we always emitted indication
-                undelegate(focusableInNonTouchMode)
                 undelegate(focusableNode)
                 disposeInteractions()
             }
@@ -985,7 +986,6 @@ internal abstract class AbstractClickableNode(
             initializeIndicationAndInteractionSourceIfNeeded()
         }
         if (enabled) {
-            delegate(focusableInNonTouchMode)
             delegate(focusableNode)
         }
     }
@@ -1111,13 +1111,6 @@ internal abstract class AbstractClickableNode(
     protected abstract fun onClickKeyUpEvent(event: KeyEvent): Boolean
 
     final override fun onPreKeyEvent(event: KeyEvent) = false
-
-    final override fun onFocusEvent(focusState: FocusState) {
-        if (focusState.isFocused) {
-            initializeIndicationAndInteractionSourceIfNeeded()
-        }
-        focusableNode.onFocusEvent(focusState)
-    }
 
     final override val shouldMergeDescendantSemantics: Boolean
         get() = true

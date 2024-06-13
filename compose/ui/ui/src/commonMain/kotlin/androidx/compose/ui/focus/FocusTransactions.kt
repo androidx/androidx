@@ -21,7 +21,6 @@ import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
 import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
 import androidx.compose.ui.focus.CustomDestinationResult.Redirected
-import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -32,19 +31,10 @@ import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
 
-/**
- * Request focus for this node.
- *
- * In Compose, the parent [FocusNode][FocusTargetNode] controls focus for its focusable children.
- * Calling this function will send a focus request to this [FocusNode][FocusTargetNode]'s parent
- * [FocusNode][FocusTargetNode].
- */
-@OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetNode.requestFocus(): Boolean = requestFocus(Enter) ?: false
-
 internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
+    if (!fetchFocusProperties().canFocus) return false
     return requireTransactionManager().withNewTransaction(
-        onCancelled = { if (node.isAttached) refreshFocusEventNodes() }
+        onCancelled = { if (node.isAttached) dispatchFocusCallbacks() }
     ) {
         when (performCustomRequestFocus(focusDirection)) {
             None -> performRequestFocus()
@@ -74,7 +64,7 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
                     val prevState = parent.focusState
                     val success = parent.requestFocusForChild(this)
                     if (success && prevState !== parent.focusState) {
-                        parent.refreshFocusEventNodes()
+                        parent.dispatchFocusCallbacks()
                     }
                     success
                 } else {
@@ -82,7 +72,7 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
                 }
             }
         }
-    if (success) refreshFocusEventNodes()
+    if (success) dispatchFocusCallbacks()
     return success
 }
 
@@ -99,7 +89,7 @@ internal fun FocusTargetNode.captureFocus() =
         when (focusState) {
             Active -> {
                 focusState = Captured
-                refreshFocusEventNodes()
+                dispatchFocusCallbacks()
                 true
             }
             Captured -> true
@@ -120,7 +110,7 @@ internal fun FocusTargetNode.freeFocus() =
         when (focusState) {
             Captured -> {
                 focusState = Active
-                refreshFocusEventNodes()
+                dispatchFocusCallbacks()
                 true
             }
             Active -> true
@@ -143,7 +133,7 @@ internal fun FocusTargetNode.clearFocus(
     when (focusState) {
         Active -> {
             focusState = Inactive
-            if (refreshFocusEvents) refreshFocusEventNodes()
+            if (refreshFocusEvents) dispatchFocusCallbacks()
             true
         }
         /**
@@ -153,7 +143,7 @@ internal fun FocusTargetNode.clearFocus(
         ActiveParent ->
             if (clearChildFocus(forced, refreshFocusEvents)) {
                 focusState = Inactive
-                if (refreshFocusEvents) refreshFocusEventNodes()
+                if (refreshFocusEvents) dispatchFocusCallbacks()
                 true
             } else {
                 false
@@ -163,7 +153,7 @@ internal fun FocusTargetNode.clearFocus(
         Captured -> {
             if (forced) {
                 focusState = Inactive
-                if (refreshFocusEvents) refreshFocusEventNodes()
+                if (refreshFocusEvents) dispatchFocusCallbacks()
             }
             forced
         }
@@ -239,7 +229,7 @@ private fun FocusTargetNode.requestFocusForChild(childNode: FocusTargetNode): Bo
                         // If this child didn't take focus then we can end up in a situation where
                         // a deactivated parent is focused.
                         check(this.focusState == ActiveParent) { "Deactivated node is focused" }
-                        if (success) focusParent.refreshFocusEventNodes()
+                        if (success) focusParent.dispatchFocusCallbacks()
                     }
                 }
 

@@ -627,11 +627,29 @@ package androidx.compose.ui.focus {
 
   public sealed interface FocusTargetModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public androidx.compose.ui.focus.FocusState getFocusState();
+    method public int getFocusability();
+    method public boolean requestFocus();
+    method public void setFocusability(int);
     property public abstract androidx.compose.ui.focus.FocusState focusState;
+    property public abstract int focusability;
   }
 
   public final class FocusTargetModifierNodeKt {
-    method public static androidx.compose.ui.focus.FocusTargetModifierNode FocusTargetModifierNode();
+    method @Deprecated public static androidx.compose.ui.focus.FocusTargetModifierNode FocusTargetModifierNode();
+    method public static androidx.compose.ui.focus.FocusTargetModifierNode FocusTargetModifierNode(optional int focusability, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.focus.FocusState,? super androidx.compose.ui.focus.FocusState,kotlin.Unit>? onFocusChange);
+  }
+
+  @kotlin.jvm.JvmInline public final value class Focusability {
+    field public static final androidx.compose.ui.focus.Focusability.Companion Companion;
+  }
+
+  public static final class Focusability.Companion {
+    method public int getAlways();
+    method public int getNever();
+    method public int getSystemDefined();
+    property public final int Always;
+    property public final int Never;
+    property public final int SystemDefined;
   }
 
 }
