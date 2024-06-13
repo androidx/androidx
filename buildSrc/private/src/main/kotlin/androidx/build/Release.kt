@@ -257,10 +257,10 @@ object Release {
 
     /** Registers an archive task as a dependency of the anchor task */
     private fun Project.addToAnchorTask(task: TaskProvider<GMavenZipTask>) {
-        val archiveAnchorTask: TaskProvider<VerifyVersionFilesTask> =
+        val archiveAnchorTask: TaskProvider<VerifyLicenseAndVersionFilesTask> =
             project.rootProject.maybeRegister(
                 name = ALL_ARCHIVES_TASK_NAME,
-                onConfigure = { archiveTask: VerifyVersionFilesTask ->
+                onConfigure = { archiveTask: VerifyLicenseAndVersionFilesTask ->
                     archiveTask.group = "Distribution"
                     archiveTask.description = "Builds all archives for publishing"
                     archiveTask.repositoryDirectory.set(
