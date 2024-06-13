@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator
+import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
+import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
 import androidx.compose.material3.tokens.ProgressIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -863,7 +865,7 @@ object ProgressIndicatorDefaults {
         @Composable get() = Color.Transparent
 
     /** Default stroke width for a circular progress indicator. */
-    val CircularStrokeWidth: Dp = ProgressIndicatorTokens.TrackThickness
+    val CircularStrokeWidth: Dp = CircularProgressIndicatorTokens.TrackThickness
 
     /** Default stroke cap for a linear progress indicator. */
     val LinearStrokeCap: StrokeCap = StrokeCap.Round
@@ -878,19 +880,19 @@ object ProgressIndicatorDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearTrackStopIndicatorSize: Dp = ProgressIndicatorTokens.StopSize
+    val LinearTrackStopIndicatorSize: Dp = LinearProgressIndicatorTokens.StopSize
 
     /** Default indicator track gap size for a linear progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
+    val LinearIndicatorTrackGapSize: Dp = LinearProgressIndicatorTokens.TrackActiveSpace
 
     /** Default indicator track gap size for a circular progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val CircularIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
+    val CircularIndicatorTrackGapSize: Dp = CircularProgressIndicatorTokens.TrackActiveSpace
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
@@ -955,13 +957,12 @@ object ProgressIndicatorDefaults {
 internal val LinearIndicatorWidth = 240.dp
 
 /*@VisibleForTesting*/
-internal val LinearIndicatorHeight = ProgressIndicatorTokens.TrackThickness
+internal val LinearIndicatorHeight = LinearProgressIndicatorTokens.Height
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
 /*@VisibleForTesting*/
-internal val CircularIndicatorDiameter =
-    ProgressIndicatorTokens.Size - ProgressIndicatorTokens.TrackThickness * 2
+internal val CircularIndicatorDiameter = CircularProgressIndicatorTokens.Size
 
 // Indeterminate linear indicator transition specs
 
