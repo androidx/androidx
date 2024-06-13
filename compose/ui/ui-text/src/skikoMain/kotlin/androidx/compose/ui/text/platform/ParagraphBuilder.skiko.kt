@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("SkiaParagraph_skikoKt")
+@file:JvmMultifileClass
+
 package androidx.compose.ui.text.platform
 
 import org.jetbrains.skia.Font as SkFont
@@ -21,165 +25,138 @@ import org.jetbrains.skia.paragraph.Alignment as SkAlignment
 import org.jetbrains.skia.paragraph.DecorationLineStyle as SkDecorationLineStyle
 import org.jetbrains.skia.paragraph.DecorationStyle as SkDecorationStyle
 import org.jetbrains.skia.paragraph.Direction as SkDirection
+import org.jetbrains.skia.paragraph.FontRastrSettings as SkFontRastrSettings
 import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
 import org.jetbrains.skia.paragraph.ParagraphBuilder as SkParagraphBuilder
 import org.jetbrains.skia.paragraph.Shadow as SkShadow
 import org.jetbrains.skia.paragraph.TextIndent as SkTextIndent
 import org.jetbrains.skia.paragraph.TextStyle as SkTextStyle
-import org.jetbrains.skia.paragraph.FontRastrSettings as SkFontRastrSettings
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.text.*
 import androidx.compose.ui.text.AnnotatedString.Range
-import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.FontRasterizationSettings
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextDecorationLineStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.WeakKeysCache
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontFamilyResolverImpl
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.SkiaFontLoader
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.style.*
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextForegroundStyle
+import androidx.compose.ui.text.style.TextGeometricTransform
+import androidx.compose.ui.text.toSkFontRastrSettings
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.isUnspecified
+import androidx.compose.ui.unit.sp
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import org.jetbrains.skia.FontFeature
 import org.jetbrains.skia.Paint
-import org.jetbrains.skia.paragraph.*
+import org.jetbrains.skia.PaintMode
+import org.jetbrains.skia.paragraph.BaselineMode
+import org.jetbrains.skia.paragraph.HeightMode
+import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.ParagraphStyle
+import org.jetbrains.skia.paragraph.PlaceholderAlignment
+import org.jetbrains.skia.paragraph.PlaceholderStyle
+import org.jetbrains.skia.paragraph.TextBox
 
 private val DefaultFontSize = 16.sp
-
-@Suppress("DEPRECATION")
-@Deprecated(
-    "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
-    replaceWith = ReplaceWith("ActualParagraph(text, style, spanStyles, placeholders, " +
-        "maxLines, ellipsis, width, density, fontFamilyResolver)"),
-)
-internal actual fun ActualParagraph(
-    text: String,
-    style: TextStyle,
-    spanStyles: List<Range<SpanStyle>>,
-    placeholders: List<Range<Placeholder>>,
-    maxLines: Int,
-    ellipsis: Boolean,
-    width: Float,
-    density: Density,
-    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
-): Paragraph = SkiaParagraph(
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        density,
-        createFontFamilyResolver(resourceLoader)
-    ),
-    maxLines,
-    ellipsis,
-    Constraints(maxWidth = width.ceilToInt())
-)
-
-internal actual fun ActualParagraph(
-    text: String,
-    style: TextStyle,
-    spanStyles: List<Range<SpanStyle>>,
-    placeholders: List<Range<Placeholder>>,
-    maxLines: Int,
-    ellipsis: Boolean,
-    constraints: Constraints,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver
-): Paragraph = SkiaParagraph(
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        density,
-        fontFamilyResolver
-    ),
-    maxLines,
-    ellipsis,
-    constraints
-)
-
-internal actual fun ActualParagraph(
-    paragraphIntrinsics: ParagraphIntrinsics,
-    maxLines: Int,
-    ellipsis: Boolean,
-    constraints: Constraints
-): Paragraph = SkiaParagraph(
-    paragraphIntrinsics as SkiaParagraphIntrinsics,
-    maxLines,
-    ellipsis,
-    constraints
-)
 
 // Computed ComputedStyles always have font/letter size in pixels for particular `density`.
 // It's important because density could be changed in runtime, and it should force
 // SkTextStyle to be recalculated. Or we can have different densities in different windows.
 @OptIn(ExperimentalTextApi::class)
-internal data class ComputedStyle(
-    var textForegroundStyle: TextForegroundStyle,
-    var brushSize: Size,
-    var fontSize: Float,
-    var fontWeight: FontWeight?,
-    var fontStyle: FontStyle?,
-    var fontSynthesis: FontSynthesis?,
-    var fontFamily: FontFamily?,
-    var fontFeatureSettings: String?,
-    var letterSpacing: Float?,
-    var baselineShift: BaselineShift?,
-    var textGeometricTransform: TextGeometricTransform?,
-    var localeList: LocaleList?,
+private data class ComputedStyle(
+    var textForegroundStyle: TextForegroundStyle = TextForegroundStyle.Unspecified,
+    var brushSize: Size = Size.Unspecified,
+    var fontSize: Float = Float.NaN,
+    var fontWeight: FontWeight? = null,
+    var fontStyle: FontStyle? = null,
+    var fontSynthesis: FontSynthesis? = null,
+    var fontFamily: FontFamily? = null,
+    var fontFeatureSettings: String? = null,
+    var letterSpacing: Float? = null,
+    var baselineShift: BaselineShift? = null,
+    var textGeometricTransform: TextGeometricTransform? = null,
+    var localeList: LocaleList? = null,
     var background: Color = Color.Unspecified,
-    var textDecoration: TextDecoration?,
-    var textDecorationLineStyle: TextDecorationLineStyle?,
-    var shadow: Shadow?,
-    var drawStyle: DrawStyle?,
-    var blendMode: BlendMode,
-    var lineHeight: Float?,
+    var textDecoration: TextDecoration? = null,
+    var textDecorationLineStyle: TextDecorationLineStyle? = null,
+    var shadow: Shadow? = null,
+    var drawStyle: DrawStyle? = null,
+    var blendMode: BlendMode = DrawScope.DefaultBlendMode,
+    var lineHeight: Float? = null,
 ) {
-
     constructor(
         density: Density,
         spanStyle: SpanStyle,
         brushSize: Size = Size.Unspecified,
         blendMode: BlendMode = DrawScope.DefaultBlendMode,
         lineHeight: TextUnit,
-    ) : this(
-        textForegroundStyle = spanStyle.textForegroundStyle,
-        brushSize = brushSize,
-        fontSize = with(density) { spanStyle.fontSize.toPx() },
-        fontWeight = spanStyle.fontWeight,
-        fontStyle = spanStyle.fontStyle,
-        fontSynthesis = spanStyle.fontSynthesis,
-        fontFamily = spanStyle.fontFamily,
-        fontFeatureSettings = spanStyle.fontFeatureSettings,
-        letterSpacing = if (spanStyle.letterSpacing.isSpecified) {
-            with(density) { spanStyle.letterSpacing.toPx() }
-        } else null,
-        baselineShift = spanStyle.baselineShift,
-        textGeometricTransform = spanStyle.textGeometricTransform,
-        localeList = spanStyle.localeList,
-        background = spanStyle.background,
-        textDecoration = spanStyle.textDecoration,
-        textDecorationLineStyle = spanStyle.platformStyle?.textDecorationLineStyle,
-        shadow = spanStyle.shadow,
-        drawStyle = spanStyle.drawStyle,
-        blendMode = blendMode,
-        lineHeight = if (lineHeight.isSpecified) {
-            lineHeight.toPx(density, spanStyle.fontSize)
-        } else null,
-    )
+    ) : this() {
+        set(density, spanStyle, brushSize, blendMode, lineHeight)
+    }
 
-    private fun toTextPaint(): Paint? = Paint().let {
-        with(it.asComposePaint()) {
-            color = textForegroundStyle.color
-            applyBrush(textForegroundStyle.brush, brushSize, textForegroundStyle.alpha)
-            applyDrawStyle(drawStyle)
-            blendMode = this@ComputedStyle.blendMode
-            return@let it.takeIf { shader != null || style != PaintingStyle.Fill || !it.isSrcOver }
-        }
+    fun set(
+        density: Density,
+        spanStyle: SpanStyle,
+        brushSize: Size = Size.Unspecified,
+        blendMode: BlendMode = DrawScope.DefaultBlendMode,
+        lineHeight: TextUnit,
+    ) {
+        this.textForegroundStyle = spanStyle.textForegroundStyle
+        this.brushSize = brushSize
+        this.fontSize = with(density) { spanStyle.fontSize.toPx() }
+        this.fontWeight = spanStyle.fontWeight
+        this.fontStyle = spanStyle.fontStyle
+        this.fontSynthesis = spanStyle.fontSynthesis
+        this.fontFamily = spanStyle.fontFamily
+        this.fontFeatureSettings = spanStyle.fontFeatureSettings
+        this.letterSpacing = if (spanStyle.letterSpacing.isSpecified) {
+            with(density) { spanStyle.letterSpacing.toPx() }
+        } else null
+        this.baselineShift = spanStyle.baselineShift
+        this.textGeometricTransform = spanStyle.textGeometricTransform
+        this.localeList = spanStyle.localeList
+        this.background = spanStyle.background
+        this.textDecoration = spanStyle.textDecoration
+        this.textDecorationLineStyle = spanStyle.platformStyle?.textDecorationLineStyle
+        this.shadow = spanStyle.shadow
+        this.drawStyle = spanStyle.drawStyle
+        this.blendMode = blendMode
+        this.lineHeight = if (lineHeight.isSpecified) {
+            lineHeight.toPx(density, spanStyle.fontSize)
+        } else null
+    }
+
+    private val _foregroundPaint = SkiaTextPaint()
+    fun getForegroundPaint(): Paint {
+        // `asFrameworkPaint` doesn't create a copy,
+        // so all the changes will be applied to skia paint.
+        val paint = _foregroundPaint.asFrameworkPaint()
+        paint.reset()
+        _foregroundPaint.color = textForegroundStyle.color
+        _foregroundPaint.setBrush(textForegroundStyle.brush, brushSize, textForegroundStyle.alpha)
+        _foregroundPaint.setDrawStyle(drawStyle)
+        _foregroundPaint.blendMode = blendMode
+        return paint
     }
 
     fun toSkTextStyle(fontFamilyResolver: FontFamily.Resolver): SkTextStyle {
@@ -187,8 +164,10 @@ internal data class ComputedStyle(
         if (textForegroundStyle.color.isSpecified) {
             res.color = textForegroundStyle.color.toArgb()
         }
-        val foreground = toTextPaint()
-        if (foreground != null) {
+        val foreground = getForegroundPaint()
+        if (foreground.shader != null ||
+            foreground.mode != PaintMode.FILL ||
+            !foreground.isSrcOver) {
             res.foreground = foreground
         }
         fontStyle?.let {
@@ -287,9 +266,23 @@ internal class ParagraphBuilder(
     var drawStyle: DrawStyle? = null,
     var blendMode: BlendMode = DrawScope.DefaultBlendMode
 ) {
+    private val defaultStyle = ComputedStyle()
     private lateinit var initialStyle: SpanStyle
-    private lateinit var defaultStyle: ComputedStyle
     private lateinit var ops: List<Op>
+
+    private fun prepareDefaultStyle() {
+        initialStyle = textStyle.toSpanStyle().copyWithDefaultFontSize(
+            drawStyle = drawStyle
+        )
+        defaultStyle.set(density, initialStyle, brushSize, blendMode, textStyle.lineHeight)
+    }
+
+    fun updateForegroundPaint(paragraph: SkParagraph?) {
+        if (paragraph == null) return
+        prepareDefaultStyle()
+        val foregroundPaint = defaultStyle.getForegroundPaint()
+        paragraph.updateForegroundPaint(0, text.length, foregroundPaint)
+    }
 
     /**
      * SkParagraph styles model doesn't match Compose's one.
@@ -302,10 +295,7 @@ internal class ParagraphBuilder(
      * of active styles is being compiled into single SkParagraph's style for every chunk of text
      */
     fun build(): SkParagraph {
-        initialStyle = textStyle.toSpanStyle().copyWithDefaultFontSize(
-            drawStyle = drawStyle
-        )
-        defaultStyle = ComputedStyle(density, initialStyle, brushSize, blendMode, textStyle.lineHeight)
+        prepareDefaultStyle()
         ops = makeOps(
             spanStyles,
             placeholders

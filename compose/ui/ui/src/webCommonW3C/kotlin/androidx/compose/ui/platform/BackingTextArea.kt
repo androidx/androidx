@@ -18,8 +18,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
@@ -29,6 +27,7 @@ import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.KeyboardEventInit
 
@@ -41,9 +40,18 @@ internal class BackingTextArea(
     private val imeOptions: ImeOptions,
     private val onEditCommand: (List<EditCommand>) -> Unit,
     private val onImeActionPerformed: (ImeAction) -> Unit,
-    private val sendKey: (evt: KeyEvent) -> Unit
+    private val processKeyboardEvent: (KeyboardEvent) -> Unit
 ) {
     private val textArea: HTMLTextAreaElement = createHtmlInput()
+
+    private fun processIdentifiedEvent(evt: Event) {
+        if (evt !is KeyboardEvent) return
+        // TODO: In theory nothing stops us from passing Unidentified keys but this yet to be investigated:
+        // First, this way we will pass (and attempt to process) "dummy" KeyboardEvents that were designed not to have physical representation at all
+        // Second, we need more tests on keyboard in general before doing this anyways
+        if (evt.key == "Unidentified") return
+        processKeyboardEvent(evt)
+    }
 
     private fun createHtmlInput(): HTMLTextAreaElement {
         val htmlInput = document.createElement("textarea") as HTMLTextAreaElement
@@ -100,6 +108,14 @@ internal class BackingTextArea(
             setProperty("text-shadow", "none")
         }
 
+        htmlInput.addEventListener("keydown", { evt ->
+            processIdentifiedEvent(evt)
+        })
+
+        htmlInput.addEventListener("keyup", { evt ->
+            processIdentifiedEvent(evt)
+        })
+
         htmlInput.addEventListener("input", { evt ->
             evt.preventDefault()
             evt as InputEventExtended
@@ -118,23 +134,15 @@ internal class BackingTextArea(
 
                 "insertText" -> {
                     val data = evt.data ?: return@addEventListener
-                    if (data.length == 1) {
-                        sendKey(
-                            KeyboardEvent(
-                                "keydown", KeyboardEventInit(key = data)
-                            ).toComposeEvent()
-                        )
-                    } else if (data.length > 1) {
-                        onEditCommand(listOf(CommitTextCommand(data, 1)))
-                    }
+                    onEditCommand(listOf(CommitTextCommand(data, 1)))
                 }
 
                 "deleteContentBackward" -> {
-                    sendKey(
+                    processKeyboardEvent(
                         KeyboardEvent(
                             "keydown",
                             KeyboardEventInit(key = "Backspace", code = "Backspace").withKeyCode(Key.Backspace)
-                        ).toComposeEvent()
+                        )
                     )
                 }
             }

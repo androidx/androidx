@@ -32,8 +32,8 @@ import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -51,10 +51,10 @@ class SelectionContainerTests : OnCanvasTests {
     fun setup() {
         // Because AfterTest is fixed only in kotlin 2.0
         // https://youtrack.jetbrains.com/issue/KT-61888
-        document.getElementById(canvasId)?.remove()
+        commonAfterTest()
     }
 
-    fun HTMLCanvasElement.doClick() {
+    private fun HTMLCanvasElement.doClick() {
         dispatchEvent(MouseEvent("mousedown", MouseEventInit(5, 5, 5, 5, buttons = 1, button = 1)))
         dispatchEvent(MouseEvent("mouseup", MouseEventInit(5, 5, 5, 5, buttons = 0, button = 1)))
     }
@@ -96,7 +96,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         var selection = syncChannel.receive()
-        assertEquals(null, selection)
+        assertFalse(selection.exists())
 
         // delay to prevent interpreting next single click as a second click of the previous click,
         // so we make sure it won't appear as a double click
@@ -109,7 +109,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         selection = syncChannel.receive()
-        assertNotNull(selection)
+        assertTrue(selection.exists())
         assertEquals(0, selection!!.start.offset)
         assertEquals(6, selection!!.end.offset)
 
@@ -119,8 +119,7 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertNull(selection)
-        assertEquals(null, selection)
+        assertFalse(selection.exists())
     }
 
     @Test
@@ -163,7 +162,7 @@ class SelectionContainerTests : OnCanvasTests {
         canvas.doClick()
 
         var selection = syncChannel.receive()
-        assertNotNull(selection)
+        assertTrue(selection.exists())
         assertEquals(0, selection!!.start.offset)
         assertEquals(27, selection!!.end.offset)
 
@@ -173,7 +172,7 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertNull(selection)
+        assertFalse(selection.exists())
     }
 
     @Test
@@ -232,3 +231,5 @@ class SelectionContainerTests : OnCanvasTests {
         }
     }
 }
+
+private fun Selection?.exists() = (this !== null) && !this.toTextRange().collapsed

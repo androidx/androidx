@@ -19,6 +19,7 @@ package androidx.compose.mpp.demo
 import androidx.compose.mpp.demo.bug.BugReproducers
 import androidx.compose.mpp.demo.components.Components
 import androidx.compose.mpp.demo.textfield.android.AndroidTextFieldSamples
+import androidx.compose.mpp.demo.textfield.android.TextBrushDemo
 
 val MainScreen = Screen.Selection(
     "Demo",
@@ -35,4 +36,5 @@ val MainScreen = Screen.Selection(
     Screen.Example("FontRasterization") { FontRasterization() },
     Screen.Example("InteropOrder") { InteropOrder() },
     AndroidTextFieldSamples,
+    Screen.Example("Android TextBrushDemo") { TextBrushDemo() },
 )

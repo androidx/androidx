@@ -46,7 +46,6 @@ class ComposeWindowLifecycleTest {
     @Test
     @Ignore // ignored while investigating CI issues: this test opens a new browser window which can be the cause
     fun allEvents() = runTest {
-        if (isHeadlessBrowser()) return@runTest
         val canvas = document.createElement("canvas") as HTMLCanvasElement
         canvas.setAttribute("id", canvasId)
         canvas.setAttribute("tabindex", "0")

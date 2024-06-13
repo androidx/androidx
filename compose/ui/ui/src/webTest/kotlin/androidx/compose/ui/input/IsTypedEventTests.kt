@@ -17,6 +17,7 @@
 package androidx.compose.ui.input
 
 import androidx.compose.foundation.text.isTypedEvent
+import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.input.key.toComposeEvent
 import kotlin.test.Test
 import kotlin.test.assertFalse

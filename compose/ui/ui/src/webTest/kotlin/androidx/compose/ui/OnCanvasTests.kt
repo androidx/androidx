@@ -40,10 +40,6 @@ internal interface OnCanvasTests {
 
     fun commonAfterTest() {
         document.getElementById(canvasId)?.remove()
-        val childNodes = document.body!!.childNodes.asList()
-        childNodes.forEach {
-            document.body!!.removeChild(it)
-        }
     }
 
     fun assertApproximatelyEqual(expected: Float, actual: Float, tolerance: Float = 1f) {

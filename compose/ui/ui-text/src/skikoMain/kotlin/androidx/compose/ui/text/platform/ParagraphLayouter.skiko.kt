@@ -76,10 +76,21 @@ internal class ParagraphLayouter(
         textDirection = textDirection
     )
     private var paragraphCache: Paragraph? = null
+    private var updateForeground = false
     private var width: Float = Float.NaN
 
     val defaultFont get() = builder.defaultFont
     val textStyle get() = builder.textStyle
+
+    private fun invalidateParagraph(onlyForeground: Boolean = false) {
+        // skia's updateForegroundPaint applies the same style to every span,
+        // so if we have any, we need to rebuild the entire paragraph :'(
+        if (onlyForeground && builder.spanStyles.isEmpty()) {
+            updateForeground = true
+        } else {
+            paragraphCache = null
+        }
+    }
 
     internal fun emptyLineMetrics(paragraph: Paragraph): Array<LineMetrics> =
         builder.emptyLineMetrics(paragraph)
@@ -93,7 +104,40 @@ internal class ParagraphLayouter(
         ) {
             builder.maxLines = maxLines
             builder.ellipsis = ellipsis
-            paragraphCache = null
+            invalidateParagraph()
+        }
+    }
+
+    fun setColor(
+        color: Color,
+    ) {
+        val actualColor = color.takeOrElse { builder.textStyle.color }
+        if (builder.textStyle.color != actualColor) {
+            builder.textStyle = builder.textStyle.copy(
+                color = actualColor,
+            )
+            invalidateParagraph(onlyForeground = true)
+        }
+    }
+
+    fun setBrush(
+        brush: Brush?,
+        brushSize: Size,
+        alpha: Float,
+    ) {
+        val actualSize = builder.brushSize
+        if (builder.textStyle.brush != brush ||
+            actualSize.isUnspecified ||
+            !actualSize.width.sameValueAs(brushSize.width) ||
+            !actualSize.height.sameValueAs(brushSize.height) ||
+            !builder.textStyle.alpha.sameValueAs(alpha)
+        ) {
+            builder.textStyle = builder.textStyle.copy(
+                brush = brush,
+                alpha = alpha,
+            )
+            builder.brushSize = brushSize
+            invalidateParagraph(onlyForeground = true)
         }
     }
 
@@ -108,85 +152,67 @@ internal class ParagraphLayouter(
             // Since it affects only [ShaderBrush] we can keep the cache if it's not used.
             if (builder.textStyle.brush is ShaderBrush ||
                 builder.spanStyles.any { it.item.brush is ShaderBrush }) {
-                paragraphCache = null
+                invalidateParagraph(onlyForeground = true)
             }
         }
     }
 
     fun setTextStyle(
-        color: Color,
         shadow: Shadow?,
-        textDecoration: TextDecoration?
+        textDecoration: TextDecoration?,
     ) {
-        val actualColor = color.takeOrElse { builder.textStyle.color }
-        if (builder.textStyle.color != actualColor ||
-            builder.textStyle.shadow != shadow ||
+        if (builder.textStyle.shadow != shadow ||
             builder.textStyle.textDecoration != textDecoration
         ) {
             builder.textStyle = builder.textStyle.copy(
-                color = actualColor,
                 shadow = shadow,
-                textDecoration = textDecoration
+                textDecoration = textDecoration,
             )
-            paragraphCache = null
-        }
-    }
-
-    @ExperimentalTextApi
-    fun setTextStyle(
-        brush: Brush?,
-        brushSize: Size,
-        alpha: Float,
-        shadow: Shadow?,
-        textDecoration: TextDecoration?
-    ) {
-        val actualSize = builder.brushSize
-        if (builder.textStyle.brush != brush ||
-            actualSize.isUnspecified ||
-            !actualSize.width.sameValueAs(brushSize.width) ||
-            !actualSize.height.sameValueAs(brushSize.height) ||
-            !builder.textStyle.alpha.sameValueAs(alpha) ||
-            builder.textStyle.shadow != shadow ||
-            builder.textStyle.textDecoration != textDecoration
-        ) {
-            builder.textStyle = builder.textStyle.copy(
-                brush = brush,
-                alpha = alpha,
-                shadow = shadow,
-                textDecoration = textDecoration
-            )
-            builder.brushSize = brushSize
-            paragraphCache = null
+            invalidateParagraph()
         }
     }
 
     fun setDrawStyle(drawStyle: DrawStyle?) {
         if (builder.drawStyle != drawStyle) {
             builder.drawStyle = drawStyle
-            paragraphCache = null
+            invalidateParagraph(onlyForeground = true)
         }
     }
 
     fun setBlendMode(blendMode: BlendMode) {
         if (builder.blendMode != blendMode) {
             builder.blendMode = blendMode
-            paragraphCache = null
+            invalidateParagraph()
         }
     }
 
     fun layoutParagraph(width: Float): Paragraph {
-        val paragraph = paragraphCache
+        var paragraph = paragraphCache
         return if (paragraph != null) {
+            var layoutRequired = false
+            if (updateForeground) {
+                builder.updateForegroundPaint(paragraph)
+                updateForeground = false
+
+                // Skia caches everything internally, so to actually apply it
+                // markDirty + layout is required.
+                paragraph.markDirty()
+                layoutRequired = true
+            }
             if (!this.width.sameValueAs(width)) {
                 this.width = width
+                layoutRequired = true
+            }
+            if (layoutRequired) {
                 paragraph.layout(width)
             }
             paragraph
         } else {
-            builder.build().apply {
-                paragraphCache = this
-                layout(width)
-            }
+            paragraph = builder.build()
+            paragraph.layout(width)
+            paragraphCache = paragraph
+            updateForeground = false
+            return paragraph
         }
     }
 }

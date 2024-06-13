@@ -17,6 +17,8 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import kotlin.test.Ignore
@@ -28,6 +30,7 @@ import kotlin.test.assertFailsWith
 class SkikoParagraphTest {
     private val fontFamilyResolver = createFontFamilyResolver()
     private val defaultDensity = Density(density = 1f)
+    private val maxWidthConstraint = 1000
 
     @Test
     fun getWordBoundary_out_of_boundary_too_small() {
@@ -315,7 +318,8 @@ class SkikoParagraphTest {
     fun getWordBoundary_multichar() {
         // "ab 𐐔𐐯𐑅𐐨𐑉𐐯𐐻 cd" - example of multi-char code units
         //             | (offset=3)      | (offset=6)
-        val text = "ab \uD801\uDC14\uD801\uDC2F\uD801\uDC45\uD801\uDC28\uD801\uDC49\uD801\uDC2F\uD801\uDC3B cd"
+        val text =
+            "ab \uD801\uDC14\uD801\uDC2F\uD801\uDC45\uD801\uDC28\uD801\uDC49\uD801\uDC2F\uD801\uDC3B cd"
         val paragraph = simpleParagraph(text)
 
         assertEquals(
@@ -324,10 +328,60 @@ class SkikoParagraphTest {
         )
     }
 
-    private fun simpleParagraph(text: String) = Paragraph(
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_ltr_start_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.Start, textDirection = TextDirection.Ltr))
+        val cursorHorizontalPosition: Float = paragraph.getHorizontalPosition(0, false)
+        assertEquals(0f, cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_ltr_end_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.End, textDirection = TextDirection.Ltr))
+        val cursorHorizontalPosition = paragraph.getHorizontalPosition(0, false)
+        assertEquals(maxWidthConstraint.toFloat(), cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_center_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.Center))
+        val cursorHorizontalPosition = paragraph.getHorizontalPosition(0, false)
+        assertEquals((maxWidthConstraint / 2).toFloat(), cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_rtl_start_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.Start, textDirection = TextDirection.Rtl))
+        val cursorHorizontalPosition: Float = paragraph.getHorizontalPosition(0, false)
+        assertEquals(maxWidthConstraint.toFloat(), cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_rtl_end_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.End, textDirection = TextDirection.Rtl))
+        val cursorHorizontalPosition = paragraph.getHorizontalPosition(0, false)
+        assertEquals(0f, cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_left_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.Start))
+        val cursorHorizontalPosition: Float = paragraph.getHorizontalPosition(0, false)
+        assertEquals(0f, cursorHorizontalPosition)
+    }
+
+    @Test
+    fun getHorizontalPosition_cursor_empty_textfield_right_alignment() {
+        val paragraph = simpleParagraph("", TextStyle(textAlign = TextAlign.End))
+        val cursorHorizontalPosition = paragraph.getHorizontalPosition(0, false)
+        assertEquals(maxWidthConstraint.toFloat(), cursorHorizontalPosition)
+    }
+
+
+    private fun simpleParagraph(text: String, textStyle: TextStyle = TextStyle()) = Paragraph(
         text = text,
-        style = TextStyle(),
-        constraints = Constraints(maxWidth = 1000),
+        style = textStyle,
+        constraints = Constraints(maxWidth = maxWidthConstraint),
         density = defaultDensity,
         fontFamilyResolver = fontFamilyResolver
     )

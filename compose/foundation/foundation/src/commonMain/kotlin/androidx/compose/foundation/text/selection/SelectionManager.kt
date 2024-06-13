@@ -22,6 +22,9 @@ import androidx.collection.emptyLongObjectMap
 import androidx.collection.mutableLongIntMapOf
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.awaitAllPointersUp
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.input.internal.coerceIn
@@ -33,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
@@ -44,12 +46,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.changedToUp
-import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
@@ -62,7 +59,6 @@ import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
@@ -142,19 +138,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     var focusRequester: FocusRequester = FocusRequester()
 
     /**
-     * Current focus state.
-     */
-    var focusState: FocusState? by mutableStateOf(null)
-
-    /**
      * Return true if the corresponding SelectionContainer has a child that is focused.
      */
-    val hasFocus get() = focusState?.hasFocus ?: false
-
-    /**
-     * Return true if the corresponding SelectionContainer is focused.
-     */
-    private val isContainerFocused get() = focusState?.isFocused ?: false
+    var hasFocus: Boolean by mutableStateOf(false)
 
     /**
      * Return true if dragging gesture is currently in process.
@@ -173,7 +159,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 if (!focusState.hasFocus && hasFocus) {
                     onRelease()
                 }
-                this.focusState = focusState
+                this.hasFocus = focusState.hasFocus
             }
             .focusable()
             .updateSelectionTouchMode { isInTouchMode = it }
@@ -772,22 +758,22 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     private fun Modifier.onClearSelectionRequested(block: () -> Unit): Modifier =
         pointerInput(Unit) {
-            awaitPointerEventScope {
-                while (true) {
-                    awaitPointerEventWhereAllChanges(PointerEventPass.Initial) {
-                        it.changedToUpIgnoreConsumed()
-                    }?.let {
-                        if (!isContainerFocused && !isDraggingInProgress) {
-                            block()
-                        }
-                    }
-                    awaitPointerEventWhereAllChanges(PointerEventPass.Main) {
-                        it.changedToUp()
-                    }?.let {
-                        if (isContainerFocused) {
-                            block()
-                        }
-                    }
+            // Clear the selection on mouse-up that isn't a drag-end.
+            // Note that at the moment, this is only needed inside `DisableSelection` because inside
+            // regular, selectable, text, the selection is already cleared (collapsed, actually) on
+            // the first mouse-down of the selection logic.
+            // That isn't actually the correct behavior on either Windows or macOS, but that's what
+            // happens at the moment.
+            awaitEachGesture {
+                // Wait for primary pointer to be down
+                awaitFirstDown(requireUnconsumed = false)
+
+                // Wait for all pointers to be up, and if we're not dragging, clear the selection.
+                // Do it in the initial phase so that when this happens while dragging, we check
+                // isDraggingInProgress before the drag-end event clears it.
+                awaitAllPointersUp(PointerEventPass.Initial)
+                if (!isDraggingInProgress) {
+                    block()
                 }
             }
         }
@@ -1112,15 +1098,6 @@ internal fun LayoutCoordinates.visibleBounds(): Rect {
 
 internal fun Rect.containsInclusive(offset: Offset): Boolean =
     offset.x in left..right && offset.y in top..bottom
-
-/**
- * Suspend until a [PointerEvent] is reported to the specified input [pass].
- * Returns it if all changes match the given [predicate].
- */
-private suspend fun AwaitPointerEventScope.awaitPointerEventWhereAllChanges(
-    pass: PointerEventPass = PointerEventPass.Main,
-    predicate: (PointerInputChange) -> Boolean,
-) = awaitPointerEvent(pass).takeIf { it.changes.fastAll(predicate) }
 
 
 // We skip `isCopyKeyEvent(it)` on web, because should handle browser 'copy' event
