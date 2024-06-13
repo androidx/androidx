@@ -22,8 +22,6 @@ import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
@@ -97,6 +95,7 @@ public class CompactChipTest {
 
         assertChip(compactChip, COLORS, /* iconId= */ iconId, description);
         assertThat(compactChip.getText()).isEqualTo(MAIN_TEXT);
+        assertThat(compactChip.hasText()).isTrue();
     }
 
     @Test
@@ -120,7 +119,8 @@ public class CompactChipTest {
                         defaultColor),
                 iconId,
                 description);
-        assertThrows(NullPointerException.class, compactChip::getText);
+        assertThat(compactChip.getText()).isEmpty();
+        assertThat(compactChip.hasText()).isFalse();
     }
 
     @Test

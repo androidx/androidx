@@ -252,13 +252,19 @@ public class CompactChip implements LayoutElement {
 
     /**
      * Returns text content of this Chip if it was set. If the text content wasn't set (either with
-     * {@link Builder#setTextContent} or constructor, this method will throw.
-     *
-     * @throws NullPointerException when no text content was set to the chip.
+     * {@link Builder#setTextContent} or constructor, this method will return an empty String.
+     * Whether text content exists on this Chip, that can be checked with {@link #hasText()}.
      */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryLabelContent());
+        return hasText() ? checkNotNull(mElement.getPrimaryLabelContent()) : "";
+    }
+
+    /**
+     * Returns whether the text content of this Chip was set.
+     */
+    public boolean hasText() {
+        return mElement.getPrimaryLabelContent() != null;
     }
 
     /** Returns icon id from this CompactChip if it has been added. Otherwise, it returns null. */
