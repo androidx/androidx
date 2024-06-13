@@ -874,8 +874,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
             for (FragmentTransaction.Op op : mTransitioningOp.mOps) {
-                if (op.mFragment != null) {
-                    op.mFragment.mTransitioning = false;
+                Fragment fragment = op.mFragment;
+                if (fragment != null) {
+                    fragment.mTransitioning = false;
                 }
             }
             Set<SpecialEffectsController> changedControllers = collectChangedControllers(
@@ -883,6 +884,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
             );
             for (SpecialEffectsController controller : changedControllers) {
                 controller.completeBack();
+            }
+            for (FragmentTransaction.Op op : mTransitioningOp.mOps) {
+                Fragment fragment = op.mFragment;
+                if (fragment != null) {
+                    if (fragment.mContainer == null) {
+                        FragmentStateManager stateManager =
+                                createOrGetFragmentStateManager(fragment);
+                        stateManager.moveToExpectedState();
+                    }
+                }
             }
             mTransitioningOp = null;
             updateOnBackPressedCallbackEnabled();
