@@ -84,9 +84,15 @@ public class ExtensionsTestUtil {
 
     private static boolean isAdvancedExtender() {
         ExtensionVersionImpl extensionVersion = new ExtensionVersionImpl();
-        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_2)
-                && extensionVersion.isAdvancedExtenderImplemented()) {
-            return true;
+        try {
+            if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_2)
+                    && extensionVersion.isAdvancedExtenderImplemented()) {
+                return true;
+            }
+        } catch (NoSuchMethodError e) {
+            // in case some devices remove the isAdvancedExtenderImplemented method in
+            // ExtensionVersionImpl.
+            return false;
         }
         return false;
     }
