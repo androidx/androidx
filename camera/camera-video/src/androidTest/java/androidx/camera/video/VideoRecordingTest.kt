@@ -618,6 +618,26 @@ class VideoRecordingTest(
     }
 
     @Test
+    fun recordingWithPreview_boundSeparately() {
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture))
+
+        // Arrange.
+        val file = temporaryFolder.newFile()
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act: Intentionally bind the preview and videoCapture separately.
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+        }
+        completeVideoRecording(videoCapture, file)
+
+        // Verify.
+        verifyRecordingResult(file)
+    }
+
+    @Test
     fun boundButNotRecordingDuringCapture_withPreviewAndImageCapture() {
         // Pre-check and arrange
         val imageCapture = ImageCapture.Builder().build()
