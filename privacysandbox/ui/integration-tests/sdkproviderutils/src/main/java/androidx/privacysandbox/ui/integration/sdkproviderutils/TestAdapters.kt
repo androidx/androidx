@@ -41,16 +41,11 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import java.util.concurrent.Executor
 
-class TestAdapters(val sdkContext: Context) {
-    inner class TestBannerAd(private val text: String) : BannerAd() {
+class TestAdapters(private val sdkContext: Context) {
+    inner class TestBannerAd(private val text: String, private val withSlowDraw: Boolean) :
+        BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
-            return TestView(sessionContext, false, text)
-        }
-    }
-
-    inner class TestBannerAdWithWaitInsideOnDraw(private val text: String) : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View {
-            return TestView(sessionContext, true, text)
+            return TestView(sessionContext, withSlowDraw, text)
         }
     }
 
@@ -106,7 +101,7 @@ class TestAdapters(val sdkContext: Context) {
         }
     }
 
-    inner class WebViewBannerAd() : BannerAd() {
+    inner class WebViewBannerAd : BannerAd() {
         private fun isAirplaneModeOn(): Boolean {
             return Settings.Global.getInt(
                 sdkContext.contentResolver,
@@ -129,7 +124,7 @@ class TestAdapters(val sdkContext: Context) {
         }
     }
 
-    inner class LocalViewBannerAd() : BannerAd() {
+    inner class WebViewAdFromLocalAssets : BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
             val webView = WebView(sessionContext)
             val assetLoader =

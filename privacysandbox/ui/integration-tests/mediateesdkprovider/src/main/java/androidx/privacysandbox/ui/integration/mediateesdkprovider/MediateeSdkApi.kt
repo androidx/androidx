@@ -18,14 +18,31 @@ package androidx.privacysandbox.ui.integration.mediateesdkprovider
 
 import android.content.Context
 import android.os.Bundle
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
 import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
-class MediateeSdkApi(val sdkContext: Context) : IMediateeSdkApi.Stub() {
+class MediateeSdkApi(private val sdkContext: Context) : IMediateeSdkApi.Stub() {
     private val testAdapters = TestAdapters(sdkContext)
 
-    override fun loadTestAdWithWaitInsideOnDraw(text: String): Bundle {
-        return testAdapters.TestBannerAdWithWaitInsideOnDraw(text).toCoreLibInfo(sdkContext)
+    override fun loadBannerAd(@AdType adType: Int, withSlowDraw: Boolean): Bundle {
+        return when (adType) {
+            AdType.WEBVIEW -> loadWebViewBannerAd()
+            AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
+            else -> loadNonWebViewBannerAd("Mediation", withSlowDraw)
+        }
+    }
+
+    private fun loadWebViewBannerAd(): Bundle {
+        return testAdapters.WebViewBannerAd().toCoreLibInfo(sdkContext)
+    }
+
+    private fun loadWebViewBannerAdFromLocalAssets(): Bundle {
+        return testAdapters.WebViewAdFromLocalAssets().toCoreLibInfo(sdkContext)
+    }
+
+    private fun loadNonWebViewBannerAd(text: String, waitInsideOnDraw: Boolean): Bundle {
+        return testAdapters.TestBannerAd(text, waitInsideOnDraw).toCoreLibInfo(sdkContext)
     }
 }
