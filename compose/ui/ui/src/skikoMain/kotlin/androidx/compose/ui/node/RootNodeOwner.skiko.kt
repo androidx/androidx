@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -83,6 +84,7 @@ import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -448,6 +450,10 @@ internal class RootNodeOwner(
                 semanticsOwner = semanticsOwner,
                 semanticsNodeId = layoutNode.semanticsId
             )
+        }
+
+        @InternalComposeUiApi
+        override fun onInteropViewLayoutChange(view: InteropView) {
         }
 
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
