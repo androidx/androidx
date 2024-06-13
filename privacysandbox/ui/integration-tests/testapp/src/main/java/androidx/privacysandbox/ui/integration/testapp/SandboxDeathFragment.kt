@@ -23,6 +23,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 
 class SandboxDeathFragment : BaseFragment() {
@@ -49,7 +51,13 @@ class SandboxDeathFragment : BaseFragment() {
         sandboxedSdkView = inflatedView.findViewById(R.id.remote_view)
         sandboxedSdkView.addStateChangedListener()
         sandboxedSdkView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadTestAd("Test Ad"))
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadBannerAd(
+                    AdType.NON_WEBVIEW,
+                    MediationOption.NON_MEDIATED,
+                    /* waitInsideOnDraw= */ false
+                )
+            )
         )
         val unloadSdksButton: Button = inflatedView.findViewById(R.id.unload_all_sdks_button)
         unloadSdksButton.setOnClickListener { unloadAllSdks() }
