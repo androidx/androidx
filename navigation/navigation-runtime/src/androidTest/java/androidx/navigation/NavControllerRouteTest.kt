@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -256,7 +257,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass::class) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -269,7 +270,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass::class) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -286,7 +287,7 @@ class NavControllerRouteTest {
             }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -299,7 +300,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass()) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -312,7 +313,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass(0)) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
         val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
         assertThat(arg).isNotNull()
         assertThat(arg).isEqualTo(0)
@@ -328,7 +329,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass(false)) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
         val arg = navController.currentBackStackEntry?.arguments?.getBoolean("arg")
         assertThat(arg).isNotNull()
         assertThat(arg).isEqualTo(false)
@@ -416,7 +417,7 @@ class NavControllerRouteTest {
             }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
 
         val nestedArg = navController.currentBackStackEntry?.arguments?.getInt("nestedArg")
         assertThat(nestedArg).isNotNull()

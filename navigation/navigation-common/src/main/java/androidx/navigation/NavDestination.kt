@@ -29,6 +29,7 @@ import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.core.net.toUri
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateHashCode
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
@@ -823,6 +824,6 @@ public open class NavDestination(
         @OptIn(InternalSerializationApi::class)
         @JvmStatic
         public fun <T : Any> NavDestination.hasRoute(route: KClass<T>) =
-            route.serializer().hashCode() == id
+            route.serializer().generateHashCode() == id
     }
 }
