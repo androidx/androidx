@@ -95,7 +95,7 @@ import kotlin.math.roundToInt
  * @param content the main content of this FloatingAppBar. The default layout here is a [Row], so
  *   content inside will be placed horizontally.
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun HorizontalFloatingAppBar(
     expanded: Boolean,
@@ -163,7 +163,7 @@ fun HorizontalFloatingAppBar(
  * @param content the main content of this FloatingAppBar. The default layout here is a [Column], so
  *   content inside will be placed vertically.
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun VerticalFloatingAppBar(
     expanded: Boolean,
@@ -217,7 +217,7 @@ fun VerticalFloatingAppBar(
  *
  * @see [FloatingAppBarDefaults.exitAlwaysScrollBehavior]
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Stable
 sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
 
@@ -266,7 +266,7 @@ sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
  * @param flingAnimationSpec an [DecayAnimationSpec] that defines how to fling the floating app bar
  *   when the user flings the app bar itself, or the content below it
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class ExitAlwaysFloatingAppBarScrollBehavior(
     override val position: FloatingAppBarPosition,
     override val screenOffset: Dp,
@@ -351,7 +351,7 @@ private class ExitAlwaysFloatingAppBarScrollBehavior(
 
 // TODO tokens
 /** Contains default values used for the floating app bar implementations. */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 object FloatingAppBarDefaults {
 
     /** Default size used for [HorizontalFloatingAppBar] and [VerticalFloatingAppBar] container */
@@ -396,7 +396,7 @@ object FloatingAppBarDefaults {
      * @param flingAnimationSpec an [DecayAnimationSpec] that defines how to fling the floating app
      *   bar when the user flings the app bar itself, or the content below it
      */
-    @ExperimentalMaterial3Api
+    @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun exitAlwaysScrollBehavior(
         position: FloatingAppBarPosition,
@@ -470,7 +470,7 @@ object FloatingAppBarDefaults {
  *   should be between zero and [initialOffsetLimit].
  * @param initialContentOffset the initial value for [FloatingAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun rememberFloatingAppBarState(
     initialOffsetLimit: Float = -Float.MAX_VALUE,
@@ -488,7 +488,7 @@ fun rememberFloatingAppBarState(
  *
  * In most cases, this state will be created via [rememberFloatingAppBarState].
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 interface FloatingAppBarState {
 
     /**
@@ -542,7 +542,7 @@ interface FloatingAppBarState {
  *   should be between zero and [initialOffsetLimit].
  * @param initialContentOffset the initial value for [FloatingAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 fun FloatingAppBarState(
     initialOffsetLimit: Float,
     initialOffset: Float,
@@ -550,7 +550,7 @@ fun FloatingAppBarState(
 ): FloatingAppBarState =
     FloatingAppBarStateImpl(initialOffsetLimit, initialOffset, initialContentOffset)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Stable
 private class FloatingAppBarStateImpl(
     initialOffsetLimit: Float,
@@ -575,7 +575,7 @@ private class FloatingAppBarStateImpl(
  * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
  * after the fling settles.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private suspend fun settleFloatingAppBar(
     state: FloatingAppBarState,
     velocity: Float,
@@ -627,7 +627,7 @@ private suspend fun settleFloatingAppBar(
     return Velocity(0f, remainingVelocity)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun FloatingAppBarState.collapsedFraction() =
     if (offsetLimit != 0f) {
         offset / offsetLimit
@@ -639,7 +639,7 @@ private fun FloatingAppBarState.collapsedFraction() =
  * The possible positions for a [HorizontalFloatingAppBar] or [VerticalFloatingAppBar], used to
  * determine the direction when a [FloatingAppBarScrollBehavior] is attached.
  */
-@ExperimentalMaterial3Api
+@ExperimentalMaterial3ExpressiveApi
 @kotlin.jvm.JvmInline
 value class FloatingAppBarPosition
 internal constructor(@Suppress("unused") private val value: Int) {
