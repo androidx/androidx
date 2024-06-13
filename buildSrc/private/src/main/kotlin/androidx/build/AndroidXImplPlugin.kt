@@ -27,6 +27,7 @@ import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.setUpCheckDocsTask
 import androidx.build.gradle.isRoot
+import androidx.build.license.addLicensesToPublishedArtifacts
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.CopyPublicResourcesDirTask
 import androidx.build.resources.configurePublicResourcesStub
@@ -217,6 +218,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             if (androidXExtension.shouldPublish()) {
                 project.validatePublishedMultiplatformHasDefault()
+                project.addLicensesToPublishedArtifacts(androidXExtension.license)
             }
             project.registerValidateMultiplatformSourceSetNamingTask()
         }

@@ -51,6 +51,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -211,7 +212,7 @@ private fun Project.configureComponentPublishing(
                         aarTask.outputDir.set(buildDir.dir("intermediates/stub-aar"))
                     }
                 val stubAarTask =
-                    tasks.register("stubAar", Zip::class.java) { zipTask ->
+                    tasks.register("stubAar", ZipStubAarTask::class.java) { zipTask ->
                         zipTask.from(unpackedStubAarTask.flatMap { it.outputDir })
                         zipTask.destinationDirectory.set(buildDir.dir("outputs"))
                         zipTask.archiveExtension.set("aar")
@@ -710,3 +711,6 @@ private const val ANDROID_GIT_URL =
     "scm:git:https://android.googlesource.com/platform/frameworks/support"
 
 internal const val KMP_ANCHOR_PUBLICATION_NAME = "androidxKmp"
+
+@DisableCachingByDefault(because = "Not worth caching")
+internal abstract class ZipStubAarTask : Zip()

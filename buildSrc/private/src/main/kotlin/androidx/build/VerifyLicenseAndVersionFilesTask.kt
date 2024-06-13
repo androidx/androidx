@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import java.io.File
 import java.io.FileInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -27,14 +28,19 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/** Task for verifying version files in Androidx artifacts */
+/** Task for verifying license and version files in Androidx artifacts */
 @CacheableTask
-abstract class VerifyVersionFilesTask : DefaultTask() {
+abstract class VerifyLicenseAndVersionFilesTask : DefaultTask() {
     @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
     abstract val repositoryDirectory: DirectoryProperty
 
     @TaskAction
-    fun verifyVersionFilesPresent() {
+    fun verifyFiles() {
+        verifyVersionFilesPresent()
+        verifyLicenseFilesPresent()
+    }
+
+    private fun verifyVersionFilesPresent() {
         repositoryDirectory.asFile.get().walk().forEach { file ->
             var expectedPrefix = "androidx"
             if (file.path.contains("/libyuv/"))
@@ -71,4 +77,33 @@ abstract class VerifyVersionFilesTask : DefaultTask() {
             }
         }
     }
+
+    private fun verifyLicenseFilesPresent() {
+        repositoryDirectory.asFile.get().walk().forEach { file ->
+            if (file.extension in listOf("aar", "jar", "klib")) {
+                if (!zipContainsLicense(file)) {
+                    throw Exception(
+                        "Missing META-INF/*/LICENSE.txt or default/licenses/*/LICENSE.txt " +
+                            "file in ${file.absolutePath}"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun zipContainsLicense(file: File): Boolean {
+        val inputStream = FileInputStream(file)
+        val zipInputStream = ZipInputStream(inputStream)
+        var entry: ZipEntry? = zipInputStream.nextEntry
+        while (entry != null) {
+            if (licensePatterns.any { it.matches(entry!!.name) }) {
+                return true
+            }
+            entry = zipInputStream.nextEntry
+        }
+        return false
+    }
 }
+
+private val licensePatterns =
+    listOf(Regex("META-INF/.*/LICENSE.txt"), Regex("default/licenses/.*/LICENSE.txt"))
