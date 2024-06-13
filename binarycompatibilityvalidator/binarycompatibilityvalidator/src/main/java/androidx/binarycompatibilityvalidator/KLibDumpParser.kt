@@ -29,6 +29,8 @@ import org.jetbrains.kotlin.library.abi.AbiFunction
 import org.jetbrains.kotlin.library.abi.AbiModality
 import org.jetbrains.kotlin.library.abi.AbiProperty
 import org.jetbrains.kotlin.library.abi.AbiQualifiedName
+import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
+import org.jetbrains.kotlin.library.abi.AbiSignatures
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbi
 import org.jetbrains.kotlin.library.abi.LibraryManifest
@@ -37,13 +39,13 @@ import org.jetbrains.kotlin.library.abi.impl.AbiConstructorImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiEnumEntryImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiFunctionImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiPropertyImpl
-import org.jetbrains.kotlin.library.abi.impl.AbiSignaturesImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiTopLevelDeclarationsImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiValueParameterImpl
 
 class MutableAbiInfo(
     val declarations: MutableList<AbiDeclaration> = mutableListOf(),
-    var uniqueName: String = ""
+    var uniqueName: String = "",
+    var signatureVersions: MutableSet<AbiSignatureVersion> = mutableSetOf()
 )
 
 @OptIn(ExperimentalLibraryAbiReader::class)
@@ -82,7 +84,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
                 target to
                     LibraryAbi(
                         uniqueName = abiInfo.uniqueName,
-                        signatureVersions = emptySet(),
+                        signatureVersions = abiInfo.signatureVersions,
                         topLevelDeclarations = AbiTopLevelDeclarationsImpl(abiInfo.declarations),
                         manifest =
                             LibraryManifest(
@@ -104,20 +106,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
     private fun parseDeclaration(parentQualifiedName: AbiQualifiedName?): AbiDeclaration? {
         // if the line begins with a comment, we may need to parse the current target list
         if (cursor.parseCommentMarker() != null) {
-            if (cursor.hasTargets()) {
-                // There are never targets within targets, so when we encounter a new directive we
-                // always reset our current targets
-                val targets = cursor.parseTargets()
-                targets.forEach { abiInfoByTarget.putIfAbsent(it, MutableAbiInfo()) }
-                currentTargetNames.clear()
-                currentTargetNames.addAll(targets)
-            } else if (cursor.hasUniqueName()) {
-                val uniqueName =
-                    cursor.parseUniqueName()
-                        ?: throw parseException("Failed to parse library unique name")
-                currentTargets.forEach { it.uniqueName = uniqueName }
-            }
-            cursor.nextLine()
+            parseCommentLine()
         } else if (cursor.hasClassKind()) {
             return parseClass(parentQualifiedName)
         } else if (cursor.hasFunctionKind()) {
@@ -132,6 +121,28 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
             throw parseException("Failed to parse unknown declaration")
         }
         return null
+    }
+
+    private fun parseCommentLine() {
+        if (cursor.hasTargets()) {
+            // There are never targets within targets, so when we encounter a new directive we
+            // always reset our current targets
+            val targets = cursor.parseTargets()
+            targets.forEach { abiInfoByTarget.putIfAbsent(it, MutableAbiInfo()) }
+            currentTargetNames.clear()
+            currentTargetNames.addAll(targets)
+        } else if (cursor.hasUniqueName()) {
+            val uniqueName =
+                cursor.parseUniqueName()
+                    ?: throw parseException("Failed to parse library unique name")
+            currentTargets.forEach { it.uniqueName = uniqueName }
+        } else if (cursor.hasSignatureVersion()) {
+            val signatureVersion =
+                cursor.parseSignatureVersion()
+                    ?: throw parseException("Failed to parse signature version")
+            currentTargets.forEach { it.signatureVersions.add(signatureVersion) }
+        }
+        cursor.nextLine()
     }
 
     internal fun parseClass(parentQualifiedName: AbiQualifiedName? = null): AbiClass {
@@ -157,7 +168,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
             }
         return AbiClassImpl(
             qualifiedName = abiQualifiedName,
-            signatures = fakeSignatures,
+            signatures = signaturesStub,
             annotations = emptySet(), // annotations aren't part of klib dumps
             modality = modality,
             kind = kind,
@@ -210,7 +221,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         }
         return AbiPropertyImpl(
             qualifiedName = qualifiedName,
-            signatures = fakeSignatures,
+            signatures = signaturesStub,
             annotations = emptySet(), // annotations aren't part of klib dumps
             modality = modality,
             kind = kind,
@@ -230,7 +241,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         cursor.nextLine()
         return AbiEnumEntryImpl(
             qualifiedName = qualifiedName,
-            signatures = fakeSignatures,
+            signatures = signaturesStub,
             annotations = emptySet()
         )
     }
@@ -286,7 +297,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         cursor.nextLine()
         return AbiFunctionImpl(
             qualifiedName = abiQualifiedName,
-            signatures = fakeSignatures,
+            signatures = signaturesStub,
             annotations = emptySet(), // annotations aren't part of klib dumps
             modality = modality,
             isInline = isInline,
@@ -314,7 +325,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         cursor.nextLine()
         return AbiConstructorImpl(
             qualifiedName = abiQualifiedName,
-            signatures = fakeSignatures,
+            signatures = signaturesStub,
             annotations = emptySet(), // annotations aren't part of klib dumps
             isInline = false, // TODO
             contextReceiverParametersCount = 0, // TODO
@@ -356,13 +367,13 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         val location = "$maybeFileName${cursor.rowIndex}:${cursor.columnIndex}"
         return "$message at $location: '${cursor.currentLine}'"
     }
-
-    companion object {
-        // placeholder signatures, currently not considered during parsing / compatibility checking
-        // https://github.com/JetBrains/kotlin/blob/master/compiler/util-klib-abi/ReadMe.md
-        private val fakeSignatures = AbiSignaturesImpl(signatureV1 = null, signatureV2 = null)
-    }
 }
 
 /** Exception which uses the cursor to include the location of the failure */
 class ParseException(message: String) : RuntimeException(message)
+
+/** Signature implementation relies on internal rendering which we can't access and don't need */
+val signaturesStub =
+    object : AbiSignatures {
+        override operator fun get(signatureVersion: AbiSignatureVersion): String? = null
+    }
