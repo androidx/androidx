@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.AnchorType
 import androidx.wear.compose.foundation.CurvedAlignment
@@ -55,6 +56,7 @@ import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.angularSize
+import androidx.wear.compose.foundation.angularSizeDp
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedBox
@@ -64,6 +66,7 @@ import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
 import androidx.wear.compose.foundation.weight
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
 import androidx.wear.compose.material.curvedText
@@ -357,4 +360,30 @@ fun CurvedIconsDemo() {
 @Composable
 private fun WhiteCircle() {
     Box(modifier = Modifier.size(30.dp).clip(CircleShape).background(Color.White))
+}
+
+@Composable
+fun CurvedSpacingDemo() {
+    val style = CurvedTextStyle(MaterialTheme.typography.body1)
+    repeat(2) {
+        CurvedLayout(
+            anchor = if (it == 0) 270f else 90f,
+            angularDirection =
+                if (it == 0) CurvedDirection.Angular.Clockwise
+                else CurvedDirection.Angular.CounterClockwise,
+            modifier = Modifier.size(300.dp),
+        ) {
+            listOf(-0.1f, 0f, 0.05f, 0.1f, 0.15f).forEachIndexed { ix, spacing ->
+                if (ix > 0) {
+                    curvedBox(modifier = CurvedModifier.angularSizeDp(10.dp)) {}
+                }
+                curvedText(
+                    "| $spacing em |",
+                    style = style.copy(letterSpacing = spacing.em),
+                    modifier =
+                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
+                )
+            }
+        }
+    }
 }
