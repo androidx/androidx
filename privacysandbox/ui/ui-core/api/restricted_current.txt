@@ -2,14 +2,16 @@
 package androidx.privacysandbox.ui.core {
 
   public final class SandboxedSdkViewUiInfo {
-    ctor public SandboxedSdkViewUiInfo(int uiContainerWidth, int uiContainerHeight, android.graphics.Rect onScreenGeometry);
+    ctor public SandboxedSdkViewUiInfo(int uiContainerWidth, int uiContainerHeight, android.graphics.Rect onScreenGeometry, float uiContainerOpacityHint);
     method public static androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo fromBundle(android.os.Bundle bundle);
     method public android.graphics.Rect getOnScreenGeometry();
     method public int getUiContainerHeight();
+    method public float getUiContainerOpacityHint();
     method public int getUiContainerWidth();
     method public static android.os.Bundle toBundle(androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo sandboxedSdkViewUiInfo);
     property public final android.graphics.Rect onScreenGeometry;
     property public final int uiContainerHeight;
+    property public final float uiContainerOpacityHint;
     property public final int uiContainerWidth;
     field public static final androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo.Companion Companion;
   }

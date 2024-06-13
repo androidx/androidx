@@ -351,6 +351,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         signalMeasurer?.maybeSendSignals()
     }
 
+    override fun setAlpha(alpha: Float) {
+        super.setAlpha(alpha)
+        signalMeasurer?.maybeSendSignals()
+    }
+
     private fun closeClient() {
         client?.close()
         client = null
