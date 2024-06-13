@@ -41,16 +41,14 @@ BundleInsideHelper.forInsideAar(
 
 dependencies {
     bundleInside(project(":test:screenshot:screenshot-proto"))
-    implementation("androidx.annotation:annotation:1.0.0")
-    implementation("androidx.core:core:1.5.0")
 
+    api(libs.junit)
+
+    implementation("androidx.annotation:annotation:1.0.0")
     implementation(libs.kotlinStdlib)
-    implementation(libs.junit)
-    implementation(libs.testRules)
-    implementation(libs.testRunner)
+    implementation(libs.testMonitor)
 
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
 }
