@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.protobufLite)
+    api(libs.protobufLite)
 }
 
 tasks.withType(Jar) {
