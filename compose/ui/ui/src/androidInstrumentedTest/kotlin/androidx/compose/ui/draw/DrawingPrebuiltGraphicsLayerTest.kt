@@ -380,6 +380,41 @@ class DrawingPrebuiltGraphicsLayerTest {
             .assertPixels(expectedSize) { Color.Red.copy(alpha = 0.5f).compositeOver(Color.White) }
     }
 
+    @Test
+    fun invalidatingNotPlacedAnymoreChildIsNotCorruptingTheLayerContent() {
+        var shouldPlace by mutableStateOf(true)
+        var color by mutableStateOf(Color.Red)
+        rule.setContent {
+            Column {
+                val layer = obtainLayer()
+                Canvas(
+                    Modifier
+                        .layout { measurable, _ ->
+                            val placeable = measurable.measure(Constraints.fixed(size, size))
+                            layout(placeable.width, placeable.height) {
+                                if (shouldPlace) {
+                                    placeable.placeWithLayer(0, 0, layer)
+                                }
+                            }
+                        }
+                ) {
+                    drawRect(color)
+                }
+                LayerDrawingBox()
+            }
+        }
+
+        rule.runOnIdle {
+            shouldPlace = false
+            // changing the color shouldn't affect the layer as we don't place with it anymore
+            color = Color.Green
+        }
+
+        rule.onNodeWithTag(LayerDrawingBoxTag)
+            .captureToImage()
+            .assertPixels(expectedSize) { Color.Red }
+    }
+
     @Composable
     private fun ColoredBox(modifier: Modifier = Modifier, color: () -> Color = { Color.Red }) {
         Canvas(

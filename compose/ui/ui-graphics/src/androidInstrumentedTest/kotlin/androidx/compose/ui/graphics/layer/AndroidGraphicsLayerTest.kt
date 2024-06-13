@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -156,7 +158,8 @@ class AndroidGraphicsLayerTest {
                     Color.Red,
                     Color.Red
                 )
-            }
+            },
+            verifySoftwareRender = false // Only supported in hardware accelerated use cases
         )
     }
 
@@ -200,6 +203,30 @@ class AndroidGraphicsLayerTest {
                 assertEquals(IntOffset.Zero, layer!!.topLeft)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
             }
+        )
+    }
+
+    @Test
+    fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
+        // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
+        // This differs from testDrawAfterDiscard as this invokes the internal discardDisplaylist
+        // call in order to mirror the corresponding system call made to cull out displaylists
+        // without updating GraphicsLayer internal state
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    assertEquals(IntSize.Zero, this.size)
+                    record {
+                        drawRect(Color.Red)
+                    }
+                    this.impl.discardDisplayList()
+                }
+                drawIntoCanvas { layer.drawForPersistence(it) }
+            },
+            verify = {
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            },
+            verifySoftwareRender = false
         )
     }
 
@@ -401,6 +428,36 @@ class AndroidGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Red)
+            }
+        )
+    }
+
+    @Test
+    fun testResettingToDefaultPivot() {
+        var layer: GraphicsLayer? = null
+        val topLeft = IntOffset.Zero
+        val size = TEST_SIZE
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        inset(this.size.width / 4, this.size.height / 4) {
+                            drawRect(Color.Red)
+                        }
+                    }
+                    scaleY = 2f
+                    scaleX = 2f
+                    // first set to some custom value
+                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
+                    // and then get back to the default
+                    pivotOffset = Offset.Unspecified
+                }
+                drawLayer(layer!!)
+            },
+            verify = {
+                assertEquals(topLeft, layer!!.topLeft)
+                assertEquals(size, layer!!.size)
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
             }
         )
     }
@@ -727,7 +784,8 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -790,7 +848,8 @@ class AndroidGraphicsLayerTest {
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -888,7 +947,8 @@ class AndroidGraphicsLayerTest {
                     )
                 }
             },
-            usePixelCopy = true
+            usePixelCopy = true,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -925,7 +985,8 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(nonPureRedCount > 0)
             },
-            entireScene = false
+            entireScene = false,
+            verifySoftwareRender = false // RenderEffect only supported with hardware acceleration
         )
     }
 
@@ -1035,7 +1096,8 @@ class AndroidGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            }
+            },
+            verifySoftwareRender = false // ModulateAlpha only supported with hardware acceleration
         )
     }
 
@@ -1365,6 +1427,28 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testEndRecordingAlwaysCalled() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+                try {
+                    layer.record {
+                        // Intentionally cause an exception to be thrown during recording
+                        throw Exception()
+                    }
+                } catch (_: Throwable) {
+                    // NO-OP
+                }
+
+                // Attempts to record after an exception is thrown should still succeed
+                layer.record { drawRect(Color.Red) }
+                drawLayer(layer)
+            },
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
@@ -1385,7 +1469,8 @@ class AndroidGraphicsLayerTest {
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
-        usePixelCopy: Boolean = false
+        usePixelCopy: Boolean = false,
+        verifySoftwareRender: Boolean = true
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
         try {
@@ -1460,10 +1545,33 @@ class AndroidGraphicsLayerTest {
                 runBlocking {
                     verify(pixelMap)
                 }
+                if (verifySoftwareRender) {
+                    val softwareRenderLatch = CountDownLatch(1)
+                    var softwareBitmap: Bitmap? = null
+                    testActivity!!.runOnUiThread {
+                        softwareBitmap = doSoftwareRender(target)
+                        softwareRenderLatch.countDown()
+                    }
+                    assertTrue(softwareRenderLatch.await(300, TimeUnit.MILLISECONDS))
+                    runBlocking {
+                        verify(softwareBitmap!!.asImageBitmap().toPixelMap())
+                    }
+                }
             }
         } finally {
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
+    }
+
+    private fun doSoftwareRender(target: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(
+            target.width,
+            target.height,
+            Bitmap.Config.ARGB_8888
+        )
+        val softwareCanvas = Canvas(bitmap)
+        target.draw(softwareCanvas)
+        return bitmap
     }
 
     private class GraphicsContextHostDrawable(

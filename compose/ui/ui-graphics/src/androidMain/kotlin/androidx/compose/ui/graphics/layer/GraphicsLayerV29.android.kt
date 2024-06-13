@@ -22,6 +22,8 @@ import android.graphics.RenderNode
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
@@ -31,12 +33,10 @@ import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toAndroidBlendMode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
@@ -46,13 +46,12 @@ import androidx.compose.ui.unit.toSize
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class GraphicsLayerV29(
-    override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
     private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : GraphicsLayerImpl {
     private val renderNode: RenderNode = RenderNode("graphicsLayer")
 
-    private var size: IntSize = IntSize.Zero
+    private var size: Size = Size.Zero
     private var layerPaint: android.graphics.Paint? = null
     private var matrix: Matrix? = null
     private var outlineIsProvided = false
@@ -85,8 +84,12 @@ internal class GraphicsLayerV29(
     override var pivotOffset: Offset = Offset.Unspecified
         set(value) {
             field = value
-            renderNode.pivotX = value.x
-            renderNode.pivotY = value.y
+            if (value.isUnspecified) {
+                renderNode.resetPivot()
+            } else {
+                renderNode.pivotX = value.x
+                renderNode.pivotY = value.y
+            }
         }
     override var scaleX: Float = 1f
         set(value) {
@@ -154,9 +157,20 @@ internal class GraphicsLayerV29(
             applyClip()
         }
 
+    private var clipToBounds = false
+    private var clipToOutline = false
+
     private fun applyClip() {
-        renderNode.setClipToBounds(clip && !outlineIsProvided)
-        renderNode.setClipToOutline(clip && outlineIsProvided)
+        val newClipToBounds = clip && !outlineIsProvided
+        val newClipToOutline = clip && outlineIsProvided
+        if (newClipToBounds != clipToBounds) {
+            clipToBounds = newClipToBounds
+            renderNode.setClipToBounds(clipToBounds)
+        }
+        if (newClipToOutline != clipToOutline) {
+            clipToOutline = newClipToOutline
+            renderNode.setClipToOutline(newClipToOutline)
+        }
     }
 
     override var renderEffect: RenderEffect? = null
@@ -198,14 +212,9 @@ internal class GraphicsLayerV29(
         }
     }
 
-    override fun setPosition(topLeft: IntOffset, size: IntSize) {
-        renderNode.setPosition(
-            topLeft.x,
-            topLeft.y,
-            topLeft.x + size.width,
-            topLeft.y + size.height
-        )
-        this.size = size
+    override fun setPosition(x: Int, y: Int, size: IntSize) {
+        renderNode.setPosition(x, y, x + size.width, y + size.height)
+        this.size = size.toSize()
     }
 
     override fun setOutline(outline: Outline?) {
@@ -223,17 +232,20 @@ internal class GraphicsLayerV29(
         block: DrawScope.() -> Unit
     ) {
         val recordingCanvas = renderNode.beginRecording()
-        canvasHolder.drawInto(recordingCanvas) {
-            canvasDrawScope.draw(
-                density,
-                layoutDirection,
-                this,
-                size.toSize(),
-                layer,
-                block
-            )
+        try {
+            canvasHolder.drawInto(recordingCanvas) {
+                canvasDrawScope.drawContext.also {
+                    it.density = density
+                    it.layoutDirection = layoutDirection
+                    it.graphicsLayer = layer
+                    it.size = size
+                    it.canvas = this
+                }
+                canvasDrawScope.block()
+            }
+        } finally {
+            renderNode.endRecording()
         }
-        renderNode.endRecording()
         isInvalidated = false
     }
 

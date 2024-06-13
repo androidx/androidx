@@ -801,9 +801,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         semanticsNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
                 val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
+                // Do not add children if the ID is not valid.
+                if (child.id == View.NO_ID) {
+                    return@fastForEach
+                }
                 if (holder != null) {
                     info.addChild(holder)
-                } else if (child.id != View.NO_ID) {
+                } else {
                     info.addChild(view, child.id)
                 }
             }
@@ -1866,7 +1870,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         force = false,
                         refreshFocusEvents = true,
                         clearOwnerFocus = true,
-                        focusDirection = Exit
+                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
                     )
                     true
                 } else {

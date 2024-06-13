@@ -336,7 +336,8 @@ private fun rememberLazyGridMeasurePolicy(
             state.beyondBoundsInfo
         )
 
-        val measureResult = Snapshot.withMutableSnapshot {
+        // todo: wrap with snapshot when b/341782245 is resolved
+        val measureResult =
             measureLazyGrid(
                 itemsCount = itemsCount,
                 measuredLineProvider = measuredLineProvider,
@@ -370,7 +371,6 @@ private fun rememberLazyGridMeasurePolicy(
                     )
                 }
             )
-        }
         state.applyMeasureResult(measureResult)
         measureResult
     }

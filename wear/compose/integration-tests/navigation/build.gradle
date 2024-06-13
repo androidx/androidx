@@ -54,6 +54,6 @@ dependencies {
     implementation(project(':wear:compose:compose-navigation'))
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.2")
     androidTestImplementation("androidx.annotation:annotation:1.8.0")
 }

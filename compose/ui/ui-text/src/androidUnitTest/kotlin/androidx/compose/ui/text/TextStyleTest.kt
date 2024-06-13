@@ -140,13 +140,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `constructor with link styles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Magenta)))
-
-        assertThat(style.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Magenta)))
-    }
-
-    @Test
     fun `empty copy with existing brush should not remove brush`() {
         val brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
 
@@ -890,58 +883,6 @@ class TextStyleTest {
         val mergedStyle = style.merge(otherStyle)
 
         assertThat(mergedStyle.textMotion).isEqualTo(otherStyle.textMotion)
-    }
-
-    @Test
-    fun `merge null and non-null linkStyles uses other's linkStyles`() {
-        val style = TextStyle(linkStyles = null)
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Red)))
-    }
-
-    @Test
-    fun `merge non-null and non linkStyles uses original`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-        val otherStyle = TextStyle(linkStyles = null)
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Red)))
-    }
-
-    @Test
-    fun `merge with both null uses null`() {
-        val style = TextStyle(linkStyles = null)
-        val otherStyle = TextStyle(linkStyles = null)
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(null)
-    }
-
-    @Test
-    fun `merge with both non-null uses other's linkStyles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Red)))
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Blue)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(TextLinkStyles(SpanStyle(Color.Blue)))
-    }
-
-    @Test
-    fun `merge with both non-null uses merged linkStyles`() {
-        val style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(color = Color.Red)))
-        val otherStyle = TextStyle(linkStyles = TextLinkStyles(SpanStyle(background = Color.Blue)))
-
-        val mergedStyle = style.merge(otherStyle)
-
-        assertThat(mergedStyle.linkStyles).isEqualTo(
-            TextLinkStyles(SpanStyle(color = Color.Red, background = Color.Blue))
-        )
     }
 
     @Test
@@ -2145,12 +2086,6 @@ private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
         Brush::class -> linearGradient(listOf(Color.Blue, Color.Red))
         Float::class -> (currentValue as? Float).nextDistinct()
         Int::class -> (currentValue as? Int ?: 0) + 4
-        TextLinkStyles::class -> TextLinkStyles(
-            SpanStyle(Color.Red),
-            SpanStyle(Color.Green),
-            SpanStyle(Color.Blue),
-            SpanStyle()
-        )
         else -> TODO("Please add an branch to this switch for ${kParameter.type}")
     }
     require(newValue != currentValue) {

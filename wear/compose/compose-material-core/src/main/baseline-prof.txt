@@ -1,0 +1,11 @@
+HSPLandroidx/wear/compose/materialcore/BoundsLimiterKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/CardKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/IconKt**->**(**)**
+PLandroidx/wear/compose/materialcore/RepeatableClickableKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/RoundButtonKt**->**(**)**
+PLandroidx/wear/compose/materialcore/SelectionControlsKt**->**(**)**
+PLandroidx/wear/compose/materialcore/SelectionStage;->**(**)**
+HSPLandroidx/wear/compose/materialcore/SliderKt**->**(**)**
+PLandroidx/wear/compose/materialcore/StepperDefaults;->**(**)**
+HSPLandroidx/wear/compose/materialcore/StepperKt**->**(**)**
+HSPLandroidx/wear/compose/materialcore/ToggleButtonKt**->**(**)**
