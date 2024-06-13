@@ -65,6 +65,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.quirk.CaptureIntentPreviewQuirk;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
@@ -1112,6 +1113,11 @@ public final class Camera2CameraImplTest {
     public void attachUseCaseWithTemplateRecord() throws InterruptedException {
         UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW);
         UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD);
+        int expectedCaptureIntent = CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD;
+        if (mCamera2CameraImpl.getCameraInfoInternal().getCameraQuirks().contains(
+                CaptureIntentPreviewQuirk.class)) {
+            expectedCaptureIntent = CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW;
+        }
 
         mCamera2CameraImpl.attachUseCases(asList(preview, record));
         mCamera2CameraImpl.onUseCaseActive(preview);
@@ -1127,7 +1133,7 @@ public final class Camera2CameraImplTest {
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
 
         assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD);
+                .isEqualTo(expectedCaptureIntent);
 
         mCamera2CameraImpl.detachUseCases(asList(preview, record));
     }
