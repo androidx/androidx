@@ -375,6 +375,7 @@
             <trusting group="com.android.tools.build"/>
             <trusting group="com.android.tools.build.jetifier"/>
             <trusting group="com.android.tools.ddms"/>
+            <trusting group="com.android.tools.emulator"/>
             <trusting group="com.android.tools.external.com-intellij"/>
             <trusting group="com.android.tools.external.org-jetbrains"/>
             <trusting group="com.android.tools.layoutlib"/>
