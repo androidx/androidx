@@ -631,7 +631,7 @@ public fun NavHost(
                     val targetZIndex =
                         when {
                             targetState.id == initialState.id -> initialZIndex
-                            composeNavigator.isPop.value -> initialZIndex - 1f
+                            composeNavigator.isPop.value || inPredictiveBack -> initialZIndex - 1f
                             else -> initialZIndex + 1f
                         }.also { zIndices[targetState.id] = it }
 
