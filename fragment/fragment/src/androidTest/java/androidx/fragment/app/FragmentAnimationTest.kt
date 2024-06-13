@@ -1088,6 +1088,8 @@ class FragmentAnimationTest {
             }
             executePendingTransactions()
 
+            assertThat(fragment2.calledOnDestroy).isFalse()
+
             withActivity { dispatcher.onBackPressed() }
             executePendingTransactions()
 
