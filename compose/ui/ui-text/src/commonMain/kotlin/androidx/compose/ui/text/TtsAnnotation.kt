@@ -21,7 +21,7 @@ package androidx.compose.ui.text
  * processed by a text-to-speech engine, the engine may use the data in this annotation in addition
  * to or instead of its associated text.
  */
-sealed class TtsAnnotation
+sealed class TtsAnnotation : AnnotatedString.Annotation
 
 /**
  * The text associated with this annotation is a series of characters that have to be read verbatim.

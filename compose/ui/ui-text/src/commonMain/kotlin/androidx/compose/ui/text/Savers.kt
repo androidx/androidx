@@ -95,23 +95,17 @@ internal val AnnotatedStringSaver =
         save = {
             arrayListOf(
                 save(it.text),
-                save(it.spanStyles, AnnotationRangeListSaver, this),
-                save(it.paragraphStyles, AnnotationRangeListSaver, this),
                 save(it.annotations, AnnotationRangeListSaver, this),
             )
         },
         restore = {
             val list = it as List<Any?>
             // lift these to make types work
-            val spanStylesOrNull: List<AnnotatedString.Range<SpanStyle>>? =
+            val annotationsOrNull: List<AnnotatedString.Range<out AnnotatedString.Annotation>>? =
                 restore(list[1], AnnotationRangeListSaver)
-            val paragraphStylesOrNull: List<AnnotatedString.Range<ParagraphStyle>>? =
-                restore(list[2], AnnotationRangeListSaver)
             AnnotatedString(
                 text = restore(list[0])!!,
-                spanStylesOrNull = spanStylesOrNull?.ifEmpty { null },
-                paragraphStylesOrNull = paragraphStylesOrNull?.ifEmpty { null },
-                annotations = restore(list[3], AnnotationRangeListSaver),
+                annotations = annotationsOrNull,
             )
         }
     )
@@ -150,7 +144,8 @@ private val AnnotationRangeSaver =
                     is UrlAnnotation -> AnnotationType.Url
                     is LinkAnnotation.Url -> AnnotationType.Link
                     is LinkAnnotation.Clickable -> AnnotationType.Clickable
-                    else -> AnnotationType.String
+                    is StringAnnotation -> AnnotationType.String
+                    else -> throw UnsupportedOperationException()
                 }
 
             val item =
@@ -164,7 +159,7 @@ private val AnnotationRangeSaver =
                     AnnotationType.Link -> save(it.item as LinkAnnotation.Url, LinkSaver, this)
                     AnnotationType.Clickable ->
                         save(it.item as LinkAnnotation.Clickable, ClickableSaver, this)
-                    AnnotationType.String -> save(it.item)
+                    AnnotationType.String -> save((it.item as StringAnnotation).value)
                 }
 
             arrayListOf(save(marker), item, save(it.start), save(it.end), save(it.tag))
@@ -203,7 +198,12 @@ private val AnnotationRangeSaver =
                 }
                 AnnotationType.String -> {
                     val item: String = restore(list[1])!!
-                    AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+                    AnnotatedString.Range(
+                        item = StringAnnotation(item),
+                        start = start,
+                        end = end,
+                        tag = tag
+                    )
                 }
             }
         }

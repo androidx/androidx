@@ -178,14 +178,17 @@ class AnnotatedStringBuilderTest {
         val annotatedString =
             AnnotatedString(
                 text = text,
-                spanStylesOrNull =
-                    listOf(text.inclusiveRangeOf('a', 'a', item = SpanStyle(color = Color.Red))),
-                paragraphStylesOrNull =
-                    listOf(
-                        text.inclusiveRangeOf('a', 'a', item = ParagraphStyle(lineHeight = 20.sp))
-                    ),
                 annotations =
-                    listOf(text.inclusiveRangeOf('a', 'a', item = "prefix", tag = "prefixTag"))
+                    listOf(
+                        text.inclusiveRangeOf('a', 'a', item = SpanStyle(color = Color.Red)),
+                        text.inclusiveRangeOf('a', 'a', item = ParagraphStyle(lineHeight = 20.sp)),
+                        text.inclusiveRangeOf(
+                            'a',
+                            'a',
+                            item = StringAnnotation("prefix"),
+                            tag = "prefixTag"
+                        ),
+                    ),
             )
 
         // We want to test the cross product of the following cases:
@@ -211,17 +214,15 @@ class AnnotatedStringBuilderTest {
             )
         val appendedAnnotations =
             listOf(
-                appendedText.inclusiveRangeOf('b', 'f', item = 1, tag = "tag1"),
-                appendedText.inclusiveRangeOf('c', 'f', item = 2, tag = "tag2"),
-                appendedText.inclusiveRangeOf('b', 'e', item = 3, tag = "tag3"),
-                appendedText.inclusiveRangeOf('c', 'e', item = 4, tag = "tag4"),
+                appendedText.inclusiveRangeOf('b', 'f', item = 1.toAnnotation(), tag = "tag1"),
+                appendedText.inclusiveRangeOf('c', 'f', item = 2.toAnnotation(), tag = "tag2"),
+                appendedText.inclusiveRangeOf('b', 'e', item = 3.toAnnotation(), tag = "tag3"),
+                appendedText.inclusiveRangeOf('c', 'e', item = 4.toAnnotation(), tag = "tag4"),
             )
         val appendedAnnotatedString =
             AnnotatedString(
                 text = appendedText,
-                spanStylesOrNull = appendedSpanStyles,
-                paragraphStylesOrNull = appendedParagraphStyles,
-                annotations = appendedAnnotations
+                annotations = appendedSpanStyles + appendedParagraphStyles + appendedAnnotations,
             )
 
         val buildResult =
@@ -267,19 +268,29 @@ class AnnotatedStringBuilderTest {
                     item = ParagraphStyle(lineHeight = 60.sp)
                 ),
             )
-        val expectedAnnotations =
+        val expectedStringAnnotations =
             listOf(
-                expectedString.inclusiveRangeOf('a', 'a', item = "prefix", tag = "prefixTag"),
-                expectedString.inclusiveRangeOf('c', 'e', item = 1, tag = "tag1"),
-                expectedString.inclusiveRangeOf('c', 'e', item = 2, tag = "tag2"),
-                expectedString.inclusiveRangeOf('c', 'e', item = 3, tag = "tag3"),
-                expectedString.inclusiveRangeOf('c', 'e', item = 4, tag = "tag4"),
+                expectedString.inclusiveRangeOf(
+                    'a',
+                    'a',
+                    item = "prefix".toAnnotation(),
+                    tag = "prefixTag"
+                ),
+                expectedString.inclusiveRangeOf('c', 'e', item = 1.toAnnotation(), tag = "tag1"),
+                expectedString.inclusiveRangeOf('c', 'e', item = 2.toAnnotation(), tag = "tag2"),
+                expectedString.inclusiveRangeOf('c', 'e', item = 3.toAnnotation(), tag = "tag3"),
+                expectedString.inclusiveRangeOf('c', 'e', item = 4.toAnnotation(), tag = "tag4"),
             )
 
         assertThat(buildResult.text).isEqualTo(expectedString)
         assertThat(buildResult.spanStyles).isEqualTo(expectedSpanStyles)
         assertThat(buildResult.paragraphStyles).isEqualTo(expectedParagraphStyles)
-        assertThat(buildResult.annotations).isEqualTo(expectedAnnotations)
+        assertThat(
+                buildResult.annotations?.filter {
+                    it.item !is SpanStyle && it.item !is ParagraphStyle
+                }
+            )
+            .isEqualTo(expectedStringAnnotations)
     }
 
     @Test
@@ -415,11 +426,23 @@ class AnnotatedStringBuilderTest {
                 )
             )
 
-        val expectedAnnotations =
+        val expectedAllAnnotations =
             listOf(
+                Range(item = SpanStyle(color), start = 0, end = text.length),
+                Range(item = ParagraphStyle(lineHeight = lineHeight), start = 0, end = text.length),
+                Range(
+                    item = SpanStyle(appendedColor),
+                    start = text.length,
+                    end = expectedString.length
+                ),
+                Range(
+                    item = ParagraphStyle(lineHeight = appendedLineHeight),
+                    start = text.length,
+                    end = expectedString.length
+                ),
                 Range(
                     tag = appendedAnnotationTag,
-                    item = appendedAnnotation,
+                    item = appendedAnnotation.toAnnotation(),
                     start = expectedString.indexOf('d'),
                     end = expectedString.indexOf('e') + 1
                 )
@@ -428,7 +451,7 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.text).isEqualTo(expectedString)
         assertThat(buildResult.spanStyles).isEqualTo(expectedSpanStyles)
         assertThat(buildResult.paragraphStyles).isEqualTo(expectedParagraphStyles)
-        assertThat(buildResult.annotations).isEqualTo(expectedAnnotations)
+        assertThat(buildResult.annotations).isEqualTo(expectedAllAnnotations)
     }
 
     @Test
@@ -1206,6 +1229,14 @@ class AnnotatedStringBuilderTest {
     }
 
     /** Returns a [Range] from the index of [start] to the index of [end], both inclusive. */
-    private fun <T> String.inclusiveRangeOf(start: Char, end: Char, item: T, tag: String = "") =
-        Range(tag = tag, item = item, start = indexOf(start), end = indexOf(end) + 1)
+    private fun <T : AnnotatedString.Annotation> String.inclusiveRangeOf(
+        start: Char,
+        end: Char,
+        item: T,
+        tag: String = ""
+    ) = Range(tag = tag, item = item, start = indexOf(start), end = indexOf(end) + 1)
+
+    private fun Int.toAnnotation() = StringAnnotation(this.toString())
+
+    private fun String.toAnnotation() = StringAnnotation(this)
 }

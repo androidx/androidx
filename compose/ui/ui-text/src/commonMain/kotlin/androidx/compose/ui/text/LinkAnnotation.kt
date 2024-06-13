@@ -21,7 +21,7 @@ package androidx.compose.ui.text
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
  */
-abstract class LinkAnnotation private constructor() {
+abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation {
     /**
      * Interaction listener triggered when user interacts with this link.
      *
