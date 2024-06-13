@@ -18,8 +18,11 @@ package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 
 // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1394/Implement-rememberAccessibilityServiceState
+
+private val AccessibilityServiceEnabled = mutableStateOf(false)
 
 /**
  * Returns the state of whether any accessibility services are enabled.
@@ -32,6 +35,4 @@ import androidx.compose.runtime.State
 internal actual fun rememberAccessibilityServiceState(
     listenToTouchExplorationState: Boolean,
     listenToSwitchAccessState: Boolean
-): State<Boolean> {
-    TODO("Not yet implemented")
-}
+): State<Boolean> = AccessibilityServiceEnabled
