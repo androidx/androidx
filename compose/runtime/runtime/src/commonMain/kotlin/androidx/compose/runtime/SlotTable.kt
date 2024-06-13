@@ -3046,7 +3046,7 @@ internal class SlotWriter(
             for (dataIndex in startData until endData) {
                 if (dataIndex != startData) append(", ")
                 val dataAddress = dataIndexToDataAddress(dataIndex)
-                append("${slots[dataAddress].toString().summarize(10)}")
+                append(slots[dataAddress].toString().summarize(10))
             }
             append(']')
         }
@@ -3242,7 +3242,7 @@ private class SlotTableGroup(
 
     private fun validateRead() {
         if (table.version != version) {
-            throw ConcurrentModificationException()
+            throwConcurrentModificationException()
         }
     }
 
@@ -3323,7 +3323,7 @@ private class GroupIterator(val table: SlotTable, start: Int, val end: Int) :
     private val version = table.version
 
     init {
-        if (table.writer) throw ConcurrentModificationException()
+        if (table.writer) throwConcurrentModificationException()
     }
 
     override fun hasNext() = index < end
@@ -3338,7 +3338,7 @@ private class GroupIterator(val table: SlotTable, start: Int, val end: Int) :
 
     private fun validateRead() {
         if (table.version != version) {
-            throw ConcurrentModificationException()
+            throwConcurrentModificationException()
         }
     }
 }
@@ -3859,4 +3859,8 @@ private const val LIVE_EDIT_INVALID_KEY = -3
 
 private fun MutableIntObjectMap<MutableIntSet>.add(key: Int, value: Int) {
     (this[key] ?: MutableIntSet().also { set(key, it) }).add(value)
+}
+
+internal fun throwConcurrentModificationException() {
+    throw ConcurrentModificationException()
 }
