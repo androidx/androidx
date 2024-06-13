@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier
@@ -29,8 +30,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import org.junit.Assert
 import org.junit.Rule
@@ -73,6 +76,41 @@ class PagerTest {
             Assert.assertEquals(i, pagerState.currentPage)
             rule.onNodeWithText("Page $i").assertIsDisplayed()
             rule.onNodeWithTag(pagerTestTag).performTouchInput { swipeRight() }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun vertical_pager_with_nested_scaling_lazy_column_swipes_along_one_page_at_a_time() {
+        val pageCount = 5
+        lateinit var pagerState: PagerState
+
+        rule.setContent {
+            pagerState = rememberPagerState { pageCount }
+
+            VerticalPager(state = pagerState, modifier = Modifier.testTag(pagerTestTag)) { page ->
+                ScalingLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item { BasicText(text = "Page $page") }
+                }
+            }
+        }
+
+        val listOfPageIndices = 0 until pageCount
+
+        // Swipe along to end of pager
+        for (i in listOfPageIndices) {
+            Assert.assertEquals(i, pagerState.currentPage)
+            rule.onNodeWithText("Page $i").assertIsDisplayed()
+            rule.onNodeWithTag(pagerTestTag).performTouchInput { swipeUp() }
+        }
+
+        // Swipe along back to start of pager
+        for (i in listOfPageIndices.reversed()) {
+            Assert.assertEquals(i, pagerState.currentPage)
+            rule.onNodeWithText("Page $i").assertIsDisplayed()
+            rule.onNodeWithTag(pagerTestTag).performTouchInput { swipeDown() }
         }
     }
 }
