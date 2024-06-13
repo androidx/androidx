@@ -27,8 +27,13 @@ class NavigationRuntimeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
+
     override val issues
-        get() = listOf(DeepLinkInActivityDestinationDetector.DeepLinkInActivityDestination)
+        get() =
+            listOf(
+                DeepLinkInActivityDestinationDetector.DeepLinkInActivityDestination,
+                WrongStartDestinationTypeDetector.WrongStartDestinationType,
+            )
 
     override val vendor =
         Vendor(
