@@ -130,10 +130,7 @@ fun AggregateGroupByDurationRequest.toPlatformRequest(): AggregateRecordsRequest
 }
 
 fun AggregateGroupByPeriodRequest.toPlatformRequest(): AggregateRecordsRequest<Any> {
-    return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter
-                .toPlatformLocalTimeRangeFilter() /* Platform only takes LocalTimeRange filter in aggregate by period request. */
-        )
+    return AggregateRecordsRequest.Builder<Any>(timeRangeFilter.toPlatformLocalTimeRangeFilter())
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
