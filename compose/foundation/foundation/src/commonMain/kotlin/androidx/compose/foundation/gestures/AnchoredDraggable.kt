@@ -90,7 +90,102 @@ import kotlinx.coroutines.launch
  * @param state The associated [AnchoredDraggableState].
  * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom drag
  *   will behave like bottom to top, and a left to right drag will behave like right to left. If not
- *   specified, this will be determined based on [orientation] and [LocalLayoutDirection].
+ *   specified, this will be determined based on [orientation] and [LocalLayoutDirection] through
+ *   the other [anchoredDraggable] overload.
+ * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
+ * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
+ *   [Modifier.draggable].
+ * @param startDragImmediately when set to false, [draggable] will start dragging only when the
+ *   gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
+ *   widget when pressing on it. See [draggable] to learn more about startDragImmediately.
+ * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
+ *   default (if passing in null), this will snap to the closest anchor considering the velocity
+ *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+fun <T> Modifier.anchoredDraggable(
+    state: AnchoredDraggableState<T>,
+    reverseDirection: Boolean,
+    orientation: Orientation,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    startDragImmediately: Boolean = state.isAnimationRunning,
+    flingBehavior: FlingBehavior? = null
+): Modifier =
+    this then
+        AnchoredDraggableElement(
+            state = state,
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = reverseDirection,
+            interactionSource = interactionSource,
+            overscrollEffect = null,
+            startDragImmediately = startDragImmediately,
+            flingBehavior = flingBehavior
+        )
+
+/**
+ * Enable drag gestures between a set of predefined values.
+ *
+ * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
+ * delta. If the [orientation] is set to [Orientation.Horizontal] and [LocalLayoutDirection]'s value
+ * is [LayoutDirection.Rtl], the drag deltas will be reversed. You should use this offset to move
+ * your content accordingly (see [Modifier.offset]). When the drag ends, the offset will be animated
+ * to one of the anchors and when that anchor is reached, the value of the [AnchoredDraggableState]
+ * will also be updated to the value corresponding to the new anchor.
+ *
+ * Dragging is constrained between the minimum and maximum anchors.
+ *
+ * @param state The associated [AnchoredDraggableState].
+ * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
+ * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
+ *   [Modifier.draggable].
+ * @param startDragImmediately when set to false, [draggable] will start dragging only when the
+ *   gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
+ *   widget when pressing on it. See [draggable] to learn more about startDragImmediately.
+ * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
+ *   default (if passing in null), this will snap to the closest anchor considering the velocity
+ *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+fun <T> Modifier.anchoredDraggable(
+    state: AnchoredDraggableState<T>,
+    orientation: Orientation,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    startDragImmediately: Boolean = state.isAnimationRunning,
+    flingBehavior: FlingBehavior? = null
+): Modifier =
+    this then
+        AnchoredDraggableElement(
+            state = state,
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = null,
+            interactionSource = interactionSource,
+            overscrollEffect = null,
+            startDragImmediately = startDragImmediately,
+            flingBehavior = flingBehavior
+        )
+
+/**
+ * Enable drag gestures between a set of predefined values.
+ *
+ * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
+ * delta. You should use this offset to move your content accordingly (see [Modifier.offset]). When
+ * the drag ends, the offset will be animated to one of the anchors and when that anchor is reached,
+ * the value of the [AnchoredDraggableState] will also be updated to the value corresponding to the
+ * new anchor.
+ *
+ * Dragging is constrained between the minimum and maximum anchors.
+ *
+ * @param state The associated [AnchoredDraggableState].
+ * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom drag
+ *   will behave like bottom to top, and a left to right drag will behave like right to left. If not
+ *   specified, this will be determined based on [orientation] and [LocalLayoutDirection] through
+ *   the other [anchoredDraggable] overload.
  * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
  * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
@@ -105,6 +200,8 @@ import kotlinx.coroutines.launch
  * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
+ *
+ * This API is experimental as it uses [OverscrollEffect], which is experimental.
  */
 @ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
@@ -156,6 +253,8 @@ fun <T> Modifier.anchoredDraggable(
  * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
+ *
+ * This API is experimental as it uses [OverscrollEffect], which is experimental.
  */
 @ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
@@ -543,7 +642,6 @@ fun <T : Any> DraggableAnchors(builder: DraggableAnchorsConfig<T>.() -> Unit): D
  * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
  *   access to this scope.
  */
-@ExperimentalFoundationApi
 interface AnchoredDragScope {
     /**
      * Assign a new value for an offset value for [AnchoredDraggableState].
@@ -646,8 +744,8 @@ fun <T> AnchoredDraggableState(
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
+@OptIn(ExperimentalFoundationApi::class) // DraggableAnchors is still experimental
 @Stable
-@ExperimentalFoundationApi
 class AnchoredDraggableState<T>(
     initialValue: T,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
@@ -661,7 +759,6 @@ class AnchoredDraggableState<T>(
      * @param confirmValueChange Optional callback invoked to confirm or veto a pending state
      *   change.
      */
-    @ExperimentalFoundationApi
     constructor(
         initialValue: T,
         anchors: DraggableAnchors<T>,
@@ -1086,7 +1183,6 @@ class AnchoredDraggableState<T>(
 
     companion object {
         /** The default [Saver] implementation for [AnchoredDraggableState]. */
-        @ExperimentalFoundationApi
         fun <T : Any> Saver(confirmValueChange: (T) -> Boolean = { true }) =
             Saver<AnchoredDraggableState<T>, T>(
                 save = { it.currentValue },
@@ -1134,7 +1230,7 @@ class AnchoredDraggableState<T>(
  * @throws CancellationException if the interaction interrupted by another interaction like a
  *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.snapTo(targetValue: T) {
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
@@ -1177,7 +1273,7 @@ private suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * @throws CancellationException if the interaction interrupted by another interaction like a
  *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.animateTo(
     targetValue: T,
     animationSpec: AnimationSpec<Float> =
@@ -1209,7 +1305,7 @@ suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * @throws CancellationException if the interaction interrupted bt another interaction like a
  *   gesture interaction or another programmatic interaction like [animateTo] or [snapTo] call.
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
     targetValue: T,
     velocity: Float,
@@ -1326,7 +1422,6 @@ private fun <T> DraggableAnchors<T>.computeTarget(
 /**
  * Contains useful defaults for use with [AnchoredDraggableState] and [Modifier.anchoredDraggable]
  */
-@ExperimentalFoundationApi
 object AnchoredDraggableDefaults {
 
     /** The default spec for snapping, a tween spec */
@@ -1511,7 +1606,6 @@ private const val SettleWithVelocityDeprecated =
  *   is invoked with.
  * @param snapAnimationSpec The animation spec that will be used to snap to a new state.
  */
-@ExperimentalFoundationApi
 internal fun <T> anchoredDraggableFlingBehavior(
     state: AnchoredDraggableState<T>,
     density: Density,
