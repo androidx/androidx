@@ -47,6 +47,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeoutOrNull
 
 internal class MouseWheelScrollNode(
@@ -133,6 +134,13 @@ internal class MouseWheelScrollNode(
             val speed = with(density) { AnimationSpeed.toPx() }
             scrollingLogic.dispatchMouseWheelScroll(scrollDelta, threshold, speed)
         }
+    }
+
+    private suspend fun ScrollingLogic.userScroll(
+        block: suspend NestedScrollScope.() -> Unit
+    ) = supervisorScope {
+        // Run it in supervisorScope to ignore cancellations from scrolls with higher MutatePriority
+        scroll(MutatePriority.UserInput, block)
     }
 
     private fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
@@ -235,7 +243,7 @@ internal class MouseWheelScrollNode(
             } ?: false
         }
 
-        scroll(MutatePriority.UserInput) {
+        userScroll {
             var requiredAnimation = true
             while (requiredAnimation) {
                 requiredAnimation = false
