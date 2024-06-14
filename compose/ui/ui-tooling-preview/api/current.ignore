@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#DESKTOP:
+    Field androidx.compose.ui.tooling.preview.Devices.DESKTOP has changed value from spec:id=reference_desktop,shape=Normal,width=1920,height=1080,unit=dp,dpi=160 to spec:width=1920dp,height=1080dp,dpi=160
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#FOLDABLE:
+    Field androidx.compose.ui.tooling.preview.Devices.FOLDABLE has changed value from spec:id=reference_foldable,shape=Normal,width=673,height=841,unit=dp,dpi=420 to spec:width=673dp,height=841dp
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#PHONE:
+    Field androidx.compose.ui.tooling.preview.Devices.PHONE has changed value from spec:id=reference_phone,shape=Normal,width=411,height=891,unit=dp,dpi=420 to spec:width=411dp,height=891dp
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TABLET:
+    Field androidx.compose.ui.tooling.preview.Devices.TABLET has changed value from spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240 to spec:width=1280dp,height=800dp,dpi=240
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TV_1080p:
+    Field androidx.compose.ui.tooling.preview.Devices.TV_1080p has changed value from spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420 to spec:width=1920dp,height=1080dp
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TV_720p:
+    Field androidx.compose.ui.tooling.preview.Devices.TV_720p has changed value from spec:shape=Normal,width=1280,height=720,unit=dp,dpi=420 to spec:width=1280dp,height=720dp
