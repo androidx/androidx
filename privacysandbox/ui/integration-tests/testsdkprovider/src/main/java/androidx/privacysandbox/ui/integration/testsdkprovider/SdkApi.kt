@@ -105,7 +105,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     private fun getMediateeBannerAdBundle(
         isAppMediatee: Boolean,
         adType: Int,
-        waitInsideOnDraw: Boolean
+        withSlowDraw: Boolean
     ): Bundle? {
         val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
         if (isAppMediatee) {
@@ -117,7 +117,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                         IAppOwnedMediateeSdkApi.Stub.asInterface(
                             appOwnedSdkSandboxInterfaceCompat.getInterface()
                         )
-                    return appOwnedMediateeSdkApi.loadBannerAd(adType, waitInsideOnDraw)
+                    return appOwnedMediateeSdkApi.loadBannerAd(adType, withSlowDraw)
                 }
             }
         } else {
@@ -126,7 +126,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                 if (sandboxedSdkCompat.getSdkInfo()?.name == MEDIATEE_SDK) {
                     val mediateeSdkApi =
                         IMediateeSdkApi.Stub.asInterface(sandboxedSdkCompat.getInterface())
-                    return mediateeSdkApi.loadBannerAd(adType, waitInsideOnDraw)
+                    return mediateeSdkApi.loadBannerAd(adType, withSlowDraw)
                 }
             }
         }
