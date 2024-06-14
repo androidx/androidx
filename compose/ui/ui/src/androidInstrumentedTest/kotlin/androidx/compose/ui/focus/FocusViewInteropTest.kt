@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -104,12 +103,7 @@ class FocusViewInteropTest {
             view = LocalView.current
             Box(
                 Modifier.size(10.dp)
-                    .focusProperties {
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        enter = {
-                            FocusRequester.Cancel
-                        }
-                    }
+                    .focusProperties { enter = { FocusRequester.Cancel } }
                     .focusGroup()
             ) {
                 Box(Modifier.size(10.dp).focusable())

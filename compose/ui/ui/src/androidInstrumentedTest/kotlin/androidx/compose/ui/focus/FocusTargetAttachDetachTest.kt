@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -888,7 +887,7 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsKeyInputNodeKind_implementing_receivesKeyEventsWhenFocused() {
         class FocusTargetAndKeyInputNode : DelegatingNode(), KeyInputModifierNode {
@@ -937,7 +936,7 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndKeyInputNode.keyEvents[0].key).isEqualTo(Key.Enter)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsKeyInputNodeKind_delegating_receivesKeyEventsWhenFocused() {
         class FocusTargetAndKeyInputNode : DelegatingNode() {
@@ -989,7 +988,6 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndKeyInputNode.keyEvents[0].key).isEqualTo(Key.Enter)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun focusTarget_nodeThatIsSoftKeyInputNodeKind_implementing_receivesSoftKeyEventsWhenFocused() {
         class FocusTargetAndSoftKeyboardNode :
@@ -1044,7 +1042,6 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents[0].key).isEqualTo(Key.Enter)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun focusTarget_nodeThatIsSoftKeyInputNodeKind_delegating_receivesSoftKeyEventsWhenFocused() {
         class FocusTargetAndSoftKeyboardNode : DelegatingNode() {

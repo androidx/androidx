@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -137,7 +136,7 @@ class ModalNavigationDrawerTest {
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun modalNavigationDrawer_focusMovesOutOfDrawer_closedStateComposableDisplayed() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
@@ -314,7 +313,7 @@ class ModalNavigationDrawerTest {
         assert(endPositionInClosedState.value > endPositionInOpenState.value)
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun modalNavigationDrawer_parentContainerGainsFocus_onBackPress() {
         val drawerFocusRequester = FocusRequester()

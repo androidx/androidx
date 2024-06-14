@@ -18,7 +18,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Constraints
@@ -48,7 +47,6 @@ internal fun renderingTest(
         }
     }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class RenderingTestScope(
     val width: Int,
     val height: Int,

@@ -30,7 +30,6 @@ import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.LocalView
@@ -48,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(AndroidJUnit4::class)
 class SemanticsEventsBenchmark {
 

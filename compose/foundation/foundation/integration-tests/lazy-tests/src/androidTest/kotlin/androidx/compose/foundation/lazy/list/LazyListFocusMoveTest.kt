@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.ParameterizedComposeTestRule
 import androidx.compose.testutils.createParameterizedComposeTestRule
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
@@ -63,7 +62,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyListFocusMoveTest(param: FocusDirectionWrapper) {

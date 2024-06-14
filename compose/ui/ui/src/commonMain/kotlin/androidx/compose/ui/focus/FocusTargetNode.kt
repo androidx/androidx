@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
@@ -67,7 +66,6 @@ internal class FocusTargetNode(
             with(requireTransactionManager()) { uncommittedFocusState = value }
         }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun requestFocus(): Boolean {
         return requestFocus(FocusDirection.Enter) ?: false
     }
@@ -112,7 +110,7 @@ internal class FocusTargetNode(
                         force = true,
                         refreshFocusEvents = true,
                         clearOwnerFocus = false,
-                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+                        focusDirection = Exit
                     )
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation
@@ -160,7 +158,6 @@ internal class FocusTargetNode(
         if (!isProcessingCustomEnter) {
             isProcessingCustomEnter = true
             try {
-                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().enter(focusDirection).also { if (it !== Default) block(it) }
             } finally {
                 isProcessingCustomEnter = false
@@ -185,7 +182,6 @@ internal class FocusTargetNode(
         if (!isProcessingCustomExit) {
             isProcessingCustomExit = true
             try {
-                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().exit(focusDirection).also { if (it !== Default) block(it) }
             } finally {
                 isProcessingCustomExit = false

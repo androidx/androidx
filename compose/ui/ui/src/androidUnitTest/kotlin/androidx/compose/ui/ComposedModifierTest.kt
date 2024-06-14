@@ -198,7 +198,6 @@ class ComposedModifierTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun keyedComposedModifiersAreEqual() {
         val key1 = Any()
@@ -223,7 +222,6 @@ class ComposedModifierTest {
         )
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun mismatchedKeyedComposedModifiersAreNotEqual() {
         val key1 = Any()
@@ -278,7 +276,6 @@ class ComposedModifierTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun recomposingKeyedComposedModifierSkips() = runBlocking {
         // Manually invalidate the composition instead of using mutableStateOf

@@ -23,7 +23,6 @@ import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -324,7 +323,6 @@ fun Dialog(
  * @param update The callback to be invoked after the layout is inflated.
  * @param content Composable content of the creating dialog.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("unused")
 @Composable
 fun DialogWindow(

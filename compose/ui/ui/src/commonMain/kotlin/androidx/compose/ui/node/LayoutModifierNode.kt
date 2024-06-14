@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
@@ -131,7 +130,6 @@ fun LayoutModifierNode.invalidateMeasurement() = requireLayoutNode().invalidateM
 
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal object NodeMeasuringIntrinsics {
     // Fun interface for measure block to avoid autoBoxing of Constraints
     internal fun interface MeasureBlock {

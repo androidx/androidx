@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
@@ -72,7 +70,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
@@ -221,7 +218,6 @@ class LookaheadScopeTest {
                                     return iteration <= 6
                                 }
 
-                                @ExperimentalComposeUiApi
                                 override fun ApproachMeasureScope.approachMeasure(
                                     measurable: Measurable,
                                     constraints: Constraints
@@ -428,7 +424,6 @@ class LookaheadScopeTest {
                                         return rootPostPlace < 12
                                     }
 
-                                    @ExperimentalComposeUiApi
                                     override fun ApproachMeasureScope.approachMeasure(
                                         measurable: Measurable,
                                         constraints: Constraints
@@ -472,7 +467,6 @@ class LookaheadScopeTest {
                                                     return rootPostPlace < 12
                                                 }
 
-                                                @ExperimentalComposeUiApi
                                                 override fun ApproachMeasureScope.approachMeasure(
                                                     measurable: Measurable,
                                                     constraints: Constraints
@@ -2118,7 +2112,6 @@ class LookaheadScopeTest {
         assertEquals(Offset(-150f, 0f), offset)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testIsLookingAhead() {
         var iterations by mutableStateOf(0)
@@ -2318,7 +2311,6 @@ class LookaheadScopeTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun lookaheadSizeTrackedWhenModifierChanges() {
         var expanded by mutableStateOf(true)
@@ -2975,7 +2967,6 @@ class LookaheadScopeTest {
                             return false
                         }
 
-                        @ExperimentalComposeUiApi
                         override fun ApproachMeasureScope.approachMeasure(
                             measurable: Measurable,
                             constraints: Constraints

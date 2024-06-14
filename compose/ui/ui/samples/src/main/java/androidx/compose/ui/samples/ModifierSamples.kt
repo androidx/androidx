@@ -110,7 +110,6 @@ fun SubcomponentModifierSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun DelegatedNodeSampleExplicit() {
@@ -158,7 +157,6 @@ fun DelegatedNodeSampleExplicit() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun DelegatedNodeSampleImplicit() {
@@ -197,7 +195,6 @@ fun DelegatedNodeSampleImplicit() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun LazyDelegationExample() {
@@ -304,7 +301,6 @@ fun DelegateInAttachSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun ModifierNodeElementSample() {
@@ -329,7 +325,6 @@ fun ModifierNodeElementSample() {
 }
 
 @Suppress("LocalVariableName")
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun SemanticsModifierNodeSample() {
@@ -398,7 +393,6 @@ fun PointerInputModifierNodeSample() {
         this then PointerInputElement(callback)
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun LayoutAwareModifierNodeSample() {
@@ -424,7 +418,6 @@ fun LayoutAwareModifierNodeSample() {
     fun Modifier.logSize(id: String) = this then LogSizeElement(id)
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun GlobalPositionAwareModifierNodeSample() {
@@ -459,7 +452,6 @@ fun GlobalPositionAwareModifierNodeSample() {
     fun Modifier.logPosition(id: String) = this then PositionLoggerElement(id)
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun JustReadingOrProvidingModifierLocalNodeSample() {

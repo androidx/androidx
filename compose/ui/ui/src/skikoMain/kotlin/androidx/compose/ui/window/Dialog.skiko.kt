@@ -22,7 +22,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -62,7 +61,6 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
  */
 @Immutable
 actual class DialogProperties
-@ExperimentalComposeUiApi
 constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
@@ -72,7 +70,6 @@ constructor(
     val scrimColor: Color = DefaultScrimColor,
 ) {
     // Constructor with all non-experimental arguments.
-    @OptIn(ExperimentalComposeUiApi::class)
     actual constructor(
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,

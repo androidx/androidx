@@ -32,7 +32,6 @@ import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -292,7 +291,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
                 LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
             }
     }
-    @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
+    set(compositeKeyHash, SetCompositeKeyHash)
 }
 
 @Suppress("UNCHECKED_CAST", "ExceptionMessage")

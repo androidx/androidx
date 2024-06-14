@@ -21,7 +21,6 @@ import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.AutofillType
@@ -39,7 +38,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(AndroidJUnit4::class)
 class AndroidAutofillBenchmark {
 
@@ -58,7 +56,6 @@ class AndroidAutofillBenchmark {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 26)

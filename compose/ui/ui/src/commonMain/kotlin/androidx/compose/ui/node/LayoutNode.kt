@@ -19,7 +19,6 @@ import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
@@ -96,10 +95,6 @@ internal class LayoutNode(
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
 
-    @set:ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalComposeUiApi
     override var compositeKeyHash: Int = 0
 
     internal var isVirtualLookaheadRoot: Boolean = false

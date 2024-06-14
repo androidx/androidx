@@ -290,7 +290,6 @@ class TextFieldTest {
         rule.runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isFalse() }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun testTextField_clickingOnTextAfterDismissingKeyboard_showsKeyboard() {
         val (focusRequester, parentFocusRequester) = FocusRequester.createRefs()

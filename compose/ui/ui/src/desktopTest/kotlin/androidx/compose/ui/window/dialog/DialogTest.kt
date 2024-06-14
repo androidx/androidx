@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.focus.FocusRequester
@@ -54,7 +53,6 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class DialogTest {
     @Test
     fun `open and close custom dialog`() = runApplicationTest {

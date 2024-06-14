@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
@@ -322,7 +321,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyThenDPadCenter_triggersListenerTwice() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -359,7 +358,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyConcurrentlyWithDPadCenter_triggersListenerForEach() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -403,7 +402,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyConcurrentlyWithShortClickDPadCenter_triggersListenerForEach() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -446,7 +445,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun updateOnLongClickListenerBetweenEnterKeyDownAndUp_callsNewListener() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -494,7 +493,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun modifierReusedBetweenEnterKeyDownAndKeyUp_doesNotCallListeners() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -1317,9 +1316,7 @@ class CombinedClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -1357,9 +1354,7 @@ class CombinedClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -1807,7 +1802,6 @@ class CombinedClickableTest {
         rule.onNodeWithTag("myClickable").performMouseInput { exit(Offset(-1f, -1f)) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocus_whenDisabled() {
         val requester = FocusRequester()
@@ -1852,7 +1846,6 @@ class CombinedClickableTest {
     }
 
     /** Test for b/269319898 */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocusPropertiesSet_whenDisabled() {
         val requester = FocusRequester()
@@ -2021,7 +2014,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2056,7 +2049,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2117,7 +2110,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2176,7 +2169,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()

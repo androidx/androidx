@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -75,7 +74,6 @@ import kotlinx.coroutines.launch
  * @param view The view hosted by this holder.
  * @param owner The [Owner] of the composition that this holder lives in.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal open class AndroidViewHolder(
     context: Context,
     parentContext: CompositionContext?,

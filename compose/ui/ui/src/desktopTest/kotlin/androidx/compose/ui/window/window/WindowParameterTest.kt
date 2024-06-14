@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
@@ -37,7 +36,6 @@ import com.google.common.truth.Truth.assertThat
 import java.awt.event.WindowEvent
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class WindowParameterTest {
     @Test
     fun `change title`() = runApplicationTest {

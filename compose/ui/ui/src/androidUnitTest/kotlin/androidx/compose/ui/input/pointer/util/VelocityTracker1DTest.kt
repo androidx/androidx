@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D.Strategy
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -719,7 +718,6 @@ class VelocityTracker1DTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testsFromThe2DVelocityTrackerTest_noClamping_impulse() {
         val expected2DVelocities =

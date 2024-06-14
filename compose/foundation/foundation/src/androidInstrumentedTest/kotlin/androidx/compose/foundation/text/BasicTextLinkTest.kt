@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -879,7 +878,6 @@ class BasicTextLinkTest {
         BasicText(text, onTextLayout = { layoutResult = it })
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun setupContent(content: @Composable () -> Unit) {
         val keyboardMockManager =
             object : InputModeManager {

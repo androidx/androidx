@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -138,7 +137,7 @@ internal fun FocusTargetNode.findChildCorrespondingToFocusEnter(
         when (direction) {
             // TODO(b/244528858) choose different items for moveFocus(Enter) based on
             // LayoutDirection.
-            @OptIn(ExperimentalComposeUiApi::class) Enter -> Right
+            Enter -> Right
             else -> direction
         }
 

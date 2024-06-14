@@ -64,7 +64,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
@@ -78,7 +77,6 @@ import kotlinx.coroutines.launch
 private val colors =
     listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff264653), Color(0xff2a9d84))
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun LookaheadWithScaffold() {
@@ -122,7 +120,6 @@ fun LookaheadWithScaffold() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SimpleScaffoldWithTopBar() {
     val scaffoldState = rememberScaffoldState()

@@ -104,7 +104,6 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
-// @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
@@ -252,7 +251,6 @@ private fun AutoScrollSideEffect(
 
 @OptIn(
     ExperimentalTvMaterial3Api::class,
-    //    ExperimentalComposeUiApi::class
 )
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,

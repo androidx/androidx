@@ -20,7 +20,6 @@ package androidx.compose.ui.input.mouse
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
@@ -32,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 @Ignore // TODO(b/217238066) remove after migration to ImageComposeScene (it will be upstreamed from
 // Compose MPP 1.0.0)

@@ -47,7 +47,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
@@ -242,7 +241,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun clickWithEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -272,7 +271,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun clickWithNumPadEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -302,7 +301,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun clickWithDPadCenter() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -365,9 +364,7 @@ class ClickableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(tag).size(10.dp).focusRequester(focusRequester).clickable {})
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         // Act.
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -386,9 +383,7 @@ class ClickableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(tag).size(10.dp).focusRequester(focusRequester).clickable {})
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
 
         // Act.
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -406,9 +401,7 @@ class ClickableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(tag).size(10.dp).clickable {})
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         // Act.
         rule.onNodeWithTag(tag).requestFocus()
@@ -427,9 +420,7 @@ class ClickableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.focusRequester(focusRequester).testTag(tag).size(10.dp).clickable {})
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
 
         // Act.
         rule.onNodeWithTag(tag).requestFocus()
@@ -1168,9 +1159,7 @@ class ClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -1206,9 +1195,7 @@ class ClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -3603,7 +3590,6 @@ class ClickableTest {
         rule.onNodeWithTag("myClickable").performMouseInput { exit(Offset(-1f, -1f)) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocus_whenDisabled() {
         val requester = FocusRequester()
@@ -3648,7 +3634,6 @@ class ClickableTest {
     }
 
     /** Test for b/269319898 */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocusPropertiesSet_whenDisabled() {
         val requester = FocusRequester()
@@ -3823,7 +3808,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun enterKey_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -3868,7 +3853,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun numPadEnterKey_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -3913,7 +3898,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun dpadCenter_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -3959,7 +3944,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun otherKey_doesNotEmitInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -3992,7 +3977,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -4051,7 +4036,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -4110,7 +4095,7 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun interruptedClick_emitsCancelInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -4297,7 +4282,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun indicationNodeFactory_noInteractionSource_lazilyCreated_focus() {
         var created = false
@@ -4352,7 +4336,7 @@ class ClickableTest {
      * still be passed up to a non-focused parent, so we test this scenario here and make sure that
      * this key event bubbling up causes indication to be created.
      */
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun indicationNodeFactory_noInteractionSource_lazilyCreated_keyInput() {
         var created = false
@@ -4845,7 +4829,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun indicationNodeFactory_nullInteractionSource_resetWhenReused_focused() {
         var attachedCount = 0
@@ -5027,7 +5010,6 @@ class ClickableTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun indicationNodeFactory_nullInteractionSource_resetWhenMoved_focused() {
         var attachedCount = 0

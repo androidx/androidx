@@ -32,7 +32,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -442,7 +441,7 @@ class ScrollbarTest {
         }
     }
 
-    @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(InternalTestApi::class)
     private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
         (this as DesktopComposeTestRule)
             .scene
@@ -453,7 +452,7 @@ class ScrollbarTest {
             )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, InternalTestApi::class)
+    @OptIn(InternalTestApi::class)
     private fun ComposeTestRule.performMouseMove(x: Int, y: Int) {
         (this as DesktopComposeTestRule)
             .scene
@@ -563,6 +562,5 @@ internal object TestConfig : ScrollConfig {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val PointerEvent.totalScrollDelta
     get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }

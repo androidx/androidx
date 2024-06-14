@@ -25,7 +25,6 @@ import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -122,7 +121,6 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(caseFactory: () -> LazyBe
 
 // we extract this function so it is easier to differentiate this work  in the traces from the work
 // we are not measuring, like beforeToggle() and afterToggle().
-@OptIn(ExperimentalComposeUiApi::class)
 private fun ComposeExecutionControl.performToggle(testCase: LazyBenchmarkTestCase) {
     testCase.toggle()
     if (hasPendingChanges()) {

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.autofill
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.AutofillType.AddressAuxiliaryDetails
 import androidx.compose.ui.autofill.AutofillType.AddressCountry
 import androidx.compose.ui.autofill.AutofillType.AddressLocality
@@ -58,7 +57,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class AndroidAutofillTypeTest {
 

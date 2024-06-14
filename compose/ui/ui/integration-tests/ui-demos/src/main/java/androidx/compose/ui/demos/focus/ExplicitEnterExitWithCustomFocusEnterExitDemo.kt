@@ -23,7 +23,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
@@ -37,7 +36,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalInputModeManager
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ExplicitEnterExitWithCustomFocusEnterExitDemo() {
     val (top, row, item1, item2, item3, bottom) = remember { FocusRequester.createRefs() }
