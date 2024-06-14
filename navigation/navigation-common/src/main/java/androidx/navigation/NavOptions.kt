@@ -20,6 +20,7 @@ import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.serialization.generateHashCode
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -157,7 +158,7 @@ internal constructor(
     ) : this(
         singleTop,
         restoreState,
-        popUpToRouteClass!!.serializer().hashCode(),
+        popUpToRouteClass!!.serializer().generateHashCode(),
         popUpToInclusive,
         popUpToSaveState,
         enterAnim,
@@ -183,7 +184,7 @@ internal constructor(
     ) : this(
         singleTop,
         restoreState,
-        popUpToRouteObject::class.serializer().hashCode(),
+        popUpToRouteObject::class.serializer().generateHashCode(),
         popUpToInclusive,
         popUpToSaveState,
         enterAnim,
@@ -474,7 +475,7 @@ internal constructor(
             saveState: Boolean = false
         ): Builder {
             popUpToRouteObject = route
-            setPopUpTo(route::class.serializer().hashCode(), inclusive, saveState)
+            setPopUpTo(route::class.serializer().generateHashCode(), inclusive, saveState)
             return this
         }
 

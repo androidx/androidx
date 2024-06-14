@@ -17,7 +17,6 @@
 package androidx.navigation.serialization
 
 import android.os.Bundle
-import androidx.navigation.CollectionNavType
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -776,55 +775,7 @@ private class CustomSerializer : KSerializer<CustomSerializerClass> {
         CustomSerializerClass(decoder.decodeLong())
 }
 
-@Serializable internal data class CustomTypeWithArg(val id: Int)
-
-@Serializable
-@SerialName(PATH_SERIAL_NAME)
-internal class TestClassCollectionArg(val list: List<CustomTypeWithArg>)
-
-internal val collectionNavType =
-    object : CollectionNavType<List<CustomTypeWithArg>>(false) {
-        override fun put(bundle: Bundle, key: String, value: List<CustomTypeWithArg>) {
-            bundle.putStringArrayList(key, ArrayList(value.map { it.id.toString() }))
-        }
-
-        override fun serializeAsValues(value: List<CustomTypeWithArg>): List<String> =
-            value.map { it.id.toString() }
-
-        override fun emptyCollection(): List<CustomTypeWithArg> = emptyList()
-
-        override fun get(bundle: Bundle, key: String): List<CustomTypeWithArg> {
-            return bundle.getStringArrayList(key)?.map { CustomTypeWithArg(it.toInt()) }
-                ?: emptyList()
-        }
-
-        override fun parseValue(value: String): List<CustomTypeWithArg> = listOf()
-
-        override fun serializeAsValue(value: List<CustomTypeWithArg>) = "CustomTypeWithArg"
-    }
-
 private interface TestInterface
-
-internal fun stringArgument(name: String, hasDefaultValue: Boolean = false) =
-    navArgument(name) {
-        type = NavType.StringType
-        nullable = false
-        unknownDefaultValuePresent = hasDefaultValue
-    }
-
-internal fun nullableStringArgument(name: String, hasDefaultValue: Boolean = false) =
-    navArgument(name) {
-        type = NavType.StringType
-        nullable = true
-        unknownDefaultValuePresent = hasDefaultValue
-    }
-
-internal fun intArgument(name: String, hasDefaultValue: Boolean = false) =
-    navArgument(name) {
-        type = NavType.IntType
-        nullable = false
-        unknownDefaultValuePresent = hasDefaultValue
-    }
 
 private fun nullableIntArgument(name: String, hasDefaultValue: Boolean = false) =
     navArgument(name) {

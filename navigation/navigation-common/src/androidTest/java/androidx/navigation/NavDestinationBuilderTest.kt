@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.net.Uri
 import androidx.annotation.IdRes
+import androidx.navigation.serialization.expectedSafeArgsId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -73,7 +74,7 @@ class NavDestinationTest {
             .isEqualTo("androidx.navigation.NavDestinationTest.navDestinationKClass.TestClass")
         assertWithMessage("NavDestination should have id set")
             .that(destination.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
     }
 
     @Test
@@ -88,7 +89,7 @@ class NavDestinationTest {
             .isEqualTo("$DESTINATION_ROUTE/{arg}?arg2={arg2}")
         assertWithMessage("NavDestination should have id set")
             .that(destination.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
         assertWithMessage("NavDestination should have argument added")
             .that(destination.arguments["arg"])
             .isNotNull()

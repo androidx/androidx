@@ -25,6 +25,7 @@ import androidx.collection.size
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
 import java.lang.StringBuilder
 import kotlin.reflect.KClass
@@ -216,7 +217,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param T Route from a [KClass] to locate
      * @return the node with route - the node must have been created with a route from [KClass]
      */
-    public inline fun <reified T> findNode(): NavDestination? = findNode(serializer<T>().hashCode())
+    public inline fun <reified T> findNode(): NavDestination? =
+        findNode(serializer<T>().generateHashCode())
 
     /**
      * Finds a destination in the collection by route from Object. This will recursively check the
@@ -227,7 +229,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      */
     @OptIn(InternalSerializationApi::class)
     public fun <T> findNode(route: T?): NavDestination? =
-        route?.let { findNode(it::class.serializer().hashCode()) }
+        route?.let { findNode(it::class.serializer().generateHashCode()) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination? {
@@ -402,7 +404,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         serializer: KSerializer<T>,
         parseRoute: (NavDestination) -> String,
     ) {
-        val id = serializer.hashCode()
+        val id = serializer.generateHashCode()
         val startDest = findNode(id)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +

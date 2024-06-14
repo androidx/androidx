@@ -43,6 +43,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -531,7 +532,7 @@ public open class NavController(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean {
-        val id = serializer<T>().hashCode()
+        val id = serializer<T>().generateHashCode()
         requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
@@ -867,7 +868,7 @@ public open class NavController(
      */
     @MainThread
     public inline fun <reified T : Any> clearBackStack(): Boolean =
-        clearBackStack(serializer<T>().hashCode())
+        clearBackStack(serializer<T>().generateHashCode())
 
     /**
      * Clears any saved state associated with KClass [T] that was previously saved via
@@ -1627,7 +1628,7 @@ public open class NavController(
     // Throws if destination with `route` is not found
     @OptIn(InternalSerializationApi::class)
     private fun <T : Any> generateRouteFilled(route: T): String {
-        val id = route::class.serializer().hashCode()
+        val id = route::class.serializer().generateHashCode()
         val destination = graph.findDestinationComprehensive(id, true)
         // throw immediately if destination is not found within the graph
         requireNotNull(destination) {
@@ -1756,7 +1757,7 @@ public open class NavController(
                     )
                 finalNavOptions.popUpToRouteClass != null ->
                     popBackStack(
-                        finalNavOptions.popUpToRouteClass!!.serializer().hashCode(),
+                        finalNavOptions.popUpToRouteClass!!.serializer().generateHashCode(),
                         finalNavOptions.isPopUpToInclusive()
                     )
                 finalNavOptions.popUpToId != -1 ->
@@ -1926,7 +1927,7 @@ public open class NavController(
                 navOptions.popUpToRouteClass != null ->
                     popped =
                         popBackStackInternal(
-                            navOptions.popUpToRouteClass!!.serializer().hashCode(),
+                            navOptions.popUpToRouteClass!!.serializer().generateHashCode(),
                             navOptions.isPopUpToInclusive(),
                             navOptions.shouldPopUpToSaveState()
                         )
@@ -2635,7 +2636,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
     public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
-        val id = serializer<T>().hashCode()
+        val id = serializer<T>().generateHashCode()
         requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
