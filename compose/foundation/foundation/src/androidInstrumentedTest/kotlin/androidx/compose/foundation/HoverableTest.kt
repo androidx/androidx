@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InspectableValue
@@ -92,7 +91,6 @@ class HoverableTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun hoverableTest_hovered() {
         var isHovered = false
@@ -131,7 +129,6 @@ class HoverableTest {
         Truth.assertThat(isHovered).isTrue()
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun hoverableTest_interactionSource() {
         val interactionSource = MutableInteractionSource()

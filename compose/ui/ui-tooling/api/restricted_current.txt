@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.compose.ui.tooling {
 
-  @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposableInvoker {
+  @Deprecated public final class ComposableInvoker {
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object?... args);
     field @Deprecated public static final androidx.compose.ui.tooling.ComposableInvoker INSTANCE;
   }

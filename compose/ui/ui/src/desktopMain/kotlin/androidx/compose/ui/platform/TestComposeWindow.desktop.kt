@@ -20,7 +20,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -59,7 +58,6 @@ internal val EmptyDispatcher =
  * It doesn't dispatch frames by default. If frame dispatching is needed, pass appropriate
  * dispatcher as coroutineContext (for example, Dispatchers.Swing)
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class TestComposeWindow(
     val width: Int,
     val height: Int,
@@ -122,7 +120,6 @@ class TestComposeWindow(
     }
 
     /** Process mouse scroll event */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun onMouseScroll(x: Int, y: Int, event: MouseScrollEvent) {
         val delta =
             when (event.delta) {

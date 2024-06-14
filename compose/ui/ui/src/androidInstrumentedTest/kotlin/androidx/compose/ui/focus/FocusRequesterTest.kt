@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.focusRequester as modifierNodeFocusRequester
@@ -351,10 +350,7 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
                     Modifier.focusRequester(focusRequester)
                         .focusProperties {
                             canFocus = false
-                            @OptIn(ExperimentalComposeUiApi::class)
-                            enter = {
-                                FocusRequester.Cancel
-                            }
+                            enter = { FocusRequester.Cancel }
                         }
                         .focusTarget()
             ) {
@@ -396,10 +392,7 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
                         Modifier.size(10.dp)
                             .focusProperties {
                                 canFocus = false
-                                @OptIn(ExperimentalComposeUiApi::class)
-                                enter = {
-                                    FocusRequester.Cancel
-                                }
+                                enter = { FocusRequester.Cancel }
                             }
                             .focusTarget()
                 ) {
@@ -489,7 +482,6 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun requestFocus_onDeactivatedNode_performsFocusEnter() {
         // Arrange.

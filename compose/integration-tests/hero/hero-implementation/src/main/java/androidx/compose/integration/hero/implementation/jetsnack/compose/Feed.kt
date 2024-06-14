@@ -29,7 +29,6 @@ import androidx.compose.integration.hero.implementation.jetsnack.SnackCollection
 import androidx.compose.integration.hero.implementation.jetsnack.SnackRepo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -37,7 +36,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Feed(onSnackClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     val snackCollections = remember { SnackRepo.getSnacks() }

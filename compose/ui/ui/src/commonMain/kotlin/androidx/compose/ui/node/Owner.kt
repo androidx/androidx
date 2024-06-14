@@ -19,7 +19,6 @@ package androidx.compose.ui.node
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -106,18 +105,12 @@ internal interface Owner : PositionCalculator {
      * TODO(ralu): Replace with SemanticsTree. This is a temporary hack until we have a semantics
      *   tree implemented.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
     val autofillTree: AutofillTree
 
     /**
      * The [Autofill] class can be used to perform autofill operations. It is used as a
      * CompositionLocal.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
     val autofill: Autofill?
 
     /**

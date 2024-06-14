@@ -61,8 +61,6 @@ val LocalAutofill = staticCompositionLocalOf<Autofill?> { null }
  * temporary data structure that will be replaced by Autofill Semantics (b/138604305).
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
 val LocalAutofillTree =
     staticCompositionLocalOf<AutofillTree> { noLocalProvidedFor("LocalAutofillTree") }
 

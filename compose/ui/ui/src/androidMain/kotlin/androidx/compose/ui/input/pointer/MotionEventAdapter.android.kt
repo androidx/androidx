@@ -38,7 +38,6 @@ import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 
 /** Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s. */
@@ -241,7 +240,6 @@ internal class MotionEventAdapter {
     }
 
     /** Creates a new PointerInputEventData. */
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun createPointerInputEventData(
         positionCalculator: PositionCalculator,
         motionEvent: MotionEvent,

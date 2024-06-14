@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.key
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -29,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RestoreFocusTest {

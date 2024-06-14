@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -31,7 +30,6 @@ import javax.swing.JRadioButtonMenuItem
 import javax.swing.JSeparator
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class MenuBarTest {
     @Test(timeout = 20000)
     fun `show and hide menu bar`() = runApplicationTest {

@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.TextField
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
@@ -55,7 +54,6 @@ class DialogWithInsetsTest {
     @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>()
 
     /** Make sure that insets are available in the Dialog. */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun dialogSupportsWindowInsets() {
         var dialogSize = IntSize.Zero

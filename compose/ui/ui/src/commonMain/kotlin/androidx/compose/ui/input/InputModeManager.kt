@@ -19,7 +19,6 @@ package androidx.compose.ui.input
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * The [InputModeManager] is accessible as a CompositionLocal, that provides the current
@@ -35,7 +34,7 @@ interface InputModeManager {
      * @param inputMode The requested [InputMode].
      * @return true if the system is in the requested mode, after processing this request.
      */
-    @ExperimentalComposeUiApi fun requestInputMode(inputMode: InputMode): Boolean
+    fun requestInputMode(inputMode: InputMode): Boolean
 }
 
 /** This value is used to represent the InputMode that the system is currently in. */
@@ -63,6 +62,5 @@ internal class InputModeManagerImpl(
 ) : InputModeManager {
     override var inputMode: InputMode by mutableStateOf(initialInputMode)
 
-    @ExperimentalComposeUiApi
     override fun requestInputMode(inputMode: InputMode) = onRequestInputModeChange.invoke(inputMode)
 }

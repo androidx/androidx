@@ -22,7 +22,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -31,7 +30,6 @@ import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.text.font.FontWeight
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TouchModeDemo() {
     val inputManager = LocalInputModeManager.current

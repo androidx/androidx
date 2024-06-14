@@ -17,7 +17,6 @@
 package androidx.compose.ui.modifier
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.InspectorInfo
@@ -43,7 +42,6 @@ interface ModifierLocalConsumer : Modifier.Element {
  * the left of this modifier, or above this modifier in the layout tree.
  */
 @Stable
-@ExperimentalComposeUiApi
 fun Modifier.modifierLocalConsumer(consumer: ModifierLocalReadScope.() -> Unit): Modifier {
     return this.then(
         ModifierLocalConsumerImpl(

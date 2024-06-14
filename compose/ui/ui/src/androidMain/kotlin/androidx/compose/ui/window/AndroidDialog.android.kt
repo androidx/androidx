@@ -40,7 +40,6 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.layout.Layout
@@ -277,7 +276,6 @@ private class DialogLayout(context: Context, override val window: Window) :
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class DialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: DialogProperties,
@@ -321,7 +319,6 @@ private class DialogWrapper(
             window.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
-        @OptIn(ExperimentalComposeUiApi::class)
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
         dialogLayout =
             DialogLayout(context, window).apply {
@@ -433,7 +430,6 @@ private class DialogWrapper(
         }
         dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            @OptIn(ExperimentalComposeUiApi::class)
             if (properties.decorFitsSystemWindows) {
                 window?.setSoftInputMode(defaultSoftInputMode)
             } else {

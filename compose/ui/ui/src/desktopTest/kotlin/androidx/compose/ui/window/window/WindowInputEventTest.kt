@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.focus.FocusRequester
@@ -55,7 +54,6 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class WindowInputEventTest {
     @Test
     fun `catch key handlers`() = runApplicationTest {

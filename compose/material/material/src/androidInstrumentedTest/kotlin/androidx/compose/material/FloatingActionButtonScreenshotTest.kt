@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -161,10 +160,7 @@ class FloatingActionButtonScreenshotTest {
             }
         }
 
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
-        }
+        rule.runOnIdle { localInputModeManager!!.requestInputMode(InputMode.Keyboard) }
 
         rule.runOnIdle { focusRequester.requestFocus() }
 

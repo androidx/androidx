@@ -72,7 +72,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
@@ -223,7 +222,7 @@ internal var platformTextInputServiceInterceptor:
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
 @Suppress("ViewConstructor", "VisibleForTests", "ConstPropertyName", "NullAnnotationGroup")
-@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
 internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 

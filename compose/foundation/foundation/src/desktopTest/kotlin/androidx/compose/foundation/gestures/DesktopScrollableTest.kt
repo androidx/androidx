@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.mouse.MouseScrollEvent
 import androidx.compose.ui.input.mouse.MouseScrollOrientation
@@ -40,7 +39,6 @@ import org.junit.runners.JUnit4
 
 // TODO(demin): convert to ComposeScene instead of TestComposeWindow,
 //  after that we won't need `window.render`
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 @Ignore // TODO(b/217238066) remove after migration to ImageComposeScene (it will be upstreamed from
 // Compose MPP 1.0.0)

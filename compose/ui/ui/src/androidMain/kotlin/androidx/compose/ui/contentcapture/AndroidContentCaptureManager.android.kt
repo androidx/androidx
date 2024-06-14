@@ -161,7 +161,6 @@ internal class AndroidContentCaptureManager(
     }
 
     /** True if any content capture service enabled in the system. */
-    @OptIn(ExperimentalComposeUiApi::class)
     internal val isEnabled: Boolean
         get() = ContentCaptureManager.isEnabled && contentCaptureSession != null
 

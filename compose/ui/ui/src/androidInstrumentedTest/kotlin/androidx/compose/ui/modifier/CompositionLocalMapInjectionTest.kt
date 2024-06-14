@@ -28,7 +28,6 @@ import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -303,7 +302,7 @@ inline fun OldLayoutSkippableUpdate(
             set(density, SetDensity)
             set(layoutDirection, SetLayoutDirection)
             set(viewConfiguration, SetViewConfiguration)
-            @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
         // The old version of Layout called a function called "materializerOf". The function below
         // has the same JVM signature as that function used to have, so the code that this source
@@ -336,7 +335,7 @@ internal inline fun OldLayout(modifier: Modifier = Modifier, measurePolicy: Meas
             set(layoutDirection, SetLayoutDirection)
             set(viewConfiguration, SetViewConfiguration)
             set(materialized, SetModifier)
-            @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
 }

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
@@ -55,7 +54,6 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
     private val placementComparator =
         PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun verifyItemsArePlacedBeforeBeyondBoundsItems_oneBeyondBoundItem() {
         // Arrange
@@ -108,7 +106,6 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun verifyItemsArePlacedBeforeBeyondBoundsItems_twoBeyondBoundItem() {
         // Arrange

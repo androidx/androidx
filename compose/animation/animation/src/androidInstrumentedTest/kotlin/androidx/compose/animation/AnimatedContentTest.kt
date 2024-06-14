@@ -50,7 +50,6 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -893,7 +892,6 @@ class AnimatedContentTest {
         assertTrue(box2EnterFinished)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun AnimatedContentLookaheadTest() {
         // Test that AnimatedContent's lookahead size is its target content's lookahead size.
@@ -988,7 +986,6 @@ class AnimatedContentTest {
         rule.waitForIdle()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testTargetChangeLookaheadPlacement() {
         var lookaheadPosition1: Offset? = null

@@ -21,7 +21,6 @@ import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.KEYCODE_A
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -503,7 +502,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         runOnIdle { initialFocus.requestFocus() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.onFocusAwareEvent(onEvent: (Any) -> Boolean): Modifier =
         when (nodeType) {
             KeyInput -> onKeyEvent(onEvent)
@@ -511,7 +509,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
             RotaryInput -> onRotaryScrollEvent(onEvent)
         }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.onPreFocusAwareEvent(onPreEvent: (Any) -> Boolean) =
         when (nodeType) {
             KeyInput -> onPreviewKeyEvent(onPreEvent)

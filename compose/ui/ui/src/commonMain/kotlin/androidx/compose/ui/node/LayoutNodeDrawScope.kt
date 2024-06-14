@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.toSize
  * [ContentDrawScope] implementation that extracts density and layout direction information from the
  * given NodeCoordinator
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()) :
     DrawScope by canvasDrawScope, ContentDrawScope {
 
@@ -101,7 +99,6 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun DelegatableNode.nextDrawNode(): Modifier.Node? {
     val drawMask = Nodes.Draw.mask
     val measureMask = Nodes.Layout.mask

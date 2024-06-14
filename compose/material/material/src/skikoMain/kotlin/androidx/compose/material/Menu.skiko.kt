@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -91,7 +90,6 @@ internal actual val DefaultMenuProperties =
         // TODO: Add a flag to not block clicks outside while being focusable
     )
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun handlePopupOnKeyEvent(
     keyEvent: KeyEvent,
     focusManager: FocusManager?,

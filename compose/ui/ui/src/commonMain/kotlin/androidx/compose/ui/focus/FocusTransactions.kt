@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
 import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
@@ -290,7 +289,6 @@ internal fun FocusTargetNode.performCustomClearFocus(
                 ?: performCustomExit(focusDirection)
     }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomEnter(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
@@ -301,7 +299,6 @@ private fun FocusTargetNode.performCustomEnter(
     return None
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomExit(
     focusDirection: FocusDirection
 ): CustomDestinationResult {

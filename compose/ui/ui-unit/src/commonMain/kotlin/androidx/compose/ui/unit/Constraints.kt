@@ -18,7 +18,6 @@ package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.Constraints.Companion.Infinity
 import kotlin.math.min
 
@@ -250,7 +249,6 @@ value class Constraints(@PublishedApi internal val value: Long) {
         }
 
         // This should be removed before the next release
-        @ExperimentalComposeUiApi
         @Deprecated(
             "Replace with fitPrioritizingWidth",
             replaceWith =

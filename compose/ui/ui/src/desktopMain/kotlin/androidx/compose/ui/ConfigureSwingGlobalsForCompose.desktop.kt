@@ -34,7 +34,6 @@ import org.jetbrains.skia.impl.Library
  * Should be called before using any class from `java.swing.*` (even before
  * SwingUtilities.invokeLater or Dispatchers.Swing)
  */
-@ExperimentalComposeUiApi
 fun configureSwingGlobalsForCompose(
     overrideLookAndFeel: Boolean =
         System.getProperty("skiko.rendering.laf.global", "true") == "true",

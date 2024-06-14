@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutModifierNodeCoordinator
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.checkMeasuredSize

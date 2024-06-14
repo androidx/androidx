@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
@@ -317,7 +316,6 @@ fun singleWindowApplication(
  * @param update The callback to be invoked after the layout is inflated.
  * @param content Composable content of the creating window.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("unused")
 @Composable
 fun Window(

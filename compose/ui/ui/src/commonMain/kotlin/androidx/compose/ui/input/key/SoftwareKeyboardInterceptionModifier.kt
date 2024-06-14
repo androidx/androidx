@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -33,7 +32,6 @@ import androidx.compose.ui.platform.InspectorInfo
  *   [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@ExperimentalComposeUiApi
 fun Modifier.onInterceptKeyBeforeSoftKeyboard(
     onInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
 ): Modifier =
@@ -59,7 +57,6 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
  *   onKeyEvent callback, and ultimately to the software keyboard.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@ExperimentalComposeUiApi
 fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
     onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean,
 ): Modifier =
@@ -93,7 +90,6 @@ private data class SoftKeyboardInterceptionElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class InterceptedKeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?

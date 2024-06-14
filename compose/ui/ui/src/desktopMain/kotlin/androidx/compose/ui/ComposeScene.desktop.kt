@@ -62,7 +62,6 @@ internal actual fun pointerInputEvent(
         eventType,
         timeMillis,
         listOf(
-            @OptIn(ExperimentalComposeUiApi::class)
             PointerInputEventData(
                 PointerId(pointerId),
                 timeMillis,
@@ -80,14 +79,11 @@ internal actual fun pointerInputEvent(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal actual val DefaultPointerButtons: PointerButtons = PointerButtons()
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal actual val DefaultPointerKeyboardModifiers: PointerKeyboardModifiers =
     PointerKeyboardModifiers()
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal actual val PrimaryPressedPointerButtons: PointerButtons =
     PointerButtons(isPrimaryPressed = true)
 

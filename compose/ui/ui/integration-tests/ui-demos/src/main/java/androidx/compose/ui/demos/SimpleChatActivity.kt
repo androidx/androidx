@@ -48,7 +48,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -75,7 +74,6 @@ class SimpleChatActivity : ComponentActivity() {
 private data class Message(val content: String, val isReceived: Boolean = true)
 
 @SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SimpleChatPage() {
     val messages = remember { mutableStateListOf<Message>() }

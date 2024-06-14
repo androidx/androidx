@@ -70,7 +70,6 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -100,7 +99,6 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -132,7 +130,6 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -165,7 +162,6 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     vararg keys: Any?,

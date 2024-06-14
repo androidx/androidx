@@ -37,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.testTag
@@ -52,7 +51,6 @@ class ComposeTestActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun TestView(context: Context) {
     val scrollHeight = 2 * context.resources.configuration.screenHeightDp

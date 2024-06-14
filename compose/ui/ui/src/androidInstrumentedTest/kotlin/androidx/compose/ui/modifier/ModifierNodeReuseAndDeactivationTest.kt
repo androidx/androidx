@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.draw.DrawModifier
@@ -708,7 +707,6 @@ class ModifierNodeReuseAndDeactivationTest {
         rule.setContent {
             ReusableContentHost(active) {
                 ReusableContent(0) {
-                    @OptIn(ExperimentalComposeUiApi::class)
                     Layout(
                         modifier =
                             Modifier.modifierLocalProvider(key) { providedValue }

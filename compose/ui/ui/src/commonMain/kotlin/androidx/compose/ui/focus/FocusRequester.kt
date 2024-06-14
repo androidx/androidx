@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
@@ -68,7 +67,6 @@ class FocusRequester {
     internal fun focus(): Boolean = findFocusTargetNode { it.requestFocus() }
 
     internal fun findFocusTargetNode(onFound: (FocusTargetNode) -> Boolean): Boolean {
-        @OptIn(ExperimentalComposeUiApi::class)
         return findFocusTarget { focusTarget ->
             if (focusTarget.fetchFocusProperties().canFocus) {
                 onFound(focusTarget)
@@ -134,7 +132,6 @@ class FocusRequester {
      *   and we successfully saved a reference to it.
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
-    @ExperimentalComposeUiApi
     fun saveFocusedChild(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         focusRequesterNodes.forEach { if (it.saveFocusedChild()) return true }
@@ -150,7 +147,6 @@ class FocusRequester {
      *   associated with this [FocusRequester]
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
-    @ExperimentalComposeUiApi
     fun restoreFocusedChild(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         var success = false
@@ -173,9 +169,6 @@ class FocusRequester {
          *
          * @sample androidx.compose.ui.samples.CancelFocusMoveSample
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @get:ExperimentalComposeUiApi
-        @ExperimentalComposeUiApi
         val Cancel = FocusRequester()
 
         /**
@@ -236,7 +229,6 @@ class FocusRequester {
      *   Otherwise returns a logical or of the result of calling [onFound] for each focus node
      *   associated with this [FocusRequester].
      */
-    @ExperimentalComposeUiApi
     private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }

@@ -33,14 +33,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AnimateBoundsModifierDemo() {
     var height by remember { mutableIntStateOf(200) }

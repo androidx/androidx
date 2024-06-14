@@ -38,7 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
@@ -139,10 +138,7 @@ class FocusableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(focusTag).size(10.dp).focusRequester(focusRequester).focusable())
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            inputModeManager.requestInputMode(InputMode.Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Touch) }
 
         // Act.
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -160,10 +156,7 @@ class FocusableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(focusTag).size(10.dp).focusRequester(focusRequester).focusable())
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            inputModeManager.requestInputMode(InputMode.Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
 
         // Act.
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -180,10 +173,7 @@ class FocusableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.testTag(focusTag).size(10.dp).focusable())
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            inputModeManager.requestInputMode(InputMode.Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Touch) }
 
         // Act.
         rule.onNodeWithTag(focusTag).requestFocus()
@@ -201,10 +191,7 @@ class FocusableTest {
             inputModeManager = LocalInputModeManager.current
             Box(Modifier.focusRequester(focusRequester).testTag(focusTag).size(10.dp).focusable())
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
-            inputModeManager.requestInputMode(InputMode.Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
 
         // Act.
         rule.onNodeWithTag(focusTag).requestFocus()

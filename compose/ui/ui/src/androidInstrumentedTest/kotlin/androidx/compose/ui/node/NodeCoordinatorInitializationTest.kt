@@ -19,7 +19,6 @@ package androidx.compose.ui.node
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusTarget
@@ -51,7 +50,6 @@ class NodeCoordinatorInitializationTest {
         rule.runOnIdle { assertThat(focusState).isNotNull() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun initializeIsCalledWhenPointerInputNodeWrapperIsCreated() {
         // Arrange.
@@ -66,7 +64,6 @@ class NodeCoordinatorInitializationTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun initializeIsCalledWhenPointerInputNodeIsReused() {
         // Arrange.

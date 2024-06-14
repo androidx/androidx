@@ -18,7 +18,6 @@
 package androidx.compose.ui.node
 
 import androidx.compose.testutils.TestViewConfiguration
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -2341,11 +2340,9 @@ internal class MockOwner(
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val autofillTree: AutofillTree
         get() = TODO("Not yet implemented")
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val autofill: Autofill?
         get() = TODO("Not yet implemented")
 

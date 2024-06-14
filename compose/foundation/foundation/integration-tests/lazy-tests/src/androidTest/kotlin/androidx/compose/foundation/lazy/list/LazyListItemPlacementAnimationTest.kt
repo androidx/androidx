@@ -50,7 +50,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -1726,7 +1725,6 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun LazyList(
         arrangement: Arrangement.HorizontalOrVertical? = null,

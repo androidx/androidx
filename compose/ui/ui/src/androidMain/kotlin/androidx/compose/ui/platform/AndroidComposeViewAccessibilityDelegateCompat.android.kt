@@ -756,7 +756,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             node.isUnmergedLeafNode && isSpeakingNode
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun populateAccessibilityNodeInfoProperties(
         virtualViewId: Int,
         info: AccessibilityNodeInfoCompat,
@@ -1856,7 +1855,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         force = false,
                         refreshFocusEvents = true,
                         clearOwnerFocus = true,
-                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+                        focusDirection = Exit
                     )
                     true
                 } else {
@@ -3249,7 +3248,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 // shorter and more readable.
 private fun SemanticsNode.enabled() = (!config.contains(SemanticsProperties.Disabled))
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val SemanticsNode.isVisible: Boolean
     get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
 

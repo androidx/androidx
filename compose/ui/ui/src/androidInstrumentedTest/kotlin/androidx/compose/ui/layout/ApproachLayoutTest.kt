@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Modifier.Node
 import androidx.compose.ui.background
@@ -69,7 +68,6 @@ class ApproachLayoutTest {
 
     // Test that measurement approach has no effect on parent or child when
     // isMeasurementApproachProgress returns false
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun toggleIsMeasurementApproachInProgress() {
         var isComplete by mutableStateOf(true)
@@ -172,7 +170,6 @@ class ApproachLayoutTest {
     }
 
     // Test that placement approach has no effect when _both measure & place approaches_ complete
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun toggleIsPlacementApproachComplete() {
         var isMeasurementApproachComplete by mutableStateOf(true)
@@ -297,7 +294,6 @@ class ApproachLayoutTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun activeParentNestedApproachNode() {
         var parentMeasureApproachComplete by mutableStateOf(false)
@@ -317,7 +313,6 @@ class ApproachLayoutTest {
                     return !parentMeasureApproachComplete
                 }
 
-                @ExperimentalComposeUiApi
                 override fun ApproachMeasureScope.approachMeasure(
                     measurable: Measurable,
                     constraints: Constraints
@@ -413,7 +408,6 @@ class ApproachLayoutTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun activeChildNestedApproachNode() {
         var parentMeasureApproachComplete by mutableStateOf(true)
@@ -433,7 +427,6 @@ class ApproachLayoutTest {
                     return !parentMeasureApproachComplete
                 }
 
-                @ExperimentalComposeUiApi
                 override fun ApproachMeasureScope.approachMeasure(
                     measurable: Measurable,
                     constraints: Constraints
@@ -539,7 +532,6 @@ class ApproachLayoutTest {
                     return !measurementComplete
                 }
 
-                @ExperimentalComposeUiApi
                 override fun ApproachMeasureScope.approachMeasure(
                     measurable: Measurable,
                     constraints: Constraints
@@ -586,7 +578,6 @@ class ApproachLayoutTest {
                     return false
                 }
 
-                @ExperimentalComposeUiApi
                 override fun ApproachMeasureScope.approachMeasure(
                     measurable: Measurable,
                     constraints: Constraints
@@ -612,7 +603,6 @@ class ApproachLayoutTest {
                     return false
                 }
 
-                @ExperimentalComposeUiApi
                 override fun ApproachMeasureScope.approachMeasure(
                     measurable: Measurable,
                     constraints: Constraints
@@ -645,7 +635,6 @@ class ApproachLayoutTest {
         rule.runOnIdle { assertEquals(Offset(-100f, -100f), position) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testIsApproachCompleteCalledWhenSiblingRemovedInScroll() {
         var isInColumn by mutableStateOf(false)
@@ -752,7 +741,6 @@ class ApproachLayoutTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testLookaheadApproachCoordinates_togglingDirectManipulationPlacement() {
         var toggleDmp by mutableStateOf(true)

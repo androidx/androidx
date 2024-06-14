@@ -76,7 +76,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
@@ -973,7 +972,6 @@ private fun Modifier.height(calculateHeight: Density.() -> Int): Modifier =
  * Creates and remembers an [AccessibilityNodeInspectorState] for inspecting the nodes in the window
  * hosting this composition.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun rememberAccessibilityNodeInspectorState(): AccessibilityNodeInspectorState {
     val hostView = LocalView.current
@@ -1227,7 +1225,6 @@ private class AccessibilityTreeInspectorApi34(private val rootView: View) :
 
     private val matrixCache = Matrix()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun initialize() {
         // This will call setQueryableFromApp process, which enables accessibility on the platform,
         // which allows us to tell compose views to force accessibility support. This is required

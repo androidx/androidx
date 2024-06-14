@@ -22,7 +22,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 
@@ -40,7 +39,6 @@ interface WindowInfo {
 
     /** Indicates the state of keyboard modifiers (pressed or not). */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
     val keyboardModifiers: PointerKeyboardModifiers
         get() = WindowInfoImpl.GlobalKeyboardModifiers.value
 }
@@ -64,7 +62,6 @@ internal class WindowInfoImpl : WindowInfo {
         get() = _isWindowFocused.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
     override var keyboardModifiers: PointerKeyboardModifiers
         get() = GlobalKeyboardModifiers.value
         set(value) {

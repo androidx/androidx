@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -101,7 +100,6 @@ fun CaptureFocusSample() {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun RestoreFocusSample() {
@@ -122,7 +120,6 @@ fun RestoreFocusSample() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun FocusRestorerSample() {
@@ -134,7 +131,6 @@ fun FocusRestorerSample() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun FocusRestorerCustomFallbackSample() {
@@ -275,7 +271,6 @@ fun FocusPropertiesSample() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun CancelFocusMoveSample() {
@@ -291,7 +286,6 @@ fun CancelFocusMoveSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusEnterSample() {
@@ -304,7 +298,6 @@ fun CustomFocusEnterSample() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusExitSample() {

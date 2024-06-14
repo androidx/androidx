@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -111,7 +110,6 @@ fun ImeSingleLineDemo() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MyTextField(data: ImeOptionsData) {
     val keyboardController = LocalSoftwareKeyboardController.current

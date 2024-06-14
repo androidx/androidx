@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.isLinux
@@ -61,7 +60,6 @@ import org.junit.Test
 // TODO(demin): figure out how can we fix flaky tests on Linux
 // TODO(demin): fix fullscreen tests on macOs
 
-@OptIn(ExperimentalComposeUiApi::class)
 class WindowStateTest {
     @Test
     fun `manually close window`() = runApplicationTest {

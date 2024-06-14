@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import androidx.compose.foundation.focusGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -36,7 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {

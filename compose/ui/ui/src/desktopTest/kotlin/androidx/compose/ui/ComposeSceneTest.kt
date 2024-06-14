@@ -77,7 +77,7 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(InternalTestApi::class)
 class ComposeSceneTest {
     @get:Rule val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop")
 
@@ -501,7 +501,6 @@ class ComposeSceneTest {
 
     private class TestException : RuntimeException()
 
-    @ExperimentalComposeUiApi
     @Test
     fun `focus management by keys`() {
         var field1FocusState: FocusState? = null

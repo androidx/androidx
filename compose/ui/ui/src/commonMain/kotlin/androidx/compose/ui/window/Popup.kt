@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -126,7 +125,7 @@ expect fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntOffset = IntOffset(0, 0),
     onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(),
+    properties: PopupProperties = PopupProperties(),
     content: @Composable () -> Unit
 )
 
@@ -145,6 +144,6 @@ expect fun Popup(
 expect fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(),
+    properties: PopupProperties = PopupProperties(),
     content: @Composable () -> Unit
 )
