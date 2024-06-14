@@ -214,6 +214,7 @@ class MainActivity : AppCompatActivity() {
             val itemId = it.itemId
             when (itemId) {
                 R.id.item_resize -> switchContentFragment(ResizeFragment(), it.title)
+                R.id.item_scroll -> switchContentFragment(ScrollFragment(), it.title)
                 R.id.item_pooling_container ->
                     switchContentFragment(PoolingContainerFragment(), it.title)
                 else -> {

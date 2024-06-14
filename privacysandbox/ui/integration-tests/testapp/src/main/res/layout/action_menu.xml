@@ -19,6 +19,9 @@
         android:id="@+id/item_resize"
         android:title="@string/resize_cuj" />
     <item
+        android:id="@+id/item_scroll"
+        android:title="@string/scroll_cuj" />
+    <item
         android:id="@+id/item_pooling_container"
         android:title="@string/poolingcontainer_cuj" />
 </menu>
