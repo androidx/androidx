@@ -32,9 +32,6 @@ dependencies {
 
 android {
     namespace "androidx.graphics.core.samples"
-    defaultConfig {
-        minSdkVersion 21
-    }
 }
 
 androidx {

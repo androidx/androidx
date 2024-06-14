@@ -23,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.antelope"
-        minSdkVersion 21
         versionCode 35
         versionName "1.35"
     }

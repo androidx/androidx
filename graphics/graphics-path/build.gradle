@@ -48,7 +48,6 @@ android {
     namespace "androidx.graphics.path"
 
     defaultConfig {
-        minSdkVersion 21 // Limited to 21+ due to native changes before that release
         externalNativeBuild {
             cmake {
                 cppFlags.addAll([

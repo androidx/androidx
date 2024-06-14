@@ -62,9 +62,6 @@ dependencies {
 
 android {
     namespace "androidx.tv.material"
-    defaultConfig {
-        minSdkVersion 21
-    }
     sourceSets.androidTest.assets.srcDirs +=
              project.rootDir.absolutePath + "/../../golden/tv/compose/material3"
 }

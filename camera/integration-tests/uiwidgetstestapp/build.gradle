@@ -23,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.uiwidgets"
-        minSdkVersion 21
         versionCode 1
         versionName "1.0"
     }

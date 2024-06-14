@@ -32,10 +32,6 @@ dependencies {
     testImplementation(libs.truth)
 }
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.enterprise.feedback.testing"
 }

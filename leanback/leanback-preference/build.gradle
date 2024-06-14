@@ -22,10 +22,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-
     sourceSets {
         main.java.srcDirs += [
                 "api21"
