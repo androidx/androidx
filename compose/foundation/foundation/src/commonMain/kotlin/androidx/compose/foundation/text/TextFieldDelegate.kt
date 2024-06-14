@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.text.selection.visibleBounds
@@ -21,7 +23,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.text.AnnotatedString
@@ -85,7 +89,6 @@ internal fun computeSizeForDefaultText(
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
-@OptIn(InternalFoundationTextApi::class)
 internal class TextFieldDelegate {
     companion object {
         /**
@@ -111,26 +114,73 @@ internal class TextFieldDelegate {
          *
          * @param canvas The target canvas.
          * @param value The editor state
+         * @param selectionPreviewHighlightRange Range to be highlighted to preview a handwriting
+         *     selection gesture
+         * @param deletionPreviewHighlightRange Range to be highlighted to preview a handwriting
+         *     deletion gesture
          * @param offsetMapping The offset map
-         * @param selectionPaint The selection paint
+         * @param textLayoutResult The text layout result
+         * @param highlightPaint Paint used to draw highlight backgrounds
+         * @param selectionBackgroundColor The selection highlight background color
          */
         @JvmStatic
         internal fun draw(
             canvas: Canvas,
             value: TextFieldValue,
+            selectionPreviewHighlightRange: TextRange,
+            deletionPreviewHighlightRange: TextRange,
             offsetMapping: OffsetMapping,
             textLayoutResult: TextLayoutResult,
-            selectionPaint: Paint
+            highlightPaint: Paint,
+            selectionBackgroundColor: Color
         ) {
-            if (!value.selection.collapsed) {
-                val start = offsetMapping.originalToTransformed(value.selection.min)
-                val end = offsetMapping.originalToTransformed(value.selection.max)
-                if (start != end) {
-                    val selectionPath = textLayoutResult.getPathForRange(start, end)
-                    canvas.drawPath(selectionPath, selectionPaint)
-                }
+            if (!selectionPreviewHighlightRange.collapsed) {
+                highlightPaint.color = selectionBackgroundColor
+                drawHighlight(
+                    canvas,
+                    selectionPreviewHighlightRange,
+                    offsetMapping,
+                    textLayoutResult,
+                    highlightPaint
+                )
+            } else if (!deletionPreviewHighlightRange.collapsed) {
+                val textColor =
+                    textLayoutResult.layoutInput.style.color.takeUnless { it.isUnspecified }
+                        ?: Color.Black
+                highlightPaint.color = textColor.copy(alpha = textColor.alpha * 0.2f)
+                drawHighlight(
+                    canvas,
+                    deletionPreviewHighlightRange,
+                    offsetMapping,
+                    textLayoutResult,
+                    highlightPaint
+                )
+            } else if (!value.selection.collapsed) {
+                highlightPaint.color = selectionBackgroundColor
+                drawHighlight(
+                    canvas,
+                    value.selection,
+                    offsetMapping,
+                    textLayoutResult,
+                    highlightPaint
+                )
             }
             TextPainter.paint(canvas, textLayoutResult)
+        }
+
+        private fun drawHighlight(
+            canvas: Canvas,
+            range: TextRange,
+            offsetMapping: OffsetMapping,
+            textLayoutResult: TextLayoutResult,
+            paint: Paint
+        ) {
+            val start = offsetMapping.originalToTransformed(range.min)
+            val end = offsetMapping.originalToTransformed(range.max)
+            if (start != end) {
+                val selectionPath = textLayoutResult.getPathForRange(start, end)
+                canvas.drawPath(selectionPath, paint)
+            }
         }
 
         /**
@@ -352,8 +402,6 @@ internal class TextFieldDelegate {
          *  @param compositionRange An input state
          *  @param transformed A transformed text
          *  @return The transformed text with composition decoration.
-         *
-         *  @suppress
          */
         fun applyCompositionDecoration(
             compositionRange: TextRange,

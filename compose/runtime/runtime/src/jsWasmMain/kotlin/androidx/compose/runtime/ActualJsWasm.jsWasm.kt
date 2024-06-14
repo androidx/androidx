@@ -16,7 +16,8 @@
 
 package androidx.compose.runtime
 
+// TODO: https://youtrack.jetbrains.com/issue/COMPOSE-1286/Properly-implement-WeakReference-on-Web
 internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    private val workaroundReference: T = reference // TODO: Properly implement weak reference
+    private val workaroundReference: T = reference
     actual fun get(): T? = workaroundReference
 }

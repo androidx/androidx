@@ -145,6 +145,7 @@ public abstract interface class androidx/compose/runtime/Composer {
 	public abstract fun endNode ()V
 	public abstract fun endProvider ()V
 	public abstract fun endProviders ()V
+	public abstract fun endReplaceGroup ()V
 	public abstract fun endReplaceableGroup ()V
 	public abstract fun endRestartGroup ()Landroidx/compose/runtime/ScopeUpdateScope;
 	public abstract fun endReusableGroup ()V
@@ -177,6 +178,7 @@ public abstract interface class androidx/compose/runtime/Composer {
 	public abstract fun startNode ()V
 	public abstract fun startProvider (Landroidx/compose/runtime/ProvidedValue;)V
 	public abstract fun startProviders ([Landroidx/compose/runtime/ProvidedValue;)V
+	public abstract fun startReplaceGroup (I)V
 	public abstract fun startReplaceableGroup (I)V
 	public abstract fun startRestartGroup (I)Landroidx/compose/runtime/Composer;
 	public abstract fun startReusableGroup (ILjava/lang/Object;)V
@@ -244,6 +246,10 @@ public abstract class androidx/compose/runtime/CompositionLocal {
 	public final fun getCurrent (Landroidx/compose/runtime/Composer;I)Ljava/lang/Object;
 }
 
+public abstract interface class androidx/compose/runtime/CompositionLocalAccessorScope {
+	public abstract fun getCurrentValue (Landroidx/compose/runtime/CompositionLocal;)Ljava/lang/Object;
+}
+
 public final class androidx/compose/runtime/CompositionLocalContext {
 	public static final field $stable I
 }
@@ -254,6 +260,7 @@ public final class androidx/compose/runtime/CompositionLocalKt {
 	public static final fun CompositionLocalProvider ([Landroidx/compose/runtime/ProvidedValue;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 	public static final fun compositionLocalOf (Landroidx/compose/runtime/SnapshotMutationPolicy;Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static synthetic fun compositionLocalOf$default (Landroidx/compose/runtime/SnapshotMutationPolicy;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun compositionLocalWithComputedDefaultOf (Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun staticCompositionLocalOf (Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
@@ -289,6 +296,7 @@ public abstract interface class androidx/compose/runtime/CompositionTracer {
 }
 
 public abstract interface class androidx/compose/runtime/ControlledComposition : androidx/compose/runtime/Composition {
+	public abstract fun abandonChanges ()V
 	public abstract fun applyChanges ()V
 	public abstract fun applyLateChanges ()V
 	public abstract fun changesApplied ()V
@@ -553,6 +561,7 @@ public abstract interface class androidx/compose/runtime/ProduceStateScope : and
 public abstract class androidx/compose/runtime/ProvidableCompositionLocal : androidx/compose/runtime/CompositionLocal {
 	public static final field $stable I
 	public final fun provides (Ljava/lang/Object;)Landroidx/compose/runtime/ProvidedValue;
+	public final fun providesComputed (Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/ProvidedValue;
 	public final fun providesDefault (Ljava/lang/Object;)Landroidx/compose/runtime/ProvidedValue;
 }
 
@@ -898,10 +907,11 @@ public class androidx/compose/runtime/snapshots/MutableSnapshot : androidx/compo
 	public static final field $stable I
 	public fun apply ()Landroidx/compose/runtime/snapshots/SnapshotApplyResult;
 	public fun dispose ()V
+	public synthetic fun getReadObserver ()Lkotlin/jvm/functions/Function1;
 	public fun getReadOnly ()Z
 	public fun getRoot ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public fun hasPendingChanges ()Z
-	public fun setModified (Landroidx/compose/runtime/collection/IdentityArraySet;)V
+	public fun setModified (Landroidx/collection/MutableScatterSet;)V
 	public fun takeNestedMutableSnapshot (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/snapshots/MutableSnapshot;
 	public static synthetic fun takeNestedMutableSnapshot$default (Landroidx/compose/runtime/snapshots/MutableSnapshot;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/runtime/snapshots/MutableSnapshot;
 	public fun takeNestedSnapshot (Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/snapshots/Snapshot;
@@ -914,10 +924,12 @@ public abstract interface class androidx/compose/runtime/snapshots/ObserverHandl
 public abstract class androidx/compose/runtime/snapshots/Snapshot {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/runtime/snapshots/Snapshot$Companion;
+	public static final field PreexistingSnapshotId I
 	public synthetic fun <init> (ILandroidx/compose/runtime/snapshots/SnapshotIdSet;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun dispose ()V
 	public final fun enter (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public fun getId ()I
+	public abstract fun getReadObserver ()Lkotlin/jvm/functions/Function1;
 	public abstract fun getReadOnly ()Z
 	public abstract fun getRoot ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public abstract fun hasPendingChanges ()Z
@@ -932,8 +944,11 @@ public abstract class androidx/compose/runtime/snapshots/Snapshot {
 public final class androidx/compose/runtime/snapshots/Snapshot$Companion {
 	public final fun createNonObservableSnapshot ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public final fun getCurrent ()Landroidx/compose/runtime/snapshots/Snapshot;
+	public final fun getCurrentThreadSnapshot ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public final fun global (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public final fun isApplyObserverNotificationPending ()Z
+	public final fun isInSnapshot ()Z
+	public final fun makeCurrentNonObservable (Landroidx/compose/runtime/snapshots/Snapshot;)Landroidx/compose/runtime/snapshots/Snapshot;
 	public final fun notifyObjectsInitialized ()V
 	public final fun observe (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public static synthetic fun observe$default (Landroidx/compose/runtime/snapshots/Snapshot$Companion;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
@@ -942,6 +957,7 @@ public final class androidx/compose/runtime/snapshots/Snapshot$Companion {
 	public final fun registerGlobalWriteObserver (Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/snapshots/ObserverHandle;
 	public final fun removeCurrent ()Landroidx/compose/runtime/snapshots/Snapshot;
 	public final fun restoreCurrent (Landroidx/compose/runtime/snapshots/Snapshot;)V
+	public final fun restoreNonObservable (Landroidx/compose/runtime/snapshots/Snapshot;Landroidx/compose/runtime/snapshots/Snapshot;Lkotlin/jvm/functions/Function1;)V
 	public final fun sendApplyNotifications ()V
 	public final fun takeMutableSnapshot (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/snapshots/MutableSnapshot;
 	public static synthetic fun takeMutableSnapshot$default (Landroidx/compose/runtime/snapshots/Snapshot$Companion;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/runtime/snapshots/MutableSnapshot;
@@ -1047,6 +1063,7 @@ public final class androidx/compose/runtime/snapshots/SnapshotStateList : androi
 	public fun toArray ()[Ljava/lang/Object;
 	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
 	public final fun toList ()Ljava/util/List;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/runtime/snapshots/SnapshotStateMap : androidx/compose/runtime/snapshots/StateObject, java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
@@ -1070,6 +1087,7 @@ public final class androidx/compose/runtime/snapshots/SnapshotStateMap : android
 	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun size ()I
 	public final fun toMap ()Ljava/util/Map;
+	public fun toString ()Ljava/lang/String;
 	public final fun values ()Ljava/util/Collection;
 }
 

@@ -20,13 +20,12 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,6 +72,9 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.RootMeasurePolicy.measure
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.renderingTest
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
@@ -89,6 +91,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Assert.assertFalse
@@ -366,7 +369,7 @@ class ComposeSceneTest {
                 Modifier
                     .size(20.dp)
                     .background(Color.Blue)
-                    .clickable(indication = PressTestIndication, interactionSource = interactionSource) {}
+                    .clickable(indication = PressIndicationNodeFactory, interactionSource = interactionSource) {}
             )
         }
         awaitNextRender()
@@ -739,18 +742,42 @@ class ComposeSceneTest {
     }
 }
 
-private object PressTestIndication : Indication {
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        val isPressed by interactionSource.collectIsPressedAsState()
-        return remember(interactionSource) {
-            object : IndicationInstance {
-                override fun ContentDrawScope.drawIndication() {
-                    drawContent()
-                    if (isPressed) {
-                        drawRect(color = Color.Black.copy(alpha = 0.3f), size = size)
+private object PressIndicationNodeFactory: IndicationNodeFactory {
+
+    override fun create(interactionSource: InteractionSource): DelegatableNode =
+        PressIndicationInstance(interactionSource)
+
+    override fun hashCode() = super.hashCode()
+
+    override fun equals(other: Any?) = super.equals(other)
+
+    private class PressIndicationInstance(private val interactionSource: InteractionSource) :
+        Modifier.Node(), DrawModifierNode {
+        private var isPressed = false
+        override fun onAttach() {
+            coroutineScope.launch {
+                var pressCount = 0
+                interactionSource.interactions.collect { interaction ->
+                    when (interaction) {
+                        is PressInteraction.Press -> pressCount++
+                        is PressInteraction.Release -> pressCount--
+                        is PressInteraction.Cancel -> pressCount--
                     }
+                    val pressed = pressCount > 0
+                    var invalidateNeeded = false
+                    if (isPressed != pressed) {
+                        isPressed = pressed
+                        invalidateNeeded = true
+                    }
+                    if (invalidateNeeded) invalidateDraw()
                 }
+            }
+        }
+
+        override fun ContentDrawScope.draw() {
+            drawContent()
+            if (isPressed) {
+                drawRect(color = Color.Black.copy(alpha = 0.3f), size = size)
             }
         }
     }

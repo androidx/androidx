@@ -16,13 +16,17 @@
 
 package androidx.compose.foundation.textfield
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.ReducedVisualTransformation
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -43,11 +47,14 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.Ignore
@@ -204,7 +211,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
-    @Ignore("b/308895081")
     @Test
     fun textField_noSelectionHandles_whenWindowLosesFocus() {
         val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
@@ -247,7 +253,6 @@ class TextFieldSelectionTest : FocusedWindowTest {
         assertHandlesNotExist()
     }
 
-    @Ignore("b/308895081")
     @Test
     fun textField_redisplaysSelectionHandlesAndToolbar_whenWindowRegainsFocus() {
         val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
@@ -400,6 +405,31 @@ class TextFieldSelectionTest : FocusedWindowTest {
                 .toList(),
             toLeft = true
         )
+    }
+
+    @Test
+    fun selectionHandles_appear_whenTextAlignedToEnd() {
+        var value by mutableStateOf("hello")
+
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                value = value,
+                onValueChange = { value = it },
+                textStyle = TextStyle(
+                    fontFamily = TEST_FONT_FAMILY,
+                    textAlign = TextAlign.End,
+                    letterSpacing = 1.2.sp,
+                ),
+                modifier = Modifier.testTag(testTag).fillMaxWidth()
+            )
+        }
+
+        rule.onNodeWithTag(testTag).performTouchInput {
+            longClick(centerRight)
+        }
+        rule.waitForIdle()
+
+        assertHandlesDisplayed()
     }
 
     // starts from [0,1] selection

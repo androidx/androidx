@@ -121,7 +121,6 @@ private fun processMultiWindowScreenshot(
     return finalBitmap.asImageBitmap()
 }
 
-@OptIn(InternalTestApi::class)
 private fun findNodePosition(
     node: SemanticsNode
 ): Offset {

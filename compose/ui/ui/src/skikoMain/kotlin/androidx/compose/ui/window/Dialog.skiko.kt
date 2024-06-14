@@ -77,11 +77,10 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
     val useSoftwareKeyboardInset: Boolean = true,
     val scrimColor: Color = DefaultScrimColor,
 ) {
-    // Constructor with all non-experimental arguments.
-    constructor(
-        dismissOnBackPress: Boolean = true,
-        dismissOnClickOutside: Boolean = true,
-        usePlatformDefaultWidth: Boolean = true,
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        usePlatformDefaultWidth: Boolean,
     ) : this(
         dismissOnBackPress = dismissOnBackPress,
         dismissOnClickOutside = dismissOnClickOutside,
@@ -91,7 +90,8 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         scrimColor = DefaultScrimColor,
     )
 
-    actual constructor(
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
 

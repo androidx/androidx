@@ -24,11 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
@@ -36,100 +31,12 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmInline
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
-
-internal data class RowColumnMeasurePolicy(
-    private val orientation: LayoutOrientation,
-    private val horizontalArrangement: Arrangement.Horizontal?,
-    private val verticalArrangement: Arrangement.Vertical?,
-    private val arrangementSpacing: Dp,
-    private val crossAxisSize: SizeMode,
-    private val crossAxisAlignment: CrossAxisAlignment
-) : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeables = arrayOfNulls<Placeable?>(measurables.size)
-        val rowColumnMeasureHelper =
-            RowColumnMeasurementHelper(
-                orientation,
-                horizontalArrangement,
-                verticalArrangement,
-                arrangementSpacing,
-                crossAxisSize,
-                crossAxisAlignment,
-                measurables,
-                placeables
-            )
-
-        val measureResult = rowColumnMeasureHelper
-            .measureWithoutPlacing(
-                this,
-                constraints, 0, measurables.size
-            )
-
-        val layoutWidth: Int
-        val layoutHeight: Int
-        if (orientation == LayoutOrientation.Horizontal) {
-            layoutWidth = measureResult.mainAxisSize
-            layoutHeight = measureResult.crossAxisSize
-        } else {
-            layoutWidth = measureResult.crossAxisSize
-            layoutHeight = measureResult.mainAxisSize
-        }
-        return layout(layoutWidth, layoutHeight) {
-            rowColumnMeasureHelper.placeHelper(
-                this,
-                measureResult,
-                0,
-                layoutDirection
-            )
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
-        height: Int
-    ) = MinIntrinsicWidthMeasureBlock(orientation)(
-        measurables,
-        height,
-        arrangementSpacing.roundToPx()
-    )
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurables: List<IntrinsicMeasurable>,
-        width: Int
-    ) = MinIntrinsicHeightMeasureBlock(orientation)(
-        measurables,
-        width,
-        arrangementSpacing.roundToPx()
-    )
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
-        height: Int
-    ) = MaxIntrinsicWidthMeasureBlock(orientation)(
-        measurables,
-        height,
-        arrangementSpacing.roundToPx()
-    )
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurables: List<IntrinsicMeasurable>,
-        width: Int
-    ) = MaxIntrinsicHeightMeasureBlock(orientation)(
-        measurables,
-        width,
-        arrangementSpacing.roundToPx()
-    )
-}
 
 /**
  * [Row] will be [Horizontal], [Column] is [Vertical].
@@ -339,10 +246,10 @@ internal value class OrientationIndependentConstraints private constructor(
     )
 
     constructor(c: Constraints, orientation: LayoutOrientation) : this(
-        if (orientation === LayoutOrientation.Horizontal) c.minWidth else c.minHeight,
-        if (orientation === LayoutOrientation.Horizontal) c.maxWidth else c.maxHeight,
-        if (orientation === LayoutOrientation.Horizontal) c.minHeight else c.minWidth,
-        if (orientation === LayoutOrientation.Horizontal) c.maxHeight else c.maxWidth
+        if (orientation === Horizontal) c.minWidth else c.minHeight,
+        if (orientation === Horizontal) c.maxWidth else c.maxHeight,
+        if (orientation === Horizontal) c.minHeight else c.minWidth,
+        if (orientation === Horizontal) c.maxHeight else c.maxWidth
     )
 
     // Creates a new instance with the same main axis constraints and maximum tight cross axis.
@@ -355,7 +262,7 @@ internal value class OrientationIndependentConstraints private constructor(
 
     // Given an orientation, resolves the current instance to traditional constraints.
     fun toBoxConstraints(orientation: LayoutOrientation) =
-        if (orientation === LayoutOrientation.Horizontal) {
+        if (orientation === Horizontal) {
             Constraints(mainAxisMin, mainAxisMax, crossAxisMin, crossAxisMax)
         } else {
             Constraints(crossAxisMin, crossAxisMax, mainAxisMin, mainAxisMax)
@@ -363,7 +270,7 @@ internal value class OrientationIndependentConstraints private constructor(
 
     // Given an orientation, resolves the max width constraint this instance represents.
     fun maxWidth(orientation: LayoutOrientation) =
-        if (orientation === LayoutOrientation.Horizontal) {
+        if (orientation === Horizontal) {
             mainAxisMax
         } else {
             crossAxisMax
@@ -371,7 +278,7 @@ internal value class OrientationIndependentConstraints private constructor(
 
     // Given an orientation, resolves the max height constraint this instance represents.
     fun maxHeight(orientation: LayoutOrientation) =
-        if (orientation === LayoutOrientation.Horizontal) {
+        if (orientation === Horizontal) {
             crossAxisMax
         } else {
             mainAxisMax
@@ -394,6 +301,9 @@ internal value class OrientationIndependentConstraints private constructor(
 internal val IntrinsicMeasurable.rowColumnParentData: RowColumnParentData?
     get() = parentData as? RowColumnParentData
 
+internal val Placeable.rowColumnParentData: RowColumnParentData?
+    get() = parentData as? RowColumnParentData
+
 internal val RowColumnParentData?.weight: Float
     get() = this?.weight ?: 0f
 
@@ -406,154 +316,110 @@ internal val RowColumnParentData?.crossAxisAlignment: CrossAxisAlignment?
 internal val RowColumnParentData?.isRelative: Boolean
     get() = this.crossAxisAlignment?.isRelative ?: false
 
-private fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMinWidth
-    } else {
-        IntrinsicMeasureBlocks.VerticalMinWidth
+internal object IntrinsicMeasureBlocks {
+    fun HorizontalMinWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { h -> minIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
     }
-
-private fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMinHeight
-    } else {
-        IntrinsicMeasureBlocks.VerticalMinHeight
+    fun VerticalMinWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            { h -> minIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
     }
-
-private fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMaxWidth
-    } else {
-        IntrinsicMeasureBlocks.VerticalMaxWidth
+    fun HorizontalMinHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            { w -> minIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
     }
-
-private fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) {
-        IntrinsicMeasureBlocks.HorizontalMaxHeight
-    } else {
-        IntrinsicMeasureBlocks.VerticalMaxHeight
+    fun VerticalMinHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { w -> minIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
     }
-
-private object IntrinsicMeasureBlocks {
-    val HorizontalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> minIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val VerticalMinWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> minIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val HorizontalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> minIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Vertical
-            )
-        }
-    val VerticalMinHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> minIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Vertical
-            )
-        }
-    val HorizontalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> maxIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val VerticalMaxWidth: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableHeight, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { h -> maxIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Horizontal
-            )
-        }
-    val HorizontalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> maxIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Horizontal,
-                LayoutOrientation.Vertical
-            )
-        }
-    val VerticalMaxHeight: (List<IntrinsicMeasurable>, Int, Int) -> Int =
-        { measurables, availableWidth, mainAxisSpacing ->
-            intrinsicSize(
-                measurables,
-                { w -> maxIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                mainAxisSpacing,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Vertical
-            )
-        }
+    fun HorizontalMaxWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMaxWidth(
+        measurables: List<IntrinsicMeasurable>,
+        availableHeight: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { w -> minIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableHeight,
+            mainAxisSpacing,
+        )
+    }
+    fun HorizontalMaxHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicCrossAxisSize(
+            measurables,
+            { h -> minIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
+    fun VerticalMaxHeight(
+        measurables: List<IntrinsicMeasurable>,
+        availableWidth: Int,
+        mainAxisSpacing: Int
+    ): Int {
+        return intrinsicMainAxisSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            availableWidth,
+            mainAxisSpacing,
+        )
+    }
 }
 
-private fun intrinsicSize(
-    children: List<IntrinsicMeasurable>,
-    intrinsicMainSize: IntrinsicMeasurable.(Int) -> Int,
-    intrinsicCrossSize: IntrinsicMeasurable.(Int) -> Int,
-    crossAxisAvailable: Int,
-    mainAxisSpacing: Int,
-    layoutOrientation: LayoutOrientation,
-    intrinsicOrientation: LayoutOrientation
-) = if (layoutOrientation == intrinsicOrientation) {
-    intrinsicMainAxisSize(children, intrinsicMainSize, crossAxisAvailable, mainAxisSpacing)
-} else {
-    intrinsicCrossAxisSize(
-        children,
-        intrinsicCrossSize,
-        intrinsicMainSize,
-        crossAxisAvailable,
-        mainAxisSpacing
-    )
-}
-
-private fun intrinsicMainAxisSize(
+private inline fun intrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisAvailable: Int,
@@ -570,14 +436,14 @@ private fun intrinsicMainAxisSize(
             fixedSpace += size
         } else if (weight > 0f) {
             totalWeight += weight
-            weightUnitSpace = max(weightUnitSpace, (size / weight).roundToInt())
+            weightUnitSpace = max(weightUnitSpace, (size / weight).fastRoundToInt())
         }
     }
-    return (weightUnitSpace * totalWeight).roundToInt() + fixedSpace +
+    return (weightUnitSpace * totalWeight).fastRoundToInt() + fixedSpace +
         (children.size - 1) * mainAxisSpacing
 }
 
-private fun intrinsicCrossAxisSize(
+private inline fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
     crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
@@ -593,9 +459,11 @@ private fun intrinsicCrossAxisSize(
         if (weight == 0f) {
             // Ask the child how much main axis space it wants to occupy. This cannot be more
             // than the remaining available space.
+            val remaining = if (mainAxisAvailable == Constraints.Infinity)
+                Constraints.Infinity else mainAxisAvailable - fixedSpace
             val mainAxisSpace = min(
                 child.mainAxisSize(Constraints.Infinity),
-                mainAxisAvailable - fixedSpace
+                remaining
             )
             fixedSpace += mainAxisSpace
             // Now that the assigned main axis space is known, ask about the cross axis space.
@@ -611,7 +479,7 @@ private fun intrinsicCrossAxisSize(
     } else if (mainAxisAvailable == Constraints.Infinity) {
         Constraints.Infinity
     } else {
-        (max(mainAxisAvailable - fixedSpace, 0) / totalWeight).roundToInt()
+        (max(mainAxisAvailable - fixedSpace, 0) / totalWeight).fastRoundToInt()
     }
 
     children.fastForEach { child ->
@@ -622,7 +490,7 @@ private fun intrinsicCrossAxisSize(
                 crossAxisMax,
                 child.crossAxisSize(
                     if (weightUnitSpace != Constraints.Infinity) {
-                        (weightUnitSpace * weight).roundToInt()
+                        (weightUnitSpace * weight).fastRoundToInt()
                     } else {
                         Constraints.Infinity
                     }
@@ -692,7 +560,7 @@ internal class WithAlignmentLineBlockElement(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         val otherModifier = other as? WithAlignmentLineBlockElement ?: return false
-        return block == otherModifier.block
+        return block === otherModifier.block
     }
 
     override fun hashCode(): Int = block.hashCode()
@@ -829,7 +697,8 @@ internal class VerticalAlignNode(
 internal data class RowColumnParentData(
     var weight: Float = 0f,
     var fill: Boolean = true,
-    var crossAxisAlignment: CrossAxisAlignment? = null
+    var crossAxisAlignment: CrossAxisAlignment? = null,
+    var flowLayoutData: FlowLayoutData? = null,
 )
 
 /**
@@ -850,22 +719,4 @@ internal sealed class AlignmentLineProvider {
             return placeable[alignmentLine]
         }
     }
-}
-
-/**
- * Used to specify how a layout chooses its own size when multiple behaviors are possible.
- */
-// TODO(popam): remove this when Flow is reworked
-internal enum class SizeMode {
-    /**
-     * Minimize the amount of free space by wrapping the children,
-     * subject to the incoming layout constraints.
-     */
-    Wrap,
-
-    /**
-     * Maximize the amount of free space by expanding to fill the available space,
-     * subject to the incoming layout constraints.
-     */
-    Expand
 }

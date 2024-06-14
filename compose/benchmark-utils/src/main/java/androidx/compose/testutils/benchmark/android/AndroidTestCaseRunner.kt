@@ -26,7 +26,9 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiThread
 
+@UiThread
 class AndroidTestCaseRunner<T : AndroidTestCase>(
     private val testCaseFactory: () -> T,
     private val activity: Activity

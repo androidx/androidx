@@ -31,8 +31,9 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.kotlin.KotlinULiteralExpression
+import org.jetbrains.uast.ULiteralExpression
 
 /**
  * [Detector] that checks hex Color definitions to ensure that they provide values for all four
@@ -49,8 +50,8 @@ class ColorDetector : Detector(), SourceCodeScanner {
             if (node.valueArgumentCount == 1) {
                 val argument = node.valueArguments.first()
                 // Ignore non-literal expressions
-                if (argument !is KotlinULiteralExpression) return
-                val argumentText = argument.sourcePsi.text ?: return
+                if (argument !is ULiteralExpression) return
+                val argumentText = (argument.sourcePsi as? KtConstantExpression)?.text ?: return
                 val hexPrefix = "0x"
                 val hexIndex = argumentText.indexOf(hexPrefix, ignoreCase = true)
                 // Ignore if this isn't a hex value

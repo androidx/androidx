@@ -16,9 +16,17 @@
 
 package androidx.compose.foundation.demos.text
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -33,6 +41,7 @@ fun KeyboardTypeDemo() {
         item { Item(KeyboardType.Email) }
         item { Item(KeyboardType.Password) }
         item { Item(KeyboardType.NumberPassword) }
+        item { HintLocaleDemo(LocaleList("de")) }
     }
 }
 
@@ -40,4 +49,21 @@ fun KeyboardTypeDemo() {
 private fun Item(keyboardType: KeyboardType) {
     TagLine(tag = "Keyboard Type: $keyboardType")
     EditLine(keyboardType = keyboardType)
+}
+
+@Composable
+private fun HintLocaleDemo(localeList: LocaleList) {
+    Column {
+        TagLine(tag = "Hints IME Locale: $localeList")
+
+        var text by remember { mutableStateOf("") }
+        BasicTextField(
+            modifier = demoTextFieldModifiers,
+            value = text,
+            onValueChange = { text = it },
+            keyboardOptions = KeyboardOptions(
+                hintLocales = localeList
+            )
+        )
+    }
 }

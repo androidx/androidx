@@ -99,15 +99,22 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     val isTouchEvent = pointerInputChange.type == PointerType.Touch
                     root.hitTest(pointerInputChange.position, hitResult, isTouchEvent)
                     if (hitResult.isNotEmpty()) {
-                        hitPathTracker.addHitPath(pointerInputChange.id, hitResult)
+                        hitPathTracker.addHitPath(
+                            pointerId = pointerInputChange.id,
+                            pointerInputNodes = hitResult,
+                            // Prunes PointerIds (and changes) to support dynamically
+                            // adding/removing pointer input modifier nodes.
+                            // Note: We do not do this for hover because hover relies on those
+                            // non hit PointerIds to trigger hover exit events.
+                            prunePointerIdsAndChangesNotInNodesList =
+                            pointerInputChange.changedToDownIgnoreConsumed()
+                        )
                         hitResult.clear()
                     }
                 }
             }
 
-            // Remove [PointerInputFilter]s that are no longer valid and refresh the offset information
-            // for those that are.
-            hitPathTracker.removeDetachedPointerInputFilters()
+            hitPathTracker.removeDetachedPointerInputNodes()
 
             // Dispatch to PointerInputFilters
             val dispatchedToSomething =
@@ -147,6 +154,14 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             pointerInputChangeEventProducer.clear()
             hitPathTracker.processCancel()
         }
+    }
+
+    /**
+     * In some cases we need to clear the HIT Modifier.Node(s) cached from previous events because
+     * they are no longer relevant.
+     */
+    fun clearPreviouslyHitModifierNodes() {
+        hitPathTracker.clearPreviouslyHitModifierNodeCache()
     }
 }
 

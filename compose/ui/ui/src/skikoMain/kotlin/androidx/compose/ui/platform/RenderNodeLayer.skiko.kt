@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.alphaMultiplier
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.asSkiaPath
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkiaRRect
@@ -64,13 +65,12 @@ internal class RenderNodeLayer(
     private var density: Density,
     measureDrawBounds: Boolean,
     private val invalidateParentLayer: () -> Unit,
-    private val drawBlock: (Canvas) -> Unit,
+    private val drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
     private val onDestroy: () -> Unit = {}
 ) : OwnedLayer {
     private var size = IntSize.Zero
     private var position = IntOffset.Zero
-    private var outlineCache =
-        OutlineCache(density, size, RectangleShape, LayoutDirection.Ltr)
+    private var outline: Outline? = null
     // Internal for testing
     internal val matrix = Matrix()
     private val inverseMatrix: Matrix
@@ -108,14 +108,16 @@ internal class RenderNodeLayer(
         onDestroy()
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
-        // TODO: in destroy, call recycle, and reconfigure this layer to be ready to use here.
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
+        TODO("Not yet implemented")
     }
 
     override fun resize(size: IntSize) {
         if (size != this.size) {
             this.size = size
-            outlineCache.size = size
             updateMatrix()
             invalidate()
         }
@@ -151,20 +153,14 @@ internal class RenderNodeLayer(
 
         val x = position.x
         val y = position.y
-        if (outlineCache.shape === RectangleShape) {
-            return 0f <= x && x < size.width && 0f <= y && y < size.height
-        }
+        val outline = outline ?: return true
 
-        return isInOutline(outlineCache.outline, x, y)
+        return isInOutline(outline, x, y)
     }
 
     private var mutatedFields: Int = 0
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         this.transformOrigin = scope.transformOrigin
         this.translationX = scope.translationX
@@ -178,14 +174,12 @@ internal class RenderNodeLayer(
         this.alpha = scope.alpha
         this.clip = scope.clip
         this.shadowElevation = scope.shadowElevation
-        this.density = density
+        this.density = scope.graphicsDensity
         this.renderEffect = scope.renderEffect
         this.ambientShadowColor = scope.ambientShadowColor
         this.spotShadowColor = scope.spotShadowColor
         this.compositingStrategy = scope.compositingStrategy
-        outlineCache.shape = scope.shape
-        outlineCache.layoutDirection = layoutDirection
-        outlineCache.density = density
+        this.outline = scope.outline
         if (maybeChangedFields and Fields.MatrixAffectingFields != 0) {
             updateMatrix()
         }
@@ -237,7 +231,7 @@ internal class RenderNodeLayer(
         invalidateParentLayer()
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         if (picture == null) {
             val measureDrawBounds = !clip || shadowElevation > 0
             val bounds = size.toSize().toRect()
@@ -270,13 +264,17 @@ internal class RenderNodeLayer(
                 drawShadow(canvas)
             }
 
-            if (clip) {
+            val outline = outline
+            val isClipping = if (clip && outline != null) {
                 canvas.save()
-                when (val outline = outlineCache.outline) {
+                when (outline) {
                     is Outline.Rectangle -> canvas.clipRect(outline.rect)
                     is Outline.Rounded -> canvas.clipRoundRect(outline.roundRect)
                     is Outline.Generic -> canvas.clipPath(outline.path)
                 }
+                true
+            } else {
+                false
             }
 
             val currentRenderEffect = renderEffect
@@ -301,9 +299,9 @@ internal class RenderNodeLayer(
                 1.0f
             }
 
-            drawBlock(canvas)
+            drawBlock(canvas, null)
             canvas.restore()
-            if (clip) {
+            if (isClipping) {
                 canvas.restore()
             }
         }
@@ -323,7 +321,7 @@ internal class RenderNodeLayer(
     override fun updateDisplayList() = Unit
 
     fun drawShadow(canvas: Canvas) = with(density) {
-        val path = when (val outline = outlineCache.outline) {
+        val path = when (val outline = outline) {
             is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
             is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
             is Outline.Generic -> outline.path

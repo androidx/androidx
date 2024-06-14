@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -93,6 +94,7 @@ class ClipPointerInputTest {
      * Because clipToBounds is being used on the parent LayoutNode, only the 4 touches inside the
      * parent LayoutNode should hit.
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clipToBounds_childrenOffsetViaLayout_onlyCorrectPointersHit() {
 
@@ -220,6 +222,7 @@ class ClipPointerInputTest {
      * Because clipToBounds is being used on the parent LayoutNode, only the 4 touches inside the
      * parent LayoutNode should hit.
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clipToBounds_childrenOffsetViaModifier_onlyCorrectPointersHit() {
 
@@ -327,6 +330,7 @@ class ClipPointerInputTest {
      * This test creates a layout clipped to a rounded rectangle shape (circle).
      * We'll touch in and out of the rounded area.
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clip_roundedRect() {
         pokeAroundCircle(RoundedCornerShape(50))
@@ -337,6 +341,7 @@ class ClipPointerInputTest {
      * corners are defined as larger than the side length
      * We'll touch in and out of the rounded area.
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clip_roundedRectLargeCorner() {
         pokeAroundCircle(RoundedCornerShape(1.1f))
@@ -346,6 +351,7 @@ class ClipPointerInputTest {
      * This test creates a layout clipped to a generic shape (circle).
      * We'll touch in and out of the rounded area.
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clip_genericShape() {
         pokeAroundCircle(
@@ -446,6 +452,7 @@ class ClipPointerInputTest {
      * This creates a clipped rectangle that is smaller than the bounds and ensures that only the
      * clipped area receives touches
      */
+    @SdkSuppress(maxSdkVersion = 33) // b/321823104
     @Test
     fun clip_smallRect() {
         val rectangleShape: Shape = object : Shape {

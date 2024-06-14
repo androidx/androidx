@@ -17,6 +17,7 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
+import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
@@ -47,8 +48,6 @@ import org.jetbrains.kotlin.ir.util.isEnumEntry
 import org.jetbrains.kotlin.ir.util.isFileClass
 import org.jetbrains.kotlin.ir.util.isInterface
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.jvm.isJvm
 
 enum class StabilityBits(val bits: Int) {
@@ -62,11 +61,14 @@ enum class StabilityBits(val bits: Int) {
  * annotation on it, as well as putting a static final int of the stability to be used at runtime.
  */
 class ClassStabilityTransformer(
+    private val useK2: Boolean,
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     metrics: ModuleMetrics,
-    stabilityInferencer: StabilityInferencer
-) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer),
+    stabilityInferencer: StabilityInferencer,
+    private val classStabilityInferredCollection: ClassStabilityInferredCollection? = null,
+    featureFlags: FeatureFlags,
+) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
     ClassLoweringPass,
     ModuleLoweringPass {
 
@@ -165,28 +167,32 @@ class ClassStabilityTransformer(
             marked = false,
             stability = stability
         )
+        val annotation = IrConstructorCallImpl(
+            UNDEFINED_OFFSET,
+            UNDEFINED_OFFSET,
+            StabilityInferredClass.defaultType,
+            StabilityInferredClass.constructors.first(),
+            0,
+            0,
+            1,
+            null
+        ).also {
+            it.putValueArgument(0, irConst(parameterMask))
+        }
 
-        cls.annotations +=
-            IrConstructorCallImpl(
-                startOffset = UNDEFINED_OFFSET,
-                endOffset = UNDEFINED_OFFSET,
-                type = StabilityInferredClass.defaultType,
-                symbol = StabilityInferredClass.constructors.first(),
-                typeArgumentsCount = 0,
-                constructorTypeArgumentsCount = 0,
-                valueArgumentsCount = 1,
-                origin = null
-            ).also {
-                it.putValueArgument(0, irConst(parameterMask))
-            }
+        if (useK2) {
+            context.annotationsRegistrar.addMetadataVisibleAnnotationsToElement(cls, annotation)
+        } else {
+            cls.annotations += annotation
+            classStabilityInferredCollection?.addClass(cls, parameterMask)
+        }
 
         cls.addStabilityMarkerField(stableExpr)
         return result
     }
 
     private fun IrClass.addStabilityMarkerField(stabilityExpression: IrExpression) {
-        val stabilityField = makeStabilityField().apply {
-            parent = this@addStabilityMarkerField
+        val stabilityField = this.makeStabilityField().apply {
             initializer = IrExpressionBodyImpl(
                 UNDEFINED_OFFSET,
                 UNDEFINED_OFFSET,
@@ -196,26 +202,6 @@ class ClassStabilityTransformer(
 
         if (context.platform.isJvm()) {
             declarations += stabilityField
-        } else {
-            // This ensures proper mangles in k/js and k/native (since kotlin 1.6.0-rc2)
-            val stabilityProp = makeStabilityProp(stabilityField, stabilityExpression, this).also {
-                val clsRef = context.referenceClass(
-                    ClassId.topLevel(FqName("kotlinx.serialization.Transient"))
-                )
-                if (clsRef != null) {
-                    it.annotations = it.annotations + IrConstructorCallImpl(
-                        type = this.defaultType,
-                        symbol = clsRef.constructors.first(),
-                        constructorTypeArgumentsCount = 0,
-                        valueArgumentsCount = 0,
-                        startOffset = UNDEFINED_OFFSET,
-                        endOffset = UNDEFINED_OFFSET,
-                        typeArgumentsCount = 0
-                    )
-                }
-            }
-            stabilityField.correspondingPropertySymbol = stabilityProp.symbol
-            declarations += stabilityProp
         }
     }
 }

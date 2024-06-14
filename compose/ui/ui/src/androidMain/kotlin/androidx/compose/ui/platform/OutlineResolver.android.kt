@@ -27,17 +27,13 @@ import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidPath
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
- * Resolves the [AndroidOutline] from the [Shape] of an [OwnedLayer].
+ * Resolves the [AndroidOutline] from the [Outline] of an [androidx.compose.ui.node.OwnedLayer].
  */
-internal class OutlineResolver(private var density: Density) {
+internal class OutlineResolver {
 
     /**
      * Flag to determine if the shape specified on the outline is supported.
@@ -51,14 +47,9 @@ internal class OutlineResolver(private var density: Density) {
     private val cachedOutline = AndroidOutline().apply { alpha = 1f }
 
     /**
-     * The size of the layer. This is used in generating the [Outline] from the [Shape].
+     * The [Outline] of the Layer.
      */
-    private var size: Size = Size.Zero
-
-    /**
-     * The [Shape] of the Outline of the Layer.
-     */
-    private var shape: Shape = RectangleShape
+    private var outline: Outline? = null
 
     /**
      * Asymmetric rounded rectangles need to use a Path. This caches that Path so that
@@ -107,7 +98,7 @@ internal class OutlineResolver(private var density: Density) {
     /**
      * Returns the Android Outline to be used in the layer.
      */
-    val outline: AndroidOutline?
+    val androidOutline: AndroidOutline?
         get() {
             updateCache()
             return if (!outlineNeeded || !isSupportedOutline) null else cachedOutline
@@ -145,7 +136,6 @@ internal class OutlineResolver(private var density: Density) {
     /**
      * Returns the size for a rectangular, or rounded rect outline (regardless if it
      * is symmetric or asymmetric)
-     * For path based outlines this returns [Size.Zero]
      */
     private var rectSize: Size = Size.Zero
 
@@ -154,43 +144,32 @@ internal class OutlineResolver(private var density: Density) {
      */
     private var outlineNeeded = false
 
-    private var layoutDirection = LayoutDirection.Ltr
-
     private var tmpTouchPointPath: Path? = null
     private var tmpOpPath: Path? = null
-    private var calculatedOutline: Outline? = null
 
     /**
      * Updates the values of the outline. Returns `true` when the shape has changed.
      */
     fun update(
-        shape: Shape,
+        outline: Outline?,
         alpha: Float,
         clipToOutline: Boolean,
         elevation: Float,
-        layoutDirection: LayoutDirection,
-        density: Density
+        size: Size,
     ): Boolean {
         cachedOutline.alpha = alpha
-        val shapeChanged = this.shape != shape
-        if (shapeChanged) {
-            this.shape = shape
+        val outlineChanged = this.outline != outline
+        if (outlineChanged) {
+            this.outline = outline
             cacheIsDirty = true
         }
-        val outlineNeeded = clipToOutline || elevation > 0f
+        this.rectSize = size
+        val outlineNeeded = outline != null && (clipToOutline || elevation > 0f)
         if (this.outlineNeeded != outlineNeeded) {
             this.outlineNeeded = outlineNeeded
             cacheIsDirty = true
         }
-        if (this.layoutDirection != layoutDirection) {
-            this.layoutDirection = layoutDirection
-            cacheIsDirty = true
-        }
-        if (this.density != density) {
-            this.density = density
-            cacheIsDirty = true
-        }
-        return shapeChanged
+        return outlineChanged
     }
 
     /**
@@ -200,7 +179,7 @@ internal class OutlineResolver(private var density: Density) {
         if (!outlineNeeded) {
             return true
         }
-        val outline = calculatedOutline ?: return true
+        val outline = outline ?: return true
 
         return isInOutline(outline, position.x, position.y, tmpTouchPointPath, tmpOpPath)
     }
@@ -256,31 +235,20 @@ internal class OutlineResolver(private var density: Density) {
         }
     }
 
-    /**
-     * Updates the size.
-     */
-    fun update(size: Size) {
-        if (this.size != size) {
-            this.size = size
-            cacheIsDirty = true
-        }
-    }
-
     private fun updateCache() {
         if (cacheIsDirty) {
             rectTopLeft = Offset.Zero
-            rectSize = size
             roundedCornerRadius = 0f
             outlinePath = null
             cacheIsDirty = false
             usePathForClip = false
-            if (outlineNeeded && size.width > 0.0f && size.height > 0.0f) {
+            val outline = outline
+            if (outline != null && outlineNeeded &&
+                rectSize.width > 0.0f && rectSize.height > 0.0f) {
                 // Always assume the outline type is supported
                 // The methods to configure the outline will determine/update the flag
                 // if it not supported on the API level
                 isSupportedOutline = true
-                val outline = shape.createOutline(size, layoutDirection, density)
-                calculatedOutline = outline
                 when (outline) {
                     is Outline.Rectangle -> updateCacheWithRect(outline.rect)
                     is Outline.Rounded -> updateCacheWithRoundRect(outline.roundRect)
@@ -296,10 +264,10 @@ internal class OutlineResolver(private var density: Density) {
         rectTopLeft = Offset(rect.left, rect.top)
         rectSize = Size(rect.width, rect.height)
         cachedOutline.setRect(
-            rect.left.roundToInt(),
-            rect.top.roundToInt(),
-            rect.right.roundToInt(),
-            rect.bottom.roundToInt()
+            rect.left.fastRoundToInt(),
+            rect.top.fastRoundToInt(),
+            rect.right.fastRoundToInt(),
+            rect.bottom.fastRoundToInt()
         )
     }
 
@@ -309,10 +277,10 @@ internal class OutlineResolver(private var density: Density) {
         rectSize = Size(roundRect.width, roundRect.height)
         if (roundRect.isSimple) {
             cachedOutline.setRoundRect(
-                roundRect.left.roundToInt(),
-                roundRect.top.roundToInt(),
-                roundRect.right.roundToInt(),
-                roundRect.bottom.roundToInt(),
+                roundRect.left.fastRoundToInt(),
+                roundRect.top.fastRoundToInt(),
+                roundRect.right.fastRoundToInt(),
+                roundRect.bottom.fastRoundToInt(),
                 radius
             )
             roundedCornerRadius = radius

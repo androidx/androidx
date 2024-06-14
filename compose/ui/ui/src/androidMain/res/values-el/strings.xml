@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"Έγινε μερικός έλεγχος"</string>
-    <string name="on" msgid="8655164131929253426">"Ενεργό"</string>
-    <string name="off" msgid="875452955155264703">"Ανενεργό"</string>
+    <string name="state_on" msgid="1490883874751719580">"Ενεργός"</string>
+    <string name="state_off" msgid="5834637030682409883">"Ανενεργός"</string>
     <string name="switch_role" msgid="2561197295334830845">"Εναλλαγή"</string>
     <string name="selected" msgid="6043586758067023">"Επιλεγμένο"</string>
     <string name="not_selected" msgid="6610465462668679431">"Δεν έχει επιλεχθεί"</string>
@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"Κλείσιμο του μενού πλοήγησης"</string>
     <string name="close_sheet" msgid="7573152094250666567">"Κλείσιμο φύλλου"</string>
     <string name="default_error_message" msgid="8038256446254964252">"Μη έγκυρη καταχώριση"</string>
+    <string name="state_empty" msgid="4139871816613051306">"Κενό"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Αναδυόμενο παράθυρο"</string>
     <string name="range_start" msgid="7097486360902471446">"Αρχή εύρους"</string>
     <string name="range_end" msgid="5941395253238309765">"Τέλος εύρους"</string>

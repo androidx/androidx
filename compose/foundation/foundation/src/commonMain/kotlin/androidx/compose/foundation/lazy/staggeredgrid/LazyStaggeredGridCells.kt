@@ -148,6 +148,10 @@ private fun calculateCellsCrossAxisSizeImpl(
     val slotSize = gridSizeWithoutSpacing / slotCount
     val remainingPixels = gridSizeWithoutSpacing % slotCount
     return IntArray(slotCount) {
-        slotSize + if (it < remainingPixels) 1 else 0
+        if (slotSize < 0) {
+            0
+        } else {
+            slotSize + if (it < remainingPixels) 1 else 0
+        }
     }
 }

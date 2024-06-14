@@ -17,6 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -24,6 +25,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -44,6 +48,7 @@ import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -188,6 +193,8 @@ class DepthSortedSetTest {
         override val inputModeManager: InputModeManager get() = throw IllegalStateException()
         override val clipboardManager: ClipboardManager get() = throw IllegalStateException()
         override val accessibilityManager: AccessibilityManager get() = throw IllegalStateException()
+        override val graphicsContext: GraphicsContext
+            get() = TODO("Not yet implemented")
         override val textToolbar: TextToolbar get() = throw IllegalStateException()
         @ExperimentalComposeUiApi
         override val autofillTree: AutofillTree get() = throw IllegalStateException()
@@ -199,6 +206,9 @@ class DepthSortedSetTest {
         override suspend fun textInputSession(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
         ) = throw IllegalStateException()
+        override fun screenToLocal(positionOnScreen: Offset): Offset = throw IllegalStateException()
+        override fun localToScreen(localPosition: Offset): Offset = throw IllegalStateException()
+        override fun localToScreen(localTransform: Matrix) = throw IllegalStateException()
         override val dragAndDropManager: DragAndDropManager get() = throw IllegalStateException()
         override val pointerIconService: PointerIconService get() = throw IllegalStateException()
         override val focusOwner: FocusOwner get() = throw IllegalStateException()
@@ -219,9 +229,17 @@ class DepthSortedSetTest {
         override fun measureAndLayout(sendPointerUpdate: Boolean) = throw IllegalStateException()
         override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) = throw IllegalStateException()
         override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) = throw IllegalStateException()
-        override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit): OwnedLayer = throw IllegalStateException()
+        override fun createLayer(
+            drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+            invalidateParentLayer: () -> Unit,
+            explicitLayer: GraphicsLayer?
+        ): OwnedLayer = throw IllegalStateException()
         override fun onSemanticsChange() = throw IllegalStateException()
         override fun onLayoutChange(layoutNode: LayoutNode) = throw IllegalStateException()
+
+        @InternalComposeUiApi
+        override fun onInteropViewLayoutChange(view: InteropView) = throw IllegalStateException()
+
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? = throw IllegalStateException()
         override val measureIteration: Long get() = throw IllegalStateException()
         override val viewConfiguration: ViewConfiguration get() = throw IllegalStateException()

@@ -103,4 +103,33 @@ class SnapshotFlowTests {
 
         collector.cancel()
     }
+
+    @Test
+    fun nestedDerivedStateWorks() = runTest {
+        val truth = mutableStateOf(true)
+        val derived1 = derivedStateOf { truth.value }
+        val derived2 = derivedStateOf { derived1.value }
+
+        val results = mutableListOf<Int>()
+
+        val collector1 = snapshotFlow { derived2.value }
+            .onEach { results += 1 }
+            .launchIn(this)
+
+        val collector2 = snapshotFlow { derived2.value }
+            .onEach { results += 2 }
+            .launchIn(this)
+
+        yield()
+
+        truth.value = false
+
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        assertEquals(listOf(1, 2, 1, 2), results)
+
+        collector1.cancel()
+        collector2.cancel()
+    }
 }

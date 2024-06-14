@@ -26,7 +26,7 @@ fun test3(x: Uncertain) {
 @Composable
 fun test1(x: KnownStable, %composer: Composer?, %changed: Int) {
   %composer = %composer.startRestartGroup(<>)
-  sourceInformation(%composer, "C(test1):Test.kt")
+  sourceInformation(%composer, "C(test1)<rememb...>:Test.kt")
   val %dirty = %changed
   if (%changed and 0b1110 == 0) {
     %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
@@ -35,12 +35,11 @@ fun test1(x: KnownStable, %composer: Composer?, %changed: Int) {
     if (isTraceInProgress()) {
       traceEventStart(<>, %dirty, -1, <>)
     }
-    %composer.startReplaceableGroup(<>)
-    sourceInformation(%composer, "C(test1):Test.kt")
+    sourceInformationMarkerStart(%composer, <>, "CC(remember):Test.kt#9igjgp")
     val tmp0_group = %composer.cache(%dirty and 0b1110 == 0b0100) {
       1
     }
-    %composer.endReplaceableGroup()
+    sourceInformationMarkerEnd(%composer)
     tmp0_group
     if (isTraceInProgress()) {
       traceEventEnd()
@@ -55,16 +54,15 @@ fun test1(x: KnownStable, %composer: Composer?, %changed: Int) {
 @Composable
 fun test2(x: KnownUnstable, %composer: Composer?, %changed: Int) {
   %composer = %composer.startRestartGroup(<>)
-  sourceInformation(%composer, "C(test2):Test.kt")
+  sourceInformation(%composer, "C(test2)<rememb...>:Test.kt")
   if (isTraceInProgress()) {
     traceEventStart(<>, %changed, -1, <>)
   }
-  %composer.startReplaceableGroup(<>)
-  sourceInformation(%composer, "C(test2):Test.kt")
+  sourceInformationMarkerStart(%composer, <>, "CC(remember):Test.kt#9igjgp")
   val tmp0_group = %composer.cache(%composer.changed(x)) {
     1
   }
-  %composer.endReplaceableGroup()
+  sourceInformationMarkerEnd(%composer)
   tmp0_group
   if (isTraceInProgress()) {
     traceEventEnd()
@@ -76,7 +74,7 @@ fun test2(x: KnownUnstable, %composer: Composer?, %changed: Int) {
 @Composable
 fun test3(x: Uncertain, %composer: Composer?, %changed: Int) {
   %composer = %composer.startRestartGroup(<>)
-  sourceInformation(%composer, "C(test3):Test.kt")
+  sourceInformation(%composer, "C(test3)<rememb...>:Test.kt")
   val %dirty = %changed
   if (%changed and 0b1110 == 0) {
     %dirty = %dirty or if (%composer.changed(x)) 0b0100 else 0b0010
@@ -85,12 +83,11 @@ fun test3(x: Uncertain, %composer: Composer?, %changed: Int) {
     if (isTraceInProgress()) {
       traceEventStart(<>, %dirty, -1, <>)
     }
-    %composer.startReplaceableGroup(<>)
-    sourceInformation(%composer, "C(test3):Test.kt")
+    sourceInformationMarkerStart(%composer, <>, "CC(remember):Test.kt#9igjgp")
     val tmp0_group = %composer.cache(%dirty and 0b1110 == 0b0100 || %dirty and 0b1000 != 0 && %composer.changed(x)) {
       1
     }
-    %composer.endReplaceableGroup()
+    sourceInformationMarkerEnd(%composer)
     tmp0_group
     if (isTraceInProgress()) {
       traceEventEnd()

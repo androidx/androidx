@@ -48,6 +48,12 @@ interface ViewConfiguration {
     val touchSlop: Float
 
     /**
+     * Distance in pixels a stylus touch can wander before we think the user is handwriting.
+     */
+    val handwritingSlop: Float
+        get() = 2f
+
+    /**
      * The minimum touch target size. If layout has reduced the pointer input bounds below this,
      * the touch target will be expanded evenly around the layout to ensure that it is at least
      * this big.
@@ -59,4 +65,11 @@ interface ViewConfiguration {
      * The maximum velocity a fling have at any given time. This value should be in pixels/second.
      */
     val maximumFlingVelocity: Float get() = Float.MAX_VALUE
+
+    /**
+     * Margin in pixels around text line bounds where stylus handwriting gestures should be
+     * supported.
+     */
+    val handwritingGestureLineMargin: Float
+        get() = 16f
 }

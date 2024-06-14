@@ -16,17 +16,19 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
-import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerParamTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
-import androidx.compose.compiler.plugins.kotlin.lower.changedParamCount
-import androidx.compose.compiler.plugins.kotlin.lower.function
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.serialization.signature.IdSignatureSerializer
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.IrConstructor
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
@@ -40,16 +42,12 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionReferenceImpl
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.IrTypeArgument
-import org.jetbrains.kotlin.ir.types.IrTypeProjection
-import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
-import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
-import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
+import org.jetbrains.kotlin.ir.util.copyTypeAndValueArgumentsFrom
+import org.jetbrains.kotlin.ir.util.patchDeclarationParents
+import org.jetbrains.kotlin.ir.util.remapTypeParameters
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
-import org.jetbrains.kotlin.types.Variance
 
 /**
  * Replaces all decoys references to their implementations created in [CreateDecoysTransformer].
@@ -60,15 +58,22 @@ class SubstituteDecoyCallsTransformer(
     signatureBuilder: IdSignatureSerializer,
     stabilityInferencer: StabilityInferencer,
     metrics: ModuleMetrics,
+    featureFlags: FeatureFlags,
 ) : AbstractDecoysLowering(
     pluginContext = pluginContext,
     symbolRemapper = symbolRemapper,
     metrics = metrics,
     stabilityInferencer = stabilityInferencer,
-    signatureBuilder = signatureBuilder
+    signatureBuilder = signatureBuilder,
+    featureFlags = featureFlags,
 ), ModuleLoweringPass {
     private val decoysTransformer = CreateDecoysTransformer(
-        pluginContext, symbolRemapper, signatureBuilder, stabilityInferencer, metrics
+        pluginContext,
+        symbolRemapper,
+        signatureBuilder,
+        stabilityInferencer,
+        metrics,
+        featureFlags,
     )
     private val lazyDeclarationsCache = mutableMapOf<IrFunctionSymbol, IrFunction>()
 
@@ -160,7 +165,7 @@ class SubstituteDecoyCallsTransformer(
             constructorTypeArgumentsCount = expression.constructorTypeArgumentsCount
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            it
+            return@let it.copyWithNewTypeParams(callee, actualConstructor)
         }
 
         return super.visitConstructorCall(updatedCall)
@@ -185,7 +190,7 @@ class SubstituteDecoyCallsTransformer(
             valueArgumentsCount = expression.valueArgumentsCount,
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            it
+            return@let it.copyWithNewTypeParams(callee, actualConstructor)
         }
 
         return super.visitDelegatingConstructorCall(updatedCall)
@@ -210,7 +215,7 @@ class SubstituteDecoyCallsTransformer(
             superQualifierSymbol = expression.superQualifierSymbol
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            it
+            return@let it.copyWithNewTypeParams(callee, actualFunction)
         }
         return super.visitCall(updatedCall)
     }
@@ -234,72 +239,16 @@ class SubstituteDecoyCallsTransformer(
             reflectionTarget = expression.reflectionTarget
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            it
+            return@let it.copyWithNewTypeParams(callee, actualFunction)
         }
         return super.visitFunctionReference(updatedReference)
     }
 
     private val addComposerParameterInplace = object : IrElementTransformerVoid() {
         private val composerParamTransformer = ComposerParamTransformer(
-            context, symbolRemapper, stabilityInferencer, true, metrics
+            context, symbolRemapper, stabilityInferencer, true, metrics, featureFlags
+
         )
-
-        private fun IrType.isComposable(): Boolean {
-            return annotations.hasAnnotation(ComposeFqNames.Composable)
-        }
-
-        private val composerType = composerIrClass.defaultType.replaceArgumentsWithStarProjections()
-
-        private fun IrConstructorCall.isComposableAnnotation() =
-            this.symbol.owner.parent.fqNameForIrSerialization == ComposeFqNames.Composable
-
-        val typeRemapper = object : TypeRemapper {
-            override fun enterScope(irTypeParametersContainer: IrTypeParametersContainer) {}
-            override fun leaveScope() {}
-
-            private fun remapTypeArgument(typeArgument: IrTypeArgument): IrTypeArgument =
-                if (typeArgument is IrTypeProjection)
-                    makeTypeProjection(this.remapType(typeArgument.type), typeArgument.variance)
-                else
-                    typeArgument
-
-            override fun remapType(type: IrType): IrType {
-                if (type !is IrSimpleType) return type
-                if (!type.isFunction()) return type
-                if (!type.isComposable()) return type
-
-                val oldIrArguments = type.arguments
-                val realParams = oldIrArguments.size - 1
-                var extraArgs = listOf(
-                    // composer param
-                    makeTypeProjection(
-                        composerType,
-                        Variance.INVARIANT
-                    )
-                )
-                val changedParams = changedParamCount(realParams, 1)
-                extraArgs = extraArgs + (0 until changedParams).map {
-                    makeTypeProjection(context.irBuiltIns.intType, Variance.INVARIANT)
-                }
-                val newIrArguments =
-                    oldIrArguments.subList(0, oldIrArguments.size - 1) +
-                        extraArgs +
-                        oldIrArguments.last()
-
-                val newArgSize = oldIrArguments.size - 1 + extraArgs.size
-                val functionCls = context.function(newArgSize)
-
-                return IrSimpleTypeImpl(
-                    null,
-                    functionCls,
-                    type.nullability,
-                    newIrArguments.map { remapTypeArgument(it) },
-                    type.annotations.filter { !it.isComposableAnnotation() },
-                    null
-                )
-            }
-        }
-
         override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
             return composerParamTransformer.visitSimpleFunction(declaration)
         }
@@ -329,9 +278,6 @@ class SubstituteDecoyCallsTransformer(
                         else -> decoysTransformer.visitFunction(declaration)
                     }.also {
                         decoysTransformer.updateParents()
-                        (it as IrFunction).getComposableForDecoy().also {
-                            it.owner.remapTypes(addComposerParameterInplace.typeRemapper)
-                        }
                         owner.parent.transformChildrenVoid(addComposerParameterInplace)
                     } as IrFunction
                 } else owner

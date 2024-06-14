@@ -16,6 +16,13 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.collection.LongIntMap
+import androidx.collection.LongObjectMap
+import androidx.collection.MutableLongIntMap
+import androidx.collection.MutableLongObjectMap
+import androidx.collection.longObjectMapOf
+import androidx.collection.mutableLongIntMapOf
+import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.text.selection.Direction.AFTER
 import androidx.compose.foundation.text.selection.Direction.BEFORE
 import androidx.compose.foundation.text.selection.Direction.ON
@@ -125,11 +132,11 @@ internal interface SelectionLayout {
      *
      * @param selection The selection to turn into subSelections
      */
-    fun createSubSelections(selection: Selection): Map<Long, Selection>
+    fun createSubSelections(selection: Selection): LongObjectMap<Selection>
 }
 
 private class MultiSelectionLayout(
-    val selectableIdToInfoListIndex: Map<Long, Int>,
+    val selectableIdToInfoListIndex: LongIntMap,
     val infoList: List<SelectableInfo>,
     override val startSlot: Int,
     override val endSlot: Int,
@@ -206,7 +213,7 @@ private class MultiSelectionLayout(
         return false
     }
 
-    override fun createSubSelections(selection: Selection): Map<Long, Selection> =
+    override fun createSubSelections(selection: Selection): LongObjectMap<Selection> =
         // Selection is within one selectable, we can return a singleton map of this selection.
         if (selection.start.selectableId == selection.end.selectableId) {
             // this check, if not passed, leads to exceptions when selection
@@ -217,8 +224,8 @@ private class MultiSelectionLayout(
             ) {
                 "unexpectedly miss-crossed selection: $selection"
             }
-            mapOf(selection.start.selectableId to selection)
-        } else buildMap {
+            longObjectMapOf(selection.start.selectableId, selection)
+        } else mutableLongObjectMapOf<Selection>().apply {
             val minAnchor = with(selection) { if (handlesCrossed) end else start }
             createAndPutSubSelection(selection, firstInfo, minAnchor.offset, firstInfo.textLength)
 
@@ -230,7 +237,7 @@ private class MultiSelectionLayout(
             createAndPutSubSelection(selection, lastInfo, minOffset = 0, maxAnchor.offset)
         }
 
-    private fun MutableMap<Long, Selection>.createAndPutSubSelection(
+    private fun MutableLongObjectMap<Selection>.createAndPutSubSelection(
         selection: Selection,
         info: SelectableInfo,
         minOffset: Int,
@@ -288,10 +295,11 @@ private class MultiSelectionLayout(
         return (slot - slotAdjustment) / 2
     }
 
-    private fun getInfoListIndexBySelectableId(id: Long): Int =
-        requireNotNull(selectableIdToInfoListIndex[id]) {
-            "Invalid selectableId: $id"
-        }
+    private fun getInfoListIndexBySelectableId(id: Long): Int = try {
+        selectableIdToInfoListIndex[id]
+    } catch (e: NoSuchElementException) {
+        throw IllegalStateException("Invalid selectableId: $id", e)
+    }
 }
 
 /**
@@ -314,7 +322,12 @@ private class SingleSelectionLayout(
     }
 
     override val size get() = 1
-    override val crossStatus: CrossStatus get() = info.rawCrossStatus
+    override val crossStatus: CrossStatus
+        get() = when {
+            startSlot < endSlot -> CrossStatus.NOT_CROSSED
+            startSlot > endSlot -> CrossStatus.CROSSED
+            else -> info.rawCrossStatus
+        }
     override val startInfo: SelectableInfo get() = info
     override val endInfo: SelectableInfo get() = info
     override val currentInfo: SelectableInfo get() = info
@@ -329,17 +342,23 @@ private class SingleSelectionLayout(
         previousSelection == null ||
             other == null ||
             other !is SingleSelectionLayout ||
+            startSlot != other.startSlot ||
+            endSlot != other.endSlot ||
             isStartHandle != other.isStartHandle ||
             info.shouldRecomputeSelection(other.info)
 
-    override fun createSubSelections(selection: Selection): Map<Long, Selection> {
-        check(
-            (selection.handlesCrossed && selection.start.offset >= selection.end.offset) ||
-                (!selection.handlesCrossed && selection.start.offset <= selection.end.offset)
-        ) {
-            "unexpectedly miss-crossed selection: $selection"
+    override fun createSubSelections(selection: Selection): LongObjectMap<Selection> {
+        val finalSelection = selection.run {
+            // uncross handles if necessary
+            if ((!handlesCrossed && start.offset > end.offset) ||
+                (handlesCrossed && start.offset <= end.offset)
+            ) {
+                copy(handlesCrossed = !handlesCrossed)
+            } else {
+                this
+            }
         }
-        return mapOf(info.selectableId to selection)
+        return longObjectMapOf(info.selectableId, finalSelection)
     }
 
     override fun toString(): String =
@@ -431,7 +450,7 @@ internal class SelectionLayoutBuilder(
     val previousSelection: Selection?,
     val selectableIdOrderingComparator: Comparator<Long>
 ) {
-    private val selectableIdToInfoListIndex: MutableMap<Long, Int> = mutableMapOf()
+    private val selectableIdToInfoListIndex: MutableLongIntMap = mutableLongIntMapOf()
     private val infoList: MutableList<SelectableInfo> = mutableListOf()
     private var startSlot: Int = UNASSIGNED_SLOT
     private var endSlot: Int = UNASSIGNED_SLOT

@@ -21,7 +21,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * An interface to calculate the position of a sized box inside an available space. [Alignment] is
@@ -171,7 +171,7 @@ data class BiasAlignment(
 
         val x = centerX * (1 + resolvedHorizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntOffset(x.roundToInt(), y.roundToInt())
+        return IntOffset(x.fastRoundToInt(), y.fastRoundToInt())
     }
 
     /**
@@ -185,13 +185,13 @@ data class BiasAlignment(
      * @see Vertical
      */
     @Immutable
-    data class Horizontal(private val bias: Float) : Alignment.Horizontal {
+    data class Horizontal(val bias: Float) : Alignment.Horizontal {
         override fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
             val resolvedBias = if (layoutDirection == LayoutDirection.Ltr) bias else -1 * bias
-            return (center * (1 + resolvedBias)).roundToInt()
+            return (center * (1 + resolvedBias)).fastRoundToInt()
         }
     }
 
@@ -205,12 +205,12 @@ data class BiasAlignment(
      * @see Horizontal
      */
     @Immutable
-    data class Vertical(private val bias: Float) : Alignment.Vertical {
+    data class Vertical(val bias: Float) : Alignment.Vertical {
         override fun align(size: Int, space: Int): Int {
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
-            return (center * (1 + bias)).roundToInt()
+            return (center * (1 + bias)).fastRoundToInt()
         }
     }
 }
@@ -227,8 +227,8 @@ data class BiasAlignment(
  */
 @Immutable
 data class BiasAbsoluteAlignment(
-    private val horizontalBias: Float,
-    private val verticalBias: Float
+    val horizontalBias: Float,
+    val verticalBias: Float
 ) : Alignment {
     /**
      * Returns the position of a 2D point in a container of a given size, according to this
@@ -243,7 +243,7 @@ data class BiasAbsoluteAlignment(
 
         val x = centerX * (1 + horizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntOffset(x.roundToInt(), y.roundToInt())
+        return IntOffset(x.fastRoundToInt(), y.fastRoundToInt())
     }
 
     /**
@@ -256,7 +256,7 @@ data class BiasAbsoluteAlignment(
      * @see BiasAlignment.Horizontal
      */
     @Immutable
-    data class Horizontal(private val bias: Float) : Alignment.Horizontal {
+    data class Horizontal(val bias: Float) : Alignment.Horizontal {
         /**
          * Returns the position of a 2D point in a container of a given size,
          * according to this [BiasAbsoluteAlignment.Horizontal]. This position will not be
@@ -266,7 +266,7 @@ data class BiasAbsoluteAlignment(
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
-            return (center * (1 + bias)).roundToInt()
+            return (center * (1 + bias)).fastRoundToInt()
         }
     }
 }

@@ -18,17 +18,21 @@ package androidx.compose.ui.draw
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
@@ -36,12 +40,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.LayoutModifierImpl
@@ -51,6 +61,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -63,8 +74,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -73,6 +87,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -93,6 +110,351 @@ class DrawModifierTest {
     @After
     fun after() {
         isDebugInspectorInfoEnabled = false
+    }
+
+    @Test
+    fun testRememberGraphicsLayerReleasedAfterComposableDisposed() {
+        var graphicsLayer: GraphicsLayer? = null
+        val useGraphicsLayerComposable = mutableStateOf(true)
+        rule.setContent {
+            if (useGraphicsLayerComposable.value) {
+                Box(modifier = Modifier.size(100.dp)) {
+                    graphicsLayer = rememberGraphicsLayer()
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertNotNull(graphicsLayer)
+        assertFalse(graphicsLayer!!.isReleased)
+
+        useGraphicsLayerComposable.value = false
+        rule.waitForIdle()
+
+        assertTrue(graphicsLayer!!.isReleased)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testGraphicsLayerRecordAfterPersisted() {
+        var graphicsLayer: GraphicsLayer? = null
+        var recordCalls = 0
+        var doRecord by mutableStateOf(false)
+        var shouldDraw by mutableStateOf(false)
+        val tag = "testTag"
+        rule.setContent {
+            graphicsLayer = rememberGraphicsLayer()
+            Box(modifier = Modifier.testTag(tag).size(100.dp).background(Color.Red).drawWithCache {
+                if (doRecord) {
+                    graphicsLayer!!.record {
+                        recordCalls++
+                        drawRect(Color.Blue)
+                    }
+                }
+                onDrawWithContent {
+                    if (shouldDraw) {
+                        drawLayer(graphicsLayer!!)
+                    }
+                }
+            })
+        }
+
+        rule.runOnIdle {
+            assertNotNull(graphicsLayer)
+            doRecord = true
+            shouldDraw = true
+        }
+
+        rule.runOnIdle {
+            assertThat(recordCalls).isEqualTo(1)
+            // we stop drawing to verify that the persistence logic will keep the content.
+            shouldDraw = false
+        }
+
+        rule.onNodeWithTag(tag).captureToImage().assertPixels { Color.Red }
+
+        rule.runOnIdle {
+            shouldDraw = true
+        }
+
+        rule.onNodeWithTag(tag).captureToImage().assertPixels { Color.Blue }
+
+        rule.runOnIdle {
+            // we also make sure we didn't have to re-record to display the content
+            assertThat(recordCalls).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testObtainGraphicsLayerReleasedAfterModifierDetached() {
+        var graphicsLayer: GraphicsLayer? = null
+        val useCacheModifier = mutableStateOf(true)
+        val cacheLatch = CountDownLatch(1)
+        rule.setContent {
+            Box(modifier =
+            Modifier
+                .size(120.dp)
+                .then(
+                    if (useCacheModifier.value) {
+                        Modifier.drawWithCache {
+                            graphicsLayer = obtainGraphicsLayer()
+                            cacheLatch.countDown()
+                            onDrawBehind {
+                                // NO-OP
+                            }
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+            )
+        }
+        rule.waitForIdle()
+        assertTrue(cacheLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertNotNull(graphicsLayer)
+        assertFalse(graphicsLayer!!.isReleased)
+
+        useCacheModifier.value = false
+        rule.waitForIdle()
+
+        assertTrue(graphicsLayer!!.isReleased)
+    }
+
+    @Test
+    fun testLayoutDirectionChangeInvalidatesDrawWithCache() {
+        var resolvedLayoutDirection: LayoutDirection? = null
+        var drawLayoutDirection: LayoutDirection? = null
+        var drawLatch = CountDownLatch(1)
+        val tag = "tag"
+        rule.setContent {
+            var providedLayoutDirection by remember {
+                mutableStateOf(LayoutDirection.Ltr)
+            }
+            Column {
+                CompositionLocalProvider(LocalLayoutDirection provides providedLayoutDirection) {
+                    Button(modifier = Modifier.testTag(tag), onClick = {
+                        providedLayoutDirection =
+                            if (providedLayoutDirection == LayoutDirection.Ltr) {
+                                LayoutDirection.Rtl
+                            } else {
+                                LayoutDirection.Ltr
+                            }
+                    }) {
+                        Text(modifier = Modifier
+                            .drawWithCache {
+                                resolvedLayoutDirection = layoutDirection
+                                drawLatch.countDown()
+                                onDrawBehind {
+                                    drawLayoutDirection = layoutDirection
+                                }
+                            },
+                            text = "Change Layout Direction"
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(LayoutDirection.Ltr, resolvedLayoutDirection)
+        assertEquals(LayoutDirection.Ltr, drawLayoutDirection)
+
+        drawLatch = CountDownLatch(1)
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(LayoutDirection.Rtl, resolvedLayoutDirection)
+        assertEquals(LayoutDirection.Rtl, drawLayoutDirection)
+    }
+
+    @Test
+    fun testDensityChangeInvalidatesDrawWithCache() {
+        var resolvedDensity: Density? = null
+        var drawDensity: Density? = null
+        var drawLatch = CountDownLatch(1)
+        val tag = "tag"
+        rule.setContent {
+            var providedDensity by remember { mutableStateOf(Density(2f, 2f)) }
+            Column {
+                CompositionLocalProvider(LocalDensity provides providedDensity) {
+                    Button(modifier = Modifier.testTag(tag), onClick = {
+                        providedDensity = if (providedDensity.density == 2f) {
+                            Density(3f, 3f)
+                        } else {
+                            Density(2f, 2f)
+                        }
+                    }) {
+                        Text(modifier = Modifier
+                            .drawWithCache {
+                                resolvedDensity = Density(density, fontScale)
+                                drawLatch.countDown()
+                                onDrawBehind {
+                                    drawDensity = Density(density, fontScale)
+                                }
+                            },
+                            text = "Change Layout Direction"
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(Density(2f, 2f), resolvedDensity)
+        assertEquals(Density(2f, 2f), drawDensity)
+
+        drawLatch = CountDownLatch(1)
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(Density(3f, 3f), resolvedDensity)
+        assertEquals(Density(3f, 3f), drawDensity)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testRecordWithCache() {
+        var graphicsLayer: GraphicsLayer? = null
+        val testTag = "TestTag"
+        val size = 120.dp
+        var sizePx = 0f
+        val tintColor = Color.Blue
+        rule.setContent {
+            sizePx = with(LocalDensity.current) { size.toPx() }
+            Box(modifier =
+            Modifier
+                .size(size)
+                .testTag(testTag)
+                .then(
+                    Modifier.drawWithCache {
+                        val layer = obtainGraphicsLayer().also { graphicsLayer = it }
+                        layer.apply {
+                            record {
+                                drawContent()
+                            }
+                            this.colorFilter = ColorFilter.tint(tintColor)
+                        }
+                        onDrawWithContent {
+                            drawLayer(layer)
+                        }
+                    }
+                )
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawRect(Color.Red)
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertEquals(Size(sizePx, sizePx).toIntSize(), graphicsLayer!!.size)
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertPixelColor(tintColor, 0, 0)
+            assertPixelColor(tintColor, 0, this.width - 1)
+            assertPixelColor(tintColor, this.height - 1, 0)
+            assertPixelColor(tintColor, this.width - 1, this.height - 1)
+            assertPixelColor(tintColor, this.width / 2, this.height / 2)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testGraphicsLayerPersistence() {
+        val testTag = "TestTag"
+        val drawGraphicsLayer = mutableStateOf(0)
+        val rectColor = Color.Red
+        val bgColor = Color.Blue
+        var isLayerRecorded = false
+        rule.setContent {
+            val graphicsLayer = rememberGraphicsLayer()
+            assertEquals(IntSize.Zero, graphicsLayer.size)
+            Box(modifier = Modifier
+                .size(120.dp)
+                .testTag(testTag)
+                .then(
+                    Modifier.drawWithCache {
+                        if (!isLayerRecorded) {
+                            graphicsLayer.record {
+                                drawRect(rectColor)
+                            }
+                            isLayerRecorded = true
+                        }
+                        onDrawWithContent {
+                            drawRect(bgColor)
+                            if (drawGraphicsLayer.value % 4 == 0) {
+                                drawLayer(graphicsLayer)
+                            }
+                        }
+                    }
+                )
+            )
+        }
+
+        fun PixelMap.verifyColor(color: Color) {
+            assertPixelColor(color, 0, 0)
+            assertPixelColor(color, 0, this.width - 1)
+            assertPixelColor(color, this.height - 1, 0)
+            assertPixelColor(color, this.width - 1, this.height - 1)
+            assertPixelColor(color, this.width / 2, this.height / 2)
+        }
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(rectColor) }
+
+        repeat(3) {
+            drawGraphicsLayer.value++
+            rule.waitForIdle()
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(bgColor) }
+
+        drawGraphicsLayer.value++
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply { verifyColor(rectColor) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testRecordDrawContent() {
+        val testTag = "TestTag"
+        val targetColor = Color.Blue
+        rule.setContent {
+            Column(modifier = Modifier.testTag(testTag)) {
+                val layer = rememberGraphicsLayer()
+                Canvas(
+                    Modifier
+                        .size(40.dp)
+                        .background(Color.Green)
+                        .drawWithContent {
+                            layer.record {
+                                this@drawWithContent.drawContent()
+                            }
+                            drawLayer(layer)
+                        }
+                ) {
+                    drawRect(targetColor)
+                }
+
+                Canvas(Modifier.size(40.dp)) {
+                    drawRect(Color.Red)
+                    drawLayer(layer)
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertPixelColor(targetColor, 0, 0)
+            assertPixelColor(targetColor, 0, this.width - 1)
+            assertPixelColor(targetColor, this.height - 1, 0)
+            assertPixelColor(targetColor, this.width - 1, this.height - 1)
+            assertPixelColor(targetColor, this.width / 2, this.height / 2)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -659,7 +1021,9 @@ class DrawModifierTest {
     fun recompositionWithTheSameDrawBehindLambdaIsNotTriggeringRedraw() {
         val recompositionCounter = mutableStateOf(0)
         var redrawCounter = 0
+        val drawLatch = CountDownLatch(1)
         val drawBlock: DrawScope.() -> Unit = {
+            drawLatch.countDown()
             redrawCounter++
         }
         rule.setContent {
@@ -669,6 +1033,7 @@ class DrawModifierTest {
             }
         }
 
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
         rule.runOnIdle {
             assertThat(redrawCounter).isEqualTo(1)
             recompositionCounter.value = 1
@@ -708,10 +1073,14 @@ class DrawModifierTest {
         val recompositionCounter = mutableStateOf(0)
         var cacheRebuildCounter = 0
         var redrawCounter = 0
+        val cacheLatch = CountDownLatch(1)
+        val drawLatch = CountDownLatch(1)
         val drawBlock: CacheDrawScope.() -> DrawResult = {
             cacheRebuildCounter++
+            cacheLatch.countDown()
             onDrawBehind {
                 redrawCounter++
+                drawLatch.countDown()
             }
         }
         rule.setContent {
@@ -721,6 +1090,8 @@ class DrawModifierTest {
             }
         }
 
+        assertTrue(cacheLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
         rule.runOnIdle {
             assertThat(cacheRebuildCounter).isEqualTo(1)
             assertThat(redrawCounter).isEqualTo(1)

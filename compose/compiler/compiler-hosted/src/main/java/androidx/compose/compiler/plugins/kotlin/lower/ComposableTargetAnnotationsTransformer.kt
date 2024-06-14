@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
@@ -102,8 +103,15 @@ class ComposableTargetAnnotationsTransformer(
     context: IrPluginContext,
     symbolRemapper: ComposableSymbolRemapper,
     metrics: ModuleMetrics,
-    stabilityInferencer: StabilityInferencer
-) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer) {
+    stabilityInferencer: StabilityInferencer,
+    featureFlags: FeatureFlags,
+) : AbstractComposeLowering(
+    context,
+    symbolRemapper,
+    metrics,
+    stabilityInferencer,
+    featureFlags,
+) {
     private val ComposableTargetClass = symbolRemapper.getReferencedClassOrNull(
         getTopLevelClassOrNull(ComposeClassIds.ComposableTarget)
     )

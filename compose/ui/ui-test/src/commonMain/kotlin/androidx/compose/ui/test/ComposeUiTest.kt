@@ -158,13 +158,19 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      *
      * @param timeoutMillis The time after which this method throws an exception if the given
      * condition is not satisfied. This observes wall clock time, not [frame time][mainClock].
+     * @param conditionDescription An optional human-readable description of [condition] that will
+     * be included in the timeout exception if thrown.
      * @param condition Condition that must be satisfied in order for this method to successfully
      * finish.
      *
      * @throws androidx.compose.ui.test.ComposeTimeoutException If the condition is not satisfied
      * after [timeoutMillis] (in wall clock time).
      */
-    fun waitUntil(timeoutMillis: Long = 1_000, condition: () -> Boolean)
+    fun waitUntil(
+        conditionDescription: String? = null,
+        timeoutMillis: Long = 1_000,
+        condition: () -> Boolean
+    )
 
     /**
      * Registers an [IdlingResource] in this test.
@@ -192,7 +198,7 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
  * @see ComposeUiTest.waitUntil
  *
  * @param matcher The matcher that will be used to filter nodes.
- * @param count The number of nodes that are expected to
+ * @param count The number of nodes that are expected to be matched.
  * @param timeoutMillis The time after which this method throws an exception if the number of nodes
  * that match the [matcher] is not [count]. This observes wall clock time, not frame time.
  *
@@ -205,7 +211,7 @@ fun ComposeUiTest.waitUntilNodeCount(
     count: Int,
     timeoutMillis: Long = 1_000L
 ) {
-    waitUntil(timeoutMillis) {
+    waitUntil("exactly $count nodes match (${matcher.description})", timeoutMillis) {
         onAllNodes(matcher).fetchSemanticsNodes().size == count
     }
 }
@@ -227,7 +233,7 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L
 ) {
-    waitUntil(timeoutMillis) {
+    waitUntil("at least one node matches (${matcher.description})", timeoutMillis) {
         onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
     }
 }
@@ -269,3 +275,16 @@ fun ComposeUiTest.waitUntilDoesNotExist(
 ) = waitUntilNodeCount(matcher, 0, timeoutMillis)
 
 internal const val NanoSecondsPerMilliSecond = 1_000_000L
+
+internal fun buildWaitUntilTimeoutMessage(
+    timeoutMillis: Long,
+    conditionDescription: String?
+): String = buildString {
+    append("Condition ")
+    if (conditionDescription != null) {
+        append('(')
+        append(conditionDescription)
+        append(") ")
+    }
+    append("still not satisfied after $timeoutMillis ms")
+}

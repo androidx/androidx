@@ -125,7 +125,7 @@ public fun <T : Component> SwingPanel(
     DisposableEffect(Unit) {
         val focusListener = object : FocusListener {
             override fun focusGained(e: FocusEvent) {
-                if (interopComponent.container.isParentOf(e.oppositeComponent)) {
+                if (e.isFocusGainedHandledBySwingPanel(interopComponent.container)) {
                     when (e.cause) {
                         FocusEvent.Cause.TRAVERSAL_FORWARD -> focusSwitcher.moveForward()
                         FocusEvent.Cause.TRAVERSAL_BACKWARD -> focusSwitcher.moveBackward()
@@ -155,6 +155,19 @@ public fun <T : Component> SwingPanel(
         interopComponent.update = update
     }
 }
+
+/**
+ * Returns whether the event is handled by SwingPanel.
+ *
+ * The focus can be switched from the child component inside SwingPanel.
+ * In that case, SwingPanel will take care of it.
+ *
+ * The alternative that needs more investigation is to
+ * not use ComposePanel as next/previous focus element for SwingPanel children
+ * (see [SwingPanelContainer.focusComponent])
+ */
+internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
+    container.isParentOf(oppositeComponent)
 
 /**
  * A container for [SwingPanel]'s component. Takes care about focus and clipping.
@@ -194,67 +207,77 @@ private class FocusSwitcher<T : Component>(
     private val interopComponent: SwingInteropComponent<T>,
     private val focusManager: FocusManager,
 ) {
-    private val backwardRequester = FocusRequester()
-    private val forwardRequester = FocusRequester()
-    private var isRequesting = false
+    private val backwardTracker = FocusTracker {
+        val container = interopComponent.container
+        val component = container.focusTraversalPolicy.getFirstComponent(container)
+        if (component != null) {
+            component.requestFocus(FocusEvent.Cause.TRAVERSAL_FORWARD)
+        } else {
+            moveForward()
+        }
+    }
+
+    private val forwardTracker = FocusTracker {
+        val component = interopComponent.container.focusTraversalPolicy.getLastComponent(interopComponent.container)
+        if (component != null) {
+            component.requestFocus(FocusEvent.Cause.TRAVERSAL_BACKWARD)
+        } else {
+            moveBackward()
+        }
+    }
 
     fun moveBackward() {
-        try {
-            isRequesting = true
-            backwardRequester.requestFocus()
-        } finally {
-            isRequesting = false
-        }
+        backwardTracker.requestFocusWithoutEvent()
         focusManager.moveFocus(FocusDirection.Previous)
     }
 
     fun moveForward() {
-        try {
-            isRequesting = true
-            forwardRequester.requestFocus()
-        } finally {
-            isRequesting = false
-        }
+        forwardTracker.requestFocusWithoutEvent()
         focusManager.moveFocus(FocusDirection.Next)
     }
 
     @Composable
     fun Content() {
-        EmptyLayout(
-            Modifier
-                .focusRequester(backwardRequester)
-                .onFocusEvent {
-                    if (it.isFocused && !isRequesting) {
-                        focusManager.clearFocus(force = true)
+        EmptyLayout(backwardTracker.modifier)
+        EmptyLayout(forwardTracker.modifier)
+    }
 
-                        val container = interopComponent.container
-                        val component = container.focusTraversalPolicy.getFirstComponent(container)
-                        if (component != null) {
-                            component.requestFocus(FocusEvent.Cause.TRAVERSAL_FORWARD)
-                        } else {
-                            moveForward()
-                        }
+    /**
+     * A helper class that can help:
+     * - to prevent recursive focus events
+     *   (a case when we focus the same element inside `onFocusEvent`)
+     * - to prevent triggering `onFocusEvent` while requesting focus somewhere else
+     */
+    private class FocusTracker(
+        private val onNonRecursiveFocused: () -> Unit
+    ) {
+        private val requester = FocusRequester()
+
+        private var isRequestingFocus = false
+        private var isHandlingFocus = false
+
+        fun requestFocusWithoutEvent() {
+            try {
+                isRequestingFocus = true
+                requester.requestFocus()
+            } finally {
+                isRequestingFocus = false
+            }
+        }
+
+        val modifier = Modifier
+            .focusRequester(requester)
+            .onFocusEvent {
+                if (!isRequestingFocus && !isHandlingFocus && it.isFocused) {
+                    try {
+                        isHandlingFocus = true
+                        onNonRecursiveFocused()
+                    } finally {
+                        isHandlingFocus = false
                     }
                 }
-                .focusTarget()
-        )
-        EmptyLayout(
-            Modifier
-                .focusRequester(forwardRequester)
-                .onFocusEvent {
-                    if (it.isFocused && !isRequesting) {
-                        focusManager.clearFocus(force = true)
-
-                        val component = interopComponent.container.focusTraversalPolicy.getLastComponent(interopComponent.container)
-                        if (component != null) {
-                            component.requestFocus(FocusEvent.Cause.TRAVERSAL_BACKWARD)
-                        } else {
-                            moveBackward()
-                        }
-                    }
-                }
-                .focusTarget()
-        )
+            }
+            .focusTarget()
     }
 }
 

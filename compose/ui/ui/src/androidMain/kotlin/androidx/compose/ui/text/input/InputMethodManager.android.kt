@@ -23,6 +23,10 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import androidx.core.view.SoftwareKeyboardControllerCompat
 
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal interface InputMethodManager {
     fun isActive(): Boolean
 
@@ -51,6 +55,11 @@ internal interface InputMethodManager {
  * Wrapper class to prevent depending on getSystemService and final InputMethodManager.
  * Let's us test TextInputServiceAndroid class.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal class InputMethodManagerImpl(private val view: View) : InputMethodManager {
 
     private val imm by lazy(LazyThreadSafetyMode.NONE) {

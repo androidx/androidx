@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
-
 /**
  * Properties used to customize the behavior of a [Dialog].
  *
@@ -36,23 +35,12 @@ import androidx.compose.runtime.Immutable
 expect class DialogProperties(
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
-
-    /*
-     * Temporary hack to skip unsupported arguments from Android source set.
-     * Should be removed after upstreaming changes from JetBrains' fork.
-     *
-     * After skip this unsupported argument, you must name all subsequent arguments.
-     */
-    @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
-    vararg unsupported: Nothing,
-
     usePlatformDefaultWidth: Boolean = true,
 ) {
     val dismissOnBackPress: Boolean
     val dismissOnClickOutside: Boolean
     val usePlatformDefaultWidth: Boolean
 }
-
 
 /**
  * Opens a dialog with the given content.

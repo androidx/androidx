@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -24,8 +27,10 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -54,6 +59,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import com.google.common.truth.Truth
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -77,7 +83,7 @@ internal fun createDelegate(
     return delegate
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
 private class FakeOwner(
     val delegate: MeasureAndLayoutDelegate,
     val createLayer: () -> OwnedLayer,
@@ -97,6 +103,18 @@ private class FakeOwner(
             delegate.requestLookaheadRemeasure(layoutNode)
         } else {
             delegate.requestRemeasure(layoutNode)
+        }
+    }
+
+    override fun onRequestRelayout(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean,
+        forceRequest: Boolean
+    ) {
+        if (affectsLookahead) {
+            delegate.requestLookaheadRelayout(layoutNode, forceRequest)
+        } else {
+            delegate.requestRelayout(layoutNode, forceRequest)
         }
     }
 
@@ -132,6 +150,8 @@ private class FakeOwner(
 
     override fun onLayoutChange(layoutNode: LayoutNode) {}
 
+    override fun onInteropViewLayoutChange(view: InteropView) {}
+
     @OptIn(InternalCoreApi::class)
     override var showLayoutBounds: Boolean = false
 
@@ -152,6 +172,8 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
     override val density: Density
@@ -164,6 +186,18 @@ private class FakeOwner(
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing {
+        TODO("Not yet implemented")
+    }
+
+    override fun screenToLocal(positionOnScreen: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localPosition: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localTransform: Matrix) {
         TODO("Not yet implemented")
     }
 
@@ -192,14 +226,11 @@ private class FakeOwner(
     override val autofill: Autofill
         get() = TODO("Not yet implemented")
 
-    override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) =
-        createLayer()
-
-    override fun onRequestRelayout(
-        layoutNode: LayoutNode,
-        affectsLookahead: Boolean,
-        forceRequest: Boolean
-    ) = TODO("Not yet implemented")
+    override fun createLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
+    ) = createLayer()
 
     override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
         TODO("Not yet implemented")
@@ -208,7 +239,7 @@ private class FakeOwner(
     override fun calculatePositionInWindow(localPosition: Offset) = TODO("Not yet implemented")
     override fun calculateLocalPosition(positionInWindow: Offset) = TODO("Not yet implemented")
     override fun requestFocus() = TODO("Not yet implemented")
-    override fun onSemanticsChange() = TODO("Not yet implemented")
+    override fun onSemanticsChange() {}
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
 }
 
@@ -549,12 +580,7 @@ internal class SpyLayoutModifier : LayoutModifier {
 
 internal open class MockLayer() : OwnedLayer {
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ) {
-    }
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {}
 
     override fun isInLayer(position: Offset) = true
 
@@ -564,7 +590,7 @@ internal open class MockLayer() : OwnedLayer {
     override fun resize(size: IntSize) {
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
     }
 
     override fun updateDisplayList() {
@@ -580,7 +606,7 @@ internal open class MockLayer() : OwnedLayer {
     }
 
     override fun reuseLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit
     ) {
     }

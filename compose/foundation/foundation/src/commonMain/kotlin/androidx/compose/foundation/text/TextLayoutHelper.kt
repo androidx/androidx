@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param layoutDirection a layout direction to be used for computing text layout.
  * @param constraints a constraint to be used for computing text layout.
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun TextLayoutResult.canReuse(
     text: AnnotatedString,
     style: TextStyle,

@@ -26,17 +26,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,6 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
@@ -111,6 +111,8 @@ fun TextFieldFocusDemo() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .safeDrawingPadding()
+            .verticalScroll(rememberScrollState())
             .padding(10.dp)
             .onPreviewKeyEvent { event ->
                 if (event.keyCode !in modifierKeys) {
@@ -128,17 +130,14 @@ fun TextFieldFocusDemo() {
             checked = multiLine,
             onCheckedChange = setMultiLine
         )
-        val hideSoftKeyboardProvide = LocalTextInputService provides null
-        CompositionLocalProvider(hideSoftKeyboardProvide) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                DemoTextField("Up", multiLine)
-                Row {
-                    DemoTextField("Left", multiLine)
-                    DemoTextField("Center", multiLine, startWithFocus = true)
-                    DemoTextField("Right", multiLine)
-                }
-                DemoTextField("Down", multiLine)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            DemoTextField("Up", multiLine)
+            Row {
+                DemoTextField("Left", multiLine)
+                DemoTextField("Center", multiLine, startWithFocus = true)
+                DemoTextField("Right", multiLine)
             }
+            DemoTextField("Down", multiLine)
         }
         Text(keyIndicatorInstructionText)
         KeyPressList(keys)
@@ -196,30 +195,32 @@ private data class KeyState(
 
 @Composable
 private fun KeyPressList(keys: List<KeyState>) {
-    LazyColumn(
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp)),
     ) {
-        items(keys, key = { it.downTime }) { keyState ->
-            AnimatedVisibility(
-                visible = !keyState.isUp,
-                enter = fadeIn(tween(durationMillis = 100)),
-                exit = fadeOut(tween(durationMillis = 1_000)),
-            ) {
-                val event = keyState.keyEvent
-                val ctrl = if (event.isCtrlPressed) "CTRL + " else ""
-                val alt = if (event.isAltPressed) "ALT + " else ""
-                val shift = if (event.isShiftPressed) "SHIFT + " else ""
-                val meta = if (event.isMetaPressed) "META + " else ""
-                Text(
-                    text = ctrl + alt + shift + meta +
-                        NativeKeyEvent.keyCodeToString(event.keyCode)
-                            .replace("KEYCODE_", "")
-                            .replace("DPAD_", ""),
-                    color = if (keyState.isUp) Color.Unspecified else Color.Red,
-                )
+        keys.forEach { keyState ->
+            key(keyState.downTime) {
+                AnimatedVisibility(
+                    visible = !keyState.isUp,
+                    enter = fadeIn(tween(durationMillis = 100)),
+                    exit = fadeOut(tween(durationMillis = 1_000)),
+                ) {
+                    val event = keyState.keyEvent
+                    val ctrl = if (event.isCtrlPressed) "CTRL + " else ""
+                    val alt = if (event.isAltPressed) "ALT + " else ""
+                    val shift = if (event.isShiftPressed) "SHIFT + " else ""
+                    val meta = if (event.isMetaPressed) "META + " else ""
+                    Text(
+                        text = ctrl + alt + shift + meta +
+                            NativeKeyEvent.keyCodeToString(event.keyCode)
+                                .replace("KEYCODE_", "")
+                                .replace("DPAD_", ""),
+                        color = if (keyState.isUp) Color.Unspecified else Color.Red,
+                    )
+                }
             }
         }
     }

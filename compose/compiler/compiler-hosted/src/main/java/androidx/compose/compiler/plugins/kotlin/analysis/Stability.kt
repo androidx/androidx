@@ -17,7 +17,6 @@
 package androidx.compose.compiler.plugins.kotlin.analysis
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
-import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
 import androidx.compose.compiler.plugins.kotlin.lower.isSyntheticComposableFunction
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
@@ -228,6 +227,11 @@ private fun IrAnnotationContainer.stabilityParamBitmask(): Int? =
         ?.getValueArgument(0) as? IrConst<*>
         )?.value as? Int
 
+private data class SymbolForAnalysis(
+    val symbol: IrClassifierSymbol,
+    val typeParameters: List<IrTypeArgument?>
+)
+
 class StabilityInferencer(
     private val currentModule: ModuleDescriptor,
     externalStableTypeMatchers: Set<FqNameMatcher>
@@ -240,10 +244,13 @@ class StabilityInferencer(
     private fun stabilityOf(
         declaration: IrClass,
         substitutions: Map<IrTypeParameterSymbol, IrTypeArgument>,
-        currentlyAnalyzing: Set<IrClassifierSymbol>
+        currentlyAnalyzing: Set<SymbolForAnalysis>
     ): Stability {
         val symbol = declaration.symbol
-        if (currentlyAnalyzing.contains(symbol)) return Stability.Unstable
+        val typeArguments = declaration.typeParameters.map { substitutions[it.symbol] }
+        val fullSymbol = SymbolForAnalysis(symbol, typeArguments)
+
+        if (currentlyAnalyzing.contains(fullSymbol)) return Stability.Unstable
         if (declaration.hasStableMarkedDescendant()) return Stability.Stable
         if (declaration.isEnumClass || declaration.isEnumEntry) return Stability.Stable
         if (declaration.defaultType.isPrimitiveType()) return Stability.Stable
@@ -253,7 +260,7 @@ class StabilityInferencer(
             error("Builtins Stub: ${declaration.name}")
         }
 
-        val analyzing = currentlyAnalyzing + symbol
+        val analyzing = currentlyAnalyzing + fullSymbol
 
         if (canInferStability(declaration) || declaration.isExternalStableType()) {
             val fqName = declaration.fqNameWhenAvailable?.toString() ?: ""
@@ -347,16 +354,13 @@ class StabilityInferencer(
     private fun canInferStability(declaration: IrClass): Boolean {
         val fqName = declaration.fqNameWhenAvailable?.toString() ?: ""
         return KnownStableConstructs.stableTypes.contains(fqName) ||
-            // On JS and Native we can't access StabilityInferred annotation for IR_EXTERNAL_DECLARATION_STUB,
-            // therefore skip it for now and calculate the stability on the fly
-            AbstractComposeLowering.isJvmTarget &&
             declaration.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
     }
 
     private fun stabilityOf(
         classifier: IrClassifierSymbol,
         substitutions: Map<IrTypeParameterSymbol, IrTypeArgument>,
-        currentlyAnalyzing: Set<IrClassifierSymbol>
+        currentlyAnalyzing: Set<SymbolForAnalysis>
     ): Stability {
         // if isEnum, return true
         // class hasStableAnnotation()
@@ -370,7 +374,7 @@ class StabilityInferencer(
     private fun stabilityOf(
         argument: IrTypeArgument,
         substitutions: Map<IrTypeParameterSymbol, IrTypeArgument>,
-        currentlyAnalyzing: Set<IrClassifierSymbol>
+        currentlyAnalyzing: Set<SymbolForAnalysis>
     ): Stability {
         return when (argument) {
             is IrStarProjection -> Stability.Unstable
@@ -382,7 +386,7 @@ class StabilityInferencer(
     private fun stabilityOf(
         type: IrType,
         substitutions: Map<IrTypeParameterSymbol, IrTypeArgument>,
-        currentlyAnalyzing: Set<IrClassifierSymbol>
+        currentlyAnalyzing: Set<SymbolForAnalysis>
     ): Stability {
         return when {
             type is IrErrorType -> Stability.Unstable

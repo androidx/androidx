@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.packFloats
 
 /**
  * Default identifier for the root group if a Vector graphic
@@ -111,6 +112,8 @@ fun rememberVectorPainter(
  * @param [name] optional identifier used to identify the root of this vector graphic
  * @param [tintColor] optional color used to tint the root group of this vector graphic
  * @param [tintBlendMode] BlendMode used in combination with [tintColor]
+ * @param [autoMirror] Determines if the contents of the Vector should be mirrored for right to left
+ * layouts.
  * @param [content] Composable used to define the structure and contents of the vector graphic
  */
 @Composable
@@ -168,7 +171,8 @@ fun rememberVectorPainter(
 @Composable
 fun rememberVectorPainter(image: ImageVector): VectorPainter {
     val density = LocalDensity.current
-    return remember(image.genId, density) {
+    val key = packFloats(image.genId.toFloat(), density.density)
+    return remember(key) {
         createVectorPainterFromImageVector(
             density,
             image,

@@ -38,6 +38,7 @@ import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.hamcrest.Description
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,6 +98,7 @@ class PopupAlignmentTest {
     }
 
     @Test
+    @Ignore("b/308574912")
     fun popup_correctPosition_alignmentTopCenter_rtl() {
         /* Expected TopCenter Position
            x = -offset.x + parentSize.x / 2 - popupSize.x / 2

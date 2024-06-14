@@ -11,6 +11,7 @@ public final class androidx/compose/material/ripple/RippleAlpha {
 }
 
 public final class androidx/compose/material/ripple/RippleKt {
+	public static final fun createRippleModifierNode-TDGSqEk (Landroidx/compose/foundation/interaction/InteractionSource;ZFLandroidx/compose/ui/graphics/ColorProducer;Lkotlin/jvm/functions/Function0;)Landroidx/compose/ui/node/DelegatableNode;
 	public static final fun rememberRipple-9IZ8Weo (ZFJLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/Indication;
 }
 

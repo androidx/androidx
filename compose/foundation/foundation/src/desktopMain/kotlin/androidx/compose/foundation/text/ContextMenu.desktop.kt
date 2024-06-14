@@ -24,6 +24,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.JPopupContextMenuRepresentation
 import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.text.TextContextMenu.TextManager
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
@@ -54,6 +55,16 @@ internal actual fun ContextMenuArea(
         OpenMenuAdjuster(state) { manager.contextMenuOpenAdjustment(it) }
     }
     LocalTextContextMenu.current.Area(manager.textManager, state, content)
+}
+
+@Composable
+internal actual fun ContextMenuArea(
+    selectionState: TextFieldSelectionState,
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    // TODO: Implement merged from Compose 1.7.0 overload
+    content()
 }
 
 @OptIn(ExperimentalFoundationApi::class)

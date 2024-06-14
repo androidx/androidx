@@ -31,19 +31,18 @@ internal expect fun Modifier.textFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
 ): Modifier
 
 @Composable
-@OptIn(InternalFoundationTextApi::class)
 internal fun Modifier.defaultTextFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
@@ -51,7 +50,7 @@ internal fun Modifier.defaultTextFieldPointer(
     .updateSelectionTouchMode { state.isInTouchMode = it }
     .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
         requestFocusAndShowKeyboardIfNeeded(state, focusRequester, !readOnly)
-        if (state.hasFocus) {
+        if (state.hasFocus && enabled) {
             if (state.handleState != HandleState.Selection) {
                 state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.setCursorOffset(

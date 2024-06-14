@@ -56,41 +56,28 @@ fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
  * Creates an offset. The first argument sets [x], the horizontal component,
  * and the second sets [y], the vertical component.
  */
+@Suppress("NOTHING_TO_INLINE")
 @Immutable
 @kotlin.jvm.JvmInline
 value class Offset internal constructor(internal val packedValue: Long) {
+    @Stable
+    val x: Float get() = unpackFloat1(packedValue)
 
     @Stable
-    val x: Float
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
-                "Offset is unspecified"
-            }
-            return unpackFloat1(packedValue)
-        }
+    val y: Float get() = unpackFloat2(packedValue)
 
     @Stable
-    val y: Float
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
-                "Offset is unspecified"
-            }
-            return unpackFloat2(packedValue)
-        }
+    inline operator fun component1(): Float = x
 
     @Stable
-    operator fun component1(): Float = x
-
-    @Stable
-    operator fun component2(): Float = y
+    inline operator fun component2(): Float = y
 
     /**
      * Returns a copy of this Offset instance optionally overriding the
      * x or y parameter
      */
-    fun copy(x: Float = this.x, y: Float = this.y) = Offset(x, y)
+    fun copy(x: Float = unpackFloat1(packedValue), y: Float = unpackFloat2(packedValue)) =
+        Offset(packFloats(x, y))
 
     companion object {
         /**
@@ -99,34 +86,36 @@ value class Offset internal constructor(internal val packedValue: Long) {
          * This can be used to represent the origin of a coordinate space.
          */
         @Stable
-        val Zero = Offset(0.0f, 0.0f)
+        val Zero = Offset(0x0L)
 
         /**
          * An offset with infinite x and y components.
          *
-         * See also:
-         *
-         *  * [isInfinite], which checks whether either component is infinite.
-         *  * [isFinite], which checks whether both components are finite.
+         * See also [isFinite] to check whether both components are finite.
          */
         // This is included for completeness, because [Size.infinite] exists.
         @Stable
-        val Infinite = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+        val Infinite = Offset(DualFloatInfinityBase)
 
         /**
          * Represents an unspecified [Offset] value, usually a replacement for `null`
          * when a primitive value is desired.
          */
         @Stable
-        val Unspecified = Offset(Float.NaN, Float.NaN)
+        val Unspecified = Offset(UnspecifiedPackedFloats)
     }
 
+    /**
+     * Returns:
+     * - False if [x] or [y] is a NaN
+     * - True if [x] or [y] is infinite
+     * - True otherwise
+     */
     @Stable
     fun isValid(): Boolean {
-        check(!x.isNaN() && !y.isNaN()) {
-            "Offset argument contained a NaN value."
-        }
-        return true
+        // Take the unsigned packed floats and see if they are < InfinityBase + 1 (first NaN)
+        val v = packedValue and DualUnsignedFloatMask
+        return (v - DualFirstNaN) and v.inv() and Uint64High32 == Uint64High32
     }
 
     /**
@@ -136,7 +125,11 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * consider using [getDistanceSquared] instead, since it is cheaper to compute.
      */
     @Stable
-    fun getDistance() = sqrt(x * x + y * y)
+    fun getDistance(): Float {
+        val x = unpackFloat1(packedValue)
+        val y = unpackFloat2(packedValue)
+        return sqrt(x * x + y * y)
+    }
 
     /**
      * The square of the magnitude of the offset.
@@ -144,7 +137,11 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * This is cheaper than computing the [getDistance] itself.
      */
     @Stable
-    fun getDistanceSquared() = x * x + y * y
+    fun getDistanceSquared(): Float {
+        val x = unpackFloat1(packedValue)
+        val y = unpackFloat2(packedValue)
+        return x * x + y * y
+    }
 
     /**
      * Unary negation operator.
@@ -155,7 +152,9 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * same arrow but pointing in the reverse direction.
      */
     @Stable
-    operator fun unaryMinus(): Offset = Offset(-x, -y)
+    operator fun unaryMinus(): Offset {
+        return Offset(packedValue xor DualFloatSignBit)
+    }
 
     /**
      * Binary subtraction operator.
@@ -165,7 +164,14 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * left-hand-side operand's [y] minus the right-hand-side operand's [y].
      */
     @Stable
-    operator fun minus(other: Offset): Offset = Offset(x - other.x, y - other.y)
+    operator fun minus(other: Offset): Offset {
+        return Offset(
+            packFloats(
+                unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
+                unpackFloat2(packedValue) - unpackFloat2(other.packedValue)
+            )
+        )
+    }
 
     /**
      * Binary addition operator.
@@ -175,7 +181,14 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * two operands.
      */
     @Stable
-    operator fun plus(other: Offset): Offset = Offset(x + other.x, y + other.y)
+    operator fun plus(other: Offset): Offset {
+        return Offset(
+            packFloats(
+                unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
+                unpackFloat2(packedValue) + unpackFloat2(other.packedValue)
+            )
+        )
+    }
 
     /**
      * Multiplication operator.
@@ -185,7 +198,14 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * right-hand-side operand (a Float).
      */
     @Stable
-    operator fun times(operand: Float): Offset = Offset(x * operand, y * operand)
+    operator fun times(operand: Float): Offset {
+        return Offset(
+            packFloats(
+                unpackFloat1(packedValue) * operand,
+                unpackFloat2(packedValue) * operand
+            )
+        )
+    }
 
     /**
      * Division operator.
@@ -195,7 +215,14 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * operand (a Float).
      */
     @Stable
-    operator fun div(operand: Float): Offset = Offset(x / operand, y / operand)
+    operator fun div(operand: Float): Offset {
+        return Offset(
+            packFloats(
+                unpackFloat1(packedValue) / operand,
+                unpackFloat2(packedValue) / operand
+            )
+        )
+    }
 
     /**
      * Modulo (remainder) operator.
@@ -205,7 +232,14 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * right-hand-side operand (a Float).
      */
     @Stable
-    operator fun rem(operand: Float) = Offset(x % operand, y % operand)
+    operator fun rem(operand: Float): Offset {
+        return Offset(
+            packFloats(
+                unpackFloat1(packedValue) % operand,
+                unpackFloat2(packedValue) % operand
+            )
+        )
+    }
 
     override fun toString() = if (isSpecified) {
         "Offset(${x.toStringAsFixed(1)}, ${y.toStringAsFixed(1)})"
@@ -234,28 +268,39 @@ value class Offset internal constructor(internal val packedValue: Long) {
 @Stable
 fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
     return Offset(
-        lerp(start.x, stop.x, fraction),
-        lerp(start.y, stop.y, fraction)
+        packFloats(
+            lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
+            lerp(unpackFloat2(start.packedValue), unpackFloat2(stop.packedValue), fraction)
+        )
     )
 }
 
 /**
- * True if both x and y values of the [Offset] are finite
+ * True if both x and y values of the [Offset] are finite. NaN values are not
+ * considered finite.
  */
 @Stable
-val Offset.isFinite: Boolean get() = x.isFinite() && y.isFinite()
+val Offset.isFinite: Boolean get() {
+    // Mask out the sign bit and do an equality check in each 32-bit lane
+    // against the "infinity base" mask (to check whether each packed float
+    // is infinite or not).
+    val v = (packedValue and DualFloatInfinityBase) xor DualFloatInfinityBase
+    return (v - Uint64Low32) and v.inv() and Uint64High32 == 0L
+}
 
 /**
  * `false` when this is [Offset.Unspecified].
  */
 @Stable
-val Offset.isSpecified: Boolean get() = packedValue != Offset.Unspecified.packedValue
+val Offset.isSpecified: Boolean
+    get() = packedValue and DualUnsignedFloatMask != UnspecifiedPackedFloats
 
 /**
  * `true` when this is [Offset.Unspecified].
  */
 @Stable
-val Offset.isUnspecified: Boolean get() = packedValue == Offset.Unspecified.packedValue
+val Offset.isUnspecified: Boolean
+    get() = packedValue and DualUnsignedFloatMask == UnspecifiedPackedFloats
 
 /**
  * If this [Offset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed

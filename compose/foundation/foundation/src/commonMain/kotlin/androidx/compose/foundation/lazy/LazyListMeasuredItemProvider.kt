@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 
@@ -31,22 +32,28 @@ internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi 
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,
     private val measureScope: LazyLayoutMeasureScope
-) {
+) : LazyLayoutMeasuredItemProvider<LazyListMeasuredItem> {
     // the constraints we will measure child with. the main axis is not restricted
     val childConstraints = Constraints(
         maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity,
         maxHeight = if (!isVertical) constraints.maxHeight else Constraints.Infinity
     )
 
+    override fun getAndMeasure(index: Int, lane: Int, span: Int, constraints: Constraints) =
+        getAndMeasure(index, constraints)
+
     /**
      * Used to subcompose items of lazy lists. Composed placeables will be measured with the
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
-    fun getAndMeasure(index: Int): LazyListMeasuredItem {
+    fun getAndMeasure(
+        index: Int,
+        constraints: Constraints = childConstraints
+    ): LazyListMeasuredItem {
         val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
-        val placeables = measureScope.measure(index, childConstraints)
-        return createItem(index, key, contentType, placeables)
+        val placeables = measureScope.measure(index, constraints)
+        return createItem(index, key, contentType, placeables, constraints)
     }
 
     /**
@@ -59,6 +66,7 @@ internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi 
         index: Int,
         key: Any,
         contentType: Any?,
-        placeables: List<Placeable>
+        placeables: List<Placeable>,
+        constraints: Constraints
     ): LazyListMeasuredItem
 }

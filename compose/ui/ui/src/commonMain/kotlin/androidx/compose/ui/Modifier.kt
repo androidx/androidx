@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.NodeCoordinator
@@ -172,7 +173,7 @@ interface Modifier {
      * @see androidx.compose.ui.node.ParentDataModifierNode
      * @see androidx.compose.ui.node.LayoutAwareModifierNode
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
-     * @see androidx.compose.ui.node.IntermediateLayoutModifierNode
+     * @see androidx.compose.ui.node.ApproachLayoutModifierNode
      */
     abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
@@ -254,16 +255,20 @@ interface Modifier {
         internal inline fun isKind(kind: NodeKind<*>) = kindSet and kind.mask != 0
 
         internal open fun markAsAttached() {
-            check(!isAttached) { "node attached multiple times" }
-            check(coordinator != null) { "attach invoked on a node without a coordinator" }
+            checkPrecondition(!isAttached) { "node attached multiple times" }
+            checkPrecondition(coordinator != null) {
+                "attach invoked on a node without a coordinator"
+            }
             isAttached = true
             onAttachRunExpected = true
         }
 
         internal open fun runAttachLifecycle() {
-            check(isAttached) { "Must run markAsAttached() prior to runAttachLifecycle" }
-            check(onAttachRunExpected) { "Must run runAttachLifecycle() only once after " +
-                "markAsAttached()"
+            checkPrecondition(isAttached) {
+                "Must run markAsAttached() prior to runAttachLifecycle"
+            }
+            checkPrecondition(onAttachRunExpected) { "Must run runAttachLifecycle() only once " +
+                "after markAsAttached()"
             }
             onAttachRunExpected = false
             onAttach()
@@ -271,9 +276,11 @@ interface Modifier {
         }
 
         internal open fun runDetachLifecycle() {
-            check(isAttached) { "node detached multiple times" }
-            check(coordinator != null) { "detach invoked on a node without a coordinator" }
-            check(onDetachRunExpected) {
+            checkPrecondition(isAttached) { "node detached multiple times" }
+            checkPrecondition(coordinator != null) {
+                "detach invoked on a node without a coordinator"
+            }
+            checkPrecondition(onDetachRunExpected) {
                 "Must run runDetachLifecycle() once after runAttachLifecycle() and before " +
                     "markAsDetached()"
             }
@@ -282,9 +289,13 @@ interface Modifier {
         }
 
         internal open fun markAsDetached() {
-            check(isAttached) { "Cannot detach a node that is not attached" }
-            check(!onAttachRunExpected) { "Must run runAttachLifecycle() before markAsDetached()" }
-            check(!onDetachRunExpected) { "Must run runDetachLifecycle() before markAsDetached()" }
+            checkPrecondition(isAttached) { "Cannot detach a node that is not attached" }
+            checkPrecondition(!onAttachRunExpected) {
+                "Must run runAttachLifecycle() before markAsDetached()"
+            }
+            checkPrecondition(!onDetachRunExpected) {
+                "Must run runDetachLifecycle() before markAsDetached()"
+            }
             isAttached = false
 
             scope?.let {
@@ -294,7 +305,7 @@ interface Modifier {
         }
 
         internal open fun reset() {
-            check(isAttached) { "reset() called on an unattached node" }
+            checkPrecondition(isAttached) { "reset() called on an unattached node" }
             onReset()
         }
 
@@ -349,7 +360,7 @@ interface Modifier {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }
 
-        internal fun setAsDelegateTo(owner: Node) {
+        internal open fun setAsDelegateTo(owner: Node) {
             node = owner
         }
     }

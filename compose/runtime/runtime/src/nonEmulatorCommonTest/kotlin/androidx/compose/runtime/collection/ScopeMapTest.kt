@@ -23,14 +23,14 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class ScopeMapTest {
-    private val map = ScopeMap<Scope>()
+    private val map = ScopeMap<Value, Scope>()
 
     private val scopeList = listOf(Scope(10), Scope(12), Scope(1), Scope(30), Scope(10))
     private val valueList = listOf(Value("A"), Value("B"))
 
     @Test
     fun emptyConstruction() {
-        val m = ScopeMap<Scope>()
+        val m = ScopeMap<Value, Scope>()
         assertEquals(0, m.size)
     }
 

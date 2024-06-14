@@ -18,6 +18,7 @@ package androidx.compose.ui.window
 import android.view.View
 import android.view.View.MEASURED_STATE_TOO_SMALL
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -363,7 +363,6 @@ class PopupTest {
         rule.onNodeWithTag(testTag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
@@ -385,7 +384,6 @@ class PopupTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canChangeSize() {
         var width by mutableStateOf(10.dp)
@@ -417,6 +415,37 @@ class PopupTest {
         rule.runOnIdle {
             assertThat(actualWidth).isEqualTo((40 * rule.density.density).roundToInt())
         }
+    }
+
+    @Test
+    fun customFlags() {
+        val flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+            WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
+            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+
+        rule.setContent {
+            PopupTestTag(testTag) {
+                Popup(
+                    properties = PopupProperties(
+                        flags = flags,
+                        inheritSecurePolicy = false,
+                    )
+                ) {
+                    Box(Modifier.size(50.dp))
+                }
+            }
+        }
+
+        // Make sure that current measurement/drawing is finished
+        rule.runOnIdle { }
+        val popupMatcher = PopupLayoutMatcher(testTag)
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(popupMatcher)
+            .check(matches(isDisplayed()))
+        val capturedFlags = popupMatcher.lastSeenWindowParams!!.flags
+
+        assertThat(capturedFlags and flags).isEqualTo(flags)
     }
 
     @Test

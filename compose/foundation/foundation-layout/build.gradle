@@ -88,6 +88,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         sourceSets {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                implementation(project(":collection:collection"))
 
                 api(project(":compose:ui:ui"))
                 implementation(project(":compose:runtime:runtime"))

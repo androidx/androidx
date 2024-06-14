@@ -55,7 +55,7 @@ internal class PlatformWindowContext {
         _windowInfo.containerSize = size
     }
 
-    fun calculatePositionInWindow(container: UIView, localPosition: Offset): Offset {
+    fun convertLocalToWindowPosition(container: UIView, localPosition: Offset): Offset {
         val windowContainer = _windowContainer ?: return localPosition
         return convertPoint(
             point = localPosition,
@@ -64,13 +64,47 @@ internal class PlatformWindowContext {
         )
     }
 
-    fun calculateLocalPosition(container: UIView, positionInWindow: Offset): Offset {
+    fun convertWindowToLocalPosition(container: UIView, positionInWindow: Offset): Offset {
         val windowContainer = _windowContainer ?: return positionInWindow
         return convertPoint(
             point = positionInWindow,
             fromView = windowContainer,
             toView = container
         )
+    }
+
+    fun convertLocalToScreenPosition(container: UIView, localPosition: Offset): Offset {
+        val nativeWindow = container.window ?:
+            return convertLocalToWindowPosition(container, localPosition)
+        val density = container.systemDensity
+        val positionInNativeWindow = container.convertPoint(
+            point = localPosition.toDpOffset(density).asCGPoint(),
+            toView = nativeWindow,
+        )
+        val positionOnScreen = nativeWindow.convertPoint(
+            point = positionInNativeWindow,
+            toWindow = null
+        )
+        return positionOnScreen.useContents {
+            asDpOffset().toOffset(density)
+        }
+    }
+
+    fun convertScreenToLocalPosition(container: UIView, positionOnScreen: Offset): Offset {
+        val nativeWindow = container.window ?:
+            return convertWindowToLocalPosition(container, positionOnScreen)
+        val density = container.systemDensity
+        val positionInNativeWindow = nativeWindow.convertPoint(
+            point = positionOnScreen.toDpOffset(density).asCGPoint(),
+            fromWindow = null
+        )
+        val localPosition = container.convertPoint(
+            point = positionInNativeWindow,
+            fromView = nativeWindow,
+        )
+        return localPosition.useContents {
+            asDpOffset().toOffset(density)
+        }
     }
 
     /**

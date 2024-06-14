@@ -18,7 +18,6 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -26,7 +25,10 @@ import androidx.compose.ui.util.fastForEach
  * semantics tree
  */
 @OptIn(ExperimentalComposeUiApi::class)
-class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
+class SemanticsOwner internal constructor(
+    private val rootNode: LayoutNode,
+    private val outerSemanticsNode: EmptySemanticsModifier
+) {
     /**
      * The root node of the semantics tree.  Does not contain any unmerged data.
      * May contain merged data.
@@ -39,7 +41,7 @@ class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
     val unmergedRootSemanticsNode: SemanticsNode
         get() {
             return SemanticsNode(
-                outerSemanticsNode = rootNode.nodes.head(Nodes.Semantics)!!.node,
+                outerSemanticsNode = outerSemanticsNode,
                 layoutNode = rootNode,
                 mergingEnabled = false,
                 // Forcing an empty SemanticsConfiguration here since the root node will always
@@ -85,15 +87,17 @@ internal fun SemanticsOwner.getAllSemanticsNodesToMap(
     val nodes = mutableMapOf<Int, SemanticsNode>()
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-        if (!skipDeactivatedNodes || !currentNode.layoutInfo.isDeactivated) {
-            nodes[currentNode.id] = currentNode
-            currentNode.children.fastForEach { child ->
+        nodes[currentNode.id] = currentNode
+        currentNode
+            .getChildren(includeDeactivatedNodes = !skipDeactivatedNodes)
+            .fastForEach { child ->
                 findAllSemanticNodesRecursive(child)
             }
-        }
     }
 
     val root = if (useUnmergedTree) unmergedRootSemanticsNode else rootSemanticsNode
-    findAllSemanticNodesRecursive(root)
+    if (!skipDeactivatedNodes || !root.layoutNode.isDeactivated) {
+        findAllSemanticNodesRecursive(root)
+    }
     return nodes
 }

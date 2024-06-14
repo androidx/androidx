@@ -34,13 +34,22 @@ internal actual fun String.findFollowingBreak(index: Int): Int {
 // TODO Remove once it's available in common stdlib https://youtrack.jetbrains.com/issue/KT-23251
 internal typealias CodePoint = Int
 
-
 // Copied from CharHelpers.skiko.kt
 /**
  * Converts a surrogate pair to a unicode code point.
  */
-private fun Char.Companion.toCodePoint(high: Char, low: Char): CodePoint =
-    (((high - MIN_HIGH_SURROGATE) shl 10) or (low - MIN_LOW_SURROGATE)) + 0x10000
+internal fun Char.Companion.toCodePoint(high: Char, low: Char): CodePoint =
+    (((high - MIN_HIGH_SURROGATE) shl 10) or (low - MIN_LOW_SURROGATE)) + MIN_SUPPLEMENTARY_CODE_POINT
+
+// Copy from https://github.com/JetBrains/kotlin/blob/7cd306950aad852e006715067435a4bbd9cd40d2/kotlin-native/runtime/src/main/kotlin/generated/_StringUppercase.kt#L26
+internal fun StringBuilder.appendCodePoint(codePoint: Int) {
+    if (codePoint < MIN_SUPPLEMENTARY_CODE_POINT) {
+        append(codePoint.toChar())
+    } else {
+        append(Char.MIN_HIGH_SURROGATE + ((codePoint - 0x10000) shr 10))
+        append(Char.MIN_LOW_SURROGATE + (codePoint and 0x3ff))
+    }
+}
 
 // Copied from CharHelpers.skiko.kt
 /**
@@ -75,6 +84,21 @@ internal fun CharSequence.codePointAt(index: Int): CodePoint {
         }
     }
     return high.code
+}
+
+// Copied from CharHelpers.skiko.kt
+/**
+ * Returns the character (Unicode code point) before the specified index.
+ */
+internal fun CharSequence.codePointBefore(index: Int): CodePoint {
+    val low = this[index]
+    if (low.isLowSurrogate() && index - 1 >= 0) {
+        val high = this[index - 1]
+        if (high.isHighSurrogate()) {
+            return Char.toCodePoint(high, low)
+        }
+    }
+    return low.code
 }
 
 /**

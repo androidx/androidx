@@ -542,7 +542,7 @@ class FocusableTest {
     }
 
     @Test
-    fun movableContent_movedContentRemainsFocused() = runSkikoComposeUiTest {
+    fun movableContent_movedContentBecomesUnfocused() = runSkikoComposeUiTest {
         var moveContent by mutableStateOf(false)
         val focusRequester = FocusRequester()
         val interactionSource = MutableInteractionSource()
@@ -599,15 +599,23 @@ class FocusableTest {
             moveContent = true // moving content
         }
 
-        // Assert that focus is kept during movable content change.
+        // Assert that focus is reset
         runOnIdle {
-            assertThat(state.isFocused).isTrue()
+            assertThat(state.isFocused).isFalse()
         }
         onNodeWithTag(focusTag)
-            .assertIsFocused()
+            .assertIsNotFocused()
 
-        // Checks if we still received the correct Focus/Unfocus events. When moving contents, the
-        // focus event node will send a sequence of Focus/Unfocus/Focus events.
+        runOnIdle {
+            assertTrue(interactions.first() is FocusInteraction.Focus)
+            assertTrue(interactions[1] is FocusInteraction.Unfocus)
+        }
+
+        runOnIdle {
+            focusRequester.requestFocus() // request focus again
+            assertThat(state.isFocused).isTrue()
+        }
+
         runOnIdle {
             assertTrue(interactions.first() is FocusInteraction.Focus)
             assertTrue(interactions[1] is FocusInteraction.Unfocus)

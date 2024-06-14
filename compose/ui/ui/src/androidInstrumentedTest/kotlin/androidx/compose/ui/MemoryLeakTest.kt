@@ -34,7 +34,6 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.createAndroidComposeBenchmarkRunner
 import androidx.compose.ui.platform.AndroidUiDispatcher
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -157,7 +156,7 @@ class MemoryLeakTest {
         Log.d("memoryCheckerTest", totalSum.toString())
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun recreateAndroidView_assertNoLeak() = runBlocking(AndroidUiDispatcher.Main) {
         val immediateClock = object : MonotonicFrameClock {

@@ -16,38 +16,51 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
+import kotlin.math.roundToInt
 import kotlin.random.Random
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
@@ -60,7 +73,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalTestApi::class)
 class AnimationModifierTest {
 
     @get:Rule
@@ -150,6 +162,81 @@ class AnimationModifierTest {
         }
     }
 
+    @Test
+    fun testAlignmentInAnimateContentSize() {
+        // Tests that Alignment is consistent when used in Modifier.animateContentSize()
+        val alignmentList = listOf(Alignment.TopStart, Alignment.Center, Alignment.BottomEnd)
+        val startWidth = 100
+        val endWidth = 150
+        val startHeight = 400
+        val endHeight = 200
+        var width by mutableStateOf(startWidth)
+        var height by mutableStateOf(startHeight)
+
+        val density = rule.density.density
+
+        val frameDuration = 16
+        val animDuration = 10 * frameDuration
+
+        val positionInRootByBoxIndex = mutableMapOf<Int, Offset>()
+
+        @Composable
+        fun AnimateBoxSizeWithAlignment(alignment: Alignment, index: Int) {
+            Box(
+                Modifier
+                    .animateContentSize(
+                        animationSpec = tween(
+                            animDuration,
+                            easing = LinearOutSlowInEasing
+                        ),
+                        alignment = alignment
+                    )
+                    .onPlaced {
+                        positionInRootByBoxIndex[index] = it.positionInRoot()
+                    }
+                    .requiredSize(width.dp, height.dp)
+            )
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            alignmentList.forEachIndexed { index, alignment ->
+                AnimateBoxSizeWithAlignment(index = index, alignment = alignment)
+            }
+        }
+
+        rule.runOnUiThread {
+            width = endWidth
+            height = endHeight
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        val size = with(rule.density) {
+            IntSize(endWidth.dp.roundToPx(), endHeight.dp.roundToPx())
+        }
+
+        for (i in 0..animDuration step frameDuration) {
+            val fraction = LinearOutSlowInEasing.transform(i / animDuration.toFloat())
+            val expectedWidth = density * (startWidth * (1 - fraction) + endWidth * fraction)
+            val expectedHeight = density * (startHeight * (1 - fraction) + endHeight * fraction)
+            val space = IntSize(expectedWidth.roundToInt(), expectedHeight.roundToInt())
+
+            // Test all boxes at the current frame
+            for (alignIndex in alignmentList.indices) {
+                val expectedPosition =
+                    alignmentList[alignIndex].align(size, space, LayoutDirection.Ltr).toOffset()
+                val positionInRoot = positionInRootByBoxIndex[alignIndex]!!
+                assertEquals(expectedPosition.x, positionInRoot.x, 1f)
+                assertEquals(expectedPosition.y, positionInRoot.y, 1f)
+            }
+
+            rule.mainClock.advanceTimeBy(frameDuration.toLong())
+            rule.waitForIdle()
+        }
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testAnimatedContentSizeInLookahead() {
@@ -201,7 +288,7 @@ class AnimationModifierTest {
                     assertThat(it.valueOverride, nullValue())
                     assertThat(
                         it.inspectableElements.map { it.name }.toList(),
-                        `is`(listOf("animationSpec", "finishedListener"))
+                        `is`(listOf("animationSpec", "alignment", "finishedListener"))
                     )
                     true
                 } else {
@@ -210,16 +297,99 @@ class AnimationModifierTest {
             }.also { assertTrue(it) }
         }
     }
+
+    @Test
+    fun properFinalStateAfterReAttach() = with(rule.density) {
+        // Tests that animateContentSize is able to recover (end at its proper target size) after
+        // being interrupted with movableContent
+        val totalSizePx = 300
+
+        val smallSizePx = 100
+        val largeSizePx = 200
+        val isExpanded = mutableStateOf(false)
+
+        val containerAOffset = Offset.Zero
+        val containerBOffset = Offset(100f, 100f)
+        val isAtContainerA = mutableStateOf(true)
+
+        val frameDuration = 16
+        val animDuration = 10 * frameDuration
+
+        val testModifier by mutableStateOf(TestModifier())
+
+        rule.setContent {
+            val animatedBox = remember {
+                movableContentOf {
+                    Box(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .then(testModifier)
+                            .animateContentSize(tween(animDuration, easing = LinearEasing))
+                    ) {
+                        val size = if (isExpanded.value) {
+                            largeSizePx.toDp()
+                        } else {
+                            smallSizePx.toDp()
+                        }
+                        Box(Modifier.requiredSize(size))
+                    }
+                }
+            }
+
+            Box(Modifier.size(totalSizePx.toDp())) {
+                Box(Modifier.offset { containerAOffset.round() }) {
+                    if (isAtContainerA.value) {
+                        animatedBox()
+                    }
+                }
+                Box(Modifier.offset { containerBOffset.round() }) {
+                    if (!isAtContainerA.value) {
+                        animatedBox()
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        isExpanded.value = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Animate towards halfway the animation
+        rule.mainClock.advanceTimeBy(animDuration / 2L)
+        rule.waitForIdle()
+
+        assertEquals(150, testModifier.width)
+        assertEquals(150, testModifier.height)
+
+        // Move container, this should cause a re-attach in `animateContentSize` node, after this,
+        // if we let the animation run until it finishes, the final size should match the expected
+        // size.
+        // Note that this test intentionally doesn't cover the behavior of the remaining animation
+        // as this change does not address that.
+        isAtContainerA.value = !isAtContainerA.value
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertEquals(largeSizePx, testModifier.width)
+        assertEquals(largeSizePx, testModifier.height)
+    }
 }
 
 internal class TestModifier : LayoutModifier {
     var width: Int = 0
     var height: Int = 0
+    var lookaheadSize: IntSize? = null
+        private set
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
+        if (isLookingAhead) lookaheadSize = IntSize(placeable.width, placeable.height)
         width = placeable.width
         height = placeable.height
         return layout(width, height) {

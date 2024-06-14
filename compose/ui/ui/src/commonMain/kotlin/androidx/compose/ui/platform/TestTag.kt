@@ -18,6 +18,8 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -28,8 +30,38 @@ import androidx.compose.ui.semantics.testTag
  * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
  */
 @Stable
-fun Modifier.testTag(tag: String) = semantics(
-    properties = {
+fun Modifier.testTag(tag: String) = this then TestTagElement(tag)
+
+private class TestTagElement(private val tag: String) :
+    ModifierNodeElement<TestTagNode>() {
+
+    override fun create(): TestTagNode {
+        return TestTagNode(tag)
+    }
+
+    override fun update(node: TestTagNode) {
+        node.tag = tag
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "testTag"
+        properties["tag"] = tag
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TestTagElement) return false
+
+        return tag == other.tag
+    }
+
+    override fun hashCode(): Int {
+        return tag.hashCode()
+    }
+}
+
+private class TestTagNode(var tag: String) : Modifier.Node(), SemanticsModifierNode {
+    override fun SemanticsPropertyReceiver.applySemantics() {
         testTag = tag
     }
-)
+}

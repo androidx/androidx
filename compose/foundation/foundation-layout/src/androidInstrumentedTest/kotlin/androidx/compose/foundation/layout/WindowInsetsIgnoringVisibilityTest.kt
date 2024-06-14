@@ -55,6 +55,9 @@ class WindowInsetsIgnoringVisibilityTest {
     @After
     fun teardown() {
         WindowInsetsHolder.setUseTestInsets(false)
+        rule.runOnUiThread {
+            rule.activity.finish()
+        }
     }
 
     @Test

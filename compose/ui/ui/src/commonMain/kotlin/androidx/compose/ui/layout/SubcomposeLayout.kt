@@ -34,6 +34,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
@@ -42,8 +43,11 @@ import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLo
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.createSubcomposition
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
@@ -255,6 +259,18 @@ class SubcomposeLayoutState(
          * @param constraints Constraints to measure this placeable with.
          */
         fun premeasure(index: Int, constraints: Constraints) {}
+
+        /**
+         * Conditionally executes [block] for each [Modifier.Node] of this Composition that is a
+         * [TraversableNode] with a matching [key].
+         *
+         * See [androidx.compose.ui.node.traverseDescendants] for the complete semantics of this
+         * function.
+         */
+        fun traverseDescendants(
+            key: Any?,
+            block: (TraversableNode) -> TraverseDescendantsAction
+        ) {}
     }
 }
 
@@ -410,7 +426,7 @@ internal class LayoutNodeSubcompositionsState(
     fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable> {
         makeSureStateIsConsistent()
         val layoutState = root.layoutState
-        check(
+        checkPrecondition(
             layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut ||
                 layoutState == LayoutState.LookaheadMeasuring ||
                 layoutState == LayoutState.LookaheadLayingOut
@@ -422,7 +438,7 @@ internal class LayoutNodeSubcompositionsState(
             val precomposed = precomposeMap.remove(slotId)
             if (precomposed != null) {
                 @Suppress("ExceptionMessage")
-                check(precomposedCount > 0)
+                checkPrecondition(precomposedCount > 0)
                 precomposedCount--
                 precomposed
             } else {
@@ -813,6 +829,13 @@ internal class LayoutNodeSubcompositionsState(
                     }
                 }
             }
+
+            override fun traverseDescendants(
+                key: Any?,
+                block: (TraversableNode) -> TraverseDescendantsAction
+            ) {
+                precomposeMap[slotId]?.nodes?.head?.traverseDescendants(key, block)
+            }
         }
     }
 
@@ -875,6 +898,7 @@ internal class LayoutNodeSubcompositionsState(
             width: Int,
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
+            rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
         ): MeasureResult {
             checkMeasuredSize(width, height)
@@ -885,6 +909,8 @@ internal class LayoutNodeSubcompositionsState(
                     get() = height
                 override val alignmentLines: Map<AlignmentLine, Int>
                     get() = alignmentLines
+                override val rulers: (RulerScope.() -> Unit)?
+                    get() = rulers
 
                 override fun placeChildren() {
                     if (isLookingAhead) {

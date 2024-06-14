@@ -259,6 +259,7 @@ sealed interface LazyStaggeredGridScope {
      *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
      *  item will be used as a key instead.
      *  Using the same key for multiple items in the staggered grid is not allowed.
+     *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
      *
      *  When you specify the key the scroll position will be maintained based on the key, which
      *  means if you add/remove items before the current visible item the item with the given key
@@ -285,6 +286,7 @@ sealed interface LazyStaggeredGridScope {
      *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
      *  item will be used as a key instead.
      *  Using the same key for multiple items in the staggered grid is not allowed.
+     *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
      *
      *  When you specify the key the scroll position will be maintained based on the key, which
      *  means if you add/remove items before the current visible item the item with the given key
@@ -313,6 +315,7 @@ sealed interface LazyStaggeredGridScope {
  *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
  *  item will be used as a key instead.
  *  Using the same key for multiple items in the staggered grid is not allowed.
+ *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
  *
  *  When you specify the key the scroll position will be maintained based on the key, which
  *  means if you add/remove items before the current visible item the item with the given key
@@ -352,6 +355,7 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
  *  item will be used as a key instead.
  *  Using the same key for multiple items in the staggered grid is not allowed.
+ *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
  *
  *  When you specify the key the scroll position will be maintained based on the key, which
  *  means if you add/remove items before the current visible item the item with the given key
@@ -391,6 +395,7 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
  *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
  *  item will be used as a key instead.
  *  Using the same key for multiple items in the staggered grid is not allowed.
+ *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
  *
  *  When you specify the key the scroll position will be maintained based on the key, which
  *  means if you add/remove items before the current visible item the item with the given key
@@ -430,6 +435,7 @@ inline fun <T> LazyStaggeredGridScope.items(
  *  MUST be saveable via Bundle on Android. If set to null (by default), the position of the
  *  item will be used as a key instead.
  *  Using the same key for multiple items in the staggered grid is not allowed.
+ *  This can be overridden by calling [LazyStaggeredGridState.requestScrollToItem].
  *
  *  When you specify the key the scroll position will be maintained based on the key, which
  *  means if you add/remove items before the current visible item the item with the given key

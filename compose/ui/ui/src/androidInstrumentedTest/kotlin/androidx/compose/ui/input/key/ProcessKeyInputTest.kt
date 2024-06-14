@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.input.key
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -39,7 +38,6 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,44 +49,45 @@ class ProcessKeyInputTest {
     val rule = createComposeRule()
 
     @Test
-    fun noRootFocusTarget_throwsException() {
+    fun noFocusTarget_doesNotTriggerOnKeyEvent() {
         // Arrange.
-        rule.setContent {
-            Box(modifier = Modifier.onKeyEvent { false })
+        var receivedKeyEvent: KeyEvent? = null
+        rule.setFocusableContent {
+            Box(
+                Modifier.onKeyEvent {
+                    receivedKeyEvent = it
+                    true
+                }
+            )
         }
 
         // Act.
-        assertFailsWith<IllegalStateException> {
-            rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
-        }
+        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
+
+        // Assert.
+        rule.runOnIdle { assertThat(receivedKeyEvent).isNull() }
     }
 
     @Test
-    fun noFocusTarget_throwsException() {
+    fun focusTargetNotFocused_doesNotTriggerOnKeyEvent() {
         // Arrange.
+        var receivedKeyEvent: KeyEvent? = null
         rule.setFocusableContent {
-            Box(modifier = Modifier.onKeyEvent { true })
+            Box(
+                Modifier
+                    .focusTarget()
+                    .onKeyEvent {
+                        receivedKeyEvent = it
+                        true
+                    }
+            )
         }
 
         // Act.
-        assertFailsWith<IllegalStateException> {
-            rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
-        }
-    }
+        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
 
-    @Test
-    fun focusTargetNotFocused_throwsException() {
-        // Arrange.
-        rule.setFocusableContent {
-            Box(modifier = Modifier
-                .focusTarget()
-                .onKeyEvent { true })
-        }
-
-        // Act.
-        assertFailsWith<IllegalStateException> {
-            rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
-        }
+        // Assert.
+        rule.runOnIdle { assertThat(receivedKeyEvent).isNull() }
     }
 
     @Test
@@ -681,7 +680,10 @@ class ProcessKeyInputTest {
      * The [KeyEvent] is usually created by the system. This function creates an instance of
      * [KeyEvent] that can be used in tests.
      */
-    private fun keyEvent(keycode: Int, keyEventType: KeyEventType): KeyEvent {
+    private fun keyEvent(
+        @Suppress("SameParameterValue") keycode: Int,
+        keyEventType: KeyEventType
+    ): KeyEvent {
         val action = when (keyEventType) {
             KeyDown -> ACTION_DOWN
             KeyUp -> ACTION_UP

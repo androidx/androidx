@@ -23,6 +23,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -49,12 +50,14 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -73,6 +76,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -98,7 +102,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -178,7 +182,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -247,7 +251,7 @@ class AnimatedContentTest {
         var contentAlignment by mutableStateOf(Alignment.TopStart)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -371,7 +375,7 @@ class AnimatedContentTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 @Suppress("UpdateTransitionLabel")
-                val rootTransition = updateTransition(transitionState)
+                val rootTransition = rememberTransition(transitionState)
                 rootTransition.AnimatedContent(
                     transitionSpec = {
                         if (true isTransitioningTo false) {
@@ -924,6 +928,198 @@ class AnimatedContentTest {
 
         assertTrue(box1Disposed)
         assertTrue(box2EnterFinished)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun AnimatedContentLookaheadTest() {
+        // Test that AnimatedContent's lookahead size is its target content's lookahead size.
+        // Also test that the lookahead placement for content is correct.
+        val size1 = 400
+        val size2 = 20
+        val transitionState = MutableTransitionState(true)
+        var playTimeMillis by mutableStateOf(0)
+        val testModifier = TestModifier()
+        var lookaheadPosition: Offset? = null
+        var approachPosition: Offset? = null
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Box(testModifier) {
+                        val transition = rememberTransition(transitionState)
+                        playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
+                        transition.AnimatedContent(
+                            transitionSpec = {
+                                if (true isTransitioningTo false) {
+                                    fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
+                                        tween(durationMillis = 80, easing = LinearEasing)
+                                    }
+                                } else {
+                                    fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
+                                        tween(durationMillis = 80, easing = LinearEasing)
+                                    }
+                                }
+                            },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (it) {
+                                Box(modifier = Modifier.size(size = size1.dp))
+                            } else {
+                                Box(modifier = Modifier
+                                    .layout { m, c ->
+                                        m
+                                            .measure(c)
+                                            .run {
+                                                layout(width, height) {
+                                                    if (isLookingAhead) {
+                                                        with(this@LookaheadScope) {
+                                                            lookaheadPosition =
+                                                                lookaheadScopeCoordinates
+                                                                    .localLookaheadPositionOf(
+                                                                        coordinates!!
+                                                                    )
+                                                        }
+                                                    } else {
+                                                        approachPosition = lookaheadScopeCoordinates
+                                                            .localPositionOf(
+                                                                coordinates!!,
+                                                                Offset.Zero
+                                                            )
+                                                    }
+                                                    place(0, 0)
+                                                }
+                                            }
+                                    }
+                                    .size(size = size2.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertTrue(transitionState.targetState)
+            assertEquals(IntSize(size1, size1), testModifier.lookaheadSize)
+            transitionState.targetState = false
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Transition from item1 to item2 in 320ms, animating to full width in the first 160ms
+        // then full height in the next 160ms
+        while (transitionState.currentState != transitionState.targetState) {
+            rule.runOnIdle {
+                assertEquals(IntSize(size2, size2), testModifier.lookaheadSize)
+                assertNotNull(approachPosition)
+                assertNotNull(lookaheadPosition)
+                assertOffsetEquals(Offset(0f, 0f), lookaheadPosition!!)
+            }
+            rule.mainClock.advanceTimeByFrame()
+        }
+        rule.waitForIdle()
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testTargetChangeLookaheadPlacement() {
+        var lookaheadPosition1: Offset? = null
+        var lookaheadPosition2: Offset? = null
+        val transitionState = MutableTransitionState(true)
+        var playTimeMillis by mutableStateOf(0)
+        rule.setContent {
+            LookaheadScope {
+                val transition = rememberTransition(transitionState)
+                playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
+                transition.AnimatedContent(
+                    contentAlignment = Alignment.Center,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() using null }
+                ) {
+                    if (it) {
+                        Box(
+                            Modifier
+                                .layout { measurable, constraints ->
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            layout(width, height) {
+                                                if (isLookingAhead) {
+                                                    lookaheadPosition1 = lookaheadScopeCoordinates
+                                                        .localLookaheadPositionOf(coordinates!!)
+                                                }
+                                            }
+                                        }
+                                }
+                                .fillMaxSize()
+                                .background(Color.Blue)
+                        )
+                    } else {
+                        Box(
+                            Modifier
+                                .layout { measurable, constraints ->
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            layout(width, height) {
+                                                if (isLookingAhead) {
+                                                    lookaheadPosition2 = lookaheadScopeCoordinates
+                                                        .localLookaheadPositionOf(coordinates!!)
+                                                }
+                                            }
+                                        }
+                                }
+                                .size(100.dp)
+                                .background(Color.Red)
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertTrue(transitionState.targetState)
+            assertTrue(transitionState.currentState)
+            transitionState.targetState = false
+        }
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            assertNotNull(lookaheadPosition1)
+            assertOffsetEquals(Offset(0f, 0f), lookaheadPosition1!!)
+            transitionState.targetState = false
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Transition from item1 to item2 in 320ms, animating to full width in the first 160ms
+        // then full height in the next 160ms
+        repeat(3) {
+            assertNotEquals(transitionState.currentState, transitionState.targetState)
+            rule.runOnIdle {
+                assertNotNull(lookaheadPosition2)
+                assertOffsetEquals(Offset(0f, 0f), lookaheadPosition2!!)
+            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        // Check that the lookahead position for the outgoing content changed
+        assertNotEquals(0f, lookaheadPosition1!!.x)
+        assertNotEquals(0f, lookaheadPosition1!!.y)
+        // Interruption during animation
+        transitionState.targetState = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertNotNull(lookaheadPosition1)
+            // Check that after the target state change, the new incoming content has
+            // a 0, 0 lookahead offset.
+            assertOffsetEquals(Offset(0f, 0f), lookaheadPosition1!!)
+        }
+    }
+
+    private fun assertOffsetEquals(expected: Offset, actual: Offset) {
+        assertEquals(expected.x, actual.x, 0.00001f)
+        assertEquals(expected.y, actual.y, 0.00001f)
     }
 
     @OptIn(InternalAnimationApi::class)

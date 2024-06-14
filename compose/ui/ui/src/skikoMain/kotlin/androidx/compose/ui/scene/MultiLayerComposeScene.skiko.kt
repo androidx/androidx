@@ -28,14 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyInputElement
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
@@ -147,9 +144,9 @@ private class MultiLayerComposeSceneImpl(
             forEachLayer { it.owner.size = value }
         }
 
-    private val _focusManager = ComposeSceneFocusManagerImpl()
-    override val focusManager: ComposeSceneFocusManager
-        get() = _focusManager
+    override val focusManager: ComposeSceneFocusManager = ComposeSceneFocusManager(
+        focusOwner = { focusedOwner.focusOwner }
+    )
 
     private val layers = mutableListOf<AttachedComposeSceneLayer>()
     private val _layersCopyCache = CopiedList {
@@ -247,7 +244,7 @@ private class MultiLayerComposeSceneImpl(
     }
 
     override fun processKeyEvent(keyEvent: KeyEvent): Boolean =
-        focusedOwner.onKeyEvent(keyEvent)
+        focusedLayer?.onKeyEvent(keyEvent) ?: mainOwner.onKeyEvent(keyEvent)
 
     override fun measureAndLayout() {
         forEachOwner { it.measureAndLayout() }
@@ -401,11 +398,6 @@ private class MultiLayerComposeSceneImpl(
     )
 
     private fun onOwnerAppended(owner: RootNodeOwner) {
-        if (_focusManager.isFocused) {
-            owner.focusOwner.takeFocus()
-        } else {
-            owner.focusOwner.releaseFocus()
-        }
         semanticsOwnerListener?.onSemanticsOwnerAppended(owner.semanticsOwner)
     }
 
@@ -457,25 +449,6 @@ private class MultiLayerComposeSceneImpl(
 
             // Enter event to new focusedOwner will be sent via synthetic event on next frame
         }
-    }
-
-    private inner class ComposeSceneFocusManagerImpl : ComposeSceneFocusManager {
-        private val focusOwner get() = focusedOwner.focusOwner
-        var isFocused = true
-            private set
-
-        override fun requestFocus() {
-            focusOwner.takeFocus()
-            isFocused = true
-        }
-        override fun releaseFocus() {
-            forEachOwner { it.focusOwner.releaseFocus() }
-            isFocused = false
-        }
-        override fun getFocusRect(): Rect? = focusOwner.getFocusRect()
-        override fun clearFocus(force: Boolean) = focusOwner.clearFocus(force)
-        override fun moveFocus(focusDirection: FocusDirection): Boolean =
-            focusOwner.moveFocus(focusDirection)
     }
 
     private inner class AttachedComposeSceneLayer(
@@ -550,7 +523,9 @@ private class MultiLayerComposeSceneImpl(
                     )
                 }
             } ?: Modifier
-        private var keyInput: Modifier by mutableStateOf(Modifier)
+
+        private var onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null
+        private var onKeyEvent: ((KeyEvent) -> Boolean)? = null
 
         init {
             attachLayer(this)
@@ -569,14 +544,14 @@ private class MultiLayerComposeSceneImpl(
             onPreviewKeyEvent: ((KeyEvent) -> Boolean)?,
             onKeyEvent: ((KeyEvent) -> Boolean)?,
         ) {
-            keyInput = if (onPreviewKeyEvent != null || onKeyEvent != null) {
-                Modifier.then(KeyInputElement(
-                    onKeyEvent = onKeyEvent,
-                    onPreKeyEvent = onPreviewKeyEvent
-                ))
-            } else {
-                Modifier
-            }
+            this.onPreviewKeyEvent = onPreviewKeyEvent
+            this.onKeyEvent = onKeyEvent
+        }
+
+        fun onKeyEvent(keyEvent: KeyEvent): Boolean {
+            return onPreviewKeyEvent?.invoke(keyEvent) == true ||
+                owner.onKeyEvent(keyEvent) ||
+                onKeyEvent?.invoke(keyEvent) == true
         }
 
         override fun setOutsidePointerEventListener(
@@ -599,7 +574,7 @@ private class MultiLayerComposeSceneImpl(
                     null
                 }
             ) {
-                owner.setRootModifier(background then keyInput)
+                owner.setRootModifier(background)
                 content()
             }
         }

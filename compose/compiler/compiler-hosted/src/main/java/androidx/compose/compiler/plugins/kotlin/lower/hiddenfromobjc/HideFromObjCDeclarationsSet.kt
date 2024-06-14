@@ -18,10 +18,9 @@ package androidx.compose.compiler.plugins.kotlin.lower.hiddenfromobjc
 
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 /**
  * Represents a set of declarations that should have
@@ -38,36 +37,24 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
  * and [AddHiddenFromObjCSerializationPlugin].
  * Adding the annotation in IR - [AddHiddenFromObjCLowering] will likely be enough.
  */
-interface HideFromObjCDeclarationsSet {
-
-    fun shouldHide(descriptor: DeclarationDescriptor): Boolean = contains(descriptor)
-    fun addToHide(function: IrFunction)
-    fun addToHide(property: IrProperty)
-
-    operator fun contains(item: DeclarationDescriptor): Boolean
-
-    companion object {
-        fun create(): HideFromObjCDeclarationsSet = HideFromObjCDeclarationsSetImpl()
-    }
-}
-
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-private class HideFromObjCDeclarationsSetImpl : HideFromObjCDeclarationsSet {
+class HideFromObjCDeclarationsSet {
 
-    private val set = mutableSetOf<FqName>()
+    private val declarationsSet = mutableSetOf<DeclarationDescriptor>()
 
-    override fun shouldHide(descriptor: DeclarationDescriptor): Boolean =
-        set.contains(descriptor.fqNameSafe)
-
-    override fun addToHide(function: IrFunction) {
-        set.add(function.descriptor.fqNameSafe)
+    fun add(function: IrFunction) {
+        declarationsSet.add(function.descriptor)
     }
 
-    override fun addToHide(property: IrProperty) {
-        set.add(property.descriptor.fqNameSafe)
+    fun add(property: IrProperty) {
+        declarationsSet.add(property.descriptor)
     }
 
-    override fun contains(item: DeclarationDescriptor): Boolean {
-        return set.contains(item.fqNameSafe)
+    fun add(cls: IrClass) {
+        declarationsSet.add(cls.descriptor)
+    }
+
+    operator fun contains(descriptor: DeclarationDescriptor): Boolean {
+        return declarationsSet.contains(descriptor)
     }
 }

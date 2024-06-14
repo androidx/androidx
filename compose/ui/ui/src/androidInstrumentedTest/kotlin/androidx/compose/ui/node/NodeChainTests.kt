@@ -50,8 +50,8 @@ class NodeChainTests {
         val a = AttachedStateDebuggerNode()
         val b = AttachedStateDebuggerNode()
         chainTester()
-            .withModifierNodes(a, b)
             .attach()
+            .withModifierNodes(a, b)
             .validateAttached()
 
         check(a.localIsAttached)
@@ -67,8 +67,8 @@ class NodeChainTests {
         val c = object : NodeModifierElementNode(AttachedStateDebuggerNode()) {}
 
         chainTester()
-            .withModifiers(a)
             .attach()
+            .withModifiers(a)
             .validateAttached()
             .withModifiers(c, a, b)
             .validateAttached()
@@ -196,8 +196,8 @@ class NodeChainTests {
         val a = modifierA()
         val b = modifierB()
         val modifierInfo = chainTester()
-            .withModifiers(a, b)
             .attach()
+            .withModifiers(a, b)
             .chain
             .getModifierInfo()
 

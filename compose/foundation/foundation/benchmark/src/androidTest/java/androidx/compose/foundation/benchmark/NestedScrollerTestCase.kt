@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -50,8 +50,8 @@ class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     @Composable
     override fun MeasuredContent() {
         scrollState = rememberScrollState()
-        LazyColumn {
-            items(5) { index ->
+        Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+            repeat(5) { index ->
                 SquareRow(index == 0)
             }
         }
@@ -74,7 +74,10 @@ class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(Modifier.size(350f.toDp()).background(color = color))
+                        Box(
+                            Modifier
+                                .size(350f.toDp())
+                                .background(color = color))
                         Text(
                             text = "Some title",
                             color = Color.Black,

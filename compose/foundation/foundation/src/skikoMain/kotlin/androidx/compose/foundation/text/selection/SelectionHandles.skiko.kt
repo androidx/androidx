@@ -19,30 +19,22 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.Handle
-import androidx.compose.foundation.text.selection.HandleReferencePoint.BottomMiddle
-import androidx.compose.foundation.text.selection.HandleReferencePoint.TopLeft
-import androidx.compose.foundation.text.selection.HandleReferencePoint.TopMiddle
-import androidx.compose.foundation.text.selection.HandleReferencePoint.TopRight
+import androidx.compose.foundation.text.textFieldPointer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.geometry.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 
 /**
@@ -60,12 +52,13 @@ private val RADIUS = 6.dp
  */
 private val THICKNESS = 2.dp
 
-
 /**
- * [SelectionHandle] is used for drawing selection handlers on all non-android platforms if a certain set of touch-based events happened.
- * The logic of when that happened is out of scope of [SelectionHandle], this is something that basically implementations of Modifier.textFieldPointer
- * are in charge of. De-facto on any platform, these handles won't be shown on mouse events. That said, one can see them while selecting text on
- * iOS and mobile web targets.
+ * [SelectionHandle] is used for drawing selection handlers on all non-android platforms
+ * if a certain set of touch-based events happened.
+ * The logic of when that happened is out of scope of [SelectionHandle], this is something that
+ * basically implementations of [Modifier.textFieldPointer] are in charge of.
+ * De-facto on any platform, these handles won't be shown on mouse events.
+ * That said, one can see them while selecting text on iOS and mobile web targets.
  *
  * [SelectionHandle] was initially designed as iOS entity but later was commonized as is.
  */
@@ -75,15 +68,25 @@ internal actual fun SelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize, // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1266
     lineHeight: Float,
     modifier: Modifier,
 ) {
-    val isLeft = isLeft(isStartHandle, direction, handlesCrossed)
+    val isLeft = isLeftSelectionHandle(isStartHandle, direction, handlesCrossed)
     // The left selection handle's top right is placed at the given position, and vice versa.
-    val handleReferencePoint = if (isLeft) BottomMiddle else TopMiddle
-    val offset = if (isLeft) Offset.Zero else Offset(0f, -lineHeight)
+    val handleReferencePoint = if (isLeft) Alignment.BottomCenter else Alignment.TopCenter
 
-    HandlePopup(positionProvider = offsetProvider, handleReferencePoint = handleReferencePoint, offset = offset) {
+    HandlePopup(
+        positionProvider = object : OffsetProvider {
+            override fun provide(): Offset {
+                var offset = offsetProvider.provide()
+                if (offset.isSpecified && !isLeft) {
+                    offset += Offset(0f, -lineHeight)
+                }
+                return offset
+            }
+        },
+        handleReferencePoint = handleReferencePoint) {
         SelectionHandleIcon(
             modifier = modifier.semantics {
                 val position = offsetProvider.provide()
@@ -159,118 +162,16 @@ internal fun Modifier.drawSelectionHandle(
 
 @Composable
 internal fun HandlePopup(
-    offset: Offset,
     positionProvider: OffsetProvider,
-    handleReferencePoint: HandleReferencePoint,
+    handleReferencePoint: Alignment,
     content: @Composable () -> Unit
 ) {
-    val popupPositionProvider = remember(handleReferencePoint, positionProvider, offset) {
-        HandlePositionProvider(handleReferencePoint, positionProvider, offset)
+    val popupPositionProvider = remember(handleReferencePoint, positionProvider) {
+        HandlePositionProvider(handleReferencePoint, positionProvider)
     }
     Popup(
         popupPositionProvider = popupPositionProvider,
         properties = PopupProperties(clippingEnabled = false),
         content = content,
     )
-}
-
-// TODO: Move everything below into commonMain source set (remove copy-paste from AndroidSelectionHandles.android.kt)
-
-/**
- * The enum that specifies how a selection/cursor handle is placed to its given position.
- * When this value is [TopLeft], the top left corner of the handle will be placed at the
- * given position.
- * When this value is [TopRight], the top right corner of the handle will be placed at the
- * given position.
- * When this value is [TopMiddle], the handle top edge's middle point will be placed at the given
- * position.
- */
-internal enum class HandleReferencePoint {
-    TopLeft,
-    TopRight,
-    TopMiddle,
-    BottomMiddle,
-}
-
-/**
- * This [PopupPositionProvider] for [HandlePopup]. It will position the selection handle
- * to the result of [positionProvider] in its anchor layout.
- *
- * @see HandleReferencePoint
- */
-internal class HandlePositionProvider(
-    private val handleReferencePoint: HandleReferencePoint,
-    private val positionProvider: OffsetProvider,
-    private val offset: Offset,
-) : PopupPositionProvider {
-
-    /**
-     * When Handle disappears, it starts reporting its position as [Offset.Unspecified]. Normally,
-     * Popup is dismissed immediately when its position becomes unspecified, but for one frame a
-     * position update might be requested by soon-to-be-destroyed Popup. In this case, report the
-     * last known position as there are no more updates. If the first ever position is provided as
-     * unspecified, start with [Offset.Zero] default.
-     */
-    private var prevPosition: Offset = Offset.Zero
-
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        val position = positionProvider.provide().takeOrElse { prevPosition } + offset
-        prevPosition = position
-
-        // We want the cursor to point to the position,
-        // so adjust the x-axis based on where the handle is pointing.
-        val xAdjustment = when (handleReferencePoint) {
-            TopLeft -> 0
-            TopMiddle, BottomMiddle -> popupContentSize.width / 2
-            TopRight -> popupContentSize.width
-        }
-        val yAdjustment = when (handleReferencePoint) {
-            TopLeft, TopMiddle, TopRight -> 0
-            BottomMiddle -> popupContentSize.height
-        }
-
-        val offset = position.round()
-        val x = anchorBounds.left + offset.x - xAdjustment
-        val y = anchorBounds.top + offset.y - yAdjustment
-        return IntOffset(x, y)
-    }
-}
-
-/**
- * Computes whether the handle's appearance should be left-pointing or right-pointing.
- */
-private fun isLeft(
-    isStartHandle: Boolean,
-    direction: ResolvedTextDirection,
-    handlesCrossed: Boolean
-): Boolean {
-    return if (isStartHandle) {
-        isHandleLtrDirection(direction, handlesCrossed)
-    } else {
-        !isHandleLtrDirection(direction, handlesCrossed)
-    }
-}
-
-/**
- * This method is to check if the selection handles should use the natural Ltr pointing
- * direction.
- * If the context is Ltr and the handles are not crossed, or if the context is Rtl and the handles
- * are crossed, return true.
- *
- * In Ltr context, the start handle should point to the left, and the end handle should point to
- * the right. However, in Rtl context or when handles are crossed, the start handle should point to
- * the right, and the end handle should point to left.
- */
-/*@VisibleForTesting*/
-private fun isHandleLtrDirection(
-    direction: ResolvedTextDirection,
-    areHandlesCrossed: Boolean
-): Boolean {
-    return direction == ResolvedTextDirection.Ltr && !areHandlesCrossed ||
-        direction == ResolvedTextDirection.Rtl && areHandlesCrossed
 }

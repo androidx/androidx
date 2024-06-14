@@ -254,3 +254,11 @@ internal fun getRtlCharacterBoundariesForTestFont(
         }
     }.toTypedArray()
 }
+
+internal fun CharSequence.rangeOf(ch: Char): TextRange {
+    return rangeOf(ch, ch)
+}
+
+internal fun CharSequence.rangeOf(from: Char, to: Char): TextRange {
+    return TextRange(indexOf(from), indexOf(to) + 1)
+}

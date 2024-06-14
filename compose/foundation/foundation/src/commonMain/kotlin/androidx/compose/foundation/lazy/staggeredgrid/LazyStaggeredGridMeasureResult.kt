@@ -16,12 +16,17 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Information about layout state of individual item in lazy staggered grid.
@@ -137,13 +142,16 @@ internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
 
 internal class LazyStaggeredGridMeasureResult(
     val firstVisibleItemIndices: IntArray,
-    val firstVisibleItemScrollOffsets: IntArray,
+    var firstVisibleItemScrollOffsets: IntArray,
     var consumedScroll: Float,
     val measureResult: MeasureResult,
     var canScrollForward: Boolean,
     val isVertical: Boolean,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    val slots: LazyStaggeredGridSlots,
+    val spanProvider: LazyStaggeredGridSpanProvider,
+    val density: Density,
     override val totalItemsCount: Int,
     override val visibleItemsInfo: List<LazyStaggeredGridMeasuredItem>,
     override val viewportSize: IntSize,
@@ -151,7 +159,8 @@ internal class LazyStaggeredGridMeasureResult(
     override val viewportEndOffset: Int,
     override val beforeContentPadding: Int,
     override val afterContentPadding: Int,
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
+    val coroutineScope: CoroutineScope
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -192,24 +201,24 @@ internal class LazyStaggeredGridMeasureResult(
                 // not visible anymore, and with 0 to know when the firstVisibleItemIndices will
                 // change. when we have a beforeContentPadding those values will not be the same.
                 val canApply = if (delta < 0) { // scrolling forward
-                    it.mainAxisOffset + it.sizeWithSpacings - viewportStartOffset > -delta
+                    it.mainAxisOffset + it.mainAxisSizeWithSpacings - viewportStartOffset > -delta
                 } else { // scrolling backward
                     viewportStartOffset - it.mainAxisOffset > delta
                 }
                 if (!canApply) return false
             }
             // item is partially visible at the bottom.
-            if (it.mainAxisOffset + it.sizeWithSpacings >= viewportEndOffset) {
+            if (it.mainAxisOffset + it.mainAxisSizeWithSpacings >= viewportEndOffset) {
                 val canApply = if (delta < 0) { // scrolling forward
-                    it.mainAxisOffset + it.sizeWithSpacings - viewportEndOffset > -delta
+                    it.mainAxisOffset + it.mainAxisSizeWithSpacings - viewportEndOffset > -delta
                 } else { // scrolling backward
                     viewportEndOffset - it.mainAxisOffset > delta
                 }
                 if (!canApply) return false
             }
         }
-        repeat(firstVisibleItemScrollOffsets.size) { index ->
-            firstVisibleItemScrollOffsets[index] -= delta
+        firstVisibleItemScrollOffsets = IntArray(firstVisibleItemScrollOffsets.size) { index ->
+            firstVisibleItemScrollOffsets[index] - delta
         }
         visibleItemsInfo.fastForEach {
             it.applyScrollDelta(delta)
@@ -223,9 +232,12 @@ internal class LazyStaggeredGridMeasureResult(
     }
 }
 
+private val EmptyArray = IntArray(0)
+
+@OptIn(ExperimentalFoundationApi::class)
 internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
-    firstVisibleItemIndices = IntArray(0),
-    firstVisibleItemScrollOffsets = IntArray(0),
+    firstVisibleItemIndices = EmptyArray,
+    firstVisibleItemScrollOffsets = EmptyArray,
     consumedScroll = 0f,
     measureResult = object : MeasureResult {
         override val width: Int = 0
@@ -244,5 +256,9 @@ internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
     viewportEndOffset = 0,
     beforeContentPadding = 0,
     afterContentPadding = 0,
-    mainAxisItemSpacing = 0
+    mainAxisItemSpacing = 0,
+    slots = LazyStaggeredGridSlots(EmptyArray, EmptyArray),
+    spanProvider = LazyStaggeredGridSpanProvider(MutableIntervalList()),
+    density = Density(1f),
+    coroutineScope = CoroutineScope(EmptyCoroutineContext)
 )

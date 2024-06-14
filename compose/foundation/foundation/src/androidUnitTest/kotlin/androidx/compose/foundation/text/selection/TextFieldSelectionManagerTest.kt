@@ -17,9 +17,8 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.HandleState
-import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
@@ -73,7 +72,7 @@ class TextFieldSelectionManagerTest {
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
     private val spyLambda = spy(lambda)
-    private lateinit var state: TextFieldState
+    private lateinit var state: LegacyTextFieldState
 
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
@@ -90,7 +89,6 @@ class TextFieldSelectionManagerTest {
     private val hapticFeedback = mock<HapticFeedback>()
     private val focusRequester = mock<FocusRequester>()
 
-    @OptIn(InternalFoundationTextApi::class)
     @Before
     fun setup() {
         manager = TextFieldSelectionManager()
@@ -153,7 +151,7 @@ class TextFieldSelectionManagerTest {
             on { this.text }.thenReturn(textAnnotatedString)
         }
 
-        state = TextFieldState(
+        state = LegacyTextFieldState(
             textDelegate = textDelegate,
             recomposeScope = mock(),
             keyboardController = null
@@ -177,7 +175,7 @@ class TextFieldSelectionManagerTest {
 
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
-        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(fakeTextRange)
         verify(
@@ -202,7 +200,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
         // Assert
-        assertThat(state.handleState).isEqualTo(HandleState.Cursor)
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
         verify(
@@ -223,6 +221,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
         manager.touchSelectionObserver.onDrag(dragDistance)
 
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isFalse()
         verify(
@@ -233,12 +232,20 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_touchSelectionObserver_onStop() {
+        whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
+
         manager.touchSelectionObserver.onStart(dragBeginPosition)
         manager.touchSelectionObserver.onDrag(dragDistance)
-
+        manager.value = value
         manager.touchSelectionObserver.onStop()
 
+        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isTrue()
+        verify(
+            hapticFeedback,
+            times(2)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test

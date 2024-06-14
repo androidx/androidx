@@ -16,13 +16,24 @@
 
 package androidx.compose.ui.platform
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 
-class AndroidUriHandler(private val context: Context) :
-    UriHandler {
+class AndroidUriHandler(private val context: Context) : UriHandler {
+
+    /**
+     * Open given URL in browser
+     *
+     * @throws IllegalArgumentException when given [uri] is invalid and/or can't be handled by the
+     * system
+     */
     override fun openUri(uri: String) {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+        } catch (e: ActivityNotFoundException) {
+            throw IllegalArgumentException("Can't open $uri.", e)
+        }
     }
 }

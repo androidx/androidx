@@ -210,7 +210,15 @@ interface TouchInjectionScope : InjectionScope {
      */
     fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
-        val position = (currentPosition(pointerId) ?: Offset.Zero) + delta
+        val currentPosition = currentPosition(pointerId) ?: Offset.Zero
+
+        val position = if (currentPosition.isValid() && delta.isValid()) {
+            currentPosition + delta
+        } else {
+            // Allows invalid position to still pass back through Compose (for testing)
+            Offset.Unspecified
+        }
+
         updatePointerTo(pointerId, position)
     }
 
@@ -226,15 +234,18 @@ interface TouchInjectionScope : InjectionScope {
 
     /**
      * Sends a move event [delayMillis] after the last sent event without updating any of the
-     * pointer positions.
+     * pointer positions, while adding the [historicalCoordinates] at the [relativeHistoricalTimes]
+     * to the move event. This corresponds to the scenario where a touch screen generates touch
+     * events quicker than can be dispatched and batches them together.
      *
-     * This overload supports gestures with multiple pointers.
+     * @sample androidx.compose.ui.test.samples.touchInputMultiTouchWithHistory
      *
      * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
      * the time the actual event is sent. For example, -10L means 10ms earlier.
      * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
      * space as [moveTo]. The outer list must have the same size as the number of pointers in the
-     * event, and each inner list must have the same size as [relativeHistoricalTimes].
+     * event, and each inner list must have the same size as [relativeHistoricalTimes]. The `i`th
+     * pointer is assigned the `i`th history, with the pointers sorted on ascending pointerId.
      * @param delayMillis The time between the last sent event and this event.
      * [eventPeriodMillis] by default.
      */
@@ -247,7 +258,9 @@ interface TouchInjectionScope : InjectionScope {
 
     /**
      * Sends a move event [delayMillis] after the last sent event without updating any of the
-     * pointer positions.
+     * pointer positions, while adding the [historicalCoordinates] at the [relativeHistoricalTimes]
+     * to the move event. This corresponds to the scenario where a touch screen generates touch
+     * events quicker than can be dispatched and batches them together.
      *
      * This overload is a convenience method for the common case where the gesture only has one
      * pointer.
@@ -456,7 +469,7 @@ fun TouchInjectionScope.swipe(
  */
 fun TouchInjectionScope.swipe(
     curve: (Long) -> Offset,
-    durationMillis: Long,
+    durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
     @OptIn(ExperimentalTestApi::class)
@@ -483,7 +496,7 @@ fun TouchInjectionScope.swipe(
 @ExperimentalTestApi
 fun TouchInjectionScope.multiTouchSwipe(
     curves: List<(Long) -> Offset>,
-    durationMillis: Long,
+    durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
     val startTime = 0L
@@ -637,7 +650,10 @@ fun TouchInjectionScope.swipeWithVelocity(
     }
 
     val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
-    swipe(pathFinder.generateFunction(), durationMillis)
+    val swipeFunction: (Long) -> Offset = {
+        pathFinder.calculateOffsetForTime(it)
+    }
+    swipe(swipeFunction, durationMillis)
 }
 
 /**

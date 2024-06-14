@@ -20,7 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout.Companion.CenterToCenter
+import androidx.compose.foundation.gestures.snapping.SnapPosition.Center
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -274,7 +274,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 1.5f * stepSize,
-                30000f
+                15000f
             )
         }
 
@@ -296,7 +296,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 -1.5f * stepSize,
-                30000f
+                15000f
             )
         }
 
@@ -393,15 +393,10 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         }
         rule.mainClock.advanceTimeByFrame()
 
-        // assert
-        val initialTargetOffset = snapLayoutInfoProvider.calculateApproachOffset(velocity)
-        Truth.assertThat(scrollOffset.first()).isWithin(0.5f)
-            .of(initialTargetOffset)
-
         // act and assert: next calculated offset is the first value emitted by
         // remainingScrollOffset this indicates the last snap step will start
         rule.mainClock.advanceTimeUntil {
-            scrollOffset.last() == snapLayoutInfoProvider.calculateSnappingOffset(10000f)
+            scrollOffset.last() == snapLayoutInfoProvider.calculateSnapOffset(10000f)
         }
         rule.mainClock.autoAdvance = true
 
@@ -469,7 +464,8 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
                 itemSize = it.sizeOnMainAxis(orientation = layoutInfo.orientation),
                 itemOffset = it.offsetOnMainAxis(orientation = layoutInfo.orientation),
                 itemIndex = it.index,
-                snapPositionInLayout = CenterToCenter
+                snapPosition = Center,
+                itemCount = layoutInfo.totalItemsCount
             )
             if (abs(distance) < minDistance) {
                 minDistance = abs(distance)

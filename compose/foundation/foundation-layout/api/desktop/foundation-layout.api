@@ -76,6 +76,7 @@ public final class androidx/compose/foundation/layout/AspectRatioKt {
 public final class androidx/compose/foundation/layout/BoxKt {
 	public static final fun Box (Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;I)V
 	public static final fun Box (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun maybeCachedBoxMeasurePolicy (Landroidx/compose/ui/Alignment;Z)Landroidx/compose/ui/layout/MeasurePolicy;
 	public static final fun rememberBoxMeasurePolicy (Landroidx/compose/ui/Alignment;ZLandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
 }
 
@@ -114,20 +115,117 @@ public final class androidx/compose/foundation/layout/ColumnScope$DefaultImpls {
 	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
+public final class androidx/compose/foundation/layout/ContextualFlowColumnOverflow : androidx/compose/foundation/layout/FlowLayoutOverflow {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/foundation/layout/ContextualFlowColumnOverflow$Companion;
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/compose/foundation/layout/ContextualFlowColumnOverflow$Companion {
+	public final fun expandIndicator (Lkotlin/jvm/functions/Function3;)Landroidx/compose/foundation/layout/ContextualFlowColumnOverflow;
+	public final fun expandOrCollapseIndicator--jt2gSs (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;IFLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/layout/ContextualFlowColumnOverflow;
+	public final fun getClip ()Landroidx/compose/foundation/layout/ContextualFlowColumnOverflow;
+	public final fun getVisible ()Landroidx/compose/foundation/layout/ContextualFlowColumnOverflow;
+}
+
+public abstract interface class androidx/compose/foundation/layout/ContextualFlowColumnOverflowScope : androidx/compose/foundation/layout/FlowColumnOverflowScope {
+}
+
+public abstract interface class androidx/compose/foundation/layout/ContextualFlowColumnScope : androidx/compose/foundation/layout/FlowColumnScope {
+	public abstract fun getIndexInLine ()I
+	public abstract fun getLineIndex ()I
+	public abstract fun getMaxHeightInLine-D9Ej5fM ()F
+	public abstract fun getMaxWidth-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/ContextualFlowLayoutKt {
+	public static final fun ContextualFlowColumn (ILandroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;IILandroidx/compose/foundation/layout/ContextualFlowColumnOverflow;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final fun ContextualFlowRow (ILandroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;IILandroidx/compose/foundation/layout/ContextualFlowRowOverflow;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/foundation/layout/ContextualFlowRowOverflow : androidx/compose/foundation/layout/FlowLayoutOverflow {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/foundation/layout/ContextualFlowRowOverflow$Companion;
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/compose/foundation/layout/ContextualFlowRowOverflow$Companion {
+	public final fun expandIndicator (Lkotlin/jvm/functions/Function3;)Landroidx/compose/foundation/layout/ContextualFlowRowOverflow;
+	public final fun expandOrCollapseIndicator--jt2gSs (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;IFLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/layout/ContextualFlowRowOverflow;
+	public final fun getClip ()Landroidx/compose/foundation/layout/ContextualFlowRowOverflow;
+	public final fun getVisible ()Landroidx/compose/foundation/layout/ContextualFlowRowOverflow;
+}
+
+public abstract interface class androidx/compose/foundation/layout/ContextualFlowRowOverflowScope : androidx/compose/foundation/layout/FlowRowOverflowScope {
+}
+
+public abstract interface class androidx/compose/foundation/layout/ContextualFlowRowScope : androidx/compose/foundation/layout/FlowRowScope {
+	public abstract fun getIndexInLine ()I
+	public abstract fun getLineIndex ()I
+	public abstract fun getMaxHeight-D9Ej5fM ()F
+	public abstract fun getMaxWidthInLine-D9Ej5fM ()F
+}
+
 public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalLayoutApi : java/lang/annotation/Annotation {
 }
 
+public final class androidx/compose/foundation/layout/FlowColumnOverflow : androidx/compose/foundation/layout/FlowLayoutOverflow {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/foundation/layout/FlowColumnOverflow$Companion;
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/compose/foundation/layout/FlowColumnOverflow$Companion {
+	public final fun expandIndicator (Lkotlin/jvm/functions/Function3;)Landroidx/compose/foundation/layout/FlowColumnOverflow;
+	public final fun expandOrCollapseIndicator--jt2gSs (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;IFLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/layout/FlowColumnOverflow;
+	public final fun getClip ()Landroidx/compose/foundation/layout/FlowColumnOverflow;
+	public final fun getVisible ()Landroidx/compose/foundation/layout/FlowColumnOverflow;
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlowColumnOverflowScope : androidx/compose/foundation/layout/FlowColumnScope {
+	public abstract fun getShownItemCount ()I
+	public abstract fun getTotalItemCount ()I
+}
+
 public abstract interface class androidx/compose/foundation/layout/FlowColumnScope : androidx/compose/foundation/layout/ColumnScope {
+	public abstract fun fillMaxColumnWidth (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static synthetic fun fillMaxColumnWidth$default (Landroidx/compose/foundation/layout/FlowColumnScope;Landroidx/compose/ui/Modifier;FILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
 public final class androidx/compose/foundation/layout/FlowLayoutKt {
-	public static final fun FlowColumn (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;ILkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun FlowRow (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;ILkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun FlowColumn (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;IILandroidx/compose/foundation/layout/FlowColumnOverflow;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun FlowRow (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;IILandroidx/compose/foundation/layout/FlowRowOverflow;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun columnMeasurementHelper (Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;ILandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
 	public static final fun rowMeasurementHelper (Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;ILandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
 }
 
+public abstract class androidx/compose/foundation/layout/FlowLayoutOverflow {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/compose/foundation/layout/FlowRowOverflow : androidx/compose/foundation/layout/FlowLayoutOverflow {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/foundation/layout/FlowRowOverflow$Companion;
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/FlowLayoutOverflow$OverflowType;IILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/compose/foundation/layout/FlowRowOverflow$Companion {
+	public final fun expandIndicator (Lkotlin/jvm/functions/Function3;)Landroidx/compose/foundation/layout/FlowRowOverflow;
+	public final fun expandOrCollapseIndicator--jt2gSs (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;IFLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/layout/FlowRowOverflow;
+	public final fun getClip ()Landroidx/compose/foundation/layout/FlowRowOverflow;
+	public final fun getVisible ()Landroidx/compose/foundation/layout/FlowRowOverflow;
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlowRowOverflowScope : androidx/compose/foundation/layout/FlowRowScope {
+	public abstract fun getShownItemCount ()I
+	public abstract fun getTotalItemCount ()I
+}
+
 public abstract interface class androidx/compose/foundation/layout/FlowRowScope : androidx/compose/foundation/layout/RowScope {
+	public abstract fun fillMaxRowHeight (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static synthetic fun fillMaxRowHeight$default (Landroidx/compose/foundation/layout/FlowRowScope;Landroidx/compose/ui/Modifier;FILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
 public final class androidx/compose/foundation/layout/IntrinsicKt {

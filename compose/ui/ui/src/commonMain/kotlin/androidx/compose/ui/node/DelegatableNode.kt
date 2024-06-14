@@ -19,6 +19,10 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -33,8 +37,8 @@ import androidx.compose.ui.unit.LayoutDirection
 interface DelegatableNode {
     /**
      * A reference of the [Modifier.Node] that holds this node's position in the node hierarchy. If
-     * the node is a delegate of another node, this will point to that node. Otherwise, this will
-     * point to itself.
+     * the node is a delegate of another node, this will point to the root delegating node that is
+     * actually part of the node tree. Otherwise, this will point to itself.
      */
     val node: Modifier.Node
 }
@@ -75,7 +79,7 @@ internal inline fun DelegatableNode.visitAncestors(
 
 @Suppress("unused")
 internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
-    check(node.isAttached) { "nearestAncestor called on an unattached node" }
+    checkPrecondition(node.isAttached) { "nearestAncestor called on an unattached node" }
     var node: Modifier.Node? = node.parent
     var layout: LayoutNode? = requireLayoutNode()
     while (layout != null) {
@@ -97,7 +101,7 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
 internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Node) -> Unit) {
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated.
-    check(node.isAttached) { "visitSubtree called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitSubtree called on an unattached node" }
     var node: Modifier.Node? = node.child
     var layout: LayoutNode? = requireLayoutNode()
     // we use this bespoke data structure here specifically for traversing children. In the
@@ -160,7 +164,7 @@ internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.No
  * traversing below it
  */
 internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.Node) -> Boolean) {
-    check(node.isAttached) { "visitSubtreeIf called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitSubtreeIf called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
     if (child == null)
@@ -186,11 +190,21 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
 internal inline fun DelegatableNode.visitLocalDescendants(
     mask: Int,
     block: (Modifier.Node) -> Unit
+) = visitLocalDescendants(
+    mask = mask,
+    includeSelf = false,
+    block = block
+)
+
+internal inline fun DelegatableNode.visitLocalDescendants(
+    mask: Int,
+    includeSelf: Boolean = false,
+    block: (Modifier.Node) -> Unit
 ) {
-    check(node.isAttached) { "visitLocalDescendants called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitLocalDescendants called on an unattached node" }
     val self = node
     if (self.aggregateChildKindSet and mask == 0) return
-    var next = self.child
+    var next = if (includeSelf) self else self.child
     while (next != null) {
         if (next.kindSet and mask != 0) {
             block(next)
@@ -203,7 +217,7 @@ internal inline fun DelegatableNode.visitLocalAncestors(
     mask: Int,
     block: (Modifier.Node) -> Unit
 ) {
-    check(node.isAttached) { "visitLocalAncestors called on an unattached node" }
+    checkPrecondition(node.isAttached) { "visitLocalAncestors called on an unattached node" }
     var next = node.parent
     while (next != null) {
         if (next.kindSet and mask != 0) {
@@ -211,6 +225,13 @@ internal inline fun DelegatableNode.visitLocalAncestors(
         }
         next = next.parent
     }
+}
+
+internal inline fun <reified T> DelegatableNode.visitSelfAndLocalDescendants(
+    type: NodeKind<T>,
+    block: (T) -> Unit
+) = visitLocalDescendants(mask = type.mask, includeSelf = true) {
+    it.dispatchForKind(type, block)
 }
 
 internal inline fun <reified T> DelegatableNode.visitLocalDescendants(
@@ -307,13 +328,14 @@ internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordina
 }
 
 internal fun DelegatableNode.requireLayoutNode(): LayoutNode =
-    checkNotNull(node.coordinator) {
+    checkPreconditionNotNull(node.coordinator) {
         "Cannot obtain node coordinator. Is the Modifier.Node attached?"
     }.layoutNode
 
-internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner) {
-    "This node does not have an owner."
-}
+internal fun DelegatableNode.requireOwner(): Owner =
+    checkPreconditionNotNull(requireLayoutNode().owner) {
+        "This node does not have an owner."
+    }
 
 /**
  * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to.
@@ -322,10 +344,35 @@ internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutN
 fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
 
 /**
+ * Returns the current [GraphicsContext] of the [Owner]
+ */
+fun DelegatableNode.requireGraphicsContext(): GraphicsContext = requireOwner().graphicsContext
+
+/**
  * Returns the current [LayoutDirection] of the LayoutNode that this [DelegatableNode] is attached
  * to. If the node is not attached, this function will throw an [IllegalStateException].
  */
 fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
+
+/**
+ * Returns the [LayoutCoordinates] of this node.
+ *
+ * To get a signal when the [LayoutCoordinates] become available, or when its parent places it,
+ * implement [LayoutAwareModifierNode].
+ *
+ * @throws IllegalStateException When either this node is not attached, or the [LayoutCoordinates]
+ * object is not attached.
+ */
+fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
+    checkPrecondition(node.isAttached) {
+        "Cannot get LayoutCoordinates, Modifier.Node is not attached."
+    }
+    val coordinates = requireCoordinator(Nodes.Layout).coordinates
+    checkPrecondition(coordinates.isAttached) {
+        "LayoutCoordinates is not attached."
+    }
+    return coordinates
+}
 
 /**
  * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.

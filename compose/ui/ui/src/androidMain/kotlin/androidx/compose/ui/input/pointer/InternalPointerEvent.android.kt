@@ -29,10 +29,10 @@ internal actual class InternalPointerEvent actual constructor(
     val motionEvent: MotionEvent
         get() = pointerInputEvent.motionEvent
 
-    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean =
+    actual fun activeHoverEvent(pointerId: PointerId): Boolean =
         pointerInputEvent.pointers.fastFirstOrNull {
             it.id == pointerId
-        }?.issuesEnterExit ?: false
+        }?.activeHover ?: false
 
     actual var suppressMovementConsumption: Boolean = false
 }

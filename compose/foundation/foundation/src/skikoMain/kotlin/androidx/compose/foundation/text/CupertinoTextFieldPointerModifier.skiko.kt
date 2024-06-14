@@ -44,7 +44,7 @@ internal fun Modifier.cupertinoTextFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
@@ -80,7 +80,7 @@ internal fun Modifier.cupertinoTextFieldPointer(
 @OptIn(InternalFoundationTextApi::class)
 private fun getTapHandlerModifier(
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping,
@@ -174,7 +174,7 @@ private fun getTapHandlerModifier(
  */
 @Composable
 private fun getLongPressHandlerModifier(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     offsetMapping: OffsetMapping,
     manager: TextFieldSelectionManager,
 ): Modifier {

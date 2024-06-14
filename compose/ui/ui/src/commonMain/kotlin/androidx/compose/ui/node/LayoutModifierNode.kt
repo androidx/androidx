@@ -16,9 +16,13 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.ApproachIntrinsicMeasureScope
+import androidx.compose.ui.layout.ApproachIntrinsicsMeasureScope
+import androidx.compose.ui.layout.ApproachMeasureScope
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.IntrinsicsMeasureScope
@@ -158,10 +162,102 @@ fun LayoutModifierNode.invalidateMeasurement() = requireLayoutNode().invalidateM
 
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal object NodeMeasuringIntrinsics {
     // Fun interface for measure block to avoid autoBoxing of Constraints
     internal fun interface MeasureBlock {
         fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult
+    }
+
+    internal fun interface ApproachMeasureBlock {
+        fun ApproachMeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult
+    }
+
+    internal fun minWidth(
+        measureBlock: ApproachMeasureBlock,
+        intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
+        intrinsicMeasurable: IntrinsicMeasurable,
+        h: Int
+    ): Int {
+        val measurable = DefaultIntrinsicMeasurable(
+            intrinsicMeasurable,
+            IntrinsicMinMax.Min,
+            IntrinsicWidthHeight.Width
+        )
+        val constraints = Constraints(maxHeight = h)
+        val layoutResult = with(measureBlock) {
+            ApproachIntrinsicsMeasureScope(
+                intrinsicMeasureScope,
+                intrinsicMeasureScope.layoutDirection
+            ).measure(measurable, constraints)
+        }
+        return layoutResult.width
+    }
+
+    internal fun minHeight(
+        measureBlock: ApproachMeasureBlock,
+        intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
+        intrinsicMeasurable: IntrinsicMeasurable,
+        w: Int
+    ): Int {
+        val measurable = DefaultIntrinsicMeasurable(
+            intrinsicMeasurable,
+            IntrinsicMinMax.Min,
+            IntrinsicWidthHeight.Height
+        )
+        val constraints = Constraints(maxWidth = w)
+        val layoutResult = with(measureBlock) {
+            ApproachIntrinsicsMeasureScope(
+                intrinsicMeasureScope,
+                intrinsicMeasureScope.layoutDirection
+            ).measure(measurable, constraints)
+        }
+        return layoutResult.height
+    }
+
+    internal fun maxWidth(
+        measureBlock: ApproachMeasureBlock,
+        intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
+        intrinsicMeasurable: IntrinsicMeasurable,
+        h: Int
+    ): Int {
+        val measurable = DefaultIntrinsicMeasurable(
+            intrinsicMeasurable,
+            IntrinsicMinMax.Max,
+            IntrinsicWidthHeight.Width
+        )
+        val constraints = Constraints(maxHeight = h)
+        val layoutResult = with(measureBlock) {
+            ApproachIntrinsicsMeasureScope(
+                intrinsicMeasureScope,
+                intrinsicMeasureScope.layoutDirection
+            ).measure(measurable, constraints)
+        }
+        return layoutResult.width
+    }
+
+    internal fun maxHeight(
+        measureBlock: ApproachMeasureBlock,
+        intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
+        intrinsicMeasurable: IntrinsicMeasurable,
+        w: Int
+    ): Int {
+        val measurable = DefaultIntrinsicMeasurable(
+            intrinsicMeasurable,
+            IntrinsicMinMax.Max,
+            IntrinsicWidthHeight.Height
+        )
+        val constraints = Constraints(maxWidth = w)
+        val layoutResult = with(measureBlock) {
+            ApproachIntrinsicsMeasureScope(
+                intrinsicMeasureScope,
+                intrinsicMeasureScope.layoutDirection
+            ).measure(measurable, constraints)
+        }
+        return layoutResult.height
     }
 
     internal fun minWidth(

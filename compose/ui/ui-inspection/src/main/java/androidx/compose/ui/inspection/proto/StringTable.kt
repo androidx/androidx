@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection.proto
 
+import androidx.collection.mutableObjectIntMapOf
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol
 
 /**
@@ -26,18 +27,22 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol
  * of text is across the layout tree will be the same.
  */
 class StringTable {
-    private val innerMap = mutableMapOf<String, Int>()
+    private val innerMap = mutableObjectIntMapOf<String>()
 
     fun put(str: String): Int {
-        return innerMap.computeIfAbsent(str) { innerMap.size + 1 }
+        return innerMap.getOrPut(str) { innerMap.size + 1 }
     }
 
     fun toStringEntries(): List<LayoutInspectorComposeProtocol.StringEntry> {
-        return innerMap.entries.map { entry ->
-            LayoutInspectorComposeProtocol.StringEntry.newBuilder().apply {
-                str = entry.key
-                id = entry.value
-            }.build()
+        val result = mutableListOf<LayoutInspectorComposeProtocol.StringEntry>()
+        innerMap.forEach { key, value ->
+            result.add(
+                LayoutInspectorComposeProtocol.StringEntry.newBuilder().apply {
+                    str = key
+                    id = value
+                }.build()
+            )
         }
+        return result
     }
 }

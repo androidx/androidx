@@ -18,6 +18,7 @@ package androidx.compose.material
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +39,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,10 +74,10 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the chip
  * @param enabled When disabled, chip will not respond to user input. It will also appear visually
  * disabled and disabled to accessibility services.
- * @param interactionSource The [MutableInteractionSource] represents the stream of [Interaction]s
- * for this chip. You can create and pass in your own remembered [MutableInteractionSource] if you
- * want to observe [Interaction]s and customize the appearance / behavior of this [*component*] in
- * different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip. You can use this to change the chip's
+ * appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param border Border to draw around the chip. Pass `null` here for no border.
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors].
@@ -90,7 +90,7 @@ fun Chip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     border: BorderStroke? = null,
     colors: ChipColors = ChipDefaults.chipColors(),
@@ -164,10 +164,10 @@ fun Chip(
  * @param modifier Modifier to be applied to the chip
  * @param enabled controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Chip. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this chip in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip. You can use this to change the chip's
+ * appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape defines the chip's shape as well as its shadow
  * @param border border to draw around the chip
  * @param colors [SelectableChipColors] that will be used to resolve the background and content
@@ -187,7 +187,7 @@ fun FilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     border: BorderStroke? = null,
     colors: SelectableChipColors = ChipDefaults.filterChipColors(),

@@ -35,6 +35,8 @@ import androidx.compose.ui.findAndroidComposeView
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Density
@@ -427,6 +429,59 @@ class DragAndDropNodeTest {
 
             Truth.assertThat(acceptingTopEndDropTarget.enterOffsets.first())
                 .isEqualTo(startToEndEvent.offset())
+        }
+    }
+
+    @Test
+    fun dispatchDragEvent_callsEnterEventsBeforeExitEvents() {
+        rule.runOnUiThread {
+            val calls = mutableListOf<String>()
+            acceptingParentBottomStartDropTarget.onEntered = {
+                calls += "enter-parent"
+            }
+            acceptingParentBottomStartDropTarget.onExited = {
+                calls += "exit-parent"
+            }
+            acceptingInnerBottomStartDropTarget.onEntered = {
+                calls += "enter-child"
+            }
+            acceptingInnerBottomStartDropTarget.onExited = {
+                calls += "exit-child"
+            }
+
+            val events = listOf(
+                // Start in the center
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_STARTED,
+                    x = with(density) { HalfContainerSize.toPx() },
+                    y = with(density) { HalfContainerSize.toPx() },
+                ),
+                // Move into bottom start parent
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) {
+                        (ContainerSize - ChildSize - HalfChildSize).toPx()
+                    },
+                ),
+                // Move into bottom start inner child
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) { (ContainerSize - HalfChildSize).toPx() },
+                )
+            )
+
+            val androidComposeView = findAndroidComposeView(container)!!
+            events.forEach(androidComposeView::dispatchDragEvent)
+
+            // Assertions
+            Truth.assertThat(calls).isEqualTo(listOf(
+                "enter-parent",
+                // important bit is enter child is received before exit parent.
+                "enter-child",
+                "exit-parent"
+            ))
         }
     }
 
@@ -908,6 +963,74 @@ class DragAndDropNodeTest {
         )
             .isTrue()
     }
+
+    @Test
+    fun dispatchDragEvent_worksWithOtherTraversableModifiers() {
+        val dropTargetHolder = DropTargetModifierHolder(acceptsDragAndDrop = { true })
+
+        // Set up UI
+        countDown(from = 1) { latch ->
+            rule.runOnUiThread {
+                container.setContent {
+                    density = LocalDensity.current
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(ContainerSize)
+                            .customTraversableModifier()
+                            .testDropTarget(dropTargetHolder)
+                            .customTraversableModifier()
+                            .onGloballyPositioned { latch.countDown() }
+                    )
+                }
+            }
+        }
+
+        val acceptingStartEvent = DragEvent(
+            action = DragEvent.ACTION_DRAG_STARTED,
+            x = with(density) { HalfContainerSize.toPx() },
+            y = with(density) { HalfContainerSize.toPx() },
+        )
+        val acceptingEndEvent = DragEvent(
+            action = DragEvent.ACTION_DRAG_ENDED,
+            x = with(density) { ParentSize.toPx() },
+            y = with(density) { ParentSize.toPx() },
+        )
+
+        rule.runOnUiThread {
+            val androidComposeView = findAndroidComposeView(container)!!
+
+            // Dispatch accepting start and end
+            androidComposeView.dispatchDragEvent(acceptingStartEvent)
+            androidComposeView.dispatchDragEvent(acceptingEndEvent)
+
+            // Assert accepting start and end were seen
+            Truth.assertThat(dropTargetHolder.startOffsets.first())
+                .isEqualTo(acceptingStartEvent.offset())
+            Truth.assertThat(dropTargetHolder.endedOffsets.first())
+                .isEqualTo(acceptingEndEvent.offset())
+
+            // Assert only accepting start and end were seen
+            Truth.assertThat(dropTargetHolder.startOffsets.size).isEqualTo(1)
+            Truth.assertThat(dropTargetHolder.endedOffsets.size).isEqualTo(1)
+        }
+    }
+}
+
+private fun Modifier.customTraversableModifier(): Modifier =
+    this then CustomTraversableModifierElement
+
+private object CustomTraversableModifierElement :
+    ModifierNodeElement<CustomTraversableModifierNode>() {
+    override fun create() = CustomTraversableModifierNode()
+    override fun update(node: CustomTraversableModifierNode) {}
+    override fun hashCode(): Int = 0
+    override fun equals(other: Any?): Boolean = this === other
+}
+
+private class CustomTraversableModifierNode : Modifier.Node(), TraversableNode {
+    private object CustomTraversableModifierKey
+
+    override val traverseKey: Any get() = CustomTraversableModifierKey
 }
 
 /**
@@ -939,7 +1062,9 @@ private fun countDown(from: Int, block: (CountDownLatch) -> Unit) {
 
 private fun Modifier.testDropTarget(holder: DropTargetModifierHolder) = this then holder.modifier
 private class DropTargetModifierHolder(
-    private val acceptsDragAndDrop: () -> Boolean
+    private val acceptsDragAndDrop: () -> Boolean,
+    var onEntered: ((event: DragAndDropEvent) -> Unit)? = null,
+    var onExited: ((event: DragAndDropEvent) -> Unit)? = null,
 ) {
     val startOffsets = mutableListOf<Offset>()
     val enterOffsets = mutableListOf<Offset>()
@@ -961,6 +1086,7 @@ private class DropTargetModifierHolder(
                 enterOffsets.add(
                     Offset(x = event.dragEvent.x, y = event.dragEvent.y)
                 )
+                onEntered?.invoke(event)
             }
 
             override fun onMoved(event: DragAndDropEvent) {
@@ -980,6 +1106,7 @@ private class DropTargetModifierHolder(
                 exitOffsets.add(
                     Offset(x = event.dragEvent.x, y = event.dragEvent.y)
                 )
+                onExited?.invoke(event)
             }
 
             override fun onEnded(event: DragAndDropEvent) {

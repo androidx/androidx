@@ -514,7 +514,8 @@ class KeyEventsTest : InputDispatcherTest() {
         recorder.events[1].verifyKeyEvent(
             keyUp, key.nativeKeyCode, expectedMetaState = expectedMetaState
         )
-        recorder.events[2].verifyKeyEvent(keyDown, key.nativeKeyCode)
+        recorder.events[2].verifyKeyEvent(keyDown, key.nativeKeyCode,
+            expectedMetaState = expectedMetaState)
         recorder.events[3].verifyKeyEvent(keyUp, key.nativeKeyCode)
     }
 }

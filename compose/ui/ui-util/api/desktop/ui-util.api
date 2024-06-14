@@ -7,10 +7,19 @@ public abstract interface annotation class androidx/compose/ui/InternalComposeUi
 public final class androidx/compose/ui/util/InlineClassHelperKt {
 	public static final fun packFloats (FF)J
 	public static final fun packInts (II)J
+	public static final fun unpackAbsFloat1 (J)F
+	public static final fun unpackAbsFloat2 (J)F
 	public static final fun unpackFloat1 (J)F
 	public static final fun unpackFloat2 (J)F
 	public static final fun unpackInt1 (J)I
 	public static final fun unpackInt2 (J)I
+}
+
+public final class androidx/compose/ui/util/InlineClassHelper_jvmKt {
+	public static final fun doubleFromBits (J)D
+	public static final fun fastRoundToInt (D)I
+	public static final fun fastRoundToInt (F)I
+	public static final fun floatFromBits (I)F
 }
 
 public final class androidx/compose/ui/util/ListUtilsKt {
@@ -44,6 +53,15 @@ public final class androidx/compose/ui/util/ListUtilsKt {
 }
 
 public final class androidx/compose/ui/util/MathHelpersKt {
+	public static final fun fastCbrt (F)F
+	public static final fun fastCoerceAtLeast (DD)D
+	public static final fun fastCoerceAtLeast (FF)F
+	public static final fun fastCoerceAtMost (DD)D
+	public static final fun fastCoerceAtMost (FF)F
+	public static final fun fastCoerceIn (DDD)D
+	public static final fun fastCoerceIn (FFF)F
+	public static final fun fastMaxOf (FFFF)F
+	public static final fun fastMinOf (FFFF)F
 	public static final fun lerp (FFF)F
 	public static final fun lerp (IIF)I
 	public static final fun lerp (JJF)J

@@ -3,6 +3,16 @@ GetterSetterNames: androidx.compose.ui.focus.FocusProperties#getCanFocus():
     Getter for boolean property `canFocus` is named `getCanFocus` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.focus.FocusState#getHasFocus():
     Getter for boolean property `hasFocus` is named `getHasFocus` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.ui.graphics.vector.ImageVector#autoMirror:
+    Invalid name for boolean property `autoMirror`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.input.pointer.PointerInputChange#pressed:
+    Invalid name for boolean property `pressed`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.input.pointer.PointerInputChange#previousPressed:
+    Invalid name for boolean property `previousPressed`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.input.pointer.PointerInputFilter#interceptOutOfBoundsChildEvents:
+    Invalid name for boolean property `interceptOutOfBoundsChildEvents`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.input.pointer.PointerInputFilter#shareWithSiblings:
+    Invalid name for boolean property `shareWithSiblings`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope#getHasMoreContent():
     Getter for boolean property `hasMoreContent` is named `getHasMoreContent` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.platform.AbstractComposeView#getHasComposition():
@@ -13,40 +23,30 @@ GetterSetterNames: androidx.compose.ui.platform.ComposeView#getShouldCreateCompo
     Getter for boolean property `shouldCreateCompositionOnAttachedToWindow` is named `getShouldCreateCompositionOnAttachedToWindow` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.ui.platform.ViewRootForTest#getHasPendingMeasureOrLayout():
     Getter for boolean property `hasPendingMeasureOrLayout` is named `getHasPendingMeasureOrLayout` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: field DialogProperties.decorFitsSystemWindows:
-    Invalid name for boolean property `decorFitsSystemWindows`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.dismissOnBackPress:
-    Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.dismissOnClickOutside:
-    Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field DialogProperties.usePlatformDefaultWidth:
-    Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ImageVector.autoMirror:
-    Invalid name for boolean property `autoMirror`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputChange.pressed:
-    Invalid name for boolean property `pressed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputChange.previousPressed:
-    Invalid name for boolean property `previousPressed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputFilter.interceptOutOfBoundsChildEvents:
-    Invalid name for boolean property `interceptOutOfBoundsChildEvents`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PointerInputFilter.shareWithSiblings:
-    Invalid name for boolean property `shareWithSiblings`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.clippingEnabled:
-    Invalid name for boolean property `clippingEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.dismissOnBackPress:
-    Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.dismissOnClickOutside:
-    Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.excludeFromSystemGesture:
-    Invalid name for boolean property `excludeFromSystemGesture`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.focusable:
-    Invalid name for boolean property `focusable`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopupProperties.usePlatformDefaultWidth:
-    Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ScrollAxisRange.reverseScrolling:
+GetterSetterNames: androidx.compose.ui.semantics.ScrollAxisRange#reverseScrolling:
     Invalid name for boolean property `reverseScrolling`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SemanticsNode.mergingEnabled:
+GetterSetterNames: androidx.compose.ui.semantics.SemanticsNode#mergingEnabled:
     Invalid name for boolean property `mergingEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.DialogProperties#decorFitsSystemWindows:
+    Invalid name for boolean property `decorFitsSystemWindows`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.DialogProperties#dismissOnBackPress:
+    Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.DialogProperties#dismissOnClickOutside:
+    Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.DialogProperties#usePlatformDefaultWidth:
+    Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#clippingEnabled:
+    Invalid name for boolean property `clippingEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#dismissOnBackPress:
+    Invalid name for boolean property `dismissOnBackPress`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#dismissOnClickOutside:
+    Invalid name for boolean property `dismissOnClickOutside`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#excludeFromSystemGesture:
+    Invalid name for boolean property `excludeFromSystemGesture`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#focusable:
+    Invalid name for boolean property `focusable`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.compose.ui.window.PopupProperties#usePlatformDefaultWidth:
+    Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 KotlinDefaultParameterOrder: androidx.compose.ui.graphics.vector.ImageVector.Builder#Builder(String, float, float, float, float, long, int, boolean) parameter #0:

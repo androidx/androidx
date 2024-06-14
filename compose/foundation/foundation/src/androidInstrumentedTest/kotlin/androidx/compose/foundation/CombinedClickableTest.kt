@@ -26,11 +26,16 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,8 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
@@ -53,10 +62,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -152,7 +163,7 @@ class CombinedClickableTest {
     @Test
     fun longClickSemantics() {
         var counter = 0
-        val onClick: () -> Unit = { ++counter }
+        val onLongClick: () -> Unit = { ++counter }
 
         rule.setContent {
             Box {
@@ -160,7 +171,7 @@ class CombinedClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(onLongClick = onClick) {}
+                        .combinedClickable(onLongClick = onLongClick) {}
                 )
             }
         }
@@ -179,6 +190,59 @@ class CombinedClickableTest {
         rule.runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun changingLongClickSemantics() {
+        var counter = 0
+        var onLongClick: (() -> Unit)? by mutableStateOf(null)
+
+        rule.setContent {
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .combinedClickable(onLongClick = onLongClick) {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnLongClick))
+
+        rule.runOnIdle {
+            // Add a no-op long click
+            onLongClick = { /* no-op */ }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .performSemanticsAction(SemanticsActions.OnLongClick)
+
+        rule.runOnIdle {
+            // no-op long click handler
+            assertThat(counter).isEqualTo(0)
+            // Change to mutate counter
+            onLongClick = { ++counter }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performSemanticsAction(SemanticsActions.OnLongClick)
+
+        rule.runOnIdle {
+            // Changes should now be applied
+            assertThat(counter).isEqualTo(1)
+            // Make onLongClick null
+            onLongClick = null
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            // Long click action should be removed
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnLongClick))
     }
 
     @Test
@@ -1298,7 +1362,7 @@ class CombinedClickableTest {
         val focusRequester = FocusRequester()
         lateinit var focusManager: FocusManager
         lateinit var inputModeManager: InputModeManager
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current
@@ -1751,6 +1815,178 @@ class CombinedClickableTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun noHover_whenDisabled() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+        val enabled = mutableStateOf(true)
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("myClickable")
+                    .combinedClickable(
+                        enabled = enabled.value,
+                        onClick = {},
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
+            )
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            interactions.clear()
+            enabled.value = false
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            enabled.value = true
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocus_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .combinedClickable(enabled = enabled.value) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isTrue()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            assertThat(focusState.isFocused).isFalse()
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+    }
+
+    /**
+     * Test for b/269319898
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocusPropertiesSet_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box(Modifier.combinedClickable(enabled = enabled.value, onClick = {})) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            // If clickable is setting canFocus to true without a focus target, then
+                            // that would override this property
+                            .focusProperties { canFocus = false }
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        // b/314129026 we can't read canFocus, so instead try and request focus and make sure
+        // that we are not focused
+        rule.runOnIdle {
+            // Clickable is enabled, it should correctly apply properties to its focus node
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            // Clickable is disabled, it should not apply properties down the tree
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+    }
+
     @Test
     fun testInspectorValue_noIndicationOverload() {
         val onClick: () -> Unit = { }
@@ -1789,7 +2025,7 @@ class CombinedClickableTest {
                 "onDoubleClick",
                 "onLongClick",
                 "onLongClickLabel",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource"
             )
         }
@@ -2251,4 +2487,53 @@ class CombinedClickableTest {
             assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
         }
     }
+
+    // Regression test for b/332814226
+    @Test
+    fun movableContentWithSubcomposition_updatingSemanticsShouldNotCrash() {
+        var moveContent by mutableStateOf(false)
+        rule.setContent {
+            val content = remember {
+                movableContentOf {
+                    BoxWithConstraints {
+                        BasicText("ClickableText",
+                            modifier = Modifier
+                                .testTag("clickable")
+                                .combinedClickable(
+                                    role = if (moveContent) Role.Button else Role.Checkbox,
+                                    onClickLabel = moveContent.toString(),
+                                    onLongClick = {},
+                                    onLongClickLabel = moveContent.toString()
+                                ) {}
+                        )
+                    }
+                }
+            }
+
+            key(moveContent) {
+                content()
+            }
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+            .assertOnClickLabelMatches("false")
+            .assertOnLongClickLabelMatches("false")
+
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertOnClickLabelMatches("true")
+            .assertOnLongClickLabelMatches("true")
+    }
+}
+
+private fun SemanticsNodeInteraction.assertOnLongClickLabelMatches(expectedValue: String):
+    SemanticsNodeInteraction {
+    return assert(SemanticsMatcher("onLongClickLabel = '$expectedValue'") {
+        it.config.getOrElseNullable(SemanticsActions.OnLongClick) { null }?.label == expectedValue
+    })
 }

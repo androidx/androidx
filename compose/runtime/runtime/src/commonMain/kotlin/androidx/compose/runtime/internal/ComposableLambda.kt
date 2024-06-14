@@ -17,12 +17,14 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime.internal
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rol
 
 internal const val SLOTS_PER_INT = 10
@@ -591,7 +593,7 @@ fun composableLambda(
     // key. This is particularly important for live edit scenarios where the groups will be
     // invalidated by the key number. This ensures that invalidating the function will not
     // also invalidate its lambda.
-    composer.startReplaceableGroup(key.rol(1))
+    composer.startMovableGroup(key.rol(1), lambdaKey)
     val slot = composer.rememberedValue()
     val result = if (slot === Composer.Empty) {
         val value = ComposableLambdaImpl(key, tracked, block)
@@ -602,9 +604,11 @@ fun composableLambda(
         slot.update(block)
         slot
     }
-    composer.endReplaceableGroup()
+    composer.endMovableGroup()
     return result
 }
+
+private val lambdaKey = Any()
 
 @Suppress("unused")
 @ComposeCompilerApi
@@ -614,3 +618,16 @@ fun composableLambdaInstance(
     block: Any
 ): ComposableLambda =
     ComposableLambdaImpl(key, tracked, block)
+
+// TODO fix wasm
+
+//@Suppress("unused")
+//@Composable
+//@ComposeCompilerApi
+//fun rememberComposableLambda(
+//    key: Int,
+//    tracked: Boolean,
+//    block: Any
+//): ComposableLambda = remember { ComposableLambdaImpl(key, tracked, block) }.also {
+//    it.update(block)
+//}

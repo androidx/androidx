@@ -77,7 +77,6 @@ fun ImageVector.Companion.vectorResource(
  * This method assumes the parser is already been positioned to the start tag
  */
 @Throws(XmlPullParserException::class)
-@SuppressWarnings("RestrictedApi")
 internal fun loadVectorResourceInner(
     theme: Resources.Theme? = null,
     res: Resources,

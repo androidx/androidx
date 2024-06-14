@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text
 
 import androidx.compose.runtime.saveable.Saver
@@ -136,7 +138,9 @@ private enum class AnnotationType {
     Paragraph,
     Span,
     VerbatimTts,
-    Url,
+    Url, // UrlAnnotation
+    Link, // LinkAnnotation.Url
+    Clickable,
     String
 }
 
@@ -148,6 +152,8 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             is SpanStyle -> AnnotationType.Span
             is VerbatimTtsAnnotation -> AnnotationType.VerbatimTts
             is UrlAnnotation -> AnnotationType.Url
+            is LinkAnnotation.Url -> AnnotationType.Link
+            is LinkAnnotation.Clickable -> AnnotationType.Clickable
             else -> AnnotationType.String
         }
 
@@ -162,6 +168,16 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             AnnotationType.Url -> save(
                 it.item as UrlAnnotation,
                 UrlAnnotationSaver,
+                this
+            )
+            AnnotationType.Link -> save(
+                it.item as LinkAnnotation.Url,
+                LinkSaver,
+                this
+            )
+            AnnotationType.Clickable -> save(
+                it.item as LinkAnnotation.Clickable,
+                ClickableSaver,
                 this
             )
             AnnotationType.String -> save(it.item)
@@ -200,6 +216,14 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
                 val item: UrlAnnotation = restore(list[1], UrlAnnotationSaver)!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
             }
+            AnnotationType.Link -> {
+                val item: LinkAnnotation.Url = restore(list[1], LinkSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
+            AnnotationType.Clickable -> {
+                val item: LinkAnnotation.Clickable = restore(list[1], ClickableSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
             AnnotationType.String -> {
                 val item: String = restore(list[1])!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
@@ -217,6 +241,45 @@ private val VerbatimTtsAnnotationSaver = Saver<VerbatimTtsAnnotation, Any>(
 private val UrlAnnotationSaver = Saver<UrlAnnotation, Any>(
     save = { save(it.url) },
     restore = { UrlAnnotation(restore(it)!!) }
+)
+
+private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
+    save = {
+        arrayListOf(
+            save(it.url),
+            save(it.styles, TextLinkStylesSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val url: String = restore(list[0])!!
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
+        LinkAnnotation.Url(
+            url = url,
+            styles = stylesOrNull
+        )
+    }
+)
+
+private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
+    save = {
+        arrayListOf(
+            save(it.tag),
+            save(it.styles, TextLinkStylesSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val tag: String = restore(list[0])!!
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
+        LinkAnnotation.Clickable(
+            tag = tag,
+            styles = stylesOrNull,
+            linkInteractionListener = null
+        )
+    }
 )
 
 internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
@@ -275,6 +338,30 @@ internal val SpanStyleSaver = Saver<SpanStyle, Any>(
             background = restore(list[11], Color.Saver)!!,
             textDecoration = restore(list[12], TextDecoration.Saver),
             shadow = restore(list[13], Shadow.Saver)
+        )
+    }
+)
+
+internal val TextLinkStylesSaver = Saver<TextLinkStyles, Any>(
+    save = {
+        arrayListOf(
+            save(it.style, SpanStyleSaver, this),
+            save(it.focusedStyle, SpanStyleSaver, this),
+            save(it.hoveredStyle, SpanStyleSaver, this),
+            save(it.pressedStyle, SpanStyleSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+        val styleOrNull: SpanStyle? = restore(list[0], SpanStyleSaver)
+        val focusedStyleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
+        val hoveredStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
+        val pressedStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        TextLinkStyles(
+            styleOrNull,
+            focusedStyleOrNull,
+            hoveredStyleOrNull,
+            pressedStyleOrNull
         )
     }
 )

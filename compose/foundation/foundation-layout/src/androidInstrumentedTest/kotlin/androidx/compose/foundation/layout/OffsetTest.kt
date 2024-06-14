@@ -17,7 +17,6 @@
 package androidx.compose.foundation.layout
 
 import android.os.Build
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,10 +27,11 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.InspectableValue
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
@@ -105,7 +105,9 @@ class OffsetTest {
         var positionX = 0
         var positionY = 0
         rule.setContent {
-            CompositionLocalProvider((LocalLayoutDirection provides LayoutDirection.Rtl)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Box(
                     Modifier.testTag("box")
                         .wrapContentSize(Alignment.TopEnd)
@@ -165,7 +167,9 @@ class OffsetTest {
         var positionX = 0
         var positionY = 0
         rule.setContent {
-            CompositionLocalProvider((LocalLayoutDirection provides LayoutDirection.Rtl)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Box(
                     Modifier.testTag("box")
                         .wrapContentSize(Alignment.TopEnd)
@@ -225,7 +229,9 @@ class OffsetTest {
         var positionX = 0
         var positionY = 0
         rule.setContent {
-            CompositionLocalProvider((LocalLayoutDirection provides LayoutDirection.Rtl)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Box(
                     Modifier.testTag("box")
                         .wrapContentSize(Alignment.TopEnd)
@@ -288,7 +294,9 @@ class OffsetTest {
         var positionX = 0
         var positionY = 0
         rule.setContent {
-            CompositionLocalProvider((LocalLayoutDirection provides LayoutDirection.Rtl)) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Box(
                     Modifier.testTag("box")
                         .wrapContentSize(Alignment.TopEnd)

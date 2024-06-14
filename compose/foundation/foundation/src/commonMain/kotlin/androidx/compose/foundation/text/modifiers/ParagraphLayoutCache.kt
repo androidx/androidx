@@ -390,4 +390,8 @@ internal class ParagraphLayoutCache(
     fun maxIntrinsicWidth(layoutDirection: LayoutDirection): Int {
         return setLayoutDirection(layoutDirection).maxIntrinsicWidth.ceilToIntPx()
     }
+
+    override fun toString(): String =
+        "ParagraphLayoutCache(paragraph=${if (paragraph != null) "<paragraph>" else "null"}, " +
+            "lastDensity=$lastDensity)"
 }

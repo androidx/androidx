@@ -16,6 +16,16 @@
 
 package androidx.compose.ui.platform
 
+import android.os.Build
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.platform.AndroidViewConfigurationApi34.getScaledHandwritingGestureLineMargin
+import androidx.compose.ui.platform.AndroidViewConfigurationApi34.getScaledHandwritingSlop
+
+/**
+ * A [ViewConfiguration] with Android's default configurations. Derived from
+ * [android.view.ViewConfiguration]
+ */
 class AndroidViewConfiguration(
     private val viewConfiguration: android.view.ViewConfiguration
 ) : ViewConfiguration {
@@ -31,6 +41,31 @@ class AndroidViewConfiguration(
     override val touchSlop: Float
         get() = viewConfiguration.scaledTouchSlop.toFloat()
 
+    override val handwritingSlop: Float
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getScaledHandwritingSlop(viewConfiguration)
+        } else {
+            super.handwritingSlop
+        }
+
     override val maximumFlingVelocity: Float
         get() = viewConfiguration.scaledMaximumFlingVelocity.toFloat()
+
+    override val handwritingGestureLineMargin: Float
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getScaledHandwritingGestureLineMargin(viewConfiguration)
+        } else {
+            super.handwritingGestureLineMargin
+        }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object AndroidViewConfigurationApi34 {
+    @DoNotInline
+    fun getScaledHandwritingSlop(viewConfiguration: android.view.ViewConfiguration) =
+        viewConfiguration.scaledHandwritingSlop.toFloat()
+
+    @DoNotInline
+    fun getScaledHandwritingGestureLineMargin(viewConfiguration: android.view.ViewConfiguration) =
+        viewConfiguration.scaledHandwritingGestureLineMargin.toFloat()
 }

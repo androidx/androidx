@@ -19,6 +19,11 @@ package androidx.compose.ui.focus
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.currentValueOf
@@ -26,7 +31,6 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import androidx.compose.ui.platform.InspectorInfo
 
-@Suppress("ConstPropertyName")
 private const val PrevFocusedChild = "previouslyFocusedChildHash"
 
 @ExperimentalComposeUiApi
@@ -53,11 +57,18 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
     }
     if (previouslyFocusedChildHash == 0) return false
     visitChildren(Nodes.FocusTarget) {
-        if (it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash) {
+        // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+        if (it.isAttached &&
+            it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
+        ) {
             return it.restoreFocusedChild() || it.requestFocus()
         }
     }
     return false
+}
+
+internal fun FocusTargetNode.pinFocusedChild(): PinnedHandle? {
+    return findActiveFocusNode()?.currentValueOf(LocalPinnableContainer)?.pin()
 }
 
 // TODO: Move focusRestorer to foundation after saveFocusedChild and restoreFocusedChild are stable.
@@ -80,21 +91,27 @@ fun Modifier.focusRestorer(
 
 internal class FocusRestorerNode(
     var onRestoreFailed: (() -> FocusRequester)?
-) : FocusPropertiesModifierNode, FocusRequesterModifierNode, Modifier.Node() {
+) : CompositionLocalConsumerModifierNode,
+    FocusPropertiesModifierNode,
+    FocusRequesterModifierNode,
+    Modifier.Node() {
+
+    private var pinnedHandle: PinnedHandle? = null
     private val onExit: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
         saveFocusedChild()
-        FocusRequester.Default
+        pinnedHandle?.release()
+        pinnedHandle = pinFocusedChild()
+        Default
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     private val onEnter: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
-        if (restoreFocusedChild()) {
-            FocusRequester.Cancel
-        } else {
-            onRestoreFailed?.invoke() ?: FocusRequester.Default
-        }
+        val result = if (restoreFocusedChild()) Cancel else onRestoreFailed?.invoke()
+        pinnedHandle?.release()
+        pinnedHandle = null
+        result ?: Default
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
@@ -102,6 +119,12 @@ internal class FocusRestorerNode(
         focusProperties.enter = onEnter
         @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = onExit
+    }
+
+    override fun onDetach() {
+        pinnedHandle?.release()
+        pinnedHandle = null
+        super.onDetach()
     }
 }
 

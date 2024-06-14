@@ -110,6 +110,7 @@ fun LookaheadWithSubcompose() {
     }
 }
 
+context(LookaheadScope)
 @OptIn(ExperimentalComposeUiApi::class)
 private fun Modifier.conditionallyAnimateBounds(
     shouldAnimate: Boolean,

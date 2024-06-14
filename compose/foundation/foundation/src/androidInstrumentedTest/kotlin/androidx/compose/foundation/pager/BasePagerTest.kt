@@ -23,15 +23,18 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +72,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     var pagerSize: Int = 0
     var placed = mutableSetOf<Int>()
     var focused = mutableSetOf<Int>()
+    var focusRequesters = mutableMapOf<Int, FocusRequester>()
     var pageSize: Int = 0
     lateinit var focusManager: FocusManager
     lateinit var initialFocusedItem: FocusRequester
@@ -116,7 +120,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
         modifier: Modifier = Modifier,
-        beyondBoundsPageCount: Int = config.beyondBoundsPageCount,
+        beyondViewportPageCount: Int = config.beyondViewportPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
@@ -127,25 +131,35 @@ open class BasePagerTest(private val config: ParamConfig) :
         reverseLayout: Boolean = config.reverseLayout,
         snapPositionalThreshold: Float = 0.5f,
         key: ((index: Int) -> Any)? = null,
+        snapPosition: SnapPosition = config.snapPosition.first,
+        flingBehavior: TargetedFlingBehavior? = null,
+        prefetchScheduler: PrefetchScheduler? = null,
         pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) }
     ) {
 
         rule.setContent {
-            val state = rememberPagerState(initialPage, initialPageOffsetFraction, pageCount).also {
-                pagerState = it
+            val state = if (prefetchScheduler == null) {
+                rememberPagerState(initialPage, initialPageOffsetFraction, pageCount)
+            } else {
+                remember {
+                    object : PagerState(initialPage, initialPageOffsetFraction, prefetchScheduler) {
+                        override val pageCount: Int get() = pageCount()
+                    }
+                }
             }
+            pagerState = state
             composeView = LocalView.current
             focusManager = LocalFocusManager.current
-            val flingBehavior =
-                PagerDefaults.flingBehavior(
-                    state = state,
-                    pagerSnapDistance = snappingPage,
-                    snapPositionalThreshold = snapPositionalThreshold
-                )
             CompositionLocalProvider(
                 LocalLayoutDirection provides config.layoutDirection,
                 LocalOverscrollConfiguration provides null
             ) {
+                val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
+                    state = state,
+                    pagerSnapDistance = snappingPage,
+                    snapPositionalThreshold = snapPositionalThreshold
+                )
+
                 scope = rememberCoroutineScope()
                 Box(
                     modifier = Modifier
@@ -154,17 +168,18 @@ open class BasePagerTest(private val config: ParamConfig) :
                 ) {
                     HorizontalOrVerticalPager(
                         state = state,
-                        beyondBoundsPageCount = beyondBoundsPageCount,
+                        beyondViewportPageCount = beyondViewportPageCount,
                         modifier = modifier
                             .testTag(PagerTestTag)
                             .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
                         pageSize = pageSize(),
                         userScrollEnabled = userScrollEnabled,
                         reverseLayout = reverseLayout,
-                        flingBehavior = flingBehavior,
+                        flingBehavior = resolvedFlingBehavior,
                         pageSpacing = pageSpacing,
                         contentPadding = contentPadding,
                         pageContent = pageContent,
+                        snapPosition = snapPosition,
                         key = key
                     )
                 }
@@ -177,6 +192,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     internal fun Page(index: Int, initialFocusedItemIndex: Int = 0) {
         val focusRequester = FocusRequester().also {
             if (index == initialFocusedItemIndex) initialFocusedItem = it
+            focusRequesters[index] = it
         }
         Box(modifier = Modifier
             .focusRequester(focusRequester)
@@ -282,11 +298,12 @@ open class BasePagerTest(private val config: ParamConfig) :
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        beyondBoundsPageCount: Int = 0,
+        beyondViewportPageCount: Int = 0,
         pageSize: PageSize = PageSize.Fill,
-        flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
+        flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
         key: ((index: Int) -> Any)? = null,
+        snapPosition: SnapPosition = config.snapPosition.first,
         pageContent: @Composable PagerScope.(pager: Int) -> Unit
     ) {
         if (vertical) {
@@ -296,11 +313,12 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                beyondBoundsPageCount = beyondBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
                 key = key,
+                snapPosition = snapPosition,
                 pageContent = pageContent
             )
         } else {
@@ -310,11 +328,12 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                beyondBoundsPageCount = beyondBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
                 key = key,
+                snapPosition = snapPosition,
                 pageContent = pageContent
             )
         }
@@ -361,13 +380,15 @@ open class BasePagerTest(private val config: ParamConfig) :
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 class ParamConfig(
     val orientation: Orientation,
     val reverseLayout: Boolean = false,
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     val pageSpacing: Dp = 0.dp,
     val mainAxisContentPadding: PaddingValues = PaddingValues(0.dp),
-    val beyondBoundsPageCount: Int = 0
+    val beyondViewportPageCount: Int = 0,
+    val snapPosition: Pair<SnapPosition, String> = SnapPosition.Start to "Start",
 ) {
     override fun toString(): String {
         return "orientation=$orientation " +
@@ -375,7 +396,8 @@ class ParamConfig(
             "layoutDirection=$layoutDirection " +
             "pageSpacing=$pageSpacing " +
             "mainAxisContentPadding=$mainAxisContentPadding " +
-            "beyondBoundsPageCount=$beyondBoundsPageCount"
+            "beyondViewportPageCount=$beyondViewportPageCount " +
+            "snapPosition=${snapPosition.second}"
     }
 }
 
@@ -383,6 +405,8 @@ internal const val PagerTestTag = "pager"
 internal const val DefaultPageCount = 20
 internal const val DefaultAnimationRepetition = 2
 internal val TestOrientation = listOf(Orientation.Vertical, Orientation.Horizontal)
+
+@OptIn(ExperimentalFoundationApi::class)
 internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
     for (orientation in TestOrientation) {
         add(ParamConfig(orientation = orientation))
@@ -391,6 +415,13 @@ internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
 internal val TestReverseLayout = listOf(false, true)
 internal val TestLayoutDirection = listOf(LayoutDirection.Rtl, LayoutDirection.Ltr)
 internal val TestPageSpacing = listOf(0.dp, 8.dp)
+
+internal val TestSnapPosition = listOf(
+    SnapPosition.Start to "Start",
+    SnapPosition.Center to "Center",
+    SnapPosition.End to "End"
+)
+
 internal fun testContentPaddings(orientation: Orientation) = listOf(
     PaddingValues(0.dp),
     if (orientation == Orientation.Vertical)

@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"పాక్షికంగా ఎంచుకోబడింది"</string>
-    <string name="on" msgid="8655164131929253426">"ఆన్‌లో ఉంది"</string>
-    <string name="off" msgid="875452955155264703">"ఆఫ్‌లో ఉంది"</string>
+    <string name="state_on" msgid="1490883874751719580">"ఆన్‌లో ఉంది"</string>
+    <string name="state_off" msgid="5834637030682409883">"ఆఫ్‌లో ఉంది"</string>
     <string name="switch_role" msgid="2561197295334830845">"Switch"</string>
     <string name="selected" msgid="6043586758067023">"ఎంచుకోబడింది"</string>
     <string name="not_selected" msgid="6610465462668679431">"ఎంచుకోబడలేదు"</string>
@@ -28,9 +28,10 @@
     <string name="tab" msgid="1672349317127674378">"ట్యాబ్"</string>
     <string name="navigation_menu" msgid="542007171693138492">"నావిగేషన్ మెనూ"</string>
     <string name="dropdown_menu" msgid="1890207353314751437">"డ్రాప్‌డౌన్ మెనూ"</string>
-    <string name="close_drawer" msgid="406453423630273620">"నావిగేషన్ మెనూను మూసివేయి"</string>
-    <string name="close_sheet" msgid="7573152094250666567">"షీట్‌ను మూసివేయి"</string>
+    <string name="close_drawer" msgid="406453423630273620">"నావిగేషన్ మెనూను మూసివేయండి"</string>
+    <string name="close_sheet" msgid="7573152094250666567">"షీట్‌ను మూసివేయండి"</string>
     <string name="default_error_message" msgid="8038256446254964252">"ఇన్‌పుట్ చెల్లదు"</string>
+    <string name="state_empty" msgid="4139871816613051306">"ఖాళీగా ఉంది"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"పాప్-అప్ విండో"</string>
     <string name="range_start" msgid="7097486360902471446">"పరిధి ప్రారంభమయింది"</string>
     <string name="range_end" msgid="5941395253238309765">"పరిధి ముగిసింది"</string>
