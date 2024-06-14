@@ -21,11 +21,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.system.Os
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.webkit.WebViewCompat
-import java.io.File
 import java.util.regex.Pattern
 
 /**
@@ -195,7 +195,7 @@ public open class SecurityStateManager(private val context: Context) {
     }
 
     /**
-     * Attempts to retrieve the kernel version of the device from the system's '/proc/version' file.
+     * Attempts to retrieve the kernel version of the device using the system's uname() command.
      * This method is used to determine the current kernel version which is a part of the security
      * state assessment.
      *
@@ -204,7 +204,7 @@ public open class SecurityStateManager(private val context: Context) {
      */
     private fun getKernelVersion(): String {
         try {
-            val matcher = kernelReleasePattern.matcher(File("/proc/version").readText())
+            val matcher = kernelReleasePattern.matcher(Os.uname().release)
             return if (matcher.matches()) matcher.group(1)!! else ""
         } catch (e: Exception) {
             return ""

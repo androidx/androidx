@@ -417,7 +417,7 @@ public open class SecurityPatchState(
             )
         }
 
-        val completeUrl = "$serverUrl/v1/AndroidSDK$androidSdk.json"
+        val completeUrl = "$serverUrl/v1/android_sdk_$androidSdk.json"
 
         return Uri.parse(completeUrl)
     }
