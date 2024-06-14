@@ -49,6 +49,9 @@ HSPLandroidx/compose/ui/graphics/colorspace/**->**(**)**
 # All of drawscope
 HSPLandroidx/compose/ui/graphics/drawscope/**->**(**)**
 #
+# All of layer
+HSPLandroidx/compose/ui/graphics/layer/**->**(**)**
+#
 # Vector stuff
 HSPLandroidx/compose/ui/graphics/vector/DefaultVectorOverride;->**(**)**
 HSPLandroidx/compose/ui/graphics/vector/DrawCache;->**(**)**
