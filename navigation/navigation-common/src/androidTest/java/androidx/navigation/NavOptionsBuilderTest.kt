@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import androidx.navigation.serialization.expectedSafeArgsId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertWithMessage
@@ -81,7 +82,7 @@ class NavOptionsTest {
             .isEqualTo(TestClass::class)
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
         assertWithMessage("NavOptions should have not have popUpTo destination route set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(null)
@@ -96,7 +97,7 @@ class NavOptionsTest {
         val navOptions = navOptions { popUpTo(popObj) }
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
         assertWithMessage("NavOptions should have popUpTo destination route set")
             .that(navOptions.popUpToRouteObject)
             .isEqualTo(popObj)
@@ -137,7 +138,7 @@ class NavOptionsTest {
             .isEqualTo(TestClass::class)
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
         assertWithMessage("NavOptions should have not have popUpTo destination route set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(null)
@@ -160,7 +161,7 @@ class NavOptionsTest {
         }
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().expectedSafeArgsId())
         assertWithMessage("NavOptions should have popUpTo destination class set")
             .that(navOptions.popUpToRouteObject)
             .isEqualTo(popObject)

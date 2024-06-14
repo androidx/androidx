@@ -165,6 +165,15 @@ private fun SerialDescriptor.computeNavType(
     return result as NavType<Any?>
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> KSerializer<T>.generateHashCode(): Int {
+    var hash = descriptor.serialName.hashCode()
+    for (i in 0 until descriptor.elementsCount) {
+        hash = 31 * hash + descriptor.getElementName(i).hashCode()
+    }
+    return hash
+}
+
 @JvmName("forEachIndexedKType")
 private fun <T> KSerializer<T>.forEachIndexed(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
