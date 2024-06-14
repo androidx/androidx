@@ -86,7 +86,8 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
  *   take priority over native NavTypes. This means you can override native NavTypes such as
  *   [NavType.IntType] with your own implementation of NavType<Int>.
  */
-internal fun <T> KSerializer<T>.generateNavArguments(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> KSerializer<T>.generateNavArguments(
     typeMap: Map<KType, NavType<*>> = emptyMap()
 ): List<NamedNavArgument> {
     assertNotAbstractClass {
@@ -194,7 +195,7 @@ private fun <T> KSerializer<T>.forEachIndexed(
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
         val navType = typeMap[argName]
-        checkNotNull(navType) { "MISSING NAV TYPE" }
+        checkNotNull(navType) { "Cannot locate NavType for argument [$argName]" }
         operation(i, argName, navType)
     }
 }

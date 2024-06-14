@@ -45,6 +45,15 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinTestJunit)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinTestJunit)
+    testImplementation(libs.robolectric)
 }
 
 androidx {
