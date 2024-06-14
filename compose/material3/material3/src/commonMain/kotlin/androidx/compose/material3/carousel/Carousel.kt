@@ -464,10 +464,25 @@ internal fun Modifier.carouselItem(
             }
 
         val placeable = measurable.measure(itemConstraints)
+        // We always want to make the current item be the one at the front
+        val itemZIndex =
+            if (index == state.pagerState.currentPage) {
+                1f
+            } else {
+                if (index == 0) {
+                    0f
+                } else {
+                    // Other items should go in reverse placement order, that is, the ones with the
+                    // higher indices should behind the ones with lower indices.
+                    1f / index.toFloat()
+                }
+            }
+
         layout(placeable.width, placeable.height) {
             placeable.placeWithLayer(
                 0,
                 0,
+                zIndex = itemZIndex,
                 layerBlock = {
                     val scrollOffset = calculateCurrentScrollOffset(state, strategyResult)
                     val maxScrollOffset = calculateMaxScrollOffset(state, strategyResult)

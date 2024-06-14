@@ -16,6 +16,9 @@
 
 package androidx.compose.material3.carousel
 
+import android.graphics.Rect
+import android.os.Build
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -34,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -42,6 +46,7 @@ import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -195,6 +200,34 @@ class CarouselTest {
             val expectedMaxScrollOffset = (186f * 10) + (8f * 9) - 380f
 
             assertThat(calculateMaxScrollOffset(state, strategy)).isEqualTo(expectedMaxScrollOffset)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun carousel_semanticsBoundsAreReportedCorrectly() {
+        lateinit var androidView: View
+
+        createCarousel(modifier = Modifier.width(300.dp).height(300.dp)) {
+            androidView = LocalView.current
+            Item(index = it)
+        }
+
+        // Nodes that are out of place
+        val item1 = rule.onNodeWithTag("1").fetchSemanticsNode()
+        val item2 = rule.onNodeWithTag("2").fetchSemanticsNode()
+
+        // verify that the a11y sees the correct semantics node size
+        rule.runOnUiThread {
+            val item1NodeInfo =
+                androidView.accessibilityNodeProvider.createAccessibilityNodeInfo(item1.id)
+            val item2NodeInfo =
+                androidView.accessibilityNodeProvider.createAccessibilityNodeInfo(item2.id)
+            val bounds = Rect(-1, -1, -1, -1)
+            item1NodeInfo?.getBoundsInScreen(bounds)
+            assertThat(bounds.width().toFloat()).isWithin(1f).of(item1.size.width.toFloat())
+            item2NodeInfo?.getBoundsInScreen(bounds)
+            assertThat(bounds.width().toFloat()).isWithin(1f).of(item2.size.width.toFloat())
         }
     }
 
