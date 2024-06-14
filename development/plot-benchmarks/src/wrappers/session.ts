@@ -17,10 +17,10 @@ export type IndexedWrapper = Indexed<BenchmarkWrapper>;
  */
 export class Session {
   // className -> BenchmarkWrapper[]
-  public classGroups: Record<string, IndexedWrapper[]>;
+  public classGroups: Record<string, IndexedWrapper[]> = {};
   // BenchmarkWrapper[]
-  public benchmarks: IndexedWrapper[];
-  public fileNames: Set<string>;
+  public benchmarks: IndexedWrapper[] = [];
+  public fileNames: Set<string> = new Set();
 
   constructor(public files: FileMetadata[]) {
     this.initialize();

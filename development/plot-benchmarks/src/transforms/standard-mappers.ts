@@ -232,5 +232,8 @@ export function buildMapper(buckets: number): Mapper<number> {
 }
 
 export function isSampled(label: string | null | undefined): boolean {
-  return label && label.indexOf(SAMPLED_SUFFIX) >= 0;
+  if (label) {
+    return label.indexOf(SAMPLED_SUFFIX) >= 0;
+  }
+  return false;
 }
