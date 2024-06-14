@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.ModifierNodeElement
@@ -107,7 +106,7 @@ fun Modifier.rotaryScrollable(
             reverseDirection = reverseDirection,
         )
         .focusRequester(focusRequester)
-        .focusTarget()
+        .focusTargetWithSemantics()
 
 /**
  * An interface for handling scroll events. Has implementations for handling scroll with/without
