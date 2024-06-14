@@ -127,13 +127,12 @@ class AndroidViewCompatTest {
             Align {
                 Layout(
                     modifier = Modifier.testTag("content"),
-                    content =
-                        @Composable {
-                            AndroidView(::ColoredSquareView) {
-                                it.size = squareSize.value
-                                it.ref = squareRef
-                            }
+                    content = {
+                        AndroidView(::ColoredSquareView) {
+                            it.size = squareSize.value
+                            it.ref = squareRef
                         }
+                    }
                 ) { measurables, constraints ->
                     assertEquals(1, measurables.size)
                     val placeable =

@@ -65,10 +65,9 @@ private fun HorizontalTailFollowingTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        content =
-            @Composable {
-                BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
-            },
+        content = {
+            BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
+        },
         modifier = modifier
     ) { measurable, constraints ->
         val p =
@@ -96,10 +95,9 @@ private fun VerticalTailFollowintTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        content =
-            @Composable {
-                BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
-            },
+        content = {
+            BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
+        },
         modifier = modifier
     ) { measurable, constraints ->
         val p =

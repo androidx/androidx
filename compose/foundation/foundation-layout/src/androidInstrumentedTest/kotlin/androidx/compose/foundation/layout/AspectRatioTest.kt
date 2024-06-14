@@ -125,7 +125,7 @@ class AspectRatioTest : LayoutTest() {
         val position = Ref<Offset>()
         show {
             Layout(
-                @Composable {
+                content = {
                     Container(
                         Modifier.aspectRatio(aspectRatio, matchHeightConstraintsFirst)
                             .then(Modifier.saveLayoutInfo(size, position, positionedLatch))
