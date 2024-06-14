@@ -23,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.core"
-        minSdkVersion 21
         versionCode 1
         multiDexEnabled true
 

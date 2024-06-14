@@ -34,9 +34,6 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
 }
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
     namespace "androidx.emoji2.emojipicker.samples"
 }
 

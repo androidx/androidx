@@ -20,9 +20,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
     namespace "androidx.appcompat.demo.receivecontent"
 }
 

@@ -92,7 +92,6 @@ android {
         aidl = true
     }
     defaultConfig {
-        minSdkVersion 21
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
