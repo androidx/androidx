@@ -30,6 +30,7 @@ import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
@@ -85,6 +86,10 @@ private constructor(
     /** Set of all layout ids in [layoutConfig]. None of them can be re-used. */
     private val existingLayoutIds: MutableSet<Int> = mutableSetOf(),
 ) {
+
+    @VisibleForTesting
+    internal val dataStoreFile = context.dataStoreFile(layoutDatastoreKey(appWidgetId))
+
     internal companion object {
 
         /** Creates a [LayoutConfiguration] retrieving known layouts from file, if they exist. */
@@ -122,7 +127,7 @@ private constructor(
         }
 
         /** Create a new, empty, [LayoutConfiguration]. */
-        internal fun create(context: Context, appWidgetId: Int) =
+        internal fun create(context: Context, appWidgetId: Int): LayoutConfiguration =
             LayoutConfiguration(
                 context,
                 layoutConfig = mutableMapOf(),
@@ -137,7 +142,7 @@ private constructor(
             appWidgetId: Int,
             nextIndex: Int,
             existingLayoutIds: Collection<Int> = emptyList()
-        ) =
+        ): LayoutConfiguration =
             LayoutConfiguration(
                 context,
                 appWidgetId = appWidgetId,
@@ -145,6 +150,29 @@ private constructor(
                 nextIndex = nextIndex,
                 existingLayoutIds = existingLayoutIds.toMutableSet(),
             )
+
+        /** @return the file after delete() has been called on it. This is for testing. */
+        fun delete(context: Context, id: GlanceId): Boolean {
+
+            if (id is AppWidgetId && id.isRealId) {
+                val key = layoutDatastoreKey(id.appWidgetId)
+                val file = context.dataStoreFile(key)
+                try {
+                    return file.delete()
+                } catch (e: Exception) {
+                    // This is a minor error, File.delete() shouldn't throw an exception and these
+                    // files
+                    // are <1kb.
+                    Log.d(
+                        GlanceAppWidgetTag,
+                        "Could not delete LayoutConfiguration dataStoreFile when cleaning up" +
+                            "old appwidget id $id",
+                        e
+                    )
+                }
+            }
+            return false
+        }
     }
 
     /**
@@ -273,7 +301,7 @@ private val GlanceModifier.widthModifier: Dimension
 private val GlanceModifier.heightModifier: Dimension
     get() = findModifier<HeightModifier>()?.height ?: Dimension.Wrap
 
-private fun layoutDatastoreKey(appWidgetId: Int) = "appWidgetLayout-$appWidgetId"
+private fun layoutDatastoreKey(appWidgetId: Int): String = "appWidgetLayout-$appWidgetId"
 
 private object LayoutStateDefinition : GlanceStateDefinition<LayoutProto.LayoutConfig> {
     override fun getLocation(context: Context, fileKey: String): File =
