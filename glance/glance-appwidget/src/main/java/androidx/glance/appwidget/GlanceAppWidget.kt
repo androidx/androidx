@@ -121,6 +121,7 @@ abstract class GlanceAppWidget(
             stateDefinition?.let {
                 GlanceState.deleteStore(context, it, createUniqueRemoteUiName(appWidgetId))
             }
+            LayoutConfiguration.delete(context, glanceId)
         }
     }
 
