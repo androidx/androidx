@@ -16,7 +16,10 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.animation.core.Transition
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
@@ -25,7 +28,48 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Scope for the panes of pane scaffolds. */
+/**
+ * Extended scope for the panes of pane scaffolds. All pane scaffolds will implement this interface
+ * to provide necessary info for panes to correctly render their content, motion, etc.
+ *
+ * @param Role The type of roles that denotes panes in the associated pane scaffold.
+ * @param ScaffoldValue The type of scaffold values that denotes the [PaneAdaptedValue]s in the
+ *   associated pane scaffold.
+ * @see ThreePaneScaffoldPaneScope
+ * @see PaneScaffoldScope
+ * @see PaneScaffoldMotionScope
+ * @see PaneScaffoldTransitionScope
+ * @see PaneScaffoldPaneScope
+ * @see LookaheadScope
+ */
+@ExperimentalMaterial3AdaptiveApi
+sealed interface ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue : PaneScaffoldValue<Role>> :
+    ExtendedPaneScaffoldScope<Role, ScaffoldValue>, PaneScaffoldPaneScope<Role>
+
+/**
+ * Extended scope for pane scaffolds. All pane scaffolds will implement this interface to provide
+ * necessary info for its sub-composables to correctly render their content, motion, etc.
+ *
+ * @param Role The type of roles that denotes panes in the associated pane scaffold.
+ * @param ScaffoldValue The type of scaffold values that denotes the [PaneAdaptedValue]s in the
+ *   associated pane scaffold.
+ * @see ThreePaneScaffoldScope
+ * @see PaneScaffoldScope
+ * @see PaneScaffoldMotionScope
+ * @see PaneScaffoldTransitionScope
+ * @see LookaheadScope
+ */
+@ExperimentalMaterial3AdaptiveApi
+sealed interface ExtendedPaneScaffoldScope<Role, ScaffoldValue : PaneScaffoldValue<Role>> :
+    PaneScaffoldScope,
+    PaneScaffoldMotionScope,
+    PaneScaffoldTransitionScope<Role, ScaffoldValue>,
+    LookaheadScope
+
+/**
+ * The base scope of pane scaffolds, which provides scoped functions that supported by pane
+ * scaffolds.
+ */
 sealed interface PaneScaffoldScope {
     /**
      * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
@@ -37,6 +81,32 @@ sealed interface PaneScaffoldScope {
      * @see PaneScaffoldDirective.defaultPanePreferredWidth
      */
     fun Modifier.preferredWidth(width: Dp): Modifier
+}
+
+/**
+ * The transition scope of pane scaffold implementations, which provides the current transition info
+ * of the associated pane scaffold.
+ */
+@ExperimentalMaterial3AdaptiveApi
+sealed interface PaneScaffoldTransitionScope<Role, ScaffoldValue : PaneScaffoldValue<Role>> {
+    /** The current scaffold state transition between [PaneScaffoldValue]s. */
+    val scaffoldStateTransition: Transition<ScaffoldValue>
+
+    /** The current motion progress. */
+    val motionProgress: Float
+}
+
+/**
+ * The pane scope of the current pane under the scope, which provides the pane relevant info like
+ * its role and [PaneMotion].
+ */
+@ExperimentalMaterial3AdaptiveApi
+sealed interface PaneScaffoldPaneScope<Role> {
+    /** The role of the current pane in the scope. */
+    val paneRole: Role
+
+    /** The specified pane motion of the current pane in the scope. */
+    val paneMotion: PaneMotion
 }
 
 internal abstract class PaneScaffoldScopeImpl : PaneScaffoldScope {

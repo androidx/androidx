@@ -22,6 +22,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold as Base
 import androidx.compose.material3.adaptive.layout.PaneExpansionDragHandle
 import androidx.compose.material3.adaptive.layout.PaneExpansionState
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold as BaseSupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.runtime.Composable
@@ -56,10 +57,10 @@ import androidx.compose.ui.Modifier
 @Composable
 fun NavigableListDetailPaneScaffold(
     navigator: ThreePaneScaffoldNavigator<Any>,
-    listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
+    detailPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
@@ -109,10 +110,10 @@ fun NavigableListDetailPaneScaffold(
 @Composable
 fun NavigableSupportingPaneScaffold(
     navigator: ThreePaneScaffoldNavigator<Any>,
-    mainPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    mainPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
+    supportingPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,

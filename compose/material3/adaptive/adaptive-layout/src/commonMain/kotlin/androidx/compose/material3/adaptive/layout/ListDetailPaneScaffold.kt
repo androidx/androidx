@@ -60,10 +60,10 @@ import androidx.compose.ui.Modifier
 fun ListDetailPaneScaffold(
     directive: PaneScaffoldDirective,
     value: ThreePaneScaffoldValue,
-    listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
+    detailPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(value),
@@ -108,10 +108,10 @@ fun ListDetailPaneScaffold(
 fun ListDetailPaneScaffold(
     directive: PaneScaffoldDirective,
     scaffoldState: ThreePaneScaffoldState,
-    listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
+    detailPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),

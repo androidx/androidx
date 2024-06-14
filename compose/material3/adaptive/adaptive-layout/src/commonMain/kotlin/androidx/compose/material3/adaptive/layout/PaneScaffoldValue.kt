@@ -18,7 +18,13 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 
+/**
+ * Interface to provide adapted value of panes.
+ *
+ * @see ThreePaneScaffoldValue
+ */
 @ExperimentalMaterial3AdaptiveApi
-internal interface PaneScaffoldValue<T> {
+sealed interface PaneScaffoldValue<T> {
+    /** Returns the [PaneAdaptedValue] of the given [role] of a pane. */
     operator fun get(role: T): PaneAdaptedValue
 }
