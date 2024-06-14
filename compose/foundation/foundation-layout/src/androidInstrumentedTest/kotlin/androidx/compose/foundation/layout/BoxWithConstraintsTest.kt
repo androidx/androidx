@@ -612,18 +612,17 @@ class BoxWithConstraintsTest : LayoutTest() {
             val minHeightConstraint = 9.dp
             val maxHeightConstraint = 12.dp
             Layout(
-                content =
-                    @Composable {
-                        BoxWithConstraints {
-                            with(LocalDensity.current) {
-                                assertEquals(minWidthConstraint.roundToPx(), minWidth.roundToPx())
-                                assertEquals(maxWidthConstraint.roundToPx(), maxWidth.roundToPx())
-                                assertEquals(minHeightConstraint.roundToPx(), minHeight.roundToPx())
-                                assertEquals(maxHeightConstraint.roundToPx(), maxHeight.roundToPx())
-                            }
-                            latch.countDown()
+                content = {
+                    BoxWithConstraints {
+                        with(LocalDensity.current) {
+                            assertEquals(minWidthConstraint.roundToPx(), minWidth.roundToPx())
+                            assertEquals(maxWidthConstraint.roundToPx(), maxWidth.roundToPx())
+                            assertEquals(minHeightConstraint.roundToPx(), minHeight.roundToPx())
+                            assertEquals(maxHeightConstraint.roundToPx(), maxHeight.roundToPx())
                         }
+                        latch.countDown()
                     }
+                }
             ) { m, _ ->
                 layout(0, 0) {
                     m.first()
