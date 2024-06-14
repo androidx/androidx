@@ -21,13 +21,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
-import androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat
+import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import kotlinx.coroutines.runBlocking
 
@@ -68,22 +69,34 @@ abstract class BaseFragment : Fragment() {
     }
 
     /**
-     * Unloads all SDKs, resulting in sandbox death. This method registers a death callback to
-     * ensure that the app is not also killed.
-     */
-    fun unloadAllSdks() {
-        sdkSandboxManager.addSdkSandboxProcessDeathCallback(Runnable::run, DeathCallbackImpl())
-        sdkSandboxManager.unloadSdk(SDK_NAME)
-        sdkSandboxManager.unloadSdk(MEDIATEE_SDK_NAME)
-    }
-
-    /**
      * Called when the app's drawer layout state changes. When called, change the Z-order of any
      * [SandboxedSdkView] owned by the fragment to ensure that the remote UI is not drawn over the
      * drawer. If the drawer is open, move all remote views to Z-below, otherwise move them to
      * Z-above.
      */
+    // TODO(b/343436839) : Handle this automatically
     abstract fun handleDrawerStateChange(isDrawerOpen: Boolean)
+
+    /**
+     * Called when the @AdType or @MediationOption of any [SandboxedSdkView] inside the fragment is
+     * changed using the toggle switches in the drawer.
+     *
+     * Set the value of [currentAdType] and [currentMediationOption] inside the method using the
+     * parameters passed to it, then call [loadBannerAd] method using the parameters along with the
+     * [SandboxedSdkView] for which the new Ad needs to be loaded.
+     */
+    // TODO(b/343436839) : Handle this automatically
+    abstract fun handleLoadAdFromDrawer(adType: Int, mediationOption: Int)
+
+    fun loadBannerAd(
+        @AdType adType: Int,
+        @MediationOption mediationOption: Int,
+        sandboxedSdkView: SandboxedSdkView,
+        waitInsideOnDraw: Boolean = false
+    ) {
+        val sdkBundle = sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw)
+        sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
+    }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
         SandboxedSdkUiSessionStateChangedListener {
@@ -104,18 +117,12 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    private inner class DeathCallbackImpl : SdkSandboxProcessDeathCallbackCompat {
-        override fun onSdkSandboxDied() {
-            activity.runOnUiThread {
-                Toast.makeText(activity, "Sandbox died", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
     companion object {
         private const val SDK_NAME = "androidx.privacysandbox.ui.integration.testsdkprovider"
         private const val MEDIATEE_SDK_NAME =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
         const val TAG = "TestSandboxClient"
+        @AdType var currentAdType = AdType.NON_WEBVIEW
+        @MediationOption var currentMediationOption = MediationOption.NON_MEDIATED
     }
 }

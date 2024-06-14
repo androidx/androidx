@@ -17,25 +17,33 @@
 package androidx.privacysandbox.ui.integration.testapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
-import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class PoolingContainerFragment : BaseFragment() {
     private lateinit var inflatedView: View
-    private lateinit var sdkApi: ISdkApi
     private lateinit var recyclerView: RecyclerView
 
     override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
         (recyclerView.adapter as CustomAdapter).handleDrawerStateChange(isDrawerOpen)
+    }
+
+    override fun handleLoadAdFromDrawer(
+        @AdType adType: Int,
+        @MediationOption mediationOption: Int
+    ) {
+        currentAdType = adType
+        currentMediationOption = mediationOption
+        val recyclerViewAdapter = CustomAdapter(adType, mediationOption, zOrder = false)
+        recyclerView.adapter = recyclerViewAdapter
     }
 
     override fun onCreateView(
@@ -45,35 +53,33 @@ class PoolingContainerFragment : BaseFragment() {
     ): View {
         inflatedView = inflater.inflate(R.layout.fragment_poolingcontainer, container, false)
         recyclerView = inflatedView.findViewById(R.id.recycler_view)
-        sdkApi = getSdkApi()
         setRecyclerViewAdapter()
         return inflatedView
     }
 
-    fun setRecyclerViewAdapter() {
+    private fun setRecyclerViewAdapter() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.adapter = CustomAdapter(sdkApi)
+        recyclerView.adapter = CustomAdapter(currentAdType, currentMediationOption)
     }
 
-    class CustomAdapter(private val sdkApi: ISdkApi) :
-        RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+    private inner class CustomAdapter(
+        @AdType val adType: Int,
+        @MediationOption val mediationOption: Int,
+        zOrder: Boolean = true
+    ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
         private val sandboxedSdkViewSet = mutableSetOf<SandboxedSdkView>()
         private val childCount = 3
+        private var zOrderOnTop = zOrder
 
         fun handleDrawerStateChange(isDrawerOpen: Boolean) {
-            for (sandboxedSdkView in sandboxedSdkViewSet) {
-                sandboxedSdkView.orderProviderUiAboveClientUi(!isDrawerOpen)
-            }
+            zOrderOnTop = !isDrawerOpen
+            sandboxedSdkViewSet.forEach { view -> view.orderProviderUiAboveClientUi(!isDrawerOpen) }
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val sandboxedSdkView: SandboxedSdkView
-
-            init {
-                sandboxedSdkView = view.findViewById(R.id.recyclerview_ad_view)
-            }
+            val sandboxedSdkView: SandboxedSdkView = view.findViewById(R.id.recyclerview_ad_view)
         }
 
         override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -85,16 +91,13 @@ class PoolingContainerFragment : BaseFragment() {
 
         override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
             val childSandboxedSdkView = viewHolder.sandboxedSdkView
+            childSandboxedSdkView.orderProviderUiAboveClientUi(zOrderOnTop)
             if (!sandboxedSdkViewSet.contains(childSandboxedSdkView)) {
-                childSandboxedSdkView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadBannerAd(
-                            AdType.NON_WEBVIEW,
-                            MediationOption.NON_MEDIATED,
-                            /*waitInsideOnDraw=*/ false
-                        )
-                    )
-                )
+                try {
+                    loadBannerAd(adType, mediationOption, childSandboxedSdkView)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Ad not loaded $e")
+                }
                 sandboxedSdkViewSet.add(childSandboxedSdkView)
             }
         }
