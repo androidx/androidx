@@ -5,12 +5,14 @@
 
   const handlerFactory = (item: LegendItem) => {
     return (event: Event) => {
-      // https://www.chartjs.org/docs/latest/samples/legend/html.html
-      chart.setDatasetVisibility(
-        item.datasetIndex,
-        !chart.isDatasetVisible(item.datasetIndex)
-      );
-      chart.update();
+      if (item.datasetIndex !== undefined) {
+        // https://www.chartjs.org/docs/latest/samples/legend/html.html
+        chart.setDatasetVisibility(
+          item.datasetIndex,
+          !chart.isDatasetVisible(item.datasetIndex)
+        );
+        chart.update();
+      }
     };
   };
 </script>
