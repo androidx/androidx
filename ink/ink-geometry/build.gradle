@@ -45,6 +45,7 @@ androidXMultiplatform {
     }
 
     jvmAndroidTest {
+      dependsOn(commonTest)
       dependencies {
         implementation(libs.junit)
         implementation(libs.kotlinTest)

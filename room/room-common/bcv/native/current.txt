@@ -46,7 +46,7 @@ final object androidx.room/RoomMasterTable { // androidx.room/RoomMasterTable|nu
     final fun createInsertQuery(kotlin/String): kotlin/String // androidx.room/RoomMasterTable.createInsertQuery|createInsertQuery(kotlin.String){}[0]
 }
 open annotation class androidx.room/AutoMigration : kotlin/Annotation { // androidx.room/AutoMigration|null[0]
-    constructor <init>(kotlin/Int, kotlin/Int, kotlin.reflect/KClass<*> =...) // androidx.room/AutoMigration.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.reflect.KClass<*>){}[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin.reflect/KClass<*> = ...) // androidx.room/AutoMigration.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.reflect.KClass<*>){}[0]
     final val from // androidx.room/AutoMigration.from|{}from[0]
         final fun <get-from>(): kotlin/Int // androidx.room/AutoMigration.from.<get-from>|<get-from>(){}[0]
     final val spec // androidx.room/AutoMigration.spec|{}spec[0]
@@ -55,7 +55,7 @@ open annotation class androidx.room/AutoMigration : kotlin/Annotation { // andro
         final fun <get-to>(): kotlin/Int // androidx.room/AutoMigration.to.<get-to>|<get-to>(){}[0]
 }
 open annotation class androidx.room/BuiltInTypeConverters : kotlin/Annotation { // androidx.room/BuiltInTypeConverters|null[0]
-    constructor <init>(androidx.room/BuiltInTypeConverters.State =..., androidx.room/BuiltInTypeConverters.State =..., androidx.room/BuiltInTypeConverters.State =...) // androidx.room/BuiltInTypeConverters.<init>|<init>(androidx.room.BuiltInTypeConverters.State;androidx.room.BuiltInTypeConverters.State;androidx.room.BuiltInTypeConverters.State){}[0]
+    constructor <init>(androidx.room/BuiltInTypeConverters.State = ..., androidx.room/BuiltInTypeConverters.State = ..., androidx.room/BuiltInTypeConverters.State = ...) // androidx.room/BuiltInTypeConverters.<init>|<init>(androidx.room.BuiltInTypeConverters.State;androidx.room.BuiltInTypeConverters.State;androidx.room.BuiltInTypeConverters.State){}[0]
     final enum class State : kotlin/Enum<androidx.room/BuiltInTypeConverters.State> { // androidx.room/BuiltInTypeConverters.State|null[0]
         enum entry DISABLED // androidx.room/BuiltInTypeConverters.State.DISABLED|null[0]
         enum entry ENABLED // androidx.room/BuiltInTypeConverters.State.ENABLED|null[0]
@@ -71,7 +71,7 @@ open annotation class androidx.room/BuiltInTypeConverters : kotlin/Annotation { 
         final fun <get-uuid>(): androidx.room/BuiltInTypeConverters.State // androidx.room/BuiltInTypeConverters.uuid.<get-uuid>|<get-uuid>(){}[0]
 }
 open annotation class androidx.room/ColumnInfo : kotlin/Annotation { // androidx.room/ColumnInfo|null[0]
-    constructor <init>(kotlin/String =..., kotlin/Int =..., kotlin/Boolean =..., kotlin/Int =..., kotlin/String =...) // androidx.room/ColumnInfo.<init>|<init>(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Int;kotlin.String){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Int = ..., kotlin/String = ...) // androidx.room/ColumnInfo.<init>|<init>(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Int;kotlin.String){}[0]
     final object Companion { // androidx.room/ColumnInfo.Companion|null[0]
         final const val BINARY // androidx.room/ColumnInfo.Companion.BINARY|{}BINARY[0]
             final fun <get-BINARY>(): kotlin/Int // androidx.room/ColumnInfo.Companion.BINARY.<get-BINARY>|<get-BINARY>(){}[0]
@@ -126,7 +126,7 @@ open annotation class androidx.room/Dao : kotlin/Annotation { // androidx.room/D
     constructor <init>() // androidx.room/Dao.<init>|<init>(){}[0]
 }
 open annotation class androidx.room/Database : kotlin/Annotation { // androidx.room/Database|null[0]
-    constructor <init>(kotlin/Array<kotlin.reflect/KClass<*>> =..., kotlin/Array<kotlin.reflect/KClass<*>> =..., kotlin/Int, kotlin/Boolean =..., kotlin/Array<androidx.room/AutoMigration> =...) // androidx.room/Database.<init>|<init>(kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Int;kotlin.Boolean;kotlin.Array<androidx.room.AutoMigration>){}[0]
+    constructor <init>(kotlin/Array<kotlin.reflect/KClass<*>> = ..., kotlin/Array<kotlin.reflect/KClass<*>> = ..., kotlin/Int, kotlin/Boolean = ..., kotlin/Array<androidx.room/AutoMigration> = ...) // androidx.room/Database.<init>|<init>(kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Int;kotlin.Boolean;kotlin.Array<androidx.room.AutoMigration>){}[0]
     final val autoMigrations // androidx.room/Database.autoMigrations|{}autoMigrations[0]
         final fun <get-autoMigrations>(): kotlin/Array<androidx.room/AutoMigration> // androidx.room/Database.autoMigrations.<get-autoMigrations>|<get-autoMigrations>(){}[0]
     final val entities // androidx.room/Database.entities|{}entities[0]
@@ -139,14 +139,14 @@ open annotation class androidx.room/Database : kotlin/Annotation { // androidx.r
         final fun <get-views>(): kotlin/Array<kotlin.reflect/KClass<*>> // androidx.room/Database.views.<get-views>|<get-views>(){}[0]
 }
 open annotation class androidx.room/DatabaseView : kotlin/Annotation { // androidx.room/DatabaseView|null[0]
-    constructor <init>(kotlin/String =..., kotlin/String =...) // androidx.room/DatabaseView.<init>|<init>(kotlin.String;kotlin.String){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/String = ...) // androidx.room/DatabaseView.<init>|<init>(kotlin.String;kotlin.String){}[0]
     final val value // androidx.room/DatabaseView.value|{}value[0]
         final fun <get-value>(): kotlin/String // androidx.room/DatabaseView.value.<get-value>|<get-value>(){}[0]
     final val viewName // androidx.room/DatabaseView.viewName|{}viewName[0]
         final fun <get-viewName>(): kotlin/String // androidx.room/DatabaseView.viewName.<get-viewName>|<get-viewName>(){}[0]
 }
 open annotation class androidx.room/Delete : kotlin/Annotation { // androidx.room/Delete|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> =...) // androidx.room/Delete.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ...) // androidx.room/Delete.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
     final val entity // androidx.room/Delete.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room/Delete.entity.<get-entity>|<get-entity>(){}[0]
 }
@@ -163,12 +163,12 @@ open annotation class androidx.room/DeleteTable : kotlin/Annotation { // android
         final fun <get-tableName>(): kotlin/String // androidx.room/DeleteTable.tableName.<get-tableName>|<get-tableName>(){}[1]
 }
 open annotation class androidx.room/Embedded : kotlin/Annotation { // androidx.room/Embedded|null[0]
-    constructor <init>(kotlin/String =...) // androidx.room/Embedded.<init>|<init>(kotlin.String){}[0]
+    constructor <init>(kotlin/String = ...) // androidx.room/Embedded.<init>|<init>(kotlin.String){}[0]
     final val prefix // androidx.room/Embedded.prefix|{}prefix[0]
         final fun <get-prefix>(): kotlin/String // androidx.room/Embedded.prefix.<get-prefix>|<get-prefix>(){}[0]
 }
 open annotation class androidx.room/Entity : kotlin/Annotation { // androidx.room/Entity|null[0]
-    constructor <init>(kotlin/String =..., kotlin/Array<androidx.room/Index> =..., kotlin/Boolean =..., kotlin/Array<kotlin/String> =..., kotlin/Array<androidx.room/ForeignKey> =..., kotlin/Array<kotlin/String> =...) // androidx.room/Entity.<init>|<init>(kotlin.String;kotlin.Array<androidx.room.Index>;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Array<androidx.room.ForeignKey>;kotlin.Array<kotlin.String>){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Array<androidx.room/Index> = ..., kotlin/Boolean = ..., kotlin/Array<kotlin/String> = ..., kotlin/Array<androidx.room/ForeignKey> = ..., kotlin/Array<kotlin/String> = ...) // androidx.room/Entity.<init>|<init>(kotlin.String;kotlin.Array<androidx.room.Index>;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Array<androidx.room.ForeignKey>;kotlin.Array<kotlin.String>){}[0]
     final val foreignKeys // androidx.room/Entity.foreignKeys|{}foreignKeys[0]
         final fun <get-foreignKeys>(): kotlin/Array<androidx.room/ForeignKey> // androidx.room/Entity.foreignKeys.<get-foreignKeys>|<get-foreignKeys>(){}[0]
     final val ignoredColumns // androidx.room/Entity.ignoredColumns|{}ignoredColumns[0]
@@ -183,7 +183,7 @@ open annotation class androidx.room/Entity : kotlin/Annotation { // androidx.roo
         final fun <get-tableName>(): kotlin/String // androidx.room/Entity.tableName.<get-tableName>|<get-tableName>(){}[0]
 }
 open annotation class androidx.room/ForeignKey : kotlin/Annotation { // androidx.room/ForeignKey|null[0]
-    constructor <init>(kotlin.reflect/KClass<*>, kotlin/Array<kotlin/String>, kotlin/Array<kotlin/String>, kotlin/Int =..., kotlin/Int =..., kotlin/Boolean =...) // androidx.room/ForeignKey.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Array<kotlin.String>;kotlin.Array<kotlin.String>;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
+    constructor <init>(kotlin.reflect/KClass<*>, kotlin/Array<kotlin/String>, kotlin/Array<kotlin/String>, kotlin/Int = ..., kotlin/Int = ..., kotlin/Boolean = ...) // androidx.room/ForeignKey.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Array<kotlin.String>;kotlin.Array<kotlin.String>;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
     final object Companion { // androidx.room/ForeignKey.Companion|null[0]
         final const val CASCADE // androidx.room/ForeignKey.Companion.CASCADE|{}CASCADE[0]
             final fun <get-CASCADE>(): kotlin/Int // androidx.room/ForeignKey.Companion.CASCADE.<get-CASCADE>|<get-CASCADE>(){}[0]
@@ -213,14 +213,14 @@ open annotation class androidx.room/ForeignKey : kotlin/Annotation { // androidx
     }
 }
 open annotation class androidx.room/Fts3 : kotlin/Annotation { // androidx.room/Fts3|null[0]
-    constructor <init>(kotlin/String =..., kotlin/Array<kotlin/String> =...) // androidx.room/Fts3.<init>|<init>(kotlin.String;kotlin.Array<kotlin.String>){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Array<kotlin/String> = ...) // androidx.room/Fts3.<init>|<init>(kotlin.String;kotlin.Array<kotlin.String>){}[0]
     final val tokenizer // androidx.room/Fts3.tokenizer|{}tokenizer[0]
         final fun <get-tokenizer>(): kotlin/String // androidx.room/Fts3.tokenizer.<get-tokenizer>|<get-tokenizer>(){}[0]
     final val tokenizerArgs // androidx.room/Fts3.tokenizerArgs|{}tokenizerArgs[0]
         final fun <get-tokenizerArgs>(): kotlin/Array<kotlin/String> // androidx.room/Fts3.tokenizerArgs.<get-tokenizerArgs>|<get-tokenizerArgs>(){}[0]
 }
 open annotation class androidx.room/Fts4 : kotlin/Annotation { // androidx.room/Fts4|null[0]
-    constructor <init>(kotlin/String =..., kotlin/Array<kotlin/String> =..., kotlin.reflect/KClass<*> =..., kotlin/String =..., androidx.room/FtsOptions.MatchInfo =..., kotlin/Array<kotlin/String> =..., kotlin/IntArray =..., androidx.room/FtsOptions.Order =...) // androidx.room/Fts4.<init>|<init>(kotlin.String;kotlin.Array<kotlin.String>;kotlin.reflect.KClass<*>;kotlin.String;androidx.room.FtsOptions.MatchInfo;kotlin.Array<kotlin.String>;kotlin.IntArray;androidx.room.FtsOptions.Order){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Array<kotlin/String> = ..., kotlin.reflect/KClass<*> = ..., kotlin/String = ..., androidx.room/FtsOptions.MatchInfo = ..., kotlin/Array<kotlin/String> = ..., kotlin/IntArray = ..., androidx.room/FtsOptions.Order = ...) // androidx.room/Fts4.<init>|<init>(kotlin.String;kotlin.Array<kotlin.String>;kotlin.reflect.KClass<*>;kotlin.String;androidx.room.FtsOptions.MatchInfo;kotlin.Array<kotlin.String>;kotlin.IntArray;androidx.room.FtsOptions.Order){}[0]
     final val contentEntity // androidx.room/Fts4.contentEntity|{}contentEntity[0]
         final fun <get-contentEntity>(): kotlin.reflect/KClass<*> // androidx.room/Fts4.contentEntity.<get-contentEntity>|<get-contentEntity>(){}[0]
     final val languageId // androidx.room/Fts4.languageId|{}languageId[0]
@@ -242,7 +242,7 @@ open annotation class androidx.room/Ignore : kotlin/Annotation { // androidx.roo
     constructor <init>() // androidx.room/Ignore.<init>|<init>(){}[0]
 }
 open annotation class androidx.room/Index : kotlin/Annotation { // androidx.room/Index|null[0]
-    constructor <init>(kotlin/Array<out kotlin/String>..., kotlin/Array<androidx.room/Index.Order> =..., kotlin/String =..., kotlin/Boolean =...) // androidx.room/Index.<init>|<init>(kotlin.Array<out|kotlin.String>...;kotlin.Array<androidx.room.Index.Order>;kotlin.String;kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Array<out kotlin/String>..., kotlin/Array<androidx.room/Index.Order> = ..., kotlin/String = ..., kotlin/Boolean = ...) // androidx.room/Index.<init>|<init>(kotlin.Array<out|kotlin.String>...;kotlin.Array<androidx.room.Index.Order>;kotlin.String;kotlin.Boolean){}[0]
     final enum class Order : kotlin/Enum<androidx.room/Index.Order> { // androidx.room/Index.Order|null[0]
         enum entry ASC // androidx.room/Index.Order.ASC|null[0]
         enum entry DESC // androidx.room/Index.Order.DESC|null[0]
@@ -259,14 +259,14 @@ open annotation class androidx.room/Index : kotlin/Annotation { // androidx.room
         final fun <get-value>(): kotlin/Array<out kotlin/String> // androidx.room/Index.value.<get-value>|<get-value>(){}[0]
 }
 open annotation class androidx.room/Insert : kotlin/Annotation { // androidx.room/Insert|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> =..., kotlin/Int =...) // androidx.room/Insert.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Int){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/Int = ...) // androidx.room/Insert.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Int){}[0]
     final val entity // androidx.room/Insert.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room/Insert.entity.<get-entity>|<get-entity>(){}[0]
     final val onConflict // androidx.room/Insert.onConflict|{}onConflict[0]
         final fun <get-onConflict>(): kotlin/Int // androidx.room/Insert.onConflict.<get-onConflict>|<get-onConflict>(){}[0]
 }
 open annotation class androidx.room/Junction : kotlin/Annotation { // androidx.room/Junction|null[0]
-    constructor <init>(kotlin.reflect/KClass<*>, kotlin/String =..., kotlin/String =...) // androidx.room/Junction.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String){}[0]
+    constructor <init>(kotlin.reflect/KClass<*>, kotlin/String = ..., kotlin/String = ...) // androidx.room/Junction.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String){}[0]
     final val entityColumn // androidx.room/Junction.entityColumn|{}entityColumn[0]
         final fun <get-entityColumn>(): kotlin/String // androidx.room/Junction.entityColumn.<get-entityColumn>|<get-entityColumn>(){}[0]
     final val parentColumn // androidx.room/Junction.parentColumn|{}parentColumn[0]
@@ -275,14 +275,14 @@ open annotation class androidx.room/Junction : kotlin/Annotation { // androidx.r
         final fun <get-value>(): kotlin.reflect/KClass<*> // androidx.room/Junction.value.<get-value>|<get-value>(){}[0]
 }
 open annotation class androidx.room/MapColumn : kotlin/Annotation { // androidx.room/MapColumn|null[0]
-    constructor <init>(kotlin/String, kotlin/String =...) // androidx.room/MapColumn.<init>|<init>(kotlin.String;kotlin.String){}[0]
+    constructor <init>(kotlin/String, kotlin/String = ...) // androidx.room/MapColumn.<init>|<init>(kotlin.String;kotlin.String){}[0]
     final val columnName // androidx.room/MapColumn.columnName|{}columnName[0]
         final fun <get-columnName>(): kotlin/String // androidx.room/MapColumn.columnName.<get-columnName>|<get-columnName>(){}[0]
     final val tableName // androidx.room/MapColumn.tableName|{}tableName[0]
         final fun <get-tableName>(): kotlin/String // androidx.room/MapColumn.tableName.<get-tableName>|<get-tableName>(){}[0]
 }
 open annotation class androidx.room/MapInfo : kotlin/Annotation { // androidx.room/MapInfo|null[0]
-    constructor <init>(kotlin/String =..., kotlin/String =..., kotlin/String =..., kotlin/String =...) // androidx.room/MapInfo.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;kotlin.String){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/String = ..., kotlin/String = ..., kotlin/String = ...) // androidx.room/MapInfo.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;kotlin.String){}[0]
     final val keyColumn // androidx.room/MapInfo.keyColumn|{}keyColumn[0]
         final fun <get-keyColumn>(): kotlin/String // androidx.room/MapInfo.keyColumn.<get-keyColumn>|<get-keyColumn>(){}[0]
     final val keyTable // androidx.room/MapInfo.keyTable|{}keyTable[0]
@@ -310,7 +310,7 @@ open annotation class androidx.room/OnConflictStrategy : kotlin/Annotation { // 
     }
 }
 open annotation class androidx.room/PrimaryKey : kotlin/Annotation { // androidx.room/PrimaryKey|null[0]
-    constructor <init>(kotlin/Boolean =...) // androidx.room/PrimaryKey.<init>|<init>(kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Boolean = ...) // androidx.room/PrimaryKey.<init>|<init>(kotlin.Boolean){}[0]
     final val autoGenerate // androidx.room/PrimaryKey.autoGenerate|{}autoGenerate[0]
         final fun <get-autoGenerate>(): kotlin/Boolean // androidx.room/PrimaryKey.autoGenerate.<get-autoGenerate>|<get-autoGenerate>(){}[0]
 }
@@ -326,12 +326,12 @@ open annotation class androidx.room/Query : kotlin/Annotation { // androidx.room
         final fun <get-value>(): kotlin/String // androidx.room/Query.value.<get-value>|<get-value>(){}[0]
 }
 open annotation class androidx.room/RawQuery : kotlin/Annotation { // androidx.room/RawQuery|null[0]
-    constructor <init>(kotlin/Array<kotlin.reflect/KClass<*>> =...) // androidx.room/RawQuery.<init>|<init>(kotlin.Array<kotlin.reflect.KClass<*>>){}[0]
+    constructor <init>(kotlin/Array<kotlin.reflect/KClass<*>> = ...) // androidx.room/RawQuery.<init>|<init>(kotlin.Array<kotlin.reflect.KClass<*>>){}[0]
     final val observedEntities // androidx.room/RawQuery.observedEntities|{}observedEntities[0]
         final fun <get-observedEntities>(): kotlin/Array<kotlin.reflect/KClass<*>> // androidx.room/RawQuery.observedEntities.<get-observedEntities>|<get-observedEntities>(){}[0]
 }
 open annotation class androidx.room/Relation : kotlin/Annotation { // androidx.room/Relation|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> =..., kotlin/String, kotlin/String, androidx.room/Junction =..., kotlin/Array<kotlin/String> =...) // androidx.room/Relation.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String;androidx.room.Junction;kotlin.Array<kotlin.String>){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/String, kotlin/String, androidx.room/Junction = ..., kotlin/Array<kotlin/String> = ...) // androidx.room/Relation.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String;androidx.room.Junction;kotlin.Array<kotlin.String>){}[0]
     final val associateBy // androidx.room/Relation.associateBy|{}associateBy[0]
         final fun <get-associateBy>(): androidx.room/Junction // androidx.room/Relation.associateBy.<get-associateBy>|<get-associateBy>(){}[0]
     final val entity // androidx.room/Relation.entity|{}entity[0]
@@ -372,21 +372,21 @@ open annotation class androidx.room/TypeConverter : kotlin/Annotation { // andro
     constructor <init>() // androidx.room/TypeConverter.<init>|<init>(){}[0]
 }
 open annotation class androidx.room/TypeConverters : kotlin/Annotation { // androidx.room/TypeConverters|null[0]
-    constructor <init>(kotlin/Array<out kotlin.reflect/KClass<*>>... =..., androidx.room/BuiltInTypeConverters =...) // androidx.room/TypeConverters.<init>|<init>(kotlin.Array<out|kotlin.reflect.KClass<*>>...;androidx.room.BuiltInTypeConverters){}[0]
+    constructor <init>(kotlin/Array<out kotlin.reflect/KClass<*>>... = ..., androidx.room/BuiltInTypeConverters = ...) // androidx.room/TypeConverters.<init>|<init>(kotlin.Array<out|kotlin.reflect.KClass<*>>...;androidx.room.BuiltInTypeConverters){}[0]
     final val builtInTypeConverters // androidx.room/TypeConverters.builtInTypeConverters|{}builtInTypeConverters[0]
         final fun <get-builtInTypeConverters>(): androidx.room/BuiltInTypeConverters // androidx.room/TypeConverters.builtInTypeConverters.<get-builtInTypeConverters>|<get-builtInTypeConverters>(){}[0]
     final val value // androidx.room/TypeConverters.value|{}value[0]
         final fun <get-value>(): kotlin/Array<out kotlin.reflect/KClass<*>> // androidx.room/TypeConverters.value.<get-value>|<get-value>(){}[0]
 }
 open annotation class androidx.room/Update : kotlin/Annotation { // androidx.room/Update|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> =..., kotlin/Int =...) // androidx.room/Update.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Int){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/Int = ...) // androidx.room/Update.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Int){}[0]
     final val entity // androidx.room/Update.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room/Update.entity.<get-entity>|<get-entity>(){}[0]
     final val onConflict // androidx.room/Update.onConflict|{}onConflict[0]
         final fun <get-onConflict>(): kotlin/Int // androidx.room/Update.onConflict.<get-onConflict>|<get-onConflict>(){}[0]
 }
 open annotation class androidx.room/Upsert : kotlin/Annotation { // androidx.room/Upsert|null[0]
-    constructor <init>(kotlin.reflect/KClass<*> =...) // androidx.room/Upsert.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ...) // androidx.room/Upsert.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
     final val entity // androidx.room/Upsert.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room/Upsert.entity.<get-entity>|<get-entity>(){}[0]
 }

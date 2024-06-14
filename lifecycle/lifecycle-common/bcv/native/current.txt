@@ -28,7 +28,7 @@ abstract class androidx.lifecycle/Lifecycle { // androidx.lifecycle/Lifecycle|nu
             final fun upFrom(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upFrom|upFrom(androidx.lifecycle.Lifecycle.State){}[0]
             final fun upTo(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upTo|upTo(androidx.lifecycle.Lifecycle.State){}[0]
         }
-        final val targetState // androidx.lifecycle/Lifecycle.Event.targetState|<get-targetState>(){}[0]
+        final val targetState // androidx.lifecycle/Lifecycle.Event.targetState|{}targetState[0]
             final fun <get-targetState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.Event.targetState.<get-targetState>|<get-targetState>(){}[0]
     }
     final enum class State : kotlin/Enum<androidx.lifecycle/Lifecycle.State> { // androidx.lifecycle/Lifecycle.State|null[0]

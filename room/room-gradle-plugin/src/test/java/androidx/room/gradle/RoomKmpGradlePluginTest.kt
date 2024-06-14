@@ -69,6 +69,10 @@ class RoomKmpGradlePluginTest {
             |      }
             |    }
             |  }
+            |
+            |  compilerOptions {
+            |    languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9
+            |  }
             |}
             |
             |dependencies {

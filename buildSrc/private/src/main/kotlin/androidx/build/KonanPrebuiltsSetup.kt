@@ -82,8 +82,9 @@ object KonanPrebuiltsSetup {
         val relativeRootPath = konanPrebuiltsFolder.relativeTo(rootBaseDir).path
         val relativeProjectPath = konanPrebuiltsFolder.relativeTo(projectDir).path
         tasks.withType(KotlinNativeCompile::class.java).configureEach {
-            it.kotlinOptions.freeCompilerArgs +=
-                listOf("-Xoverride-konan-properties=dependenciesUrl=file:$relativeRootPath")
+            it.compilerOptions.freeCompilerArgs.add(
+                "-Xoverride-konan-properties=dependenciesUrl=file:$relativeRootPath"
+            )
         }
         tasks.withType(CInteropProcess::class.java).configureEach {
             it.settings.extraOpts +=

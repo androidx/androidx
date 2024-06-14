@@ -147,7 +147,6 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                 debug = false,
                 kind = LinkerOutputKind.DYNAMIC_LIBRARY,
                 outputDsymBundle = "unused",
-                needsProfileLibrary = false,
                 mimallocEnabled = false,
                 sanitizer = null
             )

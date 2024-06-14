@@ -273,6 +273,7 @@ Download file:\.\./\.\./.*
 Download kotlin\-native\-prebuilt\-.*.gz finished\, took .*
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/dependencies/cache.*
+Done\.
 # > Task :commonizeNativeDistribution
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
@@ -312,13 +313,16 @@ objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libaut
 objc\[[0-9]+\]: Class AMSupportURLConnectionDelegate is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+e[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
 objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
 # > Task :privacysandbox:sdkruntime:integration-tests:testsdk-asb:minifyBundleWithR8
+w: New 'wasm' target is Work-in-Progress and is subject to change without notice.*
 WARNING: R[0-9]+: Missing class android\.os\.ProfilingManager \(referenced from: android\.os\.ProfilingManager androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\$[0-9]+\.\$service and [0-9]+ other contexts\)
 Missing class android\.os\.ProfilingResult \(referenced from: java\.lang\.Object androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\.invokeSuspend\(java\.lang\.Object\) and [0-9]+ other context\)
 Missing class android\.os\.ProfilingResult \(referenced from: java\.lang\.Object androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\.invokeSuspend\(java\.lang\.Object\) and [0-9]+ other contexts\)
-New 'wasm' target is Work-in-Progress and is subject to change without notice.
 Yarn packages will be fetched from the offline mirror.*
 # Kotlin executes Yarn with the --ignore-scripts flag: https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/js/yarn/YarnBasics.kt
 # causing Yarn to throw the warning: https://github.com/yarnpkg/yarn/blob/master/src/reporters/lang/en.js#L105
 warning Ignored scripts due to flag.
 # Due to https://github.com/google/ksp/issues/1797
 (.*)\[ksp\] loaded provider\(s\):(.*)
+# https://youtrack.jetbrains.com/issue/KT-69929
+e: The daemon has terminated unexpectedly on startup attempt #1 with error code: 0\. The daemon process output:
+    1\. Kotlin compile daemon is ready

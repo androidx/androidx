@@ -66,6 +66,9 @@ dependencies {
     implementation(project(":stableaidl:stableaidl-gradle-plugin"))
     implementation(project(":binarycompatibilityvalidator:binarycompatibilityvalidator"))
     implementation(project.ext.findGradleKotlinDsl())
+    // Workaround for targeting KotlinTarget.KOTLIN_1_9, but linking agaist kotlin compiler
+    // embeddable 2.0 in buildSrc
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}")
     implementation(libs.kotlinGradlePluginAnnotations)
     implementation(libs.kotlinToolingCore)
     implementation(libs.binaryCompatibilityValidator)

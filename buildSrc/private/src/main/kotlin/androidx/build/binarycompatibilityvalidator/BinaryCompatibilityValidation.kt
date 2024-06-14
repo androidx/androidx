@@ -47,7 +47,6 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
@@ -288,7 +287,7 @@ class BinaryCompatibilityValidation(
         allNativeTargetNames() - supportedNativeTargetNames()
 
     private fun Project.configureKlibCompilation(
-        compilation: KotlinCompilation<KotlinCommonOptions>,
+        compilation: KotlinCompilation<*>,
         target: KlibTarget,
         outputFileDir: Provider<Directory>
     ): TaskProvider<KotlinKlibAbiBuildTask> {

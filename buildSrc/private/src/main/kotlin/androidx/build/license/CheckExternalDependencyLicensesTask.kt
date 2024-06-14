@@ -16,6 +16,8 @@
 package androidx.build.license
 
 import androidx.build.getPrebuiltsRoot
+import androidx.build.getVersionByName
+import androidx.build.kotlinExtensionOrNull
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -38,6 +40,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.named
 import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.buildtools.api.ExperimentalBuildToolsApi
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 /**
  * This task creates a configuration for the project that has all of its external dependencies and
@@ -136,6 +140,14 @@ fun Project.configureExternalDependencyLicenseCheck() {
                                 )
                             }
 
+                            @OptIn(
+                                ExperimentalBuildToolsApi::class,
+                                ExperimentalKotlinGradlePluginApi::class
+                            )
+                            val kotlinVersion =
+                                kotlinExtensionOrNull?.compilerVersion?.get()
+                                    ?: project.getVersionByName("kotlin")
+
                             project.configurations
                                 .flatMap {
                                     it.allDependencies
@@ -144,7 +156,16 @@ fun Project.configureExternalDependencyLicenseCheck() {
                                         .filterNot { it.group?.startsWith("android.arch") == true }
                                         .filterNot { it.group?.startsWith("androidx") == true }
                                 }
-                                .forEach { checkerConfig.dependencies.add(it) }
+                                .forEach { dep ->
+                                    /* workaround for dependency constraint applied in Kotlin Plugin */
+                                    if (
+                                        dep.group == "org.jetbrains.kotlin" &&
+                                            dep.name == "kotlin-build-tools-impl"
+                                    ) {
+                                        dep.version { it.strictly(kotlinVersion) }
+                                    }
+                                    checkerConfig.dependencies.add(dep)
+                                }
                         }
 
                 val localArtifactRepositories = project.findLocalMavenRepositories()

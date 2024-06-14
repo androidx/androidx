@@ -97,6 +97,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
@@ -107,6 +108,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
 import org.gradle.plugin.devel.tasks.ValidatePlugins
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -453,94 +455,109 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         plugin: KotlinBasePluginWrapper,
         androidXMultiplatformExtension: AndroidXMultiplatformExtension
     ) {
-        project.afterEvaluate {
-            val targetsAndroid =
+        val targetsAndroid =
+            project.provider {
                 project.plugins.hasPlugin(LibraryPlugin::class.java) ||
                     project.plugins.hasPlugin(AppPlugin::class.java) ||
                     project.plugins.hasPlugin(TestPlugin::class.java) ||
                     @Suppress("UnstableApiUsage")
                     project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
-            val defaultJavaTargetVersion =
+            }
+        val defaultJavaTargetVersion =
+            project.provider {
                 getDefaultTargetJavaVersion(androidXExtension.type, project.name).toString()
-            if (plugin is KotlinMultiplatformPluginWrapper) {
-                project.extensions.getByType<KotlinMultiplatformExtension>().apply {
-                    targets.withType<KotlinAndroidTarget> {
-                        compilations.configureEach {
-                            it.kotlinOptions.jvmTarget = defaultJavaTargetVersion
+            }
+        val defaultJvmTarget = defaultJavaTargetVersion.map { JvmTarget.fromTarget(it) }
+        if (plugin is KotlinMultiplatformPluginWrapper) {
+            project.extensions.getByType<KotlinMultiplatformExtension>().apply {
+                targets.withType<KotlinAndroidTarget> {
+                    compilations.configureEach {
+                        it.compileTaskProvider.configure { task ->
+                            task.compilerOptions.jvmTarget.set(defaultJvmTarget)
                         }
                     }
-                    targets.withType<KotlinJvmTarget> {
-                        val defaultJavaTargetVersionForNonAndroidTargets =
+                }
+                targets.withType<KotlinJvmTarget> {
+                    val defaultTargetVersionForNonAndroidTargets =
+                        project.provider {
                             getDefaultTargetJavaVersion(
                                     libraryType = androidXExtension.type,
                                     projectName = project.name,
                                     targetName = name
                                 )
                                 .toString()
-                        compilations.configureEach {
-                            it.compileJavaTaskProvider?.configure { javaCompile ->
-                                javaCompile.targetCompatibility =
-                                    defaultJavaTargetVersionForNonAndroidTargets
-                                javaCompile.sourceCompatibility =
-                                    defaultJavaTargetVersionForNonAndroidTargets
-                            }
-                            it.kotlinOptions {
-                                jvmTarget = defaultJavaTargetVersionForNonAndroidTargets
+                        }
+                    val defaultJvmTargetForNonAndroidTargets =
+                        defaultTargetVersionForNonAndroidTargets.map { JvmTarget.fromTarget(it) }
+                    compilations.configureEach { compilation ->
+                        compilation.compileJavaTaskProvider?.configure { javaCompile ->
+                            println(
+                                "target javac ${defaultTargetVersionForNonAndroidTargets.get()}"
+                            )
+                            javaCompile.targetCompatibility =
+                                defaultTargetVersionForNonAndroidTargets.get()
+                            javaCompile.sourceCompatibility =
+                                defaultTargetVersionForNonAndroidTargets.get()
+                        }
+                        compilation.compileTaskProvider.configure { kotlinCompile ->
+                            kotlinCompile.compilerOptions {
+                                jvmTarget.set(defaultJvmTargetForNonAndroidTargets)
                                 // Set jdk-release version for non-Android KMP targets
-                                freeCompilerArgs +=
-                                    listOf(
-                                        "-Xjdk-release=$defaultJavaTargetVersionForNonAndroidTargets",
-                                    )
+                                freeCompilerArgs.add(
+                                    defaultTargetVersionForNonAndroidTargets.map {
+                                        "-Xjdk-release=$it"
+                                    }
+                                )
                             }
                         }
                     }
                 }
-            } else {
-                project.tasks.withType(KotlinJvmCompile::class.java).configureEach { task ->
-                    task.kotlinOptions.jvmTarget = defaultJavaTargetVersion
-                    if (!targetsAndroid) {
-                        // Set jdk-release version for non-Android JVM projects
-                        task.kotlinOptions.freeCompilerArgs +=
+            }
+        } else {
+            project.tasks.withType(KotlinJvmCompile::class.java).configureEach { task ->
+                task.compilerOptions.jvmTarget.set(defaultJvmTarget)
+                task.compilerOptions.freeCompilerArgs.addAll(
+                    targetsAndroid.zip(defaultJavaTargetVersion) { targetsAndroid, version ->
+                        if (targetsAndroid) {
+                            emptyList<String>()
+                        } else {
+                            // Set jdk-release version for non-Android JVM projects
+                            listOf("-Xjdk-release=$version")
+                        }
+                    }
+                )
+            }
+        }
+        project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
+            val kotlinCompilerArgs =
+                project.provider {
+                    val args =
+                        mutableListOf(
+                            "-Xskip-metadata-version-check",
+                        )
+                    // TODO (b/259578592): enable -Xjvm-default=all for camera-camera2-pipe projects
+                    if (!project.name.contains("camera-camera2-pipe")) {
+                        args += "-Xjvm-default=all"
+                    }
+                    if (androidXExtension.type.targetsKotlinConsumersOnly) {
+                        // The Kotlin Compiler adds intrinsic assertions which are only relevant
+                        // when the code is consumed by Java users. Therefore we can turn this off
+                        // when code is being consumed by Kotlin users.
+
+                        // Additional Context:
+                        // https://github.com/JetBrains/kotlin/blob/master/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L239
+                        // b/280633711
+                        args +=
                             listOf(
-                                "-Xjdk-release=$defaultJavaTargetVersion",
+                                "-Xno-param-assertions",
+                                "-Xno-call-assertions",
+                                "-Xno-receiver-assertions"
                             )
                     }
-                }
-            }
-            project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                val kotlinCompilerArgs =
-                    mutableListOf(
-                        "-Xskip-metadata-version-check",
-                    )
-                // TODO (b/259578592): enable -Xjvm-default=all for camera-camera2-pipe projects
-                if (!project.name.contains("camera-camera2-pipe")) {
-                    kotlinCompilerArgs += "-Xjvm-default=all"
-                }
-                if (androidXExtension.type.targetsKotlinConsumersOnly) {
-                    // The Kotlin Compiler adds intrinsic assertions which are only relevant
-                    // when the code is consumed by Java users. Therefore we can turn this off
-                    // when code is being consumed by Kotlin users.
 
-                    // Additional Context:
-                    // https://github.com/JetBrains/kotlin/blob/master/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L239
-                    // b/280633711
-                    kotlinCompilerArgs +=
-                        listOf(
-                            "-Xno-param-assertions",
-                            "-Xno-call-assertions",
-                            "-Xno-receiver-assertions"
-                        )
+                    args
                 }
-                task.kotlinOptions.freeCompilerArgs += kotlinCompilerArgs
-            }
-
-            val kotlinExtension = project.extensions.getByType(KotlinProjectExtension::class.java)
-            kotlinExtension.explicitApi =
-                if (androidXExtension.shouldEnforceKotlinStrictApiMode()) {
-                    ExplicitApiMode.Strict
-                } else {
-                    ExplicitApiMode.Disabled
-                }
+            task.compilerOptions.freeCompilerArgs.addAll(kotlinCompilerArgs)
         }
         if (plugin is KotlinMultiplatformPluginWrapper) {
             KonanPrebuiltsSetup.configureKonanDirectory(project)
@@ -572,6 +589,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     }
                 }
             }
+        }
+
+        project.afterEvaluate {
+            val kotlinExtension = project.kotlinExtensionOrNull
+            kotlinExtension?.explicitApi =
+                if (androidXExtension.shouldEnforceKotlinStrictApiMode()) {
+                    ExplicitApiMode.Strict
+                } else {
+                    ExplicitApiMode.Disabled
+                }
         }
     }
 
@@ -1207,10 +1234,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             kotlinTarget.compilations.configureEach { compilation ->
                 // Configure all KMP targets to allow expect/actual classes that are not stable.
                 // (see https://youtrack.jetbrains.com/issue/KT-61573)
-                compilation.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
-                androidXConfiguration.kotlinApiVersion.let {
-                    compilation.compilerOptions.options.apiVersion.set(it)
-                    compilation.compilerOptions.options.languageVersion.set(it)
+                compilation.compileTaskProvider.configure { task ->
+                    task.compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
+                    androidXConfiguration.kotlinApiVersion.let {
+                        task.compilerOptions.apiVersion.set(it)
+                        task.compilerOptions.languageVersion.set(it)
+                    }
                 }
             }
         }
