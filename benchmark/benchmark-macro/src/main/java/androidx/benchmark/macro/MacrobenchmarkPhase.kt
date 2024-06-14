@@ -18,9 +18,10 @@ package androidx.benchmark.macro
 
 import android.os.Build
 import android.util.Log
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.Profiler
 import androidx.benchmark.inMemoryTrace
-import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
@@ -30,6 +31,8 @@ import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.tracing.trace
 import java.io.File
+import perfetto.protos.AndroidStartupMetric
+import perfetto.protos.TraceMetrics
 
 /** A Profiler being used during a Macro Benchmark Phase. */
 internal interface PhaseProfiler {
@@ -61,11 +64,12 @@ internal data class PhaseResult(
     /** A list of profiler results obtained during a Macrobenchmark Phase. */
     val profilerResults: List<Profiler.ResultFile> = emptyList(),
     /** The list of measurements obtained per-iteration from the Macrobenchmark Phase. */
-    val measurements: List<List<Metric.Measurement>> = emptyList()
+    val measurements: List<List<Metric.Measurement>> = emptyList(),
+    val insights: List<List<AndroidStartupMetric.SlowStartReason>> = emptyList()
 )
 
 /** Run a Macrobenchmark Phase and collect the [PhaseResult]. */
-@ExperimentalPerfettoCaptureApi
+@ExperimentalBenchmarkConfigApi
 internal fun PerfettoTraceProcessor.runPhase(
     uniqueName: String,
     packageName: String,
@@ -75,7 +79,7 @@ internal fun PerfettoTraceProcessor.runPhase(
     scope: MacrobenchmarkScope,
     profiler: PhaseProfiler?,
     metrics: List<Metric>,
-    perfettoConfig: PerfettoConfig?,
+    experimentalConfig: ExperimentalConfig?,
     perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
@@ -85,6 +89,7 @@ internal fun PerfettoTraceProcessor.runPhase(
     val perfettoCollector = PerfettoCaptureWrapper()
     val tracePaths = mutableListOf<String>()
     val measurements = mutableListOf<List<Metric.Measurement>>()
+    val insights = mutableListOf<List<AndroidStartupMetric.SlowStartReason>>()
     val profilerResultFiles = mutableListOf<Profiler.ResultFile>()
     try {
         // Configure metrics in the Phase.
@@ -105,7 +110,7 @@ internal fun PerfettoTraceProcessor.runPhase(
                 perfettoCollector.record(
                     fileLabel = scope.fileLabel,
                     config =
-                        perfettoConfig
+                        experimentalConfig?.perfettoConfig
                             ?: PerfettoConfig.Benchmark(
                                 /**
                                  * Prior to API 24, every package name was joined into a single
@@ -159,10 +164,22 @@ internal fun PerfettoTraceProcessor.runPhase(
             File(tracePath).apply { appendUiState(uiState) }
 
             // Accumulate measurements
-            measurements +=
-                loadTrace(PerfettoTrace(tracePath)) {
-                    // Extracts the metrics using the perfetto trace processor
-                    inMemoryTrace("extract metrics") {
+            loadTrace(PerfettoTrace(tracePath)) {
+                // Extracts the insights using the perfetto trace processor
+                if (experimentalConfig?.startupInsightsConfig?.isEnabled == true) {
+                    inMemoryTrace("extract insights") {
+                        insights +=
+                            TraceMetrics.ADAPTER.decode(
+                                    queryMetricsProtoBinary(listOf("android_startup"))
+                                )
+                                .android_startup
+                                ?.startup
+                                ?.flatMap { it.slow_start_reason_with_details } ?: emptyList()
+                    }
+                }
+                // Extracts the metrics using the perfetto trace processor
+                inMemoryTrace("extract metrics") {
+                    measurements +=
                         metrics
                             // capture list of Measurements
                             .map {
@@ -178,8 +195,8 @@ internal fun PerfettoTraceProcessor.runPhase(
                             }
                             // merge together
                             .reduceOrNull() { sum, element -> sum.merge(element) } ?: emptyList()
-                    }
                 }
+            }
         }
     } finally {
         scope.killProcess()
@@ -187,6 +204,7 @@ internal fun PerfettoTraceProcessor.runPhase(
     return PhaseResult(
         tracePaths = tracePaths,
         profilerResults = profilerResultFiles,
-        measurements = measurements
+        measurements = measurements,
+        insights = insights
     )
 }

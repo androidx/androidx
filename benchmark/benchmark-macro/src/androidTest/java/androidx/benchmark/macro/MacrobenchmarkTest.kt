@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -39,7 +41,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(ExperimentalMacrobenchmarkApi::class)
+@OptIn(ExperimentalMacrobenchmarkApi::class, ExperimentalBenchmarkConfigApi::class)
 class MacrobenchmarkTest {
 
     @Before
@@ -60,7 +62,7 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.Ignore(),
                     iterations = 1,
                     startupMode = null,
-                    perfettoConfig = null,
+                    experimentalConfig = null,
                     setupBlock = {},
                     measureBlock = {}
                 )
@@ -81,7 +83,7 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.Ignore(),
                     iterations = 0, // invalid
                     startupMode = null,
-                    perfettoConfig = null,
+                    experimentalConfig = null,
                     setupBlock = {},
                     measureBlock = {}
                 )
@@ -101,7 +103,7 @@ class MacrobenchmarkTest {
                 compilationMode = CompilationMode.Ignore(),
                 iterations = 1,
                 startupMode = StartupMode.COLD,
-                perfettoConfig = null,
+                experimentalConfig = null,
                 setupBlock = {},
                 measureBlock = {
                     startActivityAndWait(
@@ -142,7 +144,7 @@ class MacrobenchmarkTest {
             compilationMode = CompilationMode.DEFAULT,
             iterations = 2,
             startupMode = startupMode,
-            perfettoConfig = null,
+            experimentalConfig = null,
             setupBlock = {
                 opOrder += Block.Setup
                 setupIterations += iteration
@@ -218,7 +220,7 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.DEFAULT,
                     iterations = 3,
                     startupMode = null,
-                    perfettoConfig = PerfettoConfig.MinimalTest(atraceApps),
+                    experimentalConfig = ExperimentalConfig(PerfettoConfig.MinimalTest(atraceApps)),
                     setupBlock = {},
                     measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } }
                 )
