@@ -24,11 +24,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var currentFragment: BaseFragment
+    private lateinit var triggerSandboxDeathButton: Button
     private lateinit var webViewToggleButton: SwitchMaterial
     private lateinit var contentFromAssetsToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
@@ -59,9 +62,16 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigation_view)
         contentFromAssetsToggleButton = findViewById(R.id.content_from_assets_switch)
         webViewToggleButton = findViewById(R.id.load_webview)
+        triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
         mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
 
+        triggerSandboxDeathButton.setOnClickListener {
+            triggerSandboxDeath()
+            disableAllControls()
+        }
+
         sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
+        sdkSandboxManager.addSdkSandboxProcessDeathCallback(Runnable::run, DeathCallbackImpl())
         Log.i(TAG, "Loading SDK")
         CoroutineScope(Dispatchers.Default).launch {
             try {
@@ -97,6 +107,37 @@ class MainActivity : AppCompatActivity() {
         initializeWebViewToggleSwitch()
         initializeContentFromAssetsToggleButton()
         initializeMediationDropDown()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sdkSandboxManager.unregisterAppOwnedSdkSandboxInterface(MEDIATEE_SDK_NAME)
+    }
+
+    private inner class DeathCallbackImpl : SdkSandboxProcessDeathCallbackCompat {
+        override fun onSdkSandboxDied() {
+            runOnUiThread {
+                Log.i(TAG, "Sandbox died")
+                Toast.makeText(applicationContext, "Sandbox died", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /** Kill the sandbox process */
+    private fun triggerSandboxDeath() {
+        currentFragment.getSdkApi().triggerProcessDeath()
+    }
+
+    private fun disableAllControls() {
+        webViewToggleButton.isEnabled = false
+        contentFromAssetsToggleButton.isEnabled = false
+        mediationDropDownMenu.isEnabled = false
+    }
+
+    private fun enableAllControls() {
+        webViewToggleButton.isEnabled = true
+        contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
+        mediationDropDownMenu.isEnabled = true
     }
 
     private fun initializeWebViewToggleSwitch() {
@@ -226,8 +267,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun switchContentFragment(fragment: BaseFragment, title: CharSequence?): Boolean {
-        webViewToggleButton.isEnabled = true
-        contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
+        enableAllControls()
         drawerLayout.closeDrawers()
         supportFragmentManager
             .beginTransaction()

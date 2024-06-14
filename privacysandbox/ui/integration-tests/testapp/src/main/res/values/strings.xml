@@ -25,5 +25,5 @@
     <string name="mediation_switch">Mediation</string>
     <string name="app_owned_mediatee_switch">AppOwnedMediatee</string>
     <string name="webview_switch">Webview</string>
-    <string name="unload_sdks_button">Unload SDKs</string>
+    <string name="trigger_sandbox_death_button">Trigger Sandbox Death</string>
 </resources>
