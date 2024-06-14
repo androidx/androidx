@@ -16,6 +16,7 @@
 
 package androidx.navigation.serialization
 
+import androidx.annotation.RestrictTo
 import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -28,7 +29,8 @@ import kotlinx.serialization.modules.SerializersModule
 
 /** Encodes KClass of type T into a route filled with arguments */
 @OptIn(ExperimentalSerializationApi::class)
-internal class RouteEncoder<T : Any>(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RouteEncoder<T : Any>(
     private val serializer: KSerializer<T>,
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
