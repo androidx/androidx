@@ -135,9 +135,34 @@ class SemanticsTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
+    fun isContainerProperty_unmergedConfig() {
+        rule.setContent {
+            // Non-clickable Material surfaces use `isContainer` to maintain desired default
+            // behaviour in a non-clickable Surface for now. See aosp/1660323 for more details.
+            // TODO(mnuzen): This behavior should be reverted after b/347038246 is resolved.
+            Surface(Modifier.testTag(TestTag)) {
+                Text("Hello World", modifier = Modifier.padding(8.dp))
+            }
+        }
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("unmerged container property") {
+                    it.unmergedConfig.getOrNull(SemanticsProperties.IsContainer) == true
+                }
+            )
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.IsContainer, true))
+    }
+
+    @Test
     fun isTraversalGroupProperty_unmergedConfig() {
         rule.setContent {
-            Surface(Modifier.testTag(TestTag)) {
+            Surface(Modifier.testTag(TestTag).semantics { isTraversalGroup = true }) {
                 Text("Hello World", modifier = Modifier.padding(8.dp))
             }
         }
@@ -198,8 +223,6 @@ class SemanticsTests {
             }
         }
 
-        // Since `isContainer` has been deprecated, setting that property will actually set
-        // `isTraversalGroup` instead, but `IsContainer` can still be used to retrieve the value
         rule
             .onNodeWithTag(TestTag)
             .assert(
@@ -209,7 +232,7 @@ class SemanticsTests {
             )
         rule
             .onNodeWithTag(TestTag)
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.IsTraversalGroup, true))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.IsContainer, true))
     }
 
     @Test

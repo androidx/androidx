@@ -1305,6 +1305,8 @@ internal fun DateEntryContainer(
             modifier
                 .sizeIn(minWidth = DatePickerModalTokens.ContainerWidth)
                 .semantics {
+                    // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
+                    // pruning API.
                     @Suppress("DEPRECATION")
                     isContainer = true
                 }
@@ -1395,6 +1397,8 @@ private fun SwitchableDateEntryContent(
         targetState = displayMode,
         modifier =
             Modifier.semantics {
+                // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
+                // pruning API.
                 @Suppress("DEPRECATION")
                 isContainer = true
             },
