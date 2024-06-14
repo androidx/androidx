@@ -56,8 +56,6 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.constraintLayout)
 
-    compileOnly(libs.kotlinCompiler)
-
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 
