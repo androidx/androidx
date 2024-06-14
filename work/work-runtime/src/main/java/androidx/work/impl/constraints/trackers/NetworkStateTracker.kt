@@ -22,6 +22,10 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
+import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_METERED
+import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING
+import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -90,6 +94,16 @@ internal val ConnectivityManager.activeNetworkState: NetworkState
         return NetworkState(isConnected, isValidated, isMetered, isNotRoaming)
     } // b/163342798
 
+@get:RequiresApi(28)
+internal val NetworkCapabilities.activeNetworkState: NetworkState
+    get() {
+        val isConnected = hasCapability(NET_CAPABILITY_INTERNET)
+        val isValidated = hasCapability(NET_CAPABILITY_VALIDATED)
+        val isMetered = !hasCapability(NET_CAPABILITY_NOT_METERED) // API 28 only
+        val isNotRoaming = hasCapability(NET_CAPABILITY_NOT_ROAMING) // API 28 only
+        return NetworkState(isConnected, isValidated, isMetered, isNotRoaming)
+    }
+
 internal class NetworkStateTrackerPre24(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<NetworkState>(context, taskExecutor) {
 
@@ -129,7 +143,14 @@ internal class NetworkStateTracker24(context: Context, taskExecutor: TaskExecuto
                 // The Network parameter is unreliable when a VPN app is running - use active
                 // network.
                 Logger.get().debug(TAG, "Network capabilities changed: $capabilities")
-                state = connectivityManager.activeNetworkState
+                state =
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        // Get the active network state from the capabilities itself.
+                        // b/323479909
+                        capabilities.activeNetworkState
+                    } else {
+                        connectivityManager.activeNetworkState
+                    }
             }
 
             override fun onLost(network: Network) {
