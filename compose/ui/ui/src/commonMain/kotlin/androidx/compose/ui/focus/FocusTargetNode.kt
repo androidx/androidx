@@ -76,7 +76,7 @@ internal class FocusTargetNode(
                 field = value
                 // Avoid invalidating if we have not been initialized yet: there is no need to
                 // invalidate since these property changes cannot affect anything.
-                if (isAttached && committedFocusState != null) {
+                if (isAttached && isInitialized()) {
                     // Invalidate focus if needed
                     onObservedReadsChanged()
                 }
@@ -199,7 +199,7 @@ internal class FocusTargetNode(
     }
 
     internal fun invalidateFocus() {
-        if (committedFocusState == null) initializeFocusState()
+        if (!isInitialized()) initializeFocusState()
         when (focusState) {
             // Clear focus from the current FocusTarget.
             // This currently clears focus from the entire hierarchy, but we can change the
@@ -250,10 +250,9 @@ internal class FocusTargetNode(
         override fun equals(other: Any?) = other === this
     }
 
-    private fun initializeFocusState() {
+    internal fun isInitialized(): Boolean = committedFocusState != null
 
-        fun FocusTargetNode.isInitialized(): Boolean = committedFocusState != null
-
+    internal fun initializeFocusState(initialFocusState: FocusStateImpl? = null) {
         fun isInActiveSubTree(): Boolean {
             visitAncestors(Nodes.FocusTarget) {
                 if (!it.isInitialized()) return@visitAncestors
@@ -287,7 +286,9 @@ internal class FocusTargetNode(
         requireTransactionManager().withNewTransaction {
             // Note: hasActiveChild() is expensive since it searches the entire subtree. So we only
             // do this if we are part of the active subtree.
-            focusState = if (isInActiveSubTree() && hasActiveChild()) ActiveParent else Inactive
+            this.focusState =
+                initialFocusState
+                    ?: if (isInActiveSubTree() && hasActiveChild()) ActiveParent else Inactive
         }
     }
 }

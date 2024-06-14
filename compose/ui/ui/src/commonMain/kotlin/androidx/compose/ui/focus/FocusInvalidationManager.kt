@@ -29,7 +29,8 @@ import androidx.compose.ui.util.fastForEach
  */
 internal class FocusInvalidationManager(
     private val onRequestApplyChangesListener: (() -> Unit) -> Unit,
-    private val invalidateOwnerFocusState: () -> Unit
+    private val invalidateOwnerFocusState: () -> Unit,
+    private val rootFocusStateFetcher: () -> FocusState
 ) {
     private val focusTargetNodes = mutableListOf<FocusTargetNode>()
     private val focusEventNodes = mutableListOf<FocusEventModifierNode>()
@@ -65,6 +66,22 @@ internal class FocusInvalidationManager(
     }
 
     private fun invalidateNodes() {
+        if (!rootFocusStateFetcher().hasFocus) {
+            // If root doesn't have focus, skip full invalidation and default to the Inactive state.
+            focusEventNodes.fastForEach { it.onFocusEvent(Inactive) }
+            focusTargetNodes.fastForEach { node ->
+                if (node.isAttached && !node.isInitialized()) {
+                    node.initializeFocusState(Inactive)
+                }
+            }
+            focusTargetNodes.clear()
+            focusEventNodes.clear()
+            focusPropertiesNodes.clear()
+            focusTargetsWithInvalidatedFocusEvents.clear()
+            invalidateOwnerFocusState()
+            return
+        }
+
         // Process all the invalidated FocusProperties nodes.
         focusPropertiesNodes.fastForEach {
             // We don't need to invalidate a focus properties node if it was scheduled for
