@@ -99,6 +99,10 @@ class WindowStateCallbackActivity : AppCompatActivity() {
                 applicationConfigurationView.onWindowStateCallbackInvoked()
             }
 
+            @Deprecated(
+                "Since API level 34 this is never called. Apps targeting API level 34 " +
+                    "and above may provide an empty implementation."
+            )
             override fun onLowMemory() {}
         }
 

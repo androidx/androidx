@@ -21,8 +21,10 @@ plugins {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         minSdkVersion 23
+        targetSdkVersion 35
     }
     buildFeatures {
         viewBinding true
