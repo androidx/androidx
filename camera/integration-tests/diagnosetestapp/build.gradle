@@ -62,8 +62,6 @@ dependencies {
     testImplementation("androidx.test:core:1.4.0")
     testImplementation("junit:junit:4.12")
 
-    compileOnly(libs.kotlinCompiler)
-
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 

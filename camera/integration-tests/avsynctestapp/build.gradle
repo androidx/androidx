@@ -55,8 +55,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
 
-    compileOnly(libs.kotlinCompiler)
-
     // Add camera-testing as 'implementation' dependency to use utils in camera-testing.
     implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies.
