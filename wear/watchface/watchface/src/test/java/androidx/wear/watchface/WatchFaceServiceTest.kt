@@ -3560,6 +3560,43 @@ public class WatchFaceServiceTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    public fun timeline_tapAction() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(leftComplication))
+        val basePendingIntent = mock<PendingIntent>()
+        val timelineOverridePendingIntent = mock<PendingIntent>()
+        val baseComplication =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .setTapAction(basePendingIntent)
+                .build()
+        val timelineOverride =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("B"))
+                .setTapAction(timelineOverridePendingIntent)
+                .build()
+        timelineOverride.timelineStartEpochSecond = 2
+        timelineOverride.timelineEndEpochSecond = Long.MAX_VALUE
+        baseComplication.setTimelineEntryCollection(listOf(timelineOverride))
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, baseComplication))
+        )
+
+        // Tap left complication.
+        tapAt(30, 50)
+
+        // We expect the default intent to have been sent.
+        verify(basePendingIntent).send()
+
+        // Simulate tapping again after 2 seconds.
+        runPostedTasksFor(2000)
+        tapAt(30, 50)
+
+        // We expect the timeline override intent to have been sent.
+        verify(timelineOverridePendingIntent).send()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun complicationsInitialized_with_NoComplicationComplicationData() {
         initEngine(
             WatchFaceType.DIGITAL,
