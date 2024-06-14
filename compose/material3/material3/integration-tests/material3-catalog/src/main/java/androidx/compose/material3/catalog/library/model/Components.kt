@@ -423,6 +423,17 @@ private val Snackbars =
         examples = SnackbarsExamples
     )
 
+private val SplitButtons =
+    Component(
+        id = nextId(),
+        name = "Split Button",
+        description = "Split buttons let user perform additional actions besides the main action",
+        guidelinesUrl = "", // No guidelines yet
+        docsUrl = "", // No docs yet
+        sourceUrl = "$Material3SourceUrl/SplitButton.kt",
+        examples = SplitButtonExamples
+    )
+
 private val Switches =
     Component(
         id = nextId(),
@@ -529,6 +540,7 @@ val Components =
         SegmentedButtons,
         Sliders,
         Snackbars,
+        SplitButtons,
         Switches,
         Tabs,
         TextFields,
