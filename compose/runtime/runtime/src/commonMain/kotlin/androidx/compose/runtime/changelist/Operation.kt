@@ -222,7 +222,14 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
                         // Values are always updated in the composition order (not slot table order)
                         // so there is no need to reorder these.
                         val endRelativeOrder = slotsSize - slotIndex
-                        rememberManager.forgetting(value.wrapped, endRelativeOrder, -1, -1)
+                        slots.withAfterAnchorInfo(value.after) { priority, endRelativeAfter ->
+                            rememberManager.forgetting(
+                                instance = value.wrapped,
+                                endRelativeOrder = endRelativeOrder,
+                                priority = priority,
+                                endRelativeAfter = endRelativeAfter
+                            )
+                        }
                     }
                     is RecomposeScopeImpl -> value.release()
                 }

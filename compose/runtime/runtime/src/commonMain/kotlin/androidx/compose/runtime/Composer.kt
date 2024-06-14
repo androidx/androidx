@@ -2602,6 +2602,20 @@ internal class ComposerImpl(
             }
         }
 
+        val inserting = inserting
+        if (!inserting) {
+            // Detect when slots were not used. This happens when a `remember` was removed at the
+            // end of a group. Due to code generation issues (b/346821372) this may also see
+            // remembers that were removed prior to the children being called so this must be done
+            // before the children are deleted to ensure that the `RememberEventDispatcher` receives
+            // the `leaving()` call in the correct order so the `onForgotten` is dispatched in the
+            // correct order for the values being removed.
+            val remainingSlots = reader.remainingSlots
+            if (remainingSlots > 0) {
+                changeListWriter.trimValues(remainingSlots)
+            }
+        }
+
         // Detect removing nodes at the end. No pending is created in this case we just have more
         // nodes in the previous composition than we expect (i.e. we are not yet at an end)
         val removeIndex = nodeIndex
@@ -2613,7 +2627,6 @@ internal class ComposerImpl(
             invalidations.removeRange(startSlot, reader.currentGroup)
         }
 
-        val inserting = inserting
         if (inserting) {
             if (isNode) {
                 insertFixups.endNodeInsert()
@@ -2635,10 +2648,6 @@ internal class ComposerImpl(
             }
         } else {
             if (isNode) changeListWriter.moveUp()
-            val remainingSlots = reader.remainingSlots
-            if (remainingSlots > 0) {
-                changeListWriter.trimValues(remainingSlots)
-            }
             changeListWriter.endCurrentGroup()
             val parentGroup = reader.parent
             val parentNodeCount = updatedNodeCount(parentGroup)
