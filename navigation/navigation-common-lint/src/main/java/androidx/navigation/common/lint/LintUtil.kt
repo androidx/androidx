@@ -26,6 +26,7 @@ import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 
+/** Catches simple class/interface name reference */
 fun UExpression.isClassReference(): Pair<Boolean, String?> {
     /**
      * True if:
@@ -59,6 +60,7 @@ fun UExpression.isClassReference(): Pair<Boolean, String?> {
             }
                 as? KtClassOrObjectSymbol ?: return false to null
 
-        symbol.classKind.isClass to symbol.name?.asString()
+        (symbol.classKind.isClass || symbol.classKind.name == "INTERFACE") to
+            symbol.name?.asString()
     }
 }
