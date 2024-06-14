@@ -6,6 +6,10 @@ package androidx.lifecycle {
     method public <T extends android.app.Application> T getApplication();
   }
 
+  public final class AndroidViewModel_androidKt {
+    method public static inline android.app.Application getApplication(androidx.lifecycle.AndroidViewModel);
+  }
+
   public interface HasDefaultViewModelProviderFactory {
     method public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();

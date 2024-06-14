@@ -30,3 +30,14 @@ public open class AndroidViewModel(private val application: Application) : ViewM
         return application as T
     }
 }
+
+/**
+ * The underlying [Application] inside [AndroidViewModel]
+ *
+ * One common hierarchy, such as KotlinViewModel <: JavaViewModel <: [AndroidViewModel], exposes
+ * private property `application` incorrectly. It is now fixed in K2 (Kotlin language version 2.0),
+ * but not backward compatible. This `inline` extension will make compilations of both pre- and
+ * post- 2.0 go well.
+ */
+public inline val AndroidViewModel.application: Application
+    get() = getApplication()
