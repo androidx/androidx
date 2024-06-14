@@ -13,17 +13,6 @@ fi
 
 EXIT_VALUE=0
 
-# b/321949384 list existing generated files
-if [ "$OUT_DIR" == "" ]; then
-  OUT_DIR="../../out"
-fi
-if [ "$DIST_DIR" != "" ]; then
-  mkdir -p "$DIST_DIR"
-  echo looking for preexisting generated files at $(date)
-  find "$OUT_DIR" "$PWD/.gradle" "buildSrc/.gradle" "local.properties" -type f 2>/dev/null > "$DIST_DIR/preexisting_files" || true
-  echo done looking for generated files at $(date)
-fi
-
 # Validate translation exports, if present
 if ! busytown/impl/check_translations.sh; then
   EXIT_VALUE=1
