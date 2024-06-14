@@ -155,7 +155,7 @@ fun SharedTransitionScope(content: @Composable SharedTransitionScope.(Modifier) 
                     sharedScope.drawInOverlay(this)
                 }
         )
-        DisposableEffect(Unit) { onDispose { SharedTransitionObserver.clear(sharedScope) } }
+        DisposableEffect(Unit) { onDispose { sharedScope.onDispose() } }
     }
 }
 
@@ -674,6 +674,13 @@ interface SharedTransitionScope : LookaheadScope {
 internal class SharedTransitionScopeImpl
 internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: CoroutineScope) :
     SharedTransitionScope, LookaheadScope by lookaheadScope {
+    companion object {
+        private val SharedTransitionObserver by
+            lazy(LazyThreadSafetyMode.NONE) { SnapshotStateObserver { it() }.also { it.start() } }
+    }
+
+    internal var disposed: Boolean = false
+        private set
 
     override var isTransitionActive: Boolean by mutableStateOf(false)
         private set
@@ -898,11 +905,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
             }
         }
         sharedElements.forEach { _, element -> element.updateMatch() }
-        SharedTransitionObserver.observeReads(
-            this@SharedTransitionScopeImpl,
-            updateTransitionActiveness,
-            observeAnimatingBlock
-        )
+        this@SharedTransitionScopeImpl.observeIsAnimating()
     }
 
     /**
@@ -1059,11 +1062,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         with(sharedElementState.sharedElement) {
             removeState(sharedElementState)
             updateTransitionActiveness.invoke(this@SharedTransitionScopeImpl)
-            SharedTransitionObserver.observeReads(
-                scope,
-                updateTransitionActiveness,
-                observeAnimatingBlock
-            )
+            scope.observeIsAnimating()
             renderers.remove(sharedElementState)
             if (states.isEmpty()) {
                 scope.coroutineScope.launch {
@@ -1079,11 +1078,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         with(sharedElementState.sharedElement) {
             addState(sharedElementState)
             updateTransitionActiveness.invoke(this@SharedTransitionScopeImpl)
-            SharedTransitionObserver.observeReads(
-                scope,
-                updateTransitionActiveness,
-                observeAnimatingBlock
-            )
+            scope.observeIsAnimating()
             val id =
                 renderers.indexOfFirst {
                     (it as? SharedElementInternalState)?.sharedElement ==
@@ -1103,6 +1098,39 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     internal fun onLayerRendererRemoved(renderer: LayerRenderer) {
         renderers.remove(renderer)
+    }
+
+    internal fun onDispose() {
+        SharedTransitionObserver.clear(this)
+        disposed = true
+    }
+
+    // TestOnly
+    internal val observerForTest: SnapshotStateObserver
+        get() = SharedTransitionObserver
+
+    private fun observeIsAnimating() {
+        if (!disposed) {
+            SharedTransitionObserver.observeReads(
+                this,
+                updateTransitionActiveness,
+                observeAnimatingBlock
+            )
+        }
+    }
+
+    internal fun observeReads(
+        scope: SharedElement,
+        onValueChangedForScope: (SharedElement) -> Unit,
+        block: () -> Unit
+    ) {
+        if (!disposed) {
+            SharedTransitionObserver.observeReads(scope, onValueChangedForScope, block)
+        }
+    }
+
+    internal fun clearObservation(scope: Any) {
+        SharedTransitionObserver.clear(scope)
     }
 
     private class ShapeBasedClip(val clipShape: Shape) : OverlayClip {
@@ -1239,9 +1267,6 @@ private val DefaultClipInOverlayDuringTransition: (LayoutDirection, Density) -> 
 private val DefaultBoundsTransform = BoundsTransform { _, _ -> DefaultSpring }
 
 internal const val VisualDebugging = false
-
-internal val SharedTransitionObserver by
-    lazy(LazyThreadSafetyMode.NONE) { SnapshotStateObserver { it() }.also { it.start() } }
 
 /** Caching immutable ScaleToBoundsImpl objects to avoid extra allocation */
 @ExperimentalSharedTransitionApi
