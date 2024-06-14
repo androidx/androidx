@@ -157,3 +157,8 @@ java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
 Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
 # b/306244551
 Generating lint files for.*
+# When we change gradle.properties, we can get this error in incremental builds:
+Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
+Calculating task graph as configuration cache cannot be reused because properties file .*local\.properties has changed\.
+# b/347233852
+e: java.rmi.NoSuchObjectException: no such object in table
