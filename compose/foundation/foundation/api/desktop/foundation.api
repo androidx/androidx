@@ -242,10 +242,10 @@ public final class androidx/compose/foundation/MarqueeAnimationMode$Companion {
 public final class androidx/compose/foundation/MarqueeDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/foundation/MarqueeDefaults;
-	public final fun getDefaultMarqueeIterations ()I
-	public final fun getDefaultMarqueeRepeatDelayMillis ()I
-	public final fun getDefaultMarqueeSpacing ()Landroidx/compose/foundation/MarqueeSpacing;
-	public final fun getDefaultMarqueeVelocity-D9Ej5fM ()F
+	public final fun getIterations ()I
+	public final fun getRepeatDelayMillis ()I
+	public final fun getSpacing ()Landroidx/compose/foundation/MarqueeSpacing;
+	public final fun getVelocity-D9Ej5fM ()F
 }
 
 public abstract interface class androidx/compose/foundation/MarqueeSpacing {
