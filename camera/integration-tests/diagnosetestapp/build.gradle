@@ -23,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.diagnose"
-        minSdkVersion 21
         multiDexEnabled true
     }
 

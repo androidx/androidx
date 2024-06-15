@@ -32,9 +32,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
     buildFeatures {
         viewBinding true
     }

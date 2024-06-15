@@ -33,7 +33,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.extensions"
-        minSdkVersion 21
         versionCode 1
         multiDexEnabled true
     }

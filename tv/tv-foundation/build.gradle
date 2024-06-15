@@ -60,9 +60,6 @@ dependencies {
 
 android {
     namespace "androidx.tv.foundation"
-    defaultConfig {
-        minSdkVersion 21
-    }
 }
 
 androidx {

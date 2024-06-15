@@ -24,10 +24,6 @@ plugins {
 android {
     namespace "androidx.compose.integration.hero.macrobenchmark.target"
 
-    defaultConfig {
-        minSdkVersion 21
-    }
-
     buildTypes {
         release {
             minifyEnabled true

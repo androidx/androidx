@@ -33,7 +33,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.core.splashscreen.samples"
-        minSdkVersion 21
     }
     namespace "androidx.core.splashscreen.sample"
 }

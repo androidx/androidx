@@ -46,8 +46,5 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
     namespace "androidx.compose.integration.demos"
 }
