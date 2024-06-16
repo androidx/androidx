@@ -58,8 +58,6 @@ private class MonotonicClockImpl : MonotonicFrameClock {
     }
 }
 
-actual annotation class CheckResult actual constructor(actual val suggest: String)
-
 @ExperimentalComposeApi
 internal actual class SnapshotContextElementImpl actual constructor(
     private val snapshot: Snapshot

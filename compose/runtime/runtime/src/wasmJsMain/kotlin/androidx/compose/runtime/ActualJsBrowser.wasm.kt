@@ -25,5 +25,3 @@ internal actual object Trace {
     actual fun endSection(token: Any?) {
     }
 }
-
-actual annotation class CheckResult actual constructor(actual val suggest: String)

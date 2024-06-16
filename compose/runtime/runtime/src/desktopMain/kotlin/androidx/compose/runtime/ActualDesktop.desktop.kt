@@ -30,9 +30,6 @@ internal actual object Trace {
     }
 }
 
-// TODO(igotti): do we need actual processing for those?
-actual annotation class CheckResult(actual val suggest: String)
-
 /**
  * Clock with fixed delay between frames (16ms), independent from any display/window.
  *
